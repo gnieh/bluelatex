@@ -1,0 +1,109 @@
+package blue
+
+import sbt._
+import Keys._
+import xerial.sbt.Pack._
+import com.typesafe.sbt.osgi.SbtOsgi._
+
+object BlueBuild extends Build {
+
+  val blueVersion = "0.7-SNAPSHOT"
+
+  lazy val bluelatex = (Project(id = "bluelatex",
+    base = file(".")) settings (
+    resolvers in ThisBuild += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+    resolvers in ThisBuild += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
+    organization in ThisBuild := "org.gnieh",
+    name := "bluelatex",
+    version in ThisBuild := blueVersion,
+    scalaVersion in ThisBuild := "2.10.1",
+    autoCompilerPlugins in ThisBuild := true,
+    compileOptions,
+    libraryDependencies ++= blueDependencies,
+    // fork jvm when running
+    fork in run := true)
+    settings(packSettings: _*)
+    settings(pack: _*)
+  ) aggregate(core, mobwrite)
+
+  lazy val compileOptions = scalacOptions in ThisBuild ++=
+      Seq("-deprecation", "-feature")
+
+  lazy val blueDependencies = Seq(
+    "org.apache.felix" % "org.apache.felix.framework" % "4.2.1" % "runtime"
+  )
+
+  lazy val pack = Seq(packMain := Map(
+    "blue-server-start" -> "gnieh.blue.BlueServer",
+    "blue-server-stop" -> "gnieh.blue.BlueServerStop")
+  )
+
+  lazy val core =
+    (Project(id = "blue-core", base = file("blue-core"))
+      settings (
+        libraryDependencies ++= coreDependencies
+      )
+      settings(osgiSettings: _*)
+      settings(
+        OsgiKeys.bundleActivator := Some("gnieh.blue.impl.BlueActivator"),
+        OsgiKeys.bundleSymbolicName := "org.gnieh.blue.core",
+        OsgiKeys.exportPackage := Seq(
+          "gnieh.blue",
+          "gnieh.blue.util"
+        ),
+        OsgiKeys.privatePackage := Seq(
+          "gnieh.blue.impl"
+        ),
+        OsgiKeys.additionalHeaders := Map(
+          "Bundle-Name" -> "\\BlueLaTeX Server Core",
+          "Require-Capability" -> "org.gnieh.blue.sync"
+        )
+      )
+    )
+
+  lazy val commonDeps = Seq(
+    "com.jsuereth" %% "scala-arm" % "1.3",
+    "org.osgi" % "org.osgi.core" % "4.3.0" % "provided",
+    "org.osgi" % "org.osgi.compendium" % "4.3.0" % "provided"
+  )
+
+  lazy val nonOsgoDeps = Seq(
+  )
+
+  lazy val coreDependencies = commonDeps ++ Seq(
+    "org.gnieh" %% "sohva-client" % "0.3-SNAPSHOT",
+    "org.gnieh" %% "tiscaf" % "0.8-SNAPSHOT",
+    "commons-io" % "commons-io" % "1.4",
+    "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
+    "com.typesafe" % "config" %"1.0.1",
+    "com.typesafe.akka" %% "akka-osgi" % "2.1.4",
+    "org.apache.pdfbox" % "pdfbox" % "1.7.0" exclude("commons-logging", "commons-logging"),
+    "ch.qos.logback" % "logback-classic" % "1.0.10",
+    "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
+    "commons-collections" % "commons-collections" % "3.2.1",
+    "org.eclipse.jgit" % "org.eclipse.jgit" % "2.1.0.201209190230-r",
+    "javax.mail" % "mail" % "1.4.6",
+    "org.fusesource.scalate" %% "scalate-core" % "1.6.1"
+  )
+
+  lazy val mobwrite =
+    (Project(id = "blue-mobwrite",
+      base = file("blue-mobwrite"))
+      settings(osgiSettings: _*)
+      settings (
+        libraryDependencies ++= commonDeps,
+        OsgiKeys.bundleSymbolicName := "org.gnieh.blue.mobwrite",
+        OsgiKeys.bundleActivator := Some("gnieh.blue.mobwrite.impl.MobwriteActivator"),
+        OsgiKeys.exportPackage := Seq(
+          "gnieh.blue.mobwrite"
+        ),
+        OsgiKeys.privatePackage := Seq(
+          "gnieh.blue.mobwrite.impl"
+        ),
+        OsgiKeys.additionalHeaders := Map(
+          "Provide-Capability" -> "org.gnieh.blue.sync"
+        )
+      )
+    ) dependsOn(core)
+
+}
