@@ -16,7 +16,7 @@ object BlueBuild extends Build {
     organization in ThisBuild := "org.gnieh",
     name := "bluelatex",
     version in ThisBuild := blueVersion,
-    scalaVersion in ThisBuild := "2.10.1",
+    scalaVersion in ThisBuild := "2.10.2",
     autoCompilerPlugins in ThisBuild := true,
     compileOptions,
     libraryDependencies ++= blueDependencies,
@@ -24,7 +24,7 @@ object BlueBuild extends Build {
     fork in run := true)
     settings(packSettings: _*)
     settings(pack: _*)
-  ) aggregate(core, mobwrite)
+  ) aggregate(core, http, compile, mobwrite)
 
   lazy val compileOptions = scalacOptions in ThisBuild ++=
       Seq("-deprecation", "-feature")
@@ -71,7 +71,7 @@ object BlueBuild extends Build {
   )
 
   lazy val coreDependencies = commonDeps ++ Seq(
-    "org.gnieh" %% "sohva-client" % "0.3-SNAPSHOT",
+    "org.gnieh" %% "sohva-client" % "0.3",
     "org.gnieh" %% "tiscaf" % "0.8-SNAPSHOT",
     "commons-io" % "commons-io" % "1.4",
     "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
@@ -105,5 +105,39 @@ object BlueBuild extends Build {
         )
       )
     ) dependsOn(core)
+
+  lazy val http =
+    (Project(id = "blue-http",
+      base = file("blue-http"))
+      settings(osgiSettings: _*)
+      settings (
+        libraryDependencies ++= commonDeps,
+        OsgiKeys.bundleSymbolicName := "org.gnieh.blue.http",
+        OsgiKeys.bundleActivator := Some("gnieh.blue.mobwrite.impl.HttpActivator"),
+        OsgiKeys.exportPackage := Seq(
+          "gnieh.blue.http"
+        ),
+        OsgiKeys.privatePackage := Seq(
+          "gnieh.blue.http.impl"
+        )
+      )
+    ) dependsOn(core, mobwrite, compile)
+
+  lazy val compile =
+    (Project(id = "blue-compile",
+      base = file("blue-compile"))
+      settings(osgiSettings: _*)
+      settings (
+        libraryDependencies ++= commonDeps,
+        OsgiKeys.bundleSymbolicName := "org.gnieh.blue.compile",
+        OsgiKeys.bundleActivator := Some("gnieh.blue.mobwrite.impl.CompileActivator"),
+        OsgiKeys.exportPackage := Seq(
+          "gnieh.blue.compile"
+        ),
+        OsgiKeys.privatePackage := Seq(
+          "gnieh.blue.http.compile"
+        )
+      )
+    ) dependsOn(core, mobwrite)
 
 }

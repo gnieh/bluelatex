@@ -34,19 +34,12 @@ import impl._
  */
 class BlueActivator extends ActorSystemActivator {
 
-  private var server: BlueServer = _
-
   def configure(context: BundleContext, system: ActorSystem): Unit = {
 
     // load the \Blue configuration
     val configuration = new BlueConfigurationImpl(ConfigFactory.load)
     // and registers the configuration as a service
     context.registerService(classOf[BlueConfiguration], configuration, null)
-
-    // create and start the server
-    server = new BlueServer(context, configuration)
-    // and start it
-    server.start
 
     // register the actor system as service so that other bundle can use it
     registerService(context, system)
@@ -55,9 +48,6 @@ class BlueActivator extends ActorSystemActivator {
 
   override def stop(context: BundleContext): Unit = {
 
-    // stop the server
-    if(server != null)
-      server.stop
     // stop the actor system, etc...
     super.stop(context)
     // stop the framework

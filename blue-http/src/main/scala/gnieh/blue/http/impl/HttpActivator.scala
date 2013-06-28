@@ -14,23 +14,34 @@
  * limitations under the License.
  */
 package gnieh.blue
+package http
+package impl
 
-import org.osgi.framework.BundleContext
+import org.osgi.framework.{
+  BundleActivator,
+  BundleContext
+}
 
-trait OsgiUtils {
+class HttpActivator extends BundleActivator with OsgiUtils {
 
-  protected[this] def context: BundleContext
+  private var server: BlueServer = _
 
-  def withService[T](clazz: Class[T])(body: T => Unit): Unit = {
-    val ref = context.getServiceReference(clazz)
-    if(ref != null) {
-      val service = context.getService(ref)
-      if(service != null) try {
-        body(service)
-      } finally {
-        context.ungetService(ref)
-      }
+  protected[this] var context: BundleContext = _
+
+  def start(context: BundleContext): Unit = {
+    this.context = context
+
+    withService(classOf[BlueConfiguration]) { configuration =>
+      // create and start the server
+      server = new BlueServer(context, configuration)
+      // and start it
+      server.start
     }
   }
 
+  override def stop(context: BundleContext): Unit = {
+    // stop the server
+    if(server != null)
+      server.stop
+  }
 }

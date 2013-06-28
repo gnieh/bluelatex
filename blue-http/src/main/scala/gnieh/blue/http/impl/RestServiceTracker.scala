@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package gnieh.blue
+package http
 package impl
 
 import tiscaf._
