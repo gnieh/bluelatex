@@ -21,6 +21,7 @@ import org.osgi.framework.{
   BundleActivator,
   BundleContext
 }
+import org.osgi.util.tracker.ServiceTracker
 
 class HttpActivator extends BundleActivator with OsgiUtils {
 
@@ -31,9 +32,9 @@ class HttpActivator extends BundleActivator with OsgiUtils {
   def start(context: BundleContext): Unit = {
     this.context = context
 
-    withService(classOf[BlueConfiguration]) { configuration =>
+    withService(classOf[ConfigurationLoader]) { loader =>
       // create and start the server
-      server = new BlueServer(context, configuration)
+      server = new BlueServer(context, loader.load(context.getBundle.getSymbolicName))
       // and start it
       server.start
     }

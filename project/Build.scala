@@ -24,29 +24,29 @@ object BlueBuild extends Build {
     fork in run := true)
     settings(packSettings: _*)
     settings(pack: _*)
-  ) aggregate(core, http, compile, mobwrite)
+  ) aggregate(common, http, compile, mobwrite)
 
   lazy val compileOptions = scalacOptions in ThisBuild ++=
       Seq("-deprecation", "-feature")
 
   lazy val blueDependencies = Seq(
-    "org.apache.felix" % "org.apache.felix.framework" % "4.2.1" % "runtime"
+    "org.apache.felix" % "org.apache.felix.main" % "4.2.1" % "runtime"
   )
 
-  lazy val pack = Seq(packMain := Map(
+  lazy val pack = Seq(packMain in (Compile, packageBin) := Map(
     "blue-server-start" -> "gnieh.blue.BlueServer",
     "blue-server-stop" -> "gnieh.blue.BlueServerStop")
   )
 
-  lazy val core =
-    (Project(id = "blue-core", base = file("blue-core"))
+  lazy val common =
+    (Project(id = "blue-common", base = file("blue-common"))
       settings (
-        libraryDependencies ++= coreDependencies
+        libraryDependencies ++= commonDependencies
       )
       settings(osgiSettings: _*)
       settings(
         OsgiKeys.bundleActivator := Some("gnieh.blue.impl.BlueActivator"),
-        OsgiKeys.bundleSymbolicName := "org.gnieh.blue.core",
+        OsgiKeys.bundleSymbolicName := "org.gnieh.blue.common",
         OsgiKeys.exportPackage := Seq(
           "gnieh.blue",
           "gnieh.blue.util"
@@ -55,8 +55,7 @@ object BlueBuild extends Build {
           "gnieh.blue.impl"
         ),
         OsgiKeys.additionalHeaders := Map(
-          "Bundle-Name" -> "\\BlueLaTeX Server Core",
-          "Require-Capability" -> "org.gnieh.blue.sync"
+          "Bundle-Name" -> "\\BlueLaTeX Server Core"
         )
       )
     )
@@ -70,18 +69,18 @@ object BlueBuild extends Build {
   lazy val nonOsgoDeps = Seq(
   )
 
-  lazy val coreDependencies = commonDeps ++ Seq(
+  lazy val commonDependencies = commonDeps ++ Seq(
     "org.gnieh" %% "sohva-client" % "0.3",
     "org.gnieh" %% "tiscaf" % "0.8-SNAPSHOT",
     "commons-io" % "commons-io" % "1.4",
     "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
     "com.typesafe" % "config" %"1.0.1",
     "com.typesafe.akka" %% "akka-osgi" % "2.1.4",
-    "org.apache.pdfbox" % "pdfbox" % "1.7.0" exclude("commons-logging", "commons-logging"),
+    "org.apache.pdfbox" % "pdfbox" % "1.8.2" exclude("commons-logging", "commons-logging"),
     "ch.qos.logback" % "logback-classic" % "1.0.10",
     "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
     "commons-collections" % "commons-collections" % "3.2.1",
-    "org.eclipse.jgit" % "org.eclipse.jgit" % "2.1.0.201209190230-r",
+    "org.eclipse.jgit" % "org.eclipse.jgit" % "3.0.0.201306101825-r",
     "javax.mail" % "mail" % "1.4.6",
     "org.fusesource.scalate" %% "scalate-core" % "1.6.1"
   )
@@ -104,7 +103,7 @@ object BlueBuild extends Build {
           "Provide-Capability" -> "org.gnieh.blue.sync"
         )
       )
-    ) dependsOn(core)
+    ) dependsOn(common)
 
   lazy val http =
     (Project(id = "blue-http",
@@ -121,7 +120,7 @@ object BlueBuild extends Build {
           "gnieh.blue.http.impl"
         )
       )
-    ) dependsOn(core, mobwrite, compile)
+    ) dependsOn(common, mobwrite, compile)
 
   lazy val compile =
     (Project(id = "blue-compile",
@@ -138,6 +137,6 @@ object BlueBuild extends Build {
           "gnieh.blue.http.compile"
         )
       )
-    ) dependsOn(core, mobwrite)
+    ) dependsOn(common, mobwrite)
 
 }

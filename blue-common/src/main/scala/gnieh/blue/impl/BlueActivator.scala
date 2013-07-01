@@ -16,8 +16,9 @@
 package gnieh.blue
 package impl
 
+import java.io.File
+
 import org.osgi.framework._
-import org.osgi.util.tracker.ServiceTracker
 
 import akka.actor.ActorSystem
 import akka.osgi.ActorSystemActivator
@@ -27,6 +28,7 @@ import com.typesafe.config._
 import impl._
 
 /** The `BlueActivator` starts the \BlueLaTeX core system:
+ *   - the configuration loader
  *   - the actor system
  *   - the \Blue server
  *
@@ -38,8 +40,10 @@ class BlueActivator extends ActorSystemActivator {
 
     // load the \Blue configuration
     val configuration = new BlueConfigurationImpl(ConfigFactory.load)
-    // and registers the configuration as a service
-    context.registerService(classOf[BlueConfiguration], configuration, null)
+    // the bundle configuration loader server
+    val loader = new ConfigurationLoaderImpl(new File(System.getProperty("blue.configuration.base")))
+    // register it
+    context.registerService(classOf[ConfigurationLoader], loader, null)
 
     // register the actor system as service so that other bundle can use it
     registerService(context, system)

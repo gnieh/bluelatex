@@ -19,7 +19,7 @@ import java.util.Properties
 
 import gnieh.sohva.sync._
 
-import com.typesafe.config.Config
+import com.typesafe.config._
 
 /** The \BlueLaTeX server configuration interface that allows
  *  people to access the server settings (possibly personal settings)
@@ -50,3 +50,4 @@ trait BlueConfiguration {
   val emailConf: Properties
 
 }
+

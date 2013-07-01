@@ -18,6 +18,7 @@ package gnieh.blue
 import org.osgi.framework.BundleContext
 
 import tiscaf.{
+  HApp,
   HLet,
   HReqData,
   HReqType
@@ -34,22 +35,44 @@ import scala.collection.mutable.ListBuffer
  *
  *  @author Lucas Satabin
  */
-trait RestInterface {
+trait RestApplication extends HApp {
 
-  val context: BundleContext
+  private val posts = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
+  private val gets = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
+  private val deletes = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
+
+  final override def resolve(req: HReqData) = {
+    val handlers = synchronized {
+      req.method match {
+        case HReqType.Get => gets
+        case HReqType.PostData | HReqType.PostMulti | HReqType.PostOctets =>
+          posts
+        case HReqType.Delete => deletes
+        case _               => throw new RuntimeException("Unknown request type")
+      }
+    }
+
+    val splitted = req.uriPath.split("/").toList
+
+    // find the first
+    handlers.find(_.isDefinedAt(splitted, req)) match {
+      case Some(handler) =>
+        Some(handler(splitted, req))
+      case _ => None
+    }
+
+  }
 
   def POST(handler: PartialFunction[(List[String], HReqData), HLet]) {
-    context.registerService(classOf[RestHandler], new RestHandler(HReqType.PostData, handler), null)
+    posts += handler
   }
 
   def GET(handler: PartialFunction[(List[String], HReqData), HLet]) {
-    context.registerService(classOf[RestHandler], new RestHandler(HReqType.Get, handler), null)
+    gets += handler
   }
 
   def DELETE(handler: PartialFunction[(List[String], HReqData), HLet]) {
-    context.registerService(classOf[RestHandler], new RestHandler(HReqType.Delete, handler), null)
+    deletes += handler
   }
 
 }
-
-class RestHandler(val verb: HReqType.Value, val handler: PartialFunction[(List[String], HReqData), HLet])

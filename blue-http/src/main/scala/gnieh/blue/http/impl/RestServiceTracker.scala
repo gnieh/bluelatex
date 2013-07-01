@@ -29,62 +29,24 @@ import scala.collection.mutable.Map
  *
  *  @author Lucas Satabin
  */
-class RestServiceTracker(context: BundleContext)
-  extends ServiceTracker[RestHandler, Long](context, classOf[RestHandler], null)
-  with HApp {
+class RestServiceTracker(context: BundleContext, server: BlueServer)
+  extends ServiceTracker[RestApplication, Long](context, classOf[RestApplication], null) {
 
-  private val gets = Map.empty[Long, PartialFunction[(List[String], HReqData), HLet]]
-  private val posts = Map.empty[Long, PartialFunction[(List[String], HReqData), HLet]]
-  private val deletes = Map.empty[Long, PartialFunction[(List[String], HReqData), HLet]]
-
-  private def getHandler = gets.values
-  private def postHandler = gets.values
-  private def deleteHandler = gets.values
-
-  final override def resolve(req: HReqData) = {
-    val handlers = synchronized {
-      req.method match {
-        case HReqType.Get => getHandler
-        case HReqType.PostData | HReqType.PostMulti | HReqType.PostOctets =>
-          postHandler
-        case HReqType.Delete => deleteHandler
-        case _               => throw new RuntimeException("Unknown request type")
-      }
-    }
-
-    val splitted = req.uriPath.split("/").toList
-
-    // find the first
-    handlers.find(_.isDefinedAt(splitted, req)) match {
-      case Some(handler) =>
-        Some(handler(splitted, req))
-      case _ => None
-    }
-
-  }
-
-  override def addingService(ref: ServiceReference[RestHandler]): Long = {
+  override def addingService(ref: ServiceReference[RestApplication]): Long = {
     // get the service instance
     val service = context.getService(ref)
     // get the servive identifier
     val id = ref.getProperty(Constants.SERVICE_ID).asInstanceOf[Long]
     synchronized {
       // register the rest interface with the generated identifier
-      if(service.verb == HReqType.Get)
-        gets(id) = service.handler
-      if(service.verb == HReqType.PostData)
-        posts(id) = service.handler
-      if(service.verb == HReqType.Delete)
-        deletes(id) = service.handler
+      server.appMap(id) = service
     }
     id
   }
 
-  override def removedService(ref: ServiceReference[RestHandler], id: Long): Unit = synchronized {
+  override def removedService(ref: ServiceReference[RestApplication], id: Long): Unit = synchronized {
     // unregister the handlers for the given identifier
-    gets -= id
-    posts -= id
-    deletes -= id
+    server.appMap -= id
   }
 
 }

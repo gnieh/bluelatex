@@ -21,12 +21,21 @@ import tiscaf._
 
 import org.osgi.framework.BundleContext
 
-class BlueServer(context: BundleContext, configuration: BlueConfiguration) extends HServer with Logging {
+import com.typesafe.config._
 
-  protected val ports = Set(configuration.port)
-  protected val apps = List(restApp)
+import scala.collection.mutable.{
+  Map,
+  ListBuffer
+}
 
-  val restApp = new RestServiceTracker(context)
+class BlueServer(context: BundleContext, configuration: Config) extends HServer with Logging {
+
+  protected val ports = Set(configuration.getInt("tiscaf.port"))
+  protected def apps = appMap.values.toSeq
+
+  val appMap = Map[Long, RestApplication]()
+
+  private val tracker = new RestServiceTracker(context, this)
 
   override protected def maxPostDataLength = 100000000
 
@@ -41,12 +50,12 @@ class BlueServer(context: BundleContext, configuration: BlueConfiguration) exten
 
   override protected def onStart {
     // start the application tracker
-    restApp.open
+    tracker.open
   }
 
   override protected def onStop {
     // stop the application tracker
-    restApp.close
+    tracker.close
   }
 
   logger.info("blue server started")
