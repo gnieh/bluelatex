@@ -31,11 +31,12 @@ import scala.collection.mutable.{
 class BlueServer(context: BundleContext, configuration: Config) extends HServer with Logging {
 
   protected val ports = Set(configuration.getInt("http.port"))
-  protected def apps = appMap.values.toSeq
 
-  val appMap = Map[Long, RestApplication]()
+  private val extApp = new ExtensibleApp(configuration)
 
-  private val tracker = new RestServiceTracker(context, this)
+  protected def apps = Seq(extApp)
+
+  private val tracker = new RestServiceTracker(context, extApp)
 
   override protected def maxPostDataLength = 100000000
 

@@ -16,14 +16,12 @@
 package gnieh.blue
 package http
 
-import org.osgi.framework.BundleContext
-
 import tiscaf.{
-  HApp,
   HLet,
-  HReqData,
-  HReqType
+  HReqData
 }
+
+import org.osgi.framework.BundleContext
 
 import scala.collection.mutable.ListBuffer
 
@@ -36,33 +34,11 @@ import scala.collection.mutable.ListBuffer
  *
  *  @author Lucas Satabin
  */
-trait RestApplication extends HApp {
+trait RestApplication {
 
-  private val posts = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
-  private val gets = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
-  private val deletes = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
-
-  final override def resolve(req: HReqData) = {
-    val handlers = synchronized {
-      req.method match {
-        case HReqType.Get => gets
-        case HReqType.PostData | HReqType.PostMulti | HReqType.PostOctets =>
-          posts
-        case HReqType.Delete => deletes
-        case _               => throw new RuntimeException("Unknown request type")
-      }
-    }
-
-    val splitted = req.uriPath.split("/").toList
-
-    // find the first
-    handlers.find(_.isDefinedAt(splitted, req)) match {
-      case Some(handler) =>
-        Some(handler(splitted, req))
-      case _ => None
-    }
-
-  }
+  private[http] val posts = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
+  private[http] val gets = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
+  private[http] val deletes = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
 
   def POST(handler: PartialFunction[(List[String], HReqData), HLet]) {
     posts += handler

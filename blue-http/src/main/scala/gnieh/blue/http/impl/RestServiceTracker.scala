@@ -29,7 +29,7 @@ import scala.collection.mutable.Map
  *
  *  @author Lucas Satabin
  */
-class RestServiceTracker(context: BundleContext, server: BlueServer)
+class RestServiceTracker(context: BundleContext, app: ExtensibleApp)
   extends ServiceTracker[RestApplication, Long](context, classOf[RestApplication], null) {
 
   override def addingService(ref: ServiceReference[RestApplication]): Long = {
@@ -37,16 +37,16 @@ class RestServiceTracker(context: BundleContext, server: BlueServer)
     val service = context.getService(ref)
     // get the servive identifier
     val id = ref.getProperty(Constants.SERVICE_ID).asInstanceOf[Long]
-    synchronized {
+    app.synchronized {
       // register the rest interface with the generated identifier
-      server.appMap(id) = service
+      app.apps(id) = service
     }
     id
   }
 
-  override def removedService(ref: ServiceReference[RestApplication], id: Long): Unit = synchronized {
+  override def removedService(ref: ServiceReference[RestApplication], id: Long): Unit = app.synchronized {
     // unregister the handlers for the given identifier
-    server.appMap -= id
+    app.apps -= id
   }
 
 }
