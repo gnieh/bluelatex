@@ -44,7 +44,7 @@ class BlueActivator extends ActorSystemActivator {
     // register it
     context.registerService(classOf[ConfigurationLoader], loader, null)
     // load the \BlueLaTeX common configuration
-    val configuration = new BlueConfiguration(loader.load("org.gnieh.blue.common"))
+    val configuration = new BlueConfiguration(loader.load(context.getBundle.getSymbolicName))
     // register the template engine
     templates = new TemplatesImpl(configuration)
     context.registerService(classOf[Templates], templates, null)
