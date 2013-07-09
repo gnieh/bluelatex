@@ -36,6 +36,8 @@ import impl._
  */
 class BlueActivator extends ActorSystemActivator {
 
+  var templates: Templates = _
+
   def configure(context: BundleContext, system: ActorSystem): Unit = {
 
     // load the \Blue configuration
@@ -44,6 +46,11 @@ class BlueActivator extends ActorSystemActivator {
     val loader = new ConfigurationLoaderImpl(new File(System.getProperty("blue.configuration.base")))
     // register it
     context.registerService(classOf[ConfigurationLoader], loader, null)
+    // register the template engine
+    templates = new TemplatesImpl(configuration)
+    context.registerService(classOf[Templates], templates, null)
+    // register the recaptcha service
+    context.registerService(classOf[ReCaptcha], new ReCaptchaUtilImpl(configuration), null)
 
     // register the actor system as service so that other bundle can use it
     registerService(context, system)
@@ -54,6 +61,8 @@ class BlueActivator extends ActorSystemActivator {
 
     // stop the actor system, etc...
     super.stop(context)
+    // stop the template engine
+    templates.engine.compiler.shutdown()
     // stop the framework
     context.getBundle(0).stop
 

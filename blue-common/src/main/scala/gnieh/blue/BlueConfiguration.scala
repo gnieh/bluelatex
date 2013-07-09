@@ -21,6 +21,8 @@ import gnieh.sohva.sync._
 
 import com.typesafe.config._
 
+import java.io.File
+
 /** The \BlueLaTeX server configuration interface that allows
  *  people to access the server settings (possibly personal settings)
  *
@@ -37,17 +39,23 @@ trait BlueConfiguration {
   /** The synchronization server configuration */
   val synchro: Config
 
-  /** The couchdb configuration if enabled */
-  val couch: CouchDB
-
-  /** The couchdb administrator name */
-  val couchAdminName: String
-
-  /** The couchdb administrator password */
-  val couchAdminPassword: String
+  /** The couchdb configuration keys */
+  val couch: CouchConfiguration
 
   /** The email configuration */
   val emailConf: Properties
+
+  /** The paper directory associated with the paper identifier */
+  def paperDir(paperId: String): File
+
+  /** The validity of a reset token in milliseconds */
+  val resetTokenValidity: Long
+
+  /** The directory where the templates are located */
+  val templateDir: File
+
+  /** The base Url of the \BlueLaTeX implementation */
+  val baseUrl: String
 
 }
 

@@ -34,9 +34,13 @@ class HttpActivator extends BundleActivator with OsgiUtils {
 
     withService(classOf[ConfigurationLoader]) { loader =>
       // create and start the server
-      server = new BlueServer(context, loader.load(context.getBundle.getSymbolicName))
+      val configuration = loader.load(context.getBundle.getSymbolicName)
+      server = new BlueServer(context, configuration)
       // and start it
       server.start
+
+      // once it is started, register the core http application
+      //context.registerService(classOf[RestApplication], new CoreApplication(configuration), null)
     }
   }
 

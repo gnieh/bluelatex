@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package gnieh.blue
+package http
 
 import org.osgi.framework.BundleContext
 

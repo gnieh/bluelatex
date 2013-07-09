@@ -24,6 +24,14 @@ import com.typesafe.config._
 
 import scala.collection.JavaConverters._
 
+import java.io.{
+  File,
+  FileNotFoundException
+}
+
+import org.fusesource.scalate._
+import org.fusesource.scalate.util._
+
 class BlueConfigurationImpl(conf: Config) extends BlueConfiguration {
 
   // ===== blue core settings =====
@@ -40,18 +48,7 @@ class BlueConfigurationImpl(conf: Config) extends BlueConfiguration {
 
   // ===== couchdb settings =====
 
-  val couchConf = conf.getConfig("couchdb")
-
-  val couch = {
-    val hostname = couchConf.getString("hostname")
-    val port = couchConf.getInt("port")
-    val ssl = couchConf.getBoolean("ssl")
-    new CouchClient(host = hostname, port = port, ssl = ssl)
-  }
-
-  val couchAdminName = conf.getString("admin-name")
-
-  val couchAdminPassword = conf.getString("admin-password")
+  val couch = new CouchConfigurationImpl(conf.getConfig("couchdb"))
 
   // ===== email settings =====
 
@@ -63,7 +60,29 @@ class BlueConfigurationImpl(conf: Config) extends BlueConfiguration {
     props
   }
 
+  // ===== reset tokens =====
+
+  val resetTokenValidity =
+    conf.getLong("blue.reset.validity")
+
+  // ===== templates =====
+
+  val templateDir =
+    new File("blue.template.directory")
+
+  // ===== directories =====
+
+  /** The paper directory associated with the paper identifier */
+  def paperDir(paperId: String) =
+    new File(papers, paperId)
+
+  val baseUrl =
+    conf.getString("blue.url")
+
   // ===== internals =====
+
+  private val papers: File =
+    new File(conf.getString("blue.paper"))
 
   private def optionalString(path: String): Option[String] =
     if(conf.hasPath(path))

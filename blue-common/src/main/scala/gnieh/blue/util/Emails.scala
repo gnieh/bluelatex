@@ -31,14 +31,16 @@ import java.util.{
 class MailAgent(configuration: BlueConfiguration) {
 
   /** Returns the list of all email addresses */
-  private def retrieveEmail(username: String): Option[String] =
-    configuration.couch.database("blue_users")
+  private def retrieveEmail(username: String): Option[String] = {
+    val couchConf = configuration.couch
+    couchConf.couch.database(couchConf.database("blue_users"))
       .design("lists")
       .view[String, String, Nothing]("emails")
       .query(key = Some("org.couchdb.user:" + username))
       .rows
       .headOption
       .map(_.value)
+  }
 
   def send(username: String, subject: String, text: String) =
     for(to <- retrieveEmail(username)) {
