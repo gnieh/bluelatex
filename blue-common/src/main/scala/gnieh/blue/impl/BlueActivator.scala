@@ -30,7 +30,6 @@ import impl._
 /** The `BlueActivator` starts the \BlueLaTeX core system:
  *   - the configuration loader
  *   - the actor system
- *   - the \Blue server
  *
  *  @author Lucas Satabin
  */
@@ -40,12 +39,12 @@ class BlueActivator extends ActorSystemActivator {
 
   def configure(context: BundleContext, system: ActorSystem): Unit = {
 
-    // load the \Blue configuration
-    val configuration = new BlueConfigurationImpl(ConfigFactory.load)
     // the bundle configuration loader server
     val loader = new ConfigurationLoaderImpl(new File(System.getProperty("blue.configuration.base")))
     // register it
     context.registerService(classOf[ConfigurationLoader], loader, null)
+    // load the \BlueLaTeX common configuration
+    val configuration = new BlueConfiguration(loader.load("org.gnieh.blue.common"))
     // register the template engine
     templates = new TemplatesImpl(configuration)
     context.registerService(classOf[Templates], templates, null)

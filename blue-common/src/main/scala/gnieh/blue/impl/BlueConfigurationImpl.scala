@@ -32,19 +32,13 @@ import java.io.{
 import org.fusesource.scalate._
 import org.fusesource.scalate.util._
 
-class BlueConfigurationImpl(conf: Config) extends BlueConfiguration {
+class BlueConfiguration(conf: Config) {
 
   // ===== blue core settings =====
 
   val blue = conf.getConfig("blue")
 
-  val port = blue.getInt("port")
-
   val recaptchaPrivateKey = optionalString("recaptcha.private-key")
-
-  // ===== synchronization server settings =====
-
-  val synchro = conf.getConfig("synchro")
 
   // ===== couchdb settings =====
 

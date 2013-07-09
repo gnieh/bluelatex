@@ -30,7 +30,7 @@ import scala.collection.mutable.{
 
 class BlueServer(context: BundleContext, configuration: Config) extends HServer with Logging {
 
-  protected val ports = Set(configuration.getInt("tiscaf.port"))
+  protected val ports = Set(configuration.getInt("http.port"))
   protected def apps = appMap.values.toSeq
 
   val appMap = Map[Long, RestApplication]()

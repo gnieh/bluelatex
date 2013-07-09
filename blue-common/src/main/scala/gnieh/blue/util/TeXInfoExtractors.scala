@@ -24,7 +24,7 @@ import FileProcessing._
  *  @author Lucas Satabin
  *
  */
-class TeXInfoExtractors(configuration: BlueConfiguration) {
+class TeXInfoExtractors(configuration: impl.BlueConfiguration) {
 
   /*def texTitle(paperId: String) =
     configuration.mobwriteTeXFile(paperId)

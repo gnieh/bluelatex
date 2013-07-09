@@ -25,8 +25,16 @@ import com.typesafe.config._
 
 class ConfigurationLoaderImpl(base: File) extends ConfigurationLoader {
 
+  private def optionalURL(f: File) =
+    if(f.exists)
+      Some(f.toURI.toURL)
+    else
+      None
+
   def load(bundleName: String): Config = {
-    val cl = new URLClassLoader(Array(new File(base, bundleName).toURI.toURL), Thread.currentThread.getContextClassLoader)
+    // load configuration from the base configuration directory, the bundle specific directory and the bundle class loader
+    val directories = Array(optionalURL(base), optionalURL(new File(base, bundleName))).flatten
+    val cl = new URLClassLoader(directories, Thread.currentThread.getContextClassLoader)
     ConfigFactory.load(cl)
   }
 

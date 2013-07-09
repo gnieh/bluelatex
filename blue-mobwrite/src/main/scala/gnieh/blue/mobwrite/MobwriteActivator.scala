@@ -25,6 +25,8 @@ import org.osgi.framework._
  */
 class MobwriteActivator extends BundleActivator {
 
+  import OsgiUtils._
+
   def start(context: BundleContext): Unit = {
   }
 

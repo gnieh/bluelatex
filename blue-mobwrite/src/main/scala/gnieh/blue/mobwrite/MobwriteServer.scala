@@ -25,16 +25,17 @@ import java.io.BufferedInputStream
 
 import scala.io.Source
 
+import com.typesafe.config.Config
+
 /** A synchronization server that simply delegates the work
  *  to a standalone mobwrite daemon
  *
  *  @author Lucas Satabin
  */
-class MobwriteServer(configuration: BlueConfiguration) extends SynchroServer {
+class MobwriteServer(configuration: Config) extends SynchroServer {
 
   def session(data: String): String = {
-    val conf = configuration.synchro
-    (for(socket <- managed(new Socket(conf.getString("url"), conf.getInt("port")))) yield {
+    (for(socket <- managed(new Socket(configuration.getString("url"), configuration.getInt("port")))) yield {
       // Write data to daemon
       val outputStream = socket.getOutputStream
       outputStream.write(data.getBytes)

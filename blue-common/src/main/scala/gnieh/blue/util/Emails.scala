@@ -28,7 +28,7 @@ import java.util.{
  *
  * @author Lucas Satabin
  */
-class MailAgent(configuration: BlueConfiguration) {
+class MailAgent(configuration: impl.BlueConfiguration) {
 
   /** Returns the list of all email addresses */
   private def retrieveEmail(username: String): Option[String] = {
