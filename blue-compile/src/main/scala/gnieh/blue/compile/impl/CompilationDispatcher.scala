@@ -126,7 +126,7 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
       context.stop(self)
   }
 
-  def compile(compiler: => Int, density: Int, user: Option[User])(implicit timeout: Timeout) = {
+  def compile(compiler: => Int, density: Int, user: User)(implicit timeout: Timeout) = {
 
     import OsgiUtils._
 
@@ -143,13 +143,13 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
         val clazz = extractor.documentClass(paperId)
         database.getDocById[Paper](paperId) match {
           case Some(paper) =>
-            val authors = paper.authors ++ user.map(_._id).toSet
+            val authors = paper.authors + user._id
             if (paper.title != title || paper.cls != clazz || paper.authors != authors)
               database.saveDoc(paper.copy(title = title, authors = authors, cls = clazz))
           case None =>
             // it does not exist yet, create it
             // (good for old papers with no couch support)
-            database.saveDoc(Paper(paperId, title, user.map(_._id).toSet, Set(), clazz))
+            database.saveDoc(Paper(paperId, title, Set(user._id), Set(), clazz))
         }
       } catch {
         case e: Exception =>

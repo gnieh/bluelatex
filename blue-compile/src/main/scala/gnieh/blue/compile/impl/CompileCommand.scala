@@ -28,13 +28,13 @@ sealed trait CompileCommand {
   val paperId: String
   val density: Int
   val timeout: Timeout
-  val user: Option[User]
+  val user: User
 }
-case class PdfLatex(paperId: String, density: Int, timeout: Timeout, user: Option[User]) extends CompileCommand
-case class Latex(paperId: String, density: Int, timeout: Timeout, user: Option[User]) extends CompileCommand
+case class PdfLatex(paperId: String, density: Int, timeout: Timeout, user: User) extends CompileCommand
+case class Latex(paperId: String, density: Int, timeout: Timeout, user: User) extends CompileCommand
 object CompileCommand {
 
-  def apply(str: String, paperId: String, density: Int, timeout: Timeout, user: Option[User]) = str match {
+  def apply(str: String, paperId: String, density: Int, timeout: Timeout, user: User) = str match {
     case "latex" => Latex(paperId, density, timeout, user)
     case "pdflatex" => PdfLatex(paperId, density, timeout, user)
   }
