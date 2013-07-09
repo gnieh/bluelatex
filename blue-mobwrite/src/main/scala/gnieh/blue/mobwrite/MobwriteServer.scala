@@ -34,8 +34,11 @@ import com.typesafe.config.Config
  */
 class MobwriteServer(configuration: Config) extends SynchroServer {
 
+  val url = configuration.getString("mobwrite.url")
+  val port = configuration.getInt("mobwrite.port")
+
   def session(data: String): String = {
-    (for(socket <- managed(new Socket(configuration.getString("url"), configuration.getInt("port")))) yield {
+    (for(socket <- managed(new Socket(url, port))) yield {
       // Write data to daemon
       val outputStream = socket.getOutputStream
       outputStream.write(data.getBytes)
