@@ -42,7 +42,7 @@ class BlueActivator extends ActorSystemActivator {
   def configure(context: BundleContext, system: ActorSystem): Unit = {
 
     // the bundle configuration loader server
-    val loader = new ConfigurationLoaderImpl(new File(System.getProperty("blue.configuration.base")))
+    val loader = new ConfigurationLoaderImpl(new File(context.getProperty("blue.configuration.base")))
     // register it
     context.registerService(classOf[ConfigurationLoader], loader, null)
     // load the \BlueLaTeX common configuration
