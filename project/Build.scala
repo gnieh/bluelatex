@@ -75,7 +75,7 @@ object BlueBuild extends Build {
     "commons-io" % "commons-io" % "1.4",
     "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
     "com.typesafe" % "config" %"1.0.1",
-    "com.typesafe.akka" %% "akka-osgi" % "2.1.4",
+    "com.typesafe.akka" %% "akka-osgi" % "2.2.0",
     "org.apache.pdfbox" % "pdfbox" % "1.8.2" exclude("commons-logging", "commons-logging"),
     "ch.qos.logback" % "logback-classic" % "1.0.10",
     "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
@@ -129,7 +129,7 @@ object BlueBuild extends Build {
       settings (
         libraryDependencies ++= commonDeps,
         OsgiKeys.bundleSymbolicName := "org.gnieh.blue.compile",
-        OsgiKeys.bundleActivator := Some("gnieh.blue.mobwrite.impl.CompileActivator"),
+        OsgiKeys.bundleActivator := Some("gnieh.blue.compile.impl.CompileActivator"),
         OsgiKeys.exportPackage := Seq(
           "gnieh.blue.compile"
         ),

@@ -15,25 +15,58 @@
  */
 package gnieh.blue
 
+import com.typesafe.config.Config
+
 import gnieh.sohva.sync._
 
 import java.io.File
 
-trait CouchConfiguration {
+import scala.collection.JavaConverters._
 
-  /** The couchdb configuration if enabled */
-  val couch: CouchClient
+/** The couchdb configuration part */
+class CouchConfiguration(config: Config) {
 
-  /** The configuration directory that contains the designs */
-  def designDir(dbName: String): File
+  val couch = {
+    val hostname = config.getString("couch.hostname")
+    val port = config.getInt("couch.port")
+    val ssl = config.getBoolean("couch.ssl")
+    new CouchClient(host = hostname, port = port, ssl = ssl)
+  }
 
-  /** Executes some code with a session as adminstrator (automatically closed at the end) */
-  def asAdmin[T](code: CouchSession => T): T
+  val couchAdminName = config.getString("couch.admin-name")
 
-  /** Returns the configured name for the given database, or the name itself if it is not configured */
-  def database(name: String): String
+  val couchAdminPassword = config.getString("couch.admin-password")
 
-  /** The list of databases used by the core module */
-  val databases: List[String]
+  val couchDesigns = new File(config.getString("couch.design.dir"))
+
+  def adminSession = {
+    val sess = couch.startSession
+    sess.login(couchAdminName, couchAdminPassword)
+    sess
+  }
+
+  def asAdmin[T](code: CouchSession => T) = {
+    val sess = adminSession
+    try {
+      code(sess)
+    } finally {
+      sess.logout
+    }
+  }
+
+  def designDir(dbName: String) =
+    new File(couchDesigns, dbName)
+
+  def database(key: String) = {
+    val k = s"couch.database.$key"
+    if(config.hasPath(k))
+      config.getString(k)
+    else
+      key
+  }
+
+  val databases =
+    config.getObject("couch.database").asScala.keys.toList
 
 }
+

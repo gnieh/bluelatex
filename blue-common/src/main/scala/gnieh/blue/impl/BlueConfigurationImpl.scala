@@ -42,7 +42,7 @@ class BlueConfiguration(conf: Config) {
 
   // ===== couchdb settings =====
 
-  val couch = new CouchConfigurationImpl(conf.getConfig("couchdb"))
+  val couch = new CouchConfiguration(conf)
 
   // ===== email settings =====
 

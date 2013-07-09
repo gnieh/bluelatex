@@ -27,6 +27,8 @@ import com.typesafe.config._
 
 import impl._
 
+import gnieh.sohva.sync._
+
 /** The `BlueActivator` starts the \BlueLaTeX core system:
  *   - the configuration loader
  *   - the actor system
@@ -44,16 +46,26 @@ class BlueActivator extends ActorSystemActivator {
     // register it
     context.registerService(classOf[ConfigurationLoader], loader, null)
     // load the \BlueLaTeX common configuration
-    val configuration = new BlueConfiguration(loader.load(context.getBundle.getSymbolicName))
+    val config = loader.load(context.getBundle.getSymbolicName)
+    val configuration = new BlueConfiguration(config)
     // register the template engine
     templates = new TemplatesImpl(configuration)
     context.registerService(classOf[Templates], templates, null)
     // register the recaptcha service
     context.registerService(classOf[ReCaptcha], new ReCaptchaUtilImpl(configuration), null)
+    // register the couch client service
+    context.registerService(classOf[CouchClient], couch(config), null)
 
     // register the actor system as service so that other bundle can use it
     registerService(context, system)
 
+  }
+
+  private def couch(config: Config) = {
+    val hostname = config.getString("couch.hostname")
+    val port = config.getInt("couch.port")
+    val ssl = config.getBoolean("couch.ssl")
+    new CouchClient(host = hostname, port = port, ssl = ssl)
   }
 
   override def stop(context: BundleContext): Unit = {
