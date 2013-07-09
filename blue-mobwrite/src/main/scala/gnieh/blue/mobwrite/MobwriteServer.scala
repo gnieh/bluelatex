@@ -16,8 +16,6 @@
 package gnieh.blue
 package mobwrite
 
-import sync._
-
 import resource._
 
 import java.net.Socket
