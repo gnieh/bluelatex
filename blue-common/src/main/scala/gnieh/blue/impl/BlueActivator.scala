@@ -25,7 +25,7 @@ import akka.osgi.ActorSystemActivator
 
 import com.typesafe.config._
 
-import impl._
+import util._
 
 import gnieh.sohva.sync._
 

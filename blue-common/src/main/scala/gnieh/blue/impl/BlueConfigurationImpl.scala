@@ -32,7 +32,7 @@ import java.io.{
 import org.fusesource.scalate._
 import org.fusesource.scalate.util._
 
-class BlueConfiguration(conf: Config) {
+class BlueConfiguration(conf: Config) extends PaperConfiguration(conf) {
 
   // ===== blue core settings =====
 
@@ -64,19 +64,10 @@ class BlueConfiguration(conf: Config) {
   val templateDir =
     new File("blue.template.directory")
 
-  // ===== directories =====
-
-  /** The paper directory associated with the paper identifier */
-  def paperDir(paperId: String) =
-    new File(papers, paperId)
-
   val baseUrl =
     conf.getString("blue.url")
 
   // ===== internals =====
-
-  private val papers: File =
-    new File(conf.getString("blue.paper"))
 
   private def optionalString(path: String): Option[String] =
     if(conf.hasPath(path))

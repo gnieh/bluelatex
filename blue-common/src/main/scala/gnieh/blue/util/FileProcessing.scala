@@ -29,6 +29,8 @@ import resource._
  */
 object FileProcessing {
 
+  val synchronizedExt = """\.bib|\.tex"""
+
   /** Extends `java.io.File` with more scalaish features.
    *
    *  @author Lucas Satabin */
@@ -53,6 +55,15 @@ object FileProcessing {
       } else {
         Nil
       }
+
+    def isHidden: Boolean =
+      file.getName.startsWith(".")
+
+    def extension: String =
+      if(file.isDirectory)
+        ""
+      else
+        file.getName.substring(file.getName.lastIndexOf('.'))
 
     def deleteRecursive() {
       def deleteFile(dfile: File) {

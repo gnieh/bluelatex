@@ -15,10 +15,15 @@
  */
 package gnieh.blue
 package compile
+package impl
 
 import org.osgi.framework._
 
-import akka.actor.ActorSystem
+import akka.actor._
+import akka.routing.{
+  DefaultResizer,
+  RoundRobinRouter
+}
 
 class CompileActivator extends BundleActivator {
 
@@ -28,7 +33,16 @@ class CompileActivator extends BundleActivator {
     for {
       loader <- context.get[ConfigurationLoader]
       system <- context.get[ActorSystem]
-    } ???
+    } {
+      val config = loader.load(context.getBundle.getSymbolicName)
+      // create the dispatcher actor
+      system.actorOf(Props(new CompilationDispatcher(context, config)), name = "dispatcher")
+      // create the system command actor
+      system.actorOf(Props[SystemCommandActor]
+          .withRouter(new RoundRobinRouter(
+            DefaultResizer(config.getInt("tex.min-process"),
+              config.getInt("tex.max-process")))), name = "system-commands")
+    }
   }
 
   def stop(context: BundleContext) {

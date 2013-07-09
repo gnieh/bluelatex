@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 package gnieh.blue
-package util
 
-import FileProcessing._
+import com.typesafe.config.Config
 
-/** This class provides some utility functions to extract information from a .tex
- *  document.
- *
- *  @author Lucas Satabin
- *
- */
-class TeXInfoExtractors(configuration: PaperConfiguration) {
+import java.io.File
 
-  def texTitle(paperId: String) =
-    configuration.paperFile(paperId)
-      .extractFirst("\\\\title.([^}]+)".r)
-      .getOrElse("Id: " + paperId)
+abstract class PaperConfiguration(val config: Config) {
 
-  def documentClass(paperId: String) =
-    configuration.paperFile(paperId)
-      .extractFirst("""\\documentclass(?:\[[^\[]*\])?.([^}]+)""".r)
-      .getOrElse("article")
+  def paperDir(paperId: String): File =
+    new File(new File(config.getString("blue.paper.directory")), paperId)
+
+  def paperFile(paperId: String): File =
+    new File(new File(config.getString("blue.paper.directory")), s"$paperId.tex")
 
 }
