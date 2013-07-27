@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gnieh.blue
+package gnieh
 
 import java.text.{ SimpleDateFormat, ParseException }
 
 /** @author Lucas Satabin
  *
  */
-package object util {
+package object blue {
 
   // ======== Some useful extractors ========
 

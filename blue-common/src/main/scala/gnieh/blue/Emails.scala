@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package gnieh.blue
-package util
 
 import javax.mail._
 import javax.mail.internet._

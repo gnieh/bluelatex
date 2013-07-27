@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package gnieh.blue
-package util
 
 import FileProcessing._
 
