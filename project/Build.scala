@@ -33,8 +33,8 @@ object BlueBuild extends Build {
     "org.apache.felix" % "org.apache.felix.main" % "4.2.1" % "runtime"
   )
 
-  lazy val pack = Seq(packMain in (Compile, packageBin) := Map(
-    "blue-server-start" -> "gnieh.blue.BlueServer",
+  lazy val pack = Seq(packMain := Map(
+    "blue-server-start" -> "org.apache.felix.main.Main",
     "blue-server-stop" -> "gnieh.blue.BlueServerStop")
   )
 
