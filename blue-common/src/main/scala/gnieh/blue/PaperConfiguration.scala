@@ -19,7 +19,7 @@ import com.typesafe.config.Config
 
 import java.io.File
 
-abstract class PaperConfiguration(val config: Config) {
+class PaperConfiguration(val config: Config) {
 
   def paperDir(paperId: String): File =
     new File(new File(config.getString("blue.paper.directory")), paperId)
