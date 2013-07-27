@@ -24,7 +24,7 @@ object BlueBuild extends Build {
     fork in run := true)
     settings(packSettings: _*)
     settings(pack: _*)
-  ) aggregate(common, http, compile, mobwrite)
+  ) aggregate(common, http, compile, mobwrite, sync)
 
   lazy val compileOptions = scalacOptions in ThisBuild ++=
       Seq("-deprecation", "-feature")
@@ -138,5 +138,25 @@ object BlueBuild extends Build {
         )
       )
     ) dependsOn(common, mobwrite)
+
+  lazy val sync =
+    (Project(id = "blue-sync",
+      base = file("blue-sync"))
+      settings(osgiSettings: _*)
+      settings (
+        libraryDependencies ++= commonDeps,
+        OsgiKeys.bundleSymbolicName := "org.gnieh.blue.sync",
+        OsgiKeys.bundleActivator := Some("gnieh.blue.sync.impl.SyncServerActivator"),
+        OsgiKeys.exportPackage := Seq(
+          "gnieh.blue.sync"
+        ),
+        OsgiKeys.privatePackage := Seq(
+          "gnieh.blue.sync.impl"
+        ),
+        OsgiKeys.additionalHeaders := Map(
+          "Provide-Capability" -> "org.gnieh.blue.sync"
+        )
+      )
+    ) dependsOn(common)
 
 }
