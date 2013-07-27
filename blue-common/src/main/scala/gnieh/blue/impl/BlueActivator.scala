@@ -37,7 +37,8 @@ import gnieh.sohva.sync._
  */
 class BlueActivator extends ActorSystemActivator {
 
-  var templates: Templates = _
+  private var _templates: Templates = _
+  private var _couch: CouchClient = _
 
   def configure(context: BundleContext, system: ActorSystem): Unit = {
 
@@ -49,8 +50,8 @@ class BlueActivator extends ActorSystemActivator {
     val config = loader.load(context.getBundle.getSymbolicName)
     val configuration = new BlueConfiguration(config)
     // register the template engine
-    templates = new TemplatesImpl(configuration)
-    context.registerService(classOf[Templates], templates, null)
+    _templates = new TemplatesImpl(configuration)
+    context.registerService(classOf[Templates], _templates, null)
     // register the recaptcha service
     context.registerService(classOf[ReCaptcha], new ReCaptchaUtilImpl(configuration), null)
     // register the couch client service
@@ -65,15 +66,18 @@ class BlueActivator extends ActorSystemActivator {
     val hostname = config.getString("couch.hostname")
     val port = config.getInt("couch.port")
     val ssl = config.getBoolean("couch.ssl")
-    new CouchClient(host = hostname, port = port, ssl = ssl)
+    _couch = new CouchClient(host = hostname, port = port, ssl = ssl)
+    _couch
   }
 
   override def stop(context: BundleContext): Unit = {
 
     // stop the actor system, etc...
     super.stop(context)
+    // stop the couch client
+    _couch.shutdown
     // stop the template engine
-    templates.engine.compiler.shutdown()
+    _templates.engine.compiler.shutdown()
     // stop the framework
     context.getBundle(0).stop
 
