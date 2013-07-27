@@ -59,7 +59,7 @@ class CompilationDispatcher(bndContext: BundleContext, config: Config) extends A
 
   val configuration = new CompileConfiguration(config)
 
-  /* gets the compilation actor for the given paper if.
+  /* gets the compilation actor for the given paper id.
    * if it does not exist, create it.
    */
   def forPaper(paperId: String) =
