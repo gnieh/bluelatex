@@ -18,6 +18,7 @@ package sync
 package impl
 
 import org.osgi.framework._
+import akka.actor._
 
 /** Registers the synchro service
  *
@@ -30,7 +31,13 @@ class SyncServerActivator extends BundleActivator {
   private var _server: Option[SyncServer] = None
 
   def start(context: BundleContext): Unit = {
-    for (loader <- context.get[ConfigurationLoader]) {
+    for {
+      loader <- context.get[ConfigurationLoader]
+      system <- context.get[ActorSystem]
+    } {
+      val config = loader.load(context.getBundle.getSymbolicName)
+      // create the dispatcher actor
+      system.actorOf(Props(new SyncDispatcher(context, config)), name = "sync-dispatcher")
       // instantiate the sync server as synchronization server
       val server = new SyncServer(loader.load(context.getBundle.getSymbolicName))
       // register this as the synchronization server
