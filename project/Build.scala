@@ -3,11 +3,16 @@ package blue
 import sbt._
 import Keys._
 import xerial.sbt.Pack._
-import com.typesafe.sbt.osgi.SbtOsgi._
+import aQute.bnd.osgi._
+
+import java.io.File
 
 object BlueBuild extends Build {
 
   val blueVersion = "0.7-SNAPSHOT"
+
+  lazy val bndDir: SettingKey[File] =
+    SettingKey[File]("bnd-dir", "the directory containing the BND descriptors")
 
   lazy val bluelatex = (Project(id = "bluelatex",
     base = file(".")) settings (
@@ -23,8 +28,52 @@ object BlueBuild extends Build {
     // fork jvm when running
     fork in run := true)
     settings(packSettings: _*)
+    settings(bndDir <<= baseDirectory(new File(_, "bnd")))
+    settings(packLibJars <<= (bndDir, target, packLibJars) map { case (bnddir, target, jars) => jars map osgify(bnddir, target) })
     settings(pack: _*)
   ) aggregate(common, http, compile, mobwrite, sync)
+
+  /* make an OSGi bundle out of a jar file */
+  def osgify(bnddir: File, target: File)(file: File): File = {
+    val jar = new Jar(file)
+    if(jar.getManifest == null || jar.getBsn == null) {
+      // it is not an OSGi bundle, wrap it
+      // extract the name and version from filename
+      file.getName match {
+        case library(name, version) =>
+          //look if there is some bnd descriptor for this jar
+          val descriptor = new File(bnddir, name + ".bnd")
+          val wrapper = new Analyzer
+          wrapper.setJar(jar)
+          if(descriptor.exists) {
+            wrapper.setProperties(descriptor)
+          } else {
+            wrapper.setImportPackage("*;resolution:=optional");
+            wrapper.setExportPackage("*");
+          }
+          wrapper.setBundleVersion(version.replaceAll("-SNAPSHOT", "").replace('-', '.'))
+          val m = wrapper.calcManifest
+          if(wrapper.isOk) {
+            jar.setManifest(m)
+            val tmpdir = new File(target, "bnd")
+            tmpdir.mkdirs
+            val newFile = new File(tmpdir, file.getName)
+            wrapper.save(newFile, true)
+            newFile
+          } else {
+            file
+          }
+        case _ =>
+          file
+      }
+    } else {
+      // it is already an OSGi bundle, return the file
+      file
+    }
+  }
+
+  lazy val library =
+    """([^_]+)(?:_[0-9](?:.[0-9]+)+)?-([0-9]+(?:.[0-9]+)*(?:-\w+)*).jar""".r
 
   lazy val compileOptions = scalacOptions in ThisBuild ++=
       Seq("-deprecation", "-feature")
@@ -42,21 +91,6 @@ object BlueBuild extends Build {
     (Project(id = "blue-common", base = file("blue-common"))
       settings (
         libraryDependencies ++= commonDependencies
-      )
-      settings(osgiSettings: _*)
-      settings(
-        OsgiKeys.bundleActivator := Some("gnieh.blue.impl.BlueActivator"),
-        OsgiKeys.bundleSymbolicName := "org.gnieh.blue.common",
-        OsgiKeys.exportPackage := Seq(
-          "gnieh.blue",
-          "gnieh.blue.util"
-        ),
-        OsgiKeys.privatePackage := Seq(
-          "gnieh.blue.impl"
-        ),
-        OsgiKeys.additionalHeaders := Map(
-          "Bundle-Name" -> "\\BlueLaTeX Server Core"
-        )
       )
     )
 
@@ -88,74 +122,32 @@ object BlueBuild extends Build {
   lazy val mobwrite =
     (Project(id = "blue-mobwrite",
       base = file("blue-mobwrite"))
-      settings(osgiSettings: _*)
       settings (
-        libraryDependencies ++= commonDeps,
-        OsgiKeys.bundleSymbolicName := "org.gnieh.blue.mobwrite",
-        OsgiKeys.bundleActivator := Some("gnieh.blue.mobwrite.impl.MobwriteActivator"),
-        OsgiKeys.exportPackage := Seq(
-          "gnieh.blue.mobwrite"
-        ),
-        OsgiKeys.privatePackage := Seq(
-          "gnieh.blue.mobwrite.impl"
-        ),
-        OsgiKeys.additionalHeaders := Map(
-          "Provide-Capability" -> "org.gnieh.blue.sync"
-        )
+        libraryDependencies ++= commonDeps
       )
     ) dependsOn(common)
 
   lazy val http =
     (Project(id = "blue-http",
       base = file("blue-http"))
-      settings(osgiSettings: _*)
       settings (
-        libraryDependencies ++= commonDeps,
-        OsgiKeys.bundleSymbolicName := "org.gnieh.blue.http",
-        OsgiKeys.bundleActivator := Some("gnieh.blue.mobwrite.impl.HttpActivator"),
-        OsgiKeys.exportPackage := Seq(
-          "gnieh.blue.http"
-        ),
-        OsgiKeys.privatePackage := Seq(
-          "gnieh.blue.http.impl"
-        )
+        libraryDependencies ++= commonDeps
       )
     ) dependsOn(common, mobwrite, compile)
 
   lazy val compile =
     (Project(id = "blue-compile",
       base = file("blue-compile"))
-      settings(osgiSettings: _*)
       settings (
-        libraryDependencies ++= commonDeps,
-        OsgiKeys.bundleSymbolicName := "org.gnieh.blue.compile",
-        OsgiKeys.bundleActivator := Some("gnieh.blue.compile.impl.CompileActivator"),
-        OsgiKeys.exportPackage := Seq(
-          "gnieh.blue.compile"
-        ),
-        OsgiKeys.privatePackage := Seq(
-          "gnieh.blue.http.compile"
-        )
+        libraryDependencies ++= commonDeps
       )
     ) dependsOn(common, mobwrite)
 
   lazy val sync =
     (Project(id = "blue-sync",
       base = file("blue-sync"))
-      settings(osgiSettings: _*)
       settings (
-        libraryDependencies ++= commonDeps,
-        OsgiKeys.bundleSymbolicName := "org.gnieh.blue.sync",
-        OsgiKeys.bundleActivator := Some("gnieh.blue.sync.impl.SyncServerActivator"),
-        OsgiKeys.exportPackage := Seq(
-          "gnieh.blue.sync"
-        ),
-        OsgiKeys.privatePackage := Seq(
-          "gnieh.blue.sync.impl"
-        ),
-        OsgiKeys.additionalHeaders := Map(
-          "Provide-Capability" -> "org.gnieh.blue.sync"
-        )
+        libraryDependencies ++= commonDeps
       )
     ) dependsOn(common)
 

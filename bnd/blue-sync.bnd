@@ -1,0 +1,7 @@
+Bundle-Activator: gnieh.blue.sync.impl.SyncServerActivator
+Bundle-SymbolicName: org.gnieh.blue.sync
+Bundle-Name: \\BlueLaTeX Native Synchronization server
+Provide-Capability: org.gnieh.blue.sync
+
+Private-Package=gnieh.blue.sync
+

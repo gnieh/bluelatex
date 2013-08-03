@@ -1,0 +1,7 @@
+Bundle-Activator: gnieh.blue.mobwrite.impl.MobwriteActivator
+Bundle-SymbolicName: org.gnieh.blue.mobwrite
+Bundle-Name: \\BlueLaTeX Binding to Mobwrite Synchronization Server
+Provide-Capability: org.gnieh.blue.sync
+
+Private-Package=gnieh.blue.mobwrite
+

@@ -1,0 +1,9 @@
+Bundle-Activator: gnieh.blue.compile.impl.CompileActivator
+Bundle-SymbolicName: org.gnieh.blue.compile
+Bundle-Name: \\BlueLaTeX Compilation Feature
+Require-Capability: org.gnieh.blue.sync
+
+Private-Package=gnieh.blue.compile.impl
+
+Export-Package=gnieh.blue.compile
+

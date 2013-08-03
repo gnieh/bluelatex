@@ -1,3 +1,4 @@
 addSbtPlugin("org.xerial.sbt" % "sbt-pack" % "0.1.6")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-osgi" % "0.5.0")
+libraryDependencies += "biz.aQute.bnd" % "bndlib" % "2.1.0"
+
