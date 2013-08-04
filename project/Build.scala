@@ -20,7 +20,6 @@ object BlueBuild extends Build with PackOsgi {
     scalaVersion in ThisBuild := "2.10.2",
     autoCompilerPlugins in ThisBuild := true,
     compileOptions,
-    libraryDependencies ++= blueDependencies,
     // fork jvm when running
     fork in run := true)
     settings(packSettings: _*)
@@ -28,10 +27,6 @@ object BlueBuild extends Build with PackOsgi {
 
   lazy val compileOptions = scalacOptions in ThisBuild ++=
       Seq("-deprecation", "-feature")
-
-  lazy val blueDependencies = Seq(
-    "org.apache.felix" % "org.apache.felix.main" % "4.2.1" % "runtime"
-  )
 
   lazy val common =
     (Project(id = "blue-common", base = file("blue-common"))

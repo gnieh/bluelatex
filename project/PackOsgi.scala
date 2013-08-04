@@ -6,11 +6,16 @@ import aQute.bnd.osgi._
 
 trait PackOsgi {
 
+  val Osgi = config("osgi")
+
   val bndDir: SettingKey[File] =
     SettingKey[File]("bnd-dir", "the directory containing the BND descriptors")
 
   val scriptDir: SettingKey[File] =
     SettingKey[File]("script-dir", "the directory containing the start/stop scripts")
+
+  val confDir: SettingKey[File] =
+    SettingKey[File]("configuration-dir", "the directory containing the configuration")
 
   val projectBundles: TaskKey[Seq[File]] =
     TaskKey[Seq[File]]("project-bundles", "the project bundle files")
@@ -25,6 +30,7 @@ trait PackOsgi {
     Seq(
       bndDir <<= baseDirectory(_ / "bnd"),
       scriptDir <<= sourceDirectory(_ / "main" / "script"),
+      confDir <<= sourceDirectory(_ / "main" / "configuration"),
       projectBundles <<= (bndDir, target, thisProjectRef, buildStructure) flatMap { (bnddir, target, project, structure) =>
         getFromSelectedProjects(packageBin.task in Runtime)(project, structure, Seq()) map (_ map osgify(bnddir, target))
       },
@@ -34,7 +40,7 @@ trait PackOsgi {
       packTask
     )
 
-  def wrapReport(bnddir: File, target: File)(report: UpdateReport): Seq[File] = {
+  def wrapReport(bnddir: File, target: File)(report: UpdateReport): Seq[File] =
     for {
       c <- report.configurations
       if c.configuration == "runtime"
@@ -42,7 +48,6 @@ trait PackOsgi {
       (artifact, file) <- m.artifacts
       if DependencyFilter.allPass(c.configuration, m.module, artifact)
     } yield osgify(bnddir, target)(file)
-  }
 
   /* make an OSGi bundle out of a jar file */
   def osgify(bnddir: File, target: File)(file: File): File = {
@@ -99,8 +104,8 @@ trait PackOsgi {
     projects.flatMap(p => targetTask in p get structure.data).join
   }
 
-  private def packTask = pack <<= (projectBundles, depBundles, scriptDir, streams, target) map {
-    (projectBundles, depBundles, scriptDir, out, target) =>
+  private def packTask = pack <<= (projectBundles, depBundles, scriptDir, confDir, streams, target) map {
+    (projectBundles, depBundles, scriptdir, confdir, out, target) =>
       // create the directories
       val packDir = new File(target, "pack")
       val bundleDir = new File(packDir, "bundle")
@@ -120,8 +125,13 @@ trait PackOsgi {
       }
 
       out.log.info("copy scripts")
-      for(script <- IO.listFiles(scriptDir)) {
-        IO.copyFile(script, scriptDir / script.getName)
+      for(script <- IO.listFiles(scriptdir)) {
+        IO.copyFile(script, binDir / script.getName)
+      }
+
+      out.log.info("copy configuration")
+      for(f <- IO.listFiles(confdir)) {
+        IO.copyFile(f, confDir / f.getName)
       }
 
       packDir
