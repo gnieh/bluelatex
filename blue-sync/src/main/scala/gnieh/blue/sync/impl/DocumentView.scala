@@ -43,8 +43,11 @@ class DocumentView(val document: Document) {
 
   /** Is the delta valid ? */
   var deltaOk = true
-  /** Has the view changed since it was last saved */
+  /** Has the view changed since it was last saved ? */
   var changed = false
+
+  /** Does the client set the overwrite flag ? */
+  var overwrite = false
 
   def restoreBackupShadow(): Unit = {
     edits.clear()
@@ -64,6 +67,7 @@ class DocumentView(val document: Document) {
     if (force || document.text.isEmpty) {
       document.text = text
     }
+    overwrite = force
   }
 
 }

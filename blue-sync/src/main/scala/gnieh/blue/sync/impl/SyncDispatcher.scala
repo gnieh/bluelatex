@@ -41,7 +41,7 @@ class SyncDispatcher(bndContext: BundleContext, config: Config) extends Resource
 
   val configuration = new PaperConfiguration(config)
 
-  def props(username: String, resourceid: String): Props = 
+  def props(username: String, resourceid: String): Props =
     Props(new SyncActor(bndContext, configuration, resourceid))
 }
 
@@ -100,23 +100,24 @@ class SyncActor(
         view.deltaOk == true
       }
 
-      sender ! (commands map {
+      commands foreach {
         case x: Delta => processDelta(view, x, revision)
         case x: Raw => processRaw(view, x, revision)
         case Nullify => nullify(view)
         case x: Message => processMessage(view, x)
-      })
+      }
+      val result = flushStack(view)
+      sender ! SyncSession(user, documentPath, false, view.serverShadowRevision, result)
     }
   }
 
-  def nullify(view: DocumentView): String = {
+  def nullify(view: DocumentView): Unit = {
     // store.delete(document)
-    ""
   }
 
-  def processDelta(view: DocumentView, delta: Delta, serverRevision: Long): String = {
+  def processDelta(view: DocumentView, delta: Delta, serverRevision: Long): Unit = {
     if (!view.deltaOk)
-      return ""
+      return
     if (serverRevision < view.serverShadowRevision) {
       // Ignore delta on mismatched server shadow
     } else if (delta.revision > view.clientShadowRevision) {
@@ -128,17 +129,14 @@ class SyncActor(
       applyPatches(view, delta)
       view.clientShadowRevision += 1
     }
-    ""
+    view.overwrite = delta.overwrite
   }
 
-  def processRaw(view: DocumentView, raw: Raw, serverRevision: Long): String = {
+  def processRaw(view: DocumentView, raw: Raw, serverRevision: Long): Unit = {
     view.setShadow(raw.data, raw.clientRevision, serverRevision, raw.overwrite)
-    ""
   }
 
-  def processMessage(view: DocumentView, msg: Message): String = {
-    ""
-  }
+  def processMessage(view: DocumentView, msg: Message): Unit = ???
 
 
   def applyPatches(view: DocumentView, delta: Delta): Unit = {
@@ -167,7 +165,7 @@ class SyncActor(
     view.document.text = mastertext
   }
 
-  def flushStack(view: DocumentView, force: Boolean): List[SyncCommand] = {
+  def flushStack(view: DocumentView): List[SyncCommand] = {
     val doc = view.document
     val mastertext = doc.text
 
@@ -178,7 +176,7 @@ class SyncActor(
       // apply the diffs to the text
       val text = dmp.diff_toDelta(diffs)
 
-      if (force) {
+      if (view.overwrite) {
         // Client sending 'D' means number, no error.
         // Client sending 'R' means number, client error.
         // Both cases involve numbers, so send back an overwrite delta.
