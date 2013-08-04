@@ -61,6 +61,7 @@ trait PackOsgi {
           } else {
             wrapper.setImportPackage("*;resolution:=optional");
             wrapper.setExportPackage("*");
+            wrapper.setBundleSymbolicName(name)
           }
           wrapper.setBundleVersion(version.replaceAll("-SNAPSHOT", "").replace('-', '.'))
           val m = wrapper.calcManifest
