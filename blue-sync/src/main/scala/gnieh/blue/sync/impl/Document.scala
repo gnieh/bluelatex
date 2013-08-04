@@ -17,25 +17,16 @@ package gnieh.blue
 package sync
 package impl
 
-import scala.util.parsing.combinator._
+/** Server-side document
+ *
+ * @author Lucas Satabin
+ */
+class Document(val path: String, private var _text: String) {
 
-object EditCommandParsers extends RegexParsers {
+  def text = _text
 
-  def parseEdits(input: String): List[Edit] =
-    parseAll(repsep(edit, "\t"), input) match {
-      case Success(res, _) => res
-      case _ => Nil
-    }
-
-  lazy val edit: Parser[Edit] =
-    ("+" ~> data ^^ Add
-      | "-" ~> number ^^ Delete
-      | "=" ~> number ^^ Equality)
-
-  private lazy val number: Parser[Int] =
-    "[0-9]+" ^^ (_.toInt)
-
-  private lazy val data: Parser[String] =
-    "([-A-Za-z0-9_.!~*'();/?:@&=+$,# ]|%[A-Fa-f0-9]{2})+".r
+  def text_=(t: String) {
+    _text = t
+  }
 
 }

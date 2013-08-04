@@ -19,7 +19,7 @@ package impl
 
 import net.liftweb.json._
 
-/* Protocol adapted from Neil Fraser's mobwrite protocol: 
+/* Protocol adapted from Neil Fraser's mobwrite protocol:
  * http://code.google.com/p/google-mobwrite/wiki/Protocol
  */
 
@@ -27,21 +27,24 @@ import net.liftweb.json._
  *
  *  @author Audric Schiltknecht
  *  @author Lucas Satabin
- *
  */
-final case class SyncSession(user: String, file: String, echo: Boolean, commands: List[SyncCommand])
+final case class SyncSession(user: String,
+                             file: String,
+                             echo: Boolean,
+                             revision: Long,
+                             commands: List[SyncCommand])
 
 /** A command to apply on a file from a given user
  *
  *  @author Audric Schiltknecht
  *  @author Lucas Satabin
- *
- */ 
+ */
 sealed trait SyncCommand
 
-/** Request an edit to be made to the current session user and file with given client (when sent by client)
- * or server (when sent by server) revision.
- */ 
+/** Request an edit to be made to the current session user and file
+ *  with given client (when sent by client)
+ *  or server (when sent by server) revision.
+ */
 final case class Delta(revision: Long, data: List[Edit], overwrite: Boolean) extends SyncCommand
 
 /** Transmit the entire contents of the session file.
@@ -62,7 +65,7 @@ final case class Message(json: JObject, from: Option[String]) extends SyncComman
  *  @author Audric Schiltknecht
  *  @author Lucas Satabin
  *
- */ 
+ */
 sealed trait Edit {
   val length: Int
 }
@@ -71,7 +74,7 @@ object Edit {
 
   import EditCommandParsers._
 
-  def unapply(s: String): Option[Edit] = 
+  def unapply(s: String): Option[Edit] =
     parseAll(edit, s) match {
       case Success(value, _) => Some(value)
       case _ => None

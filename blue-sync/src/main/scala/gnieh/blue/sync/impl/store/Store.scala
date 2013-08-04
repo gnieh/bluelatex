@@ -16,26 +16,24 @@
 package gnieh.blue
 package sync
 package impl
+package store
 
-import scala.util.parsing.combinator._
+/** Describes the interface that all stores must implement.
+ *  A store allows user to persist a document. It may be e.g. a file on the file system,
+ *  a database, ...
+ *
+ *  @author Lucas Satabin
+ */
+trait Store {
 
-object EditCommandParsers extends RegexParsers {
+  /** Persists the document in the store. Create it if it does not exist yet. */
+  def save(document: Document)
 
-  def parseEdits(input: String): List[Edit] =
-    parseAll(repsep(edit, "\t"), input) match {
-      case Success(res, _) => res
-      case _ => Nil
-    }
+  /** Loads the document from the store, if it does not exist, returns empty Document. */
+  def load(documentId: String): Document
 
-  lazy val edit: Parser[Edit] =
-    ("+" ~> data ^^ Add
-      | "-" ~> number ^^ Delete
-      | "=" ~> number ^^ Equality)
+}
 
-  private lazy val number: Parser[Int] =
-    "[0-9]+" ^^ (_.toInt)
-
-  private lazy val data: Parser[String] =
-    "([-A-Za-z0-9_.!~*'();/?:@&=+$,# ]|%[A-Fa-f0-9]{2})+".r
-
+class StoreException(msg: String, inner: Exception) extends Exception(msg, inner) {
+  def this(msg: String) = this(msg, null)
 }
