@@ -37,25 +37,12 @@ import name.fraser.neil.plaintext.diff_match_patch;
  *
  *  @author Lucas Satabin
  */
-class SyncDispatcher(bndContext: BundleContext, config: Config) extends Actor {
+class SyncDispatcher(bndContext: BundleContext, config: Config) extends ResourceDispatcher {
 
   val configuration = new PaperConfiguration(config)
 
-  /* gets the synchronization actor for the file.
-   */
-  def forFile(file: String) =
-    context.children.find(ref =>
-      ref.path.name == file).getOrElse(
-      // Actor for file does not exists, create it
-      context.actorOf(Props(
-        new SyncActor(bndContext, configuration, file)), name = file))
-
-  def receive =
-    {
-      case msg @ SyncSession(_, file, _, _, _) =>
-        // simply forward to the paper actor
-        forFile(file).forward(msg)
-    }
+  def props(username: String, resourceid: String): Props = 
+    Props(new SyncActor(bndContext, configuration, resourceid))
 }
 
 /** This actor handles synchronisation of documents.
