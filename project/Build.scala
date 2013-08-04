@@ -2,17 +2,13 @@ package blue
 
 import sbt._
 import Keys._
-import xerial.sbt.Pack._
 import aQute.bnd.osgi._
 
 import java.io.File
 
-object BlueBuild extends Build {
+object BlueBuild extends Build with PackOsgi {
 
   val blueVersion = "0.7-SNAPSHOT"
-
-  lazy val bndDir: SettingKey[File] =
-    SettingKey[File]("bnd-dir", "the directory containing the BND descriptors")
 
   lazy val bluelatex = (Project(id = "bluelatex",
     base = file(".")) settings (
@@ -28,63 +24,13 @@ object BlueBuild extends Build {
     // fork jvm when running
     fork in run := true)
     settings(packSettings: _*)
-    settings(bndDir <<= baseDirectory(new File(_, "bnd")))
-    settings(packLibJars <<= (bndDir, target, packLibJars) map { case (bnddir, target, jars) => jars map osgify(bnddir, target) })
-    settings(pack: _*)
   ) aggregate(common, http, compile, mobwrite, sync)
-
-  /* make an OSGi bundle out of a jar file */
-  def osgify(bnddir: File, target: File)(file: File): File = {
-    val jar = new Jar(file)
-    if(jar.getManifest == null || jar.getBsn == null) {
-      // it is not an OSGi bundle, wrap it
-      // extract the name and version from filename
-      file.getName match {
-        case library(name, version) =>
-          //look if there is some bnd descriptor for this jar
-          val descriptor = new File(bnddir, name + ".bnd")
-          val wrapper = new Analyzer
-          wrapper.setJar(jar)
-          if(descriptor.exists) {
-            wrapper.setProperties(descriptor)
-          } else {
-            wrapper.setImportPackage("*;resolution:=optional");
-            wrapper.setExportPackage("*");
-          }
-          wrapper.setBundleVersion(version.replaceAll("-SNAPSHOT", "").replace('-', '.'))
-          val m = wrapper.calcManifest
-          if(wrapper.isOk) {
-            jar.setManifest(m)
-            val tmpdir = new File(target, "bnd")
-            tmpdir.mkdirs
-            val newFile = new File(tmpdir, file.getName)
-            wrapper.save(newFile, true)
-            newFile
-          } else {
-            file
-          }
-        case _ =>
-          file
-      }
-    } else {
-      // it is already an OSGi bundle, return the file
-      file
-    }
-  }
-
-  lazy val library =
-    """([^_]+)(?:_[0-9](?:.[0-9]+)+)?-([0-9]+(?:.[0-9]+)*(?:-\w+)*).jar""".r
 
   lazy val compileOptions = scalacOptions in ThisBuild ++=
       Seq("-deprecation", "-feature")
 
   lazy val blueDependencies = Seq(
     "org.apache.felix" % "org.apache.felix.main" % "4.2.1" % "runtime"
-  )
-
-  lazy val pack = Seq(packMain := Map(
-    "blue-server-start" -> "org.apache.felix.main.Main",
-    "blue-server-stop" -> "gnieh.blue.BlueServerStop")
   )
 
   lazy val common =
