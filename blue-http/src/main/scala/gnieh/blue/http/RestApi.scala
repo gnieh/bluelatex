@@ -25,6 +25,8 @@ import org.osgi.framework.BundleContext
 
 import scala.collection.mutable.ListBuffer
 
+import java.text.{ SimpleDateFormat, ParseException }
+
 /** The rest interface may be extended by \BlueLaTeX modules.
  *  Theses module simply need to register services implementing this trait
  *  to make the new interface available.
@@ -50,6 +52,46 @@ trait RestApi {
 
   def DELETE(handler: PartialFunction[(List[String], HReqData), HLet]) {
     deletes += handler
+  }
+
+  // ======== Some useful extractors ========
+
+  object dot {
+    def unapply(input: String) = {
+      val index = input.lastIndexOf('.')
+      if (index > 0) {
+        // there is at least tow elements
+        Some((input.substring(0, index), input.substring(index + 1)))
+      } else {
+        None
+      }
+    }
+  }
+
+  object long {
+    def unapply(input: String) = try {
+      Some(input.toLong)
+    } catch {
+      case _: Exception => None
+    }
+  }
+
+  object int {
+    def unapply(input: String) = try {
+      Some(input.toInt)
+    } catch {
+      case _: Exception => None
+    }
+  }
+
+  object date {
+    val formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+    def unapply(input: String) = try {
+      Option(formatter.parse(input))
+    } catch {
+      case _: ParseException =>
+        None
+    }
   }
 
 }
