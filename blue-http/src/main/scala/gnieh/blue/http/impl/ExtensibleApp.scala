@@ -42,7 +42,7 @@ import gnieh.sohva.sync.CouchSession
  */
 class ExtensibleApp(config: Config) extends HApp {
 
-  private[impl] val apps = Map.empty[Long, RestApplication]
+  private[impl] val apps = Map.empty[Long, RestApi]
   private def gets =
     (for((_, app) <- apps)
       yield app.gets).toList.flatten

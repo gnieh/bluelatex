@@ -34,7 +34,7 @@ import scala.collection.mutable.ListBuffer
  *
  *  @author Lucas Satabin
  */
-trait RestApplication {
+trait RestApi {
 
   private[http] val posts = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
   private[http] val gets = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
