@@ -74,7 +74,7 @@ object BlueBuild extends Build with PackOsgi {
       settings (
         libraryDependencies ++= commonDeps
       )
-    ) dependsOn(common, mobwrite, compile)
+    ) dependsOn(common)
 
   lazy val compile =
     (Project(id = "blue-compile",
@@ -82,7 +82,7 @@ object BlueBuild extends Build with PackOsgi {
       settings (
         libraryDependencies ++= commonDeps
       )
-    ) dependsOn(common, mobwrite)
+    ) dependsOn(common, http)
 
   lazy val sync =
     (Project(id = "blue-sync",
