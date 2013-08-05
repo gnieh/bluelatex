@@ -24,18 +24,25 @@ abstract class ResourceDispatcher extends Actor {
   private val users = Map.empty[String, Set[String]].withDefaultValue(Set())
 
   final def receive = {
-    case Join(username, resourceid) =>
+    case join @ Join(username, resourceid) =>
       // create the actor if nobody uses this resource
-      if(users(resourceid).size == 0)
+      if(users(resourceid).size == 0) {
         context.actorOf(props(username, resourceid), name = resourceid)
-      users(resourceid) += username
-    case Part(username, resourceid) =>
+      } else if(!users(resourceid).contains(username)) {
+        users(resourceid) += username
+        // resent the Join message to the resource
+        context.actorSelection(resourceid) ! join
+      }
+
+    case part @ Part(username, resourceid) =>
+      val actor = context.actorSelection(resourceid)
       if(users(resourceid).size == 1) {
         // this was the last user on this resource, kill it
-        context.actorSelection(resourceid) ! PoisonPill
+        actor ! PoisonPill
         users -= resourceid
-      } else {
+      } else if(users(resourceid).contains(username)) {
         // just tell the user left
+        actor ! part
         users(resourceid) -= username
       }
     case Forward(resourceid, msg) if users.contains(resourceid) =>
