@@ -53,29 +53,13 @@ import org.osgi.framework.BundleContext
  *
  *  @author Lucas Satabin
  */
-class CompilationDispatcher(bndContext: BundleContext, config: Config) extends Actor {
+class CompilationDispatcher(bndContext: BundleContext, config: Config) extends ResourceDispatcher {
 
   val configuration = new CompileConfiguration(config)
 
-  /* gets the compilation actor for the given paper id.
-   * if it does not exist, create it.
-   */
-  def forPaper(paperId: String) =
-    context.children.find(ref =>
-      ref.path.name == paperId).getOrElse(
-      context.actorOf(Props(
-        new CompileActor(bndContext, configuration, paperId)),
-        name = paperId))
+  def props(username: String, paperId: String) =
+    Props(new CompileActor(bndContext, configuration, paperId))
 
-  def receive =
-    {
-      case msg @ PdfLatex(paperId, _, _, _) =>
-        // simply forward to the paper actor
-        forPaper(paperId).forward(msg)
-      case msg @ Latex(paperId, _, _, _) =>
-        // simply forward to the paper actor
-        forPaper(paperId).forward(msg)
-    }
 }
 
 /** This actor handles compilation of a paper.
