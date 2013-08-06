@@ -126,4 +126,4 @@ fi
 
 PROG_NAME=blue-server-start
 
-exec "$JAVACMD" ${JVM_OPT} -Dfile.encoding=UTF-8 -Dprog.home="${PROG_HOME}" -jar framework.jar $@
+exec "$JAVACMD" ${JVM_OPT} -Dfile.encoding=UTF-8 -Dprog.home="${PROG_HOME}" -jar `dirname $0`/framework.jar $@
