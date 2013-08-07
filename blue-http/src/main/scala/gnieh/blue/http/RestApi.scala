@@ -32,25 +32,26 @@ import java.text.{ SimpleDateFormat, ParseException }
  *  to make the new interface available.
  *
  *  '''Note''': make sure that the interface in your module does not collide
- *  with another existing and already registered module. In such a case
+ *  with another existing and already registered module. In such a case, the first
+ *  service found in the list will be taken, which order is not possible to predict
  *
  *  @author Lucas Satabin
  */
 trait RestApi {
 
-  private[http] val posts = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
-  private[http] val gets = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
-  private[http] val deletes = ListBuffer.empty[PartialFunction[(List[String], HReqData), HLet]]
+  private[http] val posts = ListBuffer.empty[PartialFunction[HReqData, HLet]]
+  private[http] val gets = ListBuffer.empty[PartialFunction[HReqData, HLet]]
+  private[http] val deletes = ListBuffer.empty[PartialFunction[HReqData, HLet]]
 
-  def POST(handler: PartialFunction[(List[String], HReqData), HLet]) {
+  def POST(handler: PartialFunction[HReqData, HLet]) {
     posts += handler
   }
 
-  def GET(handler: PartialFunction[(List[String], HReqData), HLet]) {
+  def GET(handler: PartialFunction[HReqData, HLet]) {
     gets += handler
   }
 
-  def DELETE(handler: PartialFunction[(List[String], HReqData), HLet]) {
+  def DELETE(handler: PartialFunction[HReqData, HLet]) {
     deletes += handler
   }
 
@@ -92,6 +93,45 @@ trait RestApi {
       case _: ParseException =>
         None
     }
+  }
+
+  /** Specific extractor to extract the path and query parts from a request */
+  object ? {
+
+    def unapply(req: HReqData): Option[(String, String)] =
+      if(req.query != "")
+        Some(req.uriPath, req.query)
+      else
+        None
+
+  }
+
+  /** Enrich `StringContext` with string enterpolators used to pattern match against q request */
+  implicit class RestContext(val sc: StringContext) {
+
+    /** Allows people to pattern match against some URL and bind values when needed */
+    object path {
+
+      val regex = sc.parts.map(scala.util.matching.Regex.quoteReplacement).mkString("([^/]+)").r
+
+      def unapplySeq(s: String): Option[Seq[String]] =
+        regex.unapplySeq(s)
+
+      def unapplySeq(req: HReqData): Option[Seq[String]] =
+        regex.unapplySeq(req.uriPath)
+
+    }
+
+    /** Allows people to pattern match agsinast some query string */
+    object query {
+
+      val regex = sc.parts.map(scala.util.matching.Regex.quoteReplacement).mkString("([^&]+)").r
+
+      def unapplySeq(s: String): Option[Seq[String]] =
+        regex.unapplySeq(s)
+
+    }
+
   }
 
 }
