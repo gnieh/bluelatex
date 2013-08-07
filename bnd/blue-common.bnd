@@ -1,8 +1,0 @@
-Bundle-Activator: gnieh.blue.impl.BlueActivator
-Bundle-SymbolicName: org.gnieh.blue.common
-Bundle-Name: \\BlueLaTeX Server Core
-
-Private-Package=gnieh.blue.impl
-
-Export-Package=gnieh.blue, gnieh.blue.couch
-

@@ -23,13 +23,13 @@ object BlueBuild extends Build with PackOsgi {
     // fork jvm when running
     fork in run := true)
     settings(packSettings: _*)
-  ) aggregate(common, http, compile, mobwrite, sync)
+  ) aggregate(core, compile, mobwrite, sync)
 
   lazy val compileOptions = scalacOptions in ThisBuild ++=
       Seq("-deprecation", "-feature")
 
-  lazy val common =
-    (Project(id = "blue-common", base = file("blue-common"))
+  lazy val core =
+    (Project(id = "blue-core", base = file("blue-core"))
       settings (
         libraryDependencies ++= commonDependencies
       )
@@ -66,15 +66,7 @@ object BlueBuild extends Build with PackOsgi {
       settings (
         libraryDependencies ++= commonDeps
       )
-    ) dependsOn(common)
-
-  lazy val http =
-    (Project(id = "blue-http",
-      base = file("blue-http"))
-      settings (
-        libraryDependencies ++= commonDeps
-      )
-    ) dependsOn(common)
+    ) dependsOn(core)
 
   lazy val compile =
     (Project(id = "blue-compile",
@@ -82,7 +74,7 @@ object BlueBuild extends Build with PackOsgi {
       settings (
         libraryDependencies ++= commonDeps
       )
-    ) dependsOn(common, http)
+    ) dependsOn(core)
 
   lazy val sync =
     (Project(id = "blue-sync",
@@ -90,6 +82,6 @@ object BlueBuild extends Build with PackOsgi {
       settings (
         libraryDependencies ++= commonDeps
       )
-    ) dependsOn(common)
+    ) dependsOn(core)
 
 }

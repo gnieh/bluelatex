@@ -25,7 +25,7 @@ import akka.osgi.ActorSystemActivator
 
 import com.typesafe.config._
 
-import util._
+import http.impl.BlueServer
 
 import gnieh.sohva.sync._
 
@@ -37,8 +37,9 @@ import gnieh.sohva.sync._
  */
 class BlueActivator extends ActorSystemActivator {
 
-  private var _templates: Templates = _
-  private var _couch: CouchClient = _
+  private var templates: Option[Templates] = None
+  private var couch: Option[CouchClient] = None
+  private var server: Option[BlueServer] = None
 
   def configure(context: BundleContext, system: ActorSystem): Unit = {
 
@@ -49,11 +50,18 @@ class BlueActivator extends ActorSystemActivator {
     // load the \BlueLaTeX common configuration
     val config = loader.load(context.getBundle.getSymbolicName)
     val configuration = new BlueConfiguration(config)
+
+    // create and start the server
+    server = Some(new BlueServer(context, config))
+    server.map(_.start)
+
     // register the template engine
-    _templates = new TemplatesImpl(configuration)
-    context.registerService(classOf[Templates], _templates, null)
+    templates = Some(new TemplatesImpl(configuration))
+    context.registerService(classOf[Templates], templates.get, null)
+
     // register the recaptcha service
     context.registerService(classOf[ReCaptcha], new ReCaptchaUtilImpl(configuration), null)
+
     // register the couch client service
     context.registerService(classOf[CouchClient], couch(config), null)
 
@@ -62,22 +70,25 @@ class BlueActivator extends ActorSystemActivator {
 
   }
 
-  private def couch(config: Config) = {
+  private def couch(config: Config): CouchClient = {
     val hostname = config.getString("couch.hostname")
     val port = config.getInt("couch.port")
     val ssl = config.getBoolean("couch.ssl")
-    _couch = new CouchClient(host = hostname, port = port, ssl = ssl)
-    _couch
+    val c = new CouchClient(host = hostname, port = port, ssl = ssl)
+    couch = Some(c)
+    c
   }
 
   override def stop(context: BundleContext): Unit = {
 
+    // stop the server
+    server.map(_.stop)
     // stop the actor system, etc...
     super.stop(context)
     // stop the couch client
-    _couch.shutdown
+    couch.map(_.shutdown)
     // stop the template engine
-    _templates.engine.compiler.shutdown()
+    templates.map(_.engine.compiler.shutdown())
     // stop the framework
     context.getBundle(0).stop
 

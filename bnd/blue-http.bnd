@@ -1,9 +1,0 @@
-Bundle-Activator: gnieh.blue.http.impl.HttpActivator
-Bundle-SymbolicName: org.gnieh.blue.http
-Bundle-Name: \\BlueLaTeX Core Http Features and Services
-Require-Capability: org.gnieh.blue.sync
-
-Private-Package=gnieh.blue.http.impl
-
-Export-Package=gnieh.blue.http
-
