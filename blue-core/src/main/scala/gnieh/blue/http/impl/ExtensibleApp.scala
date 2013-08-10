@@ -76,8 +76,6 @@ class ExtensibleApp(config: Config) extends HApp {
       }
     }
 
-    val splitted = req.uriPath.split("/").toList
-
     // find the first
     handlers.find(_.isDefinedAt(req)) match {
       case Some(handler) =>
