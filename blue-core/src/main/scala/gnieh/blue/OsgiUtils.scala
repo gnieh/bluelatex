@@ -69,6 +69,9 @@ class RichService[T](context: BundleContext, clazz: Class[T]) {
     }
   }
 
+  def filter(pred: T => Boolean): Option[T] =
+    flatMap(s => if(pred(s)) Some(s) else None)
+
   def withFilter(pred: T => Boolean): WithFilter =
     new WithFilter(pred)
 
