@@ -31,10 +31,10 @@ class ConfigurationLoaderImpl(base: File) extends ConfigurationLoader {
     else
       None
 
-  def load(bundleName: String): Config = {
+  def load(bundleName: String, parent: ClassLoader = Thread.currentThread.getContextClassLoader): Config = {
     // load configuration from the base configuration directory, the bundle specific directory and the bundle class loader
     val directories = Array(optionalURL(base), optionalURL(new File(base, bundleName))).flatten
-    val cl = new URLClassLoader(directories, Thread.currentThread.getContextClassLoader)
+    val cl = new URLClassLoader(directories, parent)
     ConfigFactory.load(cl)
   }
 

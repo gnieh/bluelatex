@@ -127,6 +127,7 @@ trait PackOsgi {
       out.log.info("copy scripts")
       for(script <- IO.listFiles(scriptdir)) {
         IO.copyFile(script, binDir / script.getName)
+        (binDir / script.getName).setExecutable(true, false)
       }
 
       out.log.info("copy configuration")

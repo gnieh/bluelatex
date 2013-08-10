@@ -24,6 +24,6 @@ import com.typesafe.config._
 trait ConfigurationLoader {
 
   /** Load the configuration associated to the given module */
-  def load(bundleName: String): Config
+  def load(bundleName: String, parent: ClassLoader = Thread.currentThread.getContextClassLoader): Config
 
 }

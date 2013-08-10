@@ -48,7 +48,7 @@ class BlueActivator extends ActorSystemActivator {
     // register it
     context.registerService(classOf[ConfigurationLoader], loader, null)
     // load the \BlueLaTeX common configuration
-    val config = loader.load(context.getBundle.getSymbolicName)
+    val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
     val configuration = new BlueConfiguration(config)
 
     // create and start the server
