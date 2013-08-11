@@ -106,7 +106,7 @@ trait RestApi {
 
   }
 
-  /** Enrich `StringContext` with string enterpolators used to pattern match against q request */
+  /** Enriches `StringContext` with string enterpolators used to pattern match against a request */
   implicit class RestContext(val sc: StringContext) {
 
     /** Allows people to pattern match against some URL and bind values when needed */
@@ -122,7 +122,7 @@ trait RestApi {
 
     }
 
-    /** Allows people to pattern match agsinast some query string */
+    /** Allows people to pattern match against some query string */
     object query {
 
       val regex = sc.parts.map(scala.util.matching.Regex.quoteReplacement).mkString("([^&]+)").r
