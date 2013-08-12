@@ -25,6 +25,8 @@ import org.osgi.framework.BundleContext
 
 import scala.collection.mutable.ListBuffer
 
+import scala.annotation.tailrec
+
 import java.text.{ SimpleDateFormat, ParseException }
 
 /** The rest interface may be extended by \BlueLaTeX modules.
@@ -110,7 +112,7 @@ trait RestApi {
   implicit class RestContext(val sc: StringContext) {
 
     /** Allows people to pattern match against some URL and bind values when needed */
-    object path {
+    object p {
 
       val regex = sc.parts.map(scala.util.matching.Regex.quoteReplacement).mkString("([^/]+)").r
 
@@ -123,12 +125,55 @@ trait RestApi {
     }
 
     /** Allows people to pattern match against some query string */
-    object query {
+    object q {
 
       val regex = sc.parts.map(scala.util.matching.Regex.quoteReplacement).mkString("([^&]+)").r
 
       def unapplySeq(s: String): Option[Seq[String]] =
         regex.unapplySeq(s)
+
+    }
+
+    object q2 {
+
+      val keys = for {
+        part <- sc.parts.toList
+        elem <- part.split("&").toList
+      } yield elem.split("=", 2) match {
+        case Array(key, value) => (key, Some(value))
+        case Array(key)        => (key, None) // just a key without expected value
+      }
+
+      def unapplySeq(s: String): Option[Seq[String]] = {
+        val args = (for {
+          elem <- s.split("&").toList
+        } yield elem.split("=", 2) match {
+          case Array(key, value) => (key, Some(value))
+          case Array(key)        => (key, None) // just a key without expected value
+        }).toMap
+        // check that all required keys are there, and that the value matches if specified
+        @tailrec
+        def matches(keys: List[(String, Option[String])], acc: List[String]): Option[Seq[String]] = keys match {
+          case (key, None) :: rest if args.contains(key) && args(key) == None =>
+            // key without value, present in the argument string, go further
+            matches(rest, acc)
+          case (key, Some("")) :: rest if args.contains(key) =>
+            args(key) match {
+              case Some(value) => matches(rest, value :: acc)
+              case None        => None
+            }
+          case (key, Some(value)) :: rest if args.contains(key) =>
+            args(key) match {
+              case Some(v) if v == value => matches(rest, v :: acc)
+              case _                     => None
+            }
+          case _ :: _ =>
+            None
+          case Nil =>
+            Some(acc.reverse)
+        }
+        matches(keys, Nil)
+      }
 
     }
 
