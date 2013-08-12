@@ -65,7 +65,7 @@ trait PackOsgi {
             wrapper.setProperties(descriptor)
           } else {
             wrapper.setImportPackage("*;resolution:=optional");
-            wrapper.setExportPackage("*");
+            wrapper.setExportPackage("*;version=" + version.replaceAll("-SNAPSHOT", ""));
             wrapper.setBundleSymbolicName(name)
           }
           wrapper.setBundleVersion(version.replaceAll("-SNAPSHOT", "").replace('-', '.'))
