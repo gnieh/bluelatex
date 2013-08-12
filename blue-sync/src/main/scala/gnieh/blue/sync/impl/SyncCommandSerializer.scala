@@ -1,12 +1,12 @@
 /*
  * This file is part of the \BlueLaTeX project.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,7 @@ import net.liftweb.json._
  *  @author Audric Schiltknecht
  *  @author Lucas Satabin
  *
- */ 
+ */
 class SyncCommandSerializer extends Serializer[SyncCommand] {
   private val _syncCommandClass = classOf[SyncCommand]
 
@@ -72,7 +72,7 @@ class SyncCommandSerializer extends Serializer[SyncCommand] {
  *  @author Audric Schiltknecht
  *  @author Lucas Satabin
  *
- */ 
+ */
 class EditSerializer extends Serializer[Edit] {
   private val _editClass = classOf[Edit]
 
