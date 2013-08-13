@@ -21,7 +21,8 @@ package store
 import scala.io._
 import java.io._
 
-import scala.language.postfixOps;
+import scala.util.{Try, Success, Failure}
+import scala.language.postfixOps
 
 import resource._
 
@@ -31,28 +32,37 @@ import resource._
  */
 class FsStore extends Store {
 
-  def save(document: Document) {
+  def save(document: Document): Unit = {
     val file = new File(document.path)
-
-    if (!file.exists)
-      file.createNewFile
+    // File will be created iif it does not exist, so do not bother to check
+    Try(file.createNewFile()) match {
+      case Failure(e) => throw new StoreException(s"Cannot create file ${document.path}", e)
+      case _ =>
+    }
 
     // write to file system
     managed(new BufferedWriter(new FileWriter(file))).map { writer =>
       writer.write(document.text)
     }
-
   }
 
   def load(documentPath: String): Document = {
     val file = new File(documentPath)
-
     if (file.exists) {
       managed(Source.fromFile(file)).map { source =>
         new Document(documentPath, source.mkString)
       } now
     } else {
       new Document(documentPath, "")
+    }
+  }
+
+  def delete(document: Document): Unit = {
+    val file = new File(document.path)
+    // Same here, nothing done if file does not exist
+    Try(file.delete()) match {
+      case Failure(e) => throw new StoreException(s"Cannot delete file ${document.path}", e)
+      case _ =>
     }
   }
 

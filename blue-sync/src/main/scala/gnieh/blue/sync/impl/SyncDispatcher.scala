@@ -112,7 +112,7 @@ class SyncActor(
   }
 
   def nullify(view: DocumentView): Unit = {
-    // store.delete(document)
+    store.delete(view.document)
   }
 
   def processDelta(view: DocumentView, delta: Delta, serverRevision: Long): Unit = {

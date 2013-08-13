@@ -32,8 +32,11 @@ trait Store {
   /** Loads the document from the store, if it does not exist, returns empty Document. */
   def load(documentId: String): Document
 
+  /** Delete the document from the store. */
+  def delete(document: Document)
+
 }
 
-class StoreException(msg: String, inner: Exception) extends Exception(msg, inner) {
+class StoreException(msg: String, inner: Throwable) extends Exception(msg, inner) {
   def this(msg: String) = this(msg, null)
 }
