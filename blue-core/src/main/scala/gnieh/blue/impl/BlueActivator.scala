@@ -51,13 +51,18 @@ class BlueActivator extends ActorSystemActivator {
     val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
     val configuration = new BlueConfiguration(config)
 
-    // create and start the server
+    // create and start the http server
     server = Some(new BlueServer(context, config))
     server.map(_.start)
 
     // register the template engine
     templates = Some(new TemplatesImpl(configuration))
     context.registerService(classOf[Templates], templates.get, null)
+
+
+    // register the mail agent client
+    val mailAgent = new MailAgentImpl(configuration)
+    context.registerService(classOf[MailAgent], mailAgent, null)
 
     // register the recaptcha service
     context.registerService(classOf[ReCaptcha], new ReCaptchaUtilImpl(configuration), null)

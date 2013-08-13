@@ -9,28 +9,32 @@ trait PackOsgi {
   val Osgi = config("osgi")
 
   val bndDir: SettingKey[File] =
-    SettingKey[File]("bnd-dir", "the directory containing the BND descriptors")
+    SettingKey[File]("blue-bnd-dir", "the directory containing the BND descriptors")
 
   val scriptDir: SettingKey[File] =
-    SettingKey[File]("script-dir", "the directory containing the start/stop scripts")
+    SettingKey[File]("blue-script-dir", "the directory containing the start/stop scripts")
 
   val confDir: SettingKey[File] =
-    SettingKey[File]("configuration-dir", "the directory containing the configuration")
+    SettingKey[File]("blue-configuration-dir", "the directory containing the configuration")
+
+  val templateDir: SettingKey[File] =
+    SettingKey[File]("blue-template-dir", "the directory containing the templates")
 
   val projectBundles: TaskKey[Seq[File]] =
-    TaskKey[Seq[File]]("project-bundles", "the project bundle files")
+    TaskKey[Seq[File]]("blue-project-bundles", "the project bundle files")
 
   val depBundles: TaskKey[Seq[File]] =
-    TaskKey[Seq[File]]("dependency-bundles", "the project dependencies as bundles")
+    TaskKey[Seq[File]]("blue-dependency-bundles", "the project dependencies as bundles")
 
   val pack: TaskKey[File] =
-    TaskKey[File]("pack", "packs the OSGi application")
+    TaskKey[File]("blue-pack", "packs the OSGi application")
 
   val packSettings: Seq[Project.Setting[_]] =
     Seq(
       bndDir <<= baseDirectory(_ / "bnd"),
       scriptDir <<= sourceDirectory(_ / "main" / "script"),
       confDir <<= sourceDirectory(_ / "main" / "configuration"),
+      templateDir <<= sourceDirectory(_ / "main" / "templates"),
       projectBundles <<= (bndDir, target, thisProjectRef, buildStructure) flatMap { (bnddir, target, project, structure) =>
         getFromSelectedProjects(packageBin.task in Runtime)(project, structure, Seq()) map (_ map osgify(bnddir, target))
       },
@@ -65,7 +69,7 @@ trait PackOsgi {
             wrapper.setProperties(descriptor)
           } else {
             wrapper.setImportPackage("*;resolution:=optional");
-            wrapper.setExportPackage("*;version=" + version.replaceAll("-SNAPSHOT", ""));
+            wrapper.setExportPackage("*;version=" + version.replaceAll("-SNAPSHOT", "").replace('-', '.'));
             wrapper.setBundleSymbolicName(name)
           }
           wrapper.setBundleVersion(version.replaceAll("-SNAPSHOT", "").replace('-', '.'))
@@ -104,19 +108,21 @@ trait PackOsgi {
     projects.flatMap(p => targetTask in p get structure.data).join
   }
 
-  private def packTask = pack <<= (projectBundles, depBundles, scriptDir, confDir, streams, target) map {
-    (projectBundles, depBundles, scriptdir, confdir, out, target) =>
+  private def packTask = pack <<= (projectBundles, depBundles, scriptDir, confDir, templateDir, streams, target) map {
+    (projectBundles, depBundles, scriptdir, confdir, templatedir, out, target) =>
       // create the directories
       val packDir = new File(target, "pack")
       val bundleDir = new File(packDir, "bundle")
       val binDir = new File(packDir, "bin")
       val confDir = new File(packDir, "conf")
+      val templateDir = new File(packDir, "templates")
 
       if(packDir.exists)
         IO.delete(packDir)
       bundleDir.mkdirs
       binDir.mkdirs
       confDir.mkdirs
+      templateDir.mkdirs
 
       // copy the bundles to the bundle directory
       out.log.info("copy bundles to " + bundleDir.getCanonicalPath)
@@ -133,6 +139,14 @@ trait PackOsgi {
       out.log.info("copy configuration")
       for(f <- IO.listFiles(confdir)) {
         IO.copyFile(f, confDir / f.getName)
+      }
+
+      out.log.info("copy templates")
+      for (f <- IO.listFiles(templatedir)) {
+        if(f.isDirectory)
+          IO.copyDirectory(f, templateDir / f.getName)
+        else
+          IO.copyFile(f, templateDir / f.getName)
       }
 
       packDir

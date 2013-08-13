@@ -1,12 +1,12 @@
 /*
  * This file is part of the \BlueLaTeX project.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,10 @@ package gnieh.blue
 package http
 package impl
 
+import user._
+
+import com.typesafe.config.Config
+
 /** The core Api providing features to:
  *   - manage users
  *   - manage sessions
@@ -25,12 +29,12 @@ package impl
  *
  *  @author Lucas Satabin
  */
-class CoreApi extends RestApi {
+class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha) extends RestApi {
 
   POST {
     // registers a new user
     case p"users" =>
-      ???
+      new RegisterUserLet(config, templates, mailAgent, recaptcha)
     // save the data for the authenticated user
     case p"users/$username/info" =>
       ???

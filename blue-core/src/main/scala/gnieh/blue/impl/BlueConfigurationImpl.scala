@@ -62,7 +62,10 @@ class BlueConfiguration(conf: Config) extends PaperConfiguration(conf) {
   // ===== templates =====
 
   val templateDir =
-    new File("blue.template.directory")
+    new File(conf.getString("blue.template.directory"))
+
+  val templateLanguage =
+    conf.getString("blue.template.language")
 
   val baseUrl =
     conf.getString("blue.url")

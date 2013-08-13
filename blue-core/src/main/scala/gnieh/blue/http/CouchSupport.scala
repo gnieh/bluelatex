@@ -76,4 +76,13 @@ trait CouchSupport {
       couch <- couchSession
     } yield couch.database(couchConfig.database(name))
 
+  def dbname(name: String): String =
+    couchConfig.database(name)
+
+  val blue_users =
+    dbname("blue_users")
+
+  val blue_papers =
+    dbname("blue_papers")
+
 }

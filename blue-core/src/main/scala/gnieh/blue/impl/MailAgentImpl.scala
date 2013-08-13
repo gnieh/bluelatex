@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package gnieh.blue
+package impl
 
 import javax.mail._
 import javax.mail.internet._
@@ -27,7 +28,7 @@ import java.util.{
  *
  * @author Lucas Satabin
  */
-class MailAgent(configuration: impl.BlueConfiguration) {
+class MailAgentImpl(configuration: BlueConfiguration) extends MailAgent {
 
   /** Returns the list of all email addresses */
   private def retrieveEmail(username: String): Option[String] = {
@@ -41,7 +42,7 @@ class MailAgent(configuration: impl.BlueConfiguration) {
       .map(_.value)
   }
 
-  def send(username: String, subject: String, text: String) =
+  def send(username: String, subject: String, text: String): Unit =
     for(to <- retrieveEmail(username)) {
       val from = new InternetAddress(configuration.emailConf.getProperty("mail.from"))
 

@@ -65,8 +65,16 @@ class CouchConfiguration(config: Config) {
       key
   }
 
+  /** The list of \BlueLaTeX databases */
   val databases =
     config.getObject("couch.database").asScala.keys.toList
+
+  /** The list of default roles to assign to a newly created user */
+  val defaultRoles =
+    config.getList("couch.user.roles").asScala.map(_.render).toList
+
+  val tokenValidity =
+    config.getMilliseconds("couch.user.token_validity").toInt
 
 }
 

@@ -38,14 +38,7 @@ class TemplatesImpl(configuration: BlueConfiguration) extends Templates {
   }
 
   def layout(name: String, params: (String, Any)*) = {
-    val args = Map(params: _*)
-    try {
-      engine.layout(name, args)
-    } catch {
-      case _: FileNotFoundException =>
-        // fallback template
-        engine.layout("article.tex", args)
-    }
+    engine.layout(name + configuration.templateLanguage, Map(params: _*))
   }
 
 }

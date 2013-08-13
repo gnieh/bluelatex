@@ -22,12 +22,46 @@ import couch._
 
 import com.typesafe.config.Config
 
+import net.liftweb.json._
+
+/** Enriches the standard tiscaf `HTalk` object with methods that are useful in \BlueLaTeX
+ *
+ *  @author Lucas Satabin
+ */
+class RichTalk(val talk: HTalk) extends AnyVal {
+
+  /** Serializes the value to its json representation and writes the response to the client,
+   *  corrrectly setting the result type and length */
+  def writeJson(json: Any): HTalk = {
+    val response = pretty(render(Extraction.decompose(json)(DefaultFormats)))
+    talk
+      .setContentType(HMime.json)
+      .setContentLength(response.length)
+      .write(response)
+  }
+
+}
+
+/** All modules in \BlueLaTeX should implement `BlueLet` or one of its derivatives
+ *
+ *  @author Lucas Satabin
+ */
+abstract class BlueLet(val config: Config) extends HSimpleLet with CouchSupport {
+
+  import scala.language.implicitConversions
+
+  @inline
+  implicit def talk2rich(talk: HTalk): RichTalk =
+    new RichTalk(talk)
+
+}
+
 /** Extend this class if you need to treat differently authenticated and unauthenticated
  *  users.
  *
  *  @author Lucas Satabin
  */
-abstract class AuthenticatedLet(val config: Config) extends HSimpleLet with CouchSupport {
+abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
 
   final def act(talk: HTalk): Unit =
     currentUser(talk) match {
