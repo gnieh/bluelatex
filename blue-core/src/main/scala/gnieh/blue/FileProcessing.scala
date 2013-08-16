@@ -56,6 +56,11 @@ object FileProcessing {
         Nil
       }
 
+    @inline
+    def /(name: String): File =
+      new File(file, name)
+
+    @inline
     def isHidden: Boolean =
       file.getName.startsWith(".")
 

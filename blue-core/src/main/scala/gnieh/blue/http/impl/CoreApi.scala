@@ -18,6 +18,7 @@ package http
 package impl
 
 import user._
+import paper._
 
 import com.typesafe.config.Config
 
@@ -43,7 +44,7 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
       ???
     // creates a new paper
     case p"papers" =>
-      ???
+      new CreatePaperLet(config, templates)
     // save the authors involved in this paper (authors, reviewers)
     case p"papers/$paperid/people" =>
       ???

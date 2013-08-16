@@ -78,7 +78,9 @@ abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
    *  By default sends an error object with code "Unauthorized"
    */
   def loggedOutAct(implicit talk: HTalk): Unit = {
-    err(HStatus.Unauthorized, """{"ok": false,"reason": "Not authenticated"}""", talk)
+    talk
+      .setStatus(HStatus.Unauthorized)
+      .writeJson(ErrorResponse("unauthorized", "This action is only permitted to authenticated people"))
   }
 
 }

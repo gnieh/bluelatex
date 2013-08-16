@@ -21,10 +21,24 @@ import java.io.File
 
 class PaperConfiguration(val config: Config) {
 
+  import FileProcessing._
+
   def paperDir(paperId: String): File =
-    new File(new File(config.getString("blue.paper.directory")), paperId)
+    new File(config.getString("blue.paper.directory")) / paperId
 
   def paperFile(paperId: String): File =
-    new File(new File(config.getString("blue.paper.directory")), s"$paperId.tex")
+    paperDir(paperId) / s"$paperId.tex"
+
+  def bibFile(paperId: String): File =
+    paperDir(paperId) / s"$paperId.bib"
+
+  def clsDir: File =
+    new File(config.getString("blue.paper.classes"))
+
+  def clsFiles: List[File] =
+    clsDir.filter(_.getName.endsWith(".cls"))
+
+  def cls(name: String): File =
+    clsDir / s"$name.cls"
 
 }

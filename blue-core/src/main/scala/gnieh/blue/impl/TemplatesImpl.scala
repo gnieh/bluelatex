@@ -38,7 +38,7 @@ class TemplatesImpl(configuration: BlueConfiguration) extends Templates {
   }
 
   def layout(name: String, params: (String, Any)*) = {
-    engine.layout(name + configuration.templateLanguage, Map(params: _*))
+    engine.layout(s"$name.${configuration.templateLanguage}", Map(params: _*))
   }
 
 }
