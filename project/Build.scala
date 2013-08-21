@@ -84,4 +84,18 @@ object BlueBuild extends Build with PackOsgi {
       )
     ) dependsOn(core)
 
+  lazy val test =
+    (Project(id = "blue-test",
+      base = file("blue-test"))
+      settings(
+        libraryDependencies ++= testDeps
+      )
+    ) dependsOn(core)
+
+  lazy val testDeps = Seq(
+    "org.subethamail" % "subethasmtp" % "3.1.7",
+    "org.scala-stm" %% "scala-stm" % "0.7",
+    "org.gnieh" %% "sohva-testing" % "0.3"
+  )
+
 }
