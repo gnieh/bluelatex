@@ -54,11 +54,6 @@ class BlueConfiguration(conf: Config) extends PaperConfiguration(conf) {
     props
   }
 
-  // ===== reset tokens =====
-
-  val resetTokenValidity =
-    conf.getLong("blue.reset.validity")
-
   // ===== templates =====
 
   val templateDir =
@@ -66,9 +61,6 @@ class BlueConfiguration(conf: Config) extends PaperConfiguration(conf) {
 
   val templateLanguage =
     conf.getString("blue.template.language")
-
-  val baseUrl =
-    conf.getString("blue.url")
 
   // ===== internals =====
 

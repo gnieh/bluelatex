@@ -30,7 +30,7 @@ class MobwriteActivator extends BundleActivator {
   def start(context: BundleContext): Unit = {
     for(loader <- context.get[ConfigurationLoader]) {
       // instantiate the mobwrite server as synchronization server
-      val server = new MobwriteServer(loader.load(context.getBundle.getSymbolicName))
+      val server = new MobwriteServer(loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader))
       // register this as the synchronization server
       context.registerService(classOf[SynchroServer], server, null)
     }

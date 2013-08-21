@@ -1,0 +1,5 @@
+Bundle-Name: com.jcraft.jsch
+Bundle-SymbolicName: com.jcraft.jsch
+Export-Package: *
+
+Import-Package: *;resolution:=optional
