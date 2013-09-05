@@ -6,23 +6,26 @@ import aQute.bnd.osgi._
 
 import java.io.File
 
-object BlueBuild extends Build with PackOsgi {
+object BlueBuild extends BlueBuild
+
+class BlueBuild extends Build with Pack with Server with Tests {
 
   val blueVersion = "0.7-SNAPSHOT"
 
   lazy val bluelatex = (Project(id = "bluelatex",
     base = file(".")) settings (
-    resolvers in ThisBuild += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-    resolvers in ThisBuild += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
-    organization in ThisBuild := "org.gnieh",
-    name := "bluelatex",
-    version in ThisBuild := blueVersion,
-    scalaVersion in ThisBuild := "2.10.2",
-    autoCompilerPlugins in ThisBuild := true,
-    compileOptions,
-    // fork jvm when running
-    fork in run := true)
+      resolvers in ThisBuild += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+      resolvers in ThisBuild += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
+      organization in ThisBuild := "org.gnieh",
+      name := "bluelatex",
+      version in ThisBuild := blueVersion,
+      scalaVersion in ThisBuild := "2.10.2",
+      autoCompilerPlugins in ThisBuild := true,
+      compileOptions,
+      // fork jvm when running
+      fork in run := true)
     settings(packSettings: _*)
+    settings(blueServerSettings: _*)
   ) aggregate(core, compile, mobwrite, sync)
 
   lazy val compileOptions = scalacOptions in ThisBuild ++=
@@ -39,9 +42,6 @@ object BlueBuild extends Build with PackOsgi {
     "com.jsuereth" %% "scala-arm" % "1.3",
     "org.osgi" % "org.osgi.core" % "4.3.0" % "provided",
     "org.osgi" % "org.osgi.compendium" % "4.3.0" % "provided"
-  )
-
-  lazy val nonOsgoDeps = Seq(
   )
 
   lazy val commonDependencies = commonDeps ++ Seq(
@@ -83,19 +83,5 @@ object BlueBuild extends Build with PackOsgi {
         libraryDependencies ++= commonDeps
       )
     ) dependsOn(core)
-
-  lazy val test =
-    (Project(id = "blue-test",
-      base = file("blue-test"))
-      settings(
-        libraryDependencies ++= testDeps
-      )
-    ) dependsOn(core)
-
-  lazy val testDeps = Seq(
-    "org.subethamail" % "subethasmtp" % "3.1.7",
-    "org.scala-stm" %% "scala-stm" % "0.7",
-    "org.gnieh" %% "sohva-testing" % "0.3"
-  )
 
 }

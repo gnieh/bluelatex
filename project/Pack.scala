@@ -4,7 +4,7 @@ import sbt._
 import Keys._
 import aQute.bnd.osgi._
 
-trait PackOsgi {
+trait Pack {
 
   val Osgi = config("osgi")
 

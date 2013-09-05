@@ -23,6 +23,7 @@ import scala.concurrent.stm._
 
 import gnieh.sohva.testing._
 
+import java.io.File
 import java.nio.file.Files
 
 /** A test environment starts an entire server, which means:
@@ -32,7 +33,7 @@ import java.nio.file.Files
  *
  *  @author Lucas Satabin
  */
-class TestEnvironment {
+class TestEnvironment(bundles: File) {
 
   /** Give access to the emails sent by the \BlueLaTeX instance*/
   object email {
