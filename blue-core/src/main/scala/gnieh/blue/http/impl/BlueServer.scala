@@ -62,3 +62,4 @@ class BlueServer(context: BundleContext, configuration: Config) extends HServer 
   logger.info("blue server started")
 
 }
+

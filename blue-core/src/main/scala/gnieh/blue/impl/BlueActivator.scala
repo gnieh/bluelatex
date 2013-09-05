@@ -56,7 +56,12 @@ class BlueActivator extends ActorSystemActivator {
     server.map(_.start)
 
     // register the template engine
+    // set the context classloader to the bundle classloader, because
+    // scalate uses this classloader to determine whether we are in an OSGi context
+    val previousCl = Thread.currentThread.getContextClassLoader
+    Thread.currentThread.setContextClassLoader(getClass.getClassLoader)
     templates = Some(new TemplatesImpl(configuration))
+    Thread.currentThread.setContextClassLoader(previousCl)
     context.registerService(classOf[Templates], templates.get, null)
 
 
