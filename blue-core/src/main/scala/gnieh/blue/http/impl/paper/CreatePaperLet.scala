@@ -20,6 +20,8 @@ package paper
 
 import couch._
 
+import gnieh.sohva.UserInfo
+
 import java.util.UUID
 import java.io.{
   File,
@@ -40,7 +42,7 @@ import scala.sys.process._
  */
 class CreatePaperLet(config: Config, templates: Templates) extends AuthenticatedLet(config) {
 
-  def authenticatedAct(user: User)(implicit talk: HTalk): Unit = {
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Unit = {
 
     // new paper identifier
     val newId = "w" + UUID.randomUUID.getMostSignificantBits.toHexString
@@ -83,7 +85,7 @@ class CreatePaperLet(config: Config, templates: Templates) extends Authenticated
 
     // create the paper database
     for(db <- database("blue_papers"))
-      db.saveDoc(Paper(newId, title, Set(user._id), Set(), template))
+      db.saveDoc(Paper(newId, title, Set(user.name), Set(), template))
 
   }
 

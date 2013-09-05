@@ -18,7 +18,9 @@ package http
 
 import tiscaf._
 
-import couch._
+import gnieh.sohva.UserInfo
+
+import couch.Paper
 
 import com.typesafe.config.Config
 
@@ -72,7 +74,7 @@ abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
     }
 
   /** The action to take when the user is authenticated */
-  def authenticatedAct(user: User)(implicit talk: HTalk): Unit
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Unit
 
   /** The action to take when the user is not authenticated.
    *  By default sends an error object with code "Unauthorized"
@@ -102,13 +104,13 @@ abstract class RoleLet(val paperId: String, config: Config) extends Authenticate
         reviewers.map(id => (id, Reviewer))).toMap.withDefaultValue(Other)
     }).getOrElse(Map().withDefaultValue(Other))
 
-  final def authenticatedAct(user: User)(implicit talk: HTalk): Unit =
-    roleAct(user, roles(talk)(user._id))
+  final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Unit =
+    roleAct(user, roles(talk)(s"org.couchdb.user:${user.name}"))
 
   /** Implement this method that can behave differently depending on the user
    *  role for the current paper.
    *  It is only called when the user is authenticated
    */
-  def roleAct(user: User, role: PaperRole)(implicit talk: HTalk): Unit
+  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Unit
 
 }

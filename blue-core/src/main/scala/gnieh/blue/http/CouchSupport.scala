@@ -21,6 +21,7 @@ import couch.User
 import tiscaf._
 
 import gnieh.sohva.sync._
+import gnieh.sohva.UserInfo
 
 import com.typesafe.config.Config
 
@@ -53,13 +54,11 @@ trait CouchSupport {
     }
 
   /** Returns the current user information */
-  def currentUser(implicit talk: HTalk): Option[User] =
+  def currentUser(implicit talk: HTalk): Option[UserInfo] =
     for {
       session <- couchSession
       user <- session.currentUser
-      doc <- session.database(couchConfig.database("blue_users"))
-        .getDocById[User]("org.couchdb.user:" + user.name)
-    } yield doc
+    } yield user
 
   /** Returns the view object identified by database, design name and view name */
   def view[Key: Manifest, Value: Manifest](dbName: String, designName: String, viewName: String)(implicit talk: HTalk): Option[View[Key, Value,

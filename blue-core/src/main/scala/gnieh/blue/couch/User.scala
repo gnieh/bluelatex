@@ -24,15 +24,15 @@ import gnieh.sohva._
  *
  */
 case class User(name: String,
-                firstName: String,
-                lastName: String,
+                first_name: String,
+                last_name: String,
                 email: String,
                 affiliation: Option[String] = None,
                 _rev: Option[String] = None) {
 
   val _id = "org.couchdb.user:" + name
 
-  val fullName = firstName + " " + lastName
+  val fullName = first_name + " " + last_name
 
 }
 
