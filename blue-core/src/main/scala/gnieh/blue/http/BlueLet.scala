@@ -66,18 +66,18 @@ abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
   final def act(talk: HTalk): Unit =
     currentUser(talk) match {
       case Some(user) =>
-        loggedInAct(user)(talk)
+        authenticatedAct(user)(talk)
       case None =>
-        loggedOutAct(talk)
+        unauthenticatedAct(talk)
     }
 
   /** The action to take when the user is authenticated */
-  def loggedInAct(user: User)(implicit talk: HTalk): Unit
+  def authenticatedAct(user: User)(implicit talk: HTalk): Unit
 
   /** The action to take when the user is not authenticated.
    *  By default sends an error object with code "Unauthorized"
    */
-  def loggedOutAct(implicit talk: HTalk): Unit = {
+  def unauthenticatedAct(implicit talk: HTalk): Unit = {
     talk
       .setStatus(HStatus.Unauthorized)
       .writeJson(ErrorResponse("unauthorized", "This action is only permitted to authenticated people"))
@@ -102,7 +102,7 @@ abstract class RoleLet(val paperId: String, config: Config) extends Authenticate
         reviewers.map(id => (id, Reviewer))).toMap.withDefaultValue(Other)
     }).getOrElse(Map().withDefaultValue(Other))
 
-  final def loggedInAct(user: User)(implicit talk: HTalk): Unit =
+  final def authenticatedAct(user: User)(implicit talk: HTalk): Unit =
     roleAct(user, roles(talk)(user._id))
 
   /** Implement this method that can behave differently depending on the user

@@ -40,7 +40,7 @@ import scala.sys.process._
  */
 class CreatePaperLet(config: Config, templates: Templates) extends AuthenticatedLet(config) {
 
-  def loggedInAct(user: User)(implicit talk: HTalk): Unit = {
+  def authenticatedAct(user: User)(implicit talk: HTalk): Unit = {
 
     // new paper identifier
     val newId = "w" + UUID.randomUUID.getMostSignificantBits.toHexString
