@@ -33,23 +33,23 @@ trait Pack {
       blueScriptDir <<= sourceDirectory(_ / "main" / "script"),
       blueConfDir <<= sourceDirectory(_ / "main" / "configuration"),
       blueTemplateDir <<= sourceDirectory(_ / "main" / "templates"),
-      blueProjectBundles <<= (blueBndDir, target, thisProjectRef, buildStructure) flatMap { (bnddir, target, project, structure) =>
-        getFromSelectedProjects(packageBin.task in Runtime)(project, structure, Seq()) map (_ map osgify(bnddir, target))
+      blueProjectBundles <<= (thisProjectRef, buildStructure) flatMap { (project, structure) =>
+        getFromSelectedProjects(packageBin.task in Runtime)(project, structure, Seq())
       },
-      blueDepBundles <<= (blueBndDir, target, thisProjectRef, buildStructure) flatMap { (bnddir, target, project, structure) =>
-        getFromSelectedProjects(update.task)(project, structure, Seq()) map (_ flatMap wrapReport(bnddir, target))
+      blueDepBundles <<= (thisProjectRef, buildStructure) flatMap { (project, structure) =>
+        getFromSelectedProjects(update.task)(project, structure, Seq()) map (_ flatMap wrapReport)
       },
       bluePackTask
     )
 
-  def wrapReport(bnddir: File, target: File)(report: UpdateReport): Seq[File] =
+  def wrapReport(report: UpdateReport): Seq[File] =
     for {
       c <- report.configurations
       if c.configuration == "runtime"
       m <- c.modules
       (artifact, file) <- m.artifacts
       if DependencyFilter.allPass(c.configuration, m.module, artifact)
-    } yield osgify(bnddir, target)(file)
+    } yield file
 
   /* make an OSGi bundle out of a jar file */
   def osgify(bnddir: File, target: File)(file: File): File = {
@@ -106,8 +106,8 @@ trait Pack {
     projects.flatMap(p => targetTask in p get structure.data).join
   }
 
-  private def bluePackTask = bluePack <<= (blueProjectBundles, blueDepBundles, blueScriptDir, blueConfDir, blueTemplateDir, streams, target) map {
-    (projectBundles, depBundles, scriptdir, confdir, templatedir, out, target) =>
+  private def bluePackTask = bluePack <<= (blueBndDir, blueProjectBundles, blueDepBundles, blueScriptDir, blueConfDir, blueTemplateDir, streams, target) map {
+    (bnddir, projectJars, depJars, scriptdir, confdir, templatedir, out, target) =>
       // create the directories
       val packDir = new File(target, "pack")
       val bundleDir = new File(packDir, "bundle")
@@ -115,39 +115,49 @@ trait Pack {
       val confDir = new File(packDir, "conf")
       val templateDir = new File(packDir, "templates")
 
-      if(packDir.exists)
-        IO.delete(packDir)
-      bundleDir.mkdirs
-      binDir.mkdirs
-      confDir.mkdirs
-      templateDir.mkdirs
+      val lastPacked = projectJars.map(_.lastModified).max
 
-      // copy the bundles to the bundle directory
-      out.log.info("copy bundles to " + bundleDir.getCanonicalPath)
-      for(bundle <- projectBundles ++ depBundles) {
-        IO.copyFile(bundle, bundleDir / bundle.getName)
-      }
+      if(packDir.exists && packDir.lastModified < lastPacked) {
 
-      out.log.info("copy scripts")
-      for(script <- IO.listFiles(scriptdir)) {
-        IO.copyFile(script, binDir / script.getName)
-        (binDir / script.getName).setExecutable(true, false)
-      }
+        val projectBundles = projectJars map osgify(bnddir, target)
+        val depBundles = depJars map osgify(bnddir, target)
 
-      out.log.info("copy configuration")
-      for(f <- IO.listFiles(confdir)) {
-        IO.copyFile(f, confDir / f.getName)
-      }
+        if(packDir.exists)
+          IO.delete(packDir)
+        bundleDir.mkdirs
+        binDir.mkdirs
+        confDir.mkdirs
+        templateDir.mkdirs
 
-      out.log.info("copy templates")
-      for (f <- IO.listFiles(templatedir)) {
-        if(f.isDirectory)
-          IO.copyDirectory(f, templateDir / f.getName)
-        else
-          IO.copyFile(f, templateDir / f.getName)
-      }
+        // copy the bundles to the bundle directory
+        out.log.info("copy bundles to " + bundleDir.getCanonicalPath)
+        for(bundle <- projectBundles ++ depBundles) {
+          IO.copyFile(bundle, bundleDir / bundle.getName)
+        }
 
-      packDir
+        out.log.info("copy scripts")
+        for(script <- IO.listFiles(scriptdir)) {
+          IO.copyFile(script, binDir / script.getName)
+          (binDir / script.getName).setExecutable(true, false)
+        }
+
+        out.log.info("copy configuration")
+        for(f <- IO.listFiles(confdir)) {
+          IO.copyFile(f, confDir / f.getName)
+        }
+
+        out.log.info("copy templates")
+        for (f <- IO.listFiles(templatedir)) {
+          if(f.isDirectory)
+            IO.copyDirectory(f, templateDir / f.getName)
+          else
+            IO.copyFile(f, templateDir / f.getName)
+        }
+
+    }
+
+    packDir
+
   }
 
 }
