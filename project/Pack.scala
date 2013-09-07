@@ -6,42 +6,40 @@ import aQute.bnd.osgi._
 
 trait Pack {
 
-  val Osgi = config("osgi")
+  val blueBndDir =
+    settingKey[File]("the directory containing the BND descriptors")
 
-  val bndDir: SettingKey[File] =
-    SettingKey[File]("blue-bnd-dir", "the directory containing the BND descriptors")
+  val blueScriptDir =
+    settingKey[File]("the directory containing the start/stop scripts")
 
-  val scriptDir: SettingKey[File] =
-    SettingKey[File]("blue-script-dir", "the directory containing the start/stop scripts")
+  val blueConfDir =
+    settingKey[File]("the directory containing the configuration")
 
-  val confDir: SettingKey[File] =
-    SettingKey[File]("blue-configuration-dir", "the directory containing the configuration")
+  val blueTemplateDir =
+    settingKey[File]("the directory containing the templates")
 
-  val templateDir: SettingKey[File] =
-    SettingKey[File]("blue-template-dir", "the directory containing the templates")
+  val blueProjectBundles =
+    taskKey[Seq[File]]("the project bundle files")
 
-  val projectBundles: TaskKey[Seq[File]] =
-    TaskKey[Seq[File]]("blue-project-bundles", "the project bundle files")
+  val blueDepBundles =
+    taskKey[Seq[File]]("the project dependencies as bundles")
 
-  val depBundles: TaskKey[Seq[File]] =
-    TaskKey[Seq[File]]("blue-dependency-bundles", "the project dependencies as bundles")
+  val bluePack =
+    taskKey[File]("packs the OSGi application")
 
-  val pack: TaskKey[File] =
-    TaskKey[File]("blue-pack", "packs the OSGi application")
-
-  val packSettings: Seq[Project.Setting[_]] =
+  val packSettings: Seq[Def.Setting[_]] =
     Seq(
-      bndDir <<= baseDirectory(_ / "bnd"),
-      scriptDir <<= sourceDirectory(_ / "main" / "script"),
-      confDir <<= sourceDirectory(_ / "main" / "configuration"),
-      templateDir <<= sourceDirectory(_ / "main" / "templates"),
-      projectBundles <<= (bndDir, target, thisProjectRef, buildStructure) flatMap { (bnddir, target, project, structure) =>
+      blueBndDir <<= baseDirectory(_ / "bnd"),
+      blueScriptDir <<= sourceDirectory(_ / "main" / "script"),
+      blueConfDir <<= sourceDirectory(_ / "main" / "configuration"),
+      blueTemplateDir <<= sourceDirectory(_ / "main" / "templates"),
+      blueProjectBundles <<= (blueBndDir, target, thisProjectRef, buildStructure) flatMap { (bnddir, target, project, structure) =>
         getFromSelectedProjects(packageBin.task in Runtime)(project, structure, Seq()) map (_ map osgify(bnddir, target))
       },
-      depBundles <<= (bndDir, target, thisProjectRef, buildStructure) flatMap { (bnddir, target, project, structure) =>
+      blueDepBundles <<= (blueBndDir, target, thisProjectRef, buildStructure) flatMap { (bnddir, target, project, structure) =>
         getFromSelectedProjects(update.task)(project, structure, Seq()) map (_ flatMap wrapReport(bnddir, target))
       },
-      packTask
+      bluePackTask
     )
 
   def wrapReport(bnddir: File, target: File)(report: UpdateReport): Seq[File] =
@@ -97,7 +95,7 @@ trait Pack {
     """([^_]+)(?:_[0-9](?:.[0-9]+)+)?-([0-9]+(?:.[0-9]+)*(?:-\w+)*).jar""".r
 
 
-  def getFromSelectedProjects[T](targetTask: SettingKey[Task[T]])(currentProject: ProjectRef, structure: Load.BuildStructure, exclude: Seq[String]): Task[Seq[T]] = {
+  def getFromSelectedProjects[T](targetTask: SettingKey[Task[T]])(currentProject: ProjectRef, structure: BuildStructure, exclude: Seq[String]): Task[Seq[T]] = {
     def allProjectRefs(currentProject: ProjectRef): Seq[ProjectRef] = {
       def isExcluded(p: ProjectRef) = exclude.contains(p.project)
       val children = Project.getProject(currentProject, structure).toSeq.flatMap(_.aggregate)
@@ -108,7 +106,7 @@ trait Pack {
     projects.flatMap(p => targetTask in p get structure.data).join
   }
 
-  private def packTask = pack <<= (projectBundles, depBundles, scriptDir, confDir, templateDir, streams, target) map {
+  private def bluePackTask = bluePack <<= (blueProjectBundles, blueDepBundles, blueScriptDir, blueConfDir, blueTemplateDir, streams, target) map {
     (projectBundles, depBundles, scriptdir, confdir, templatedir, out, target) =>
       // create the directories
       val packDir = new File(target, "pack")

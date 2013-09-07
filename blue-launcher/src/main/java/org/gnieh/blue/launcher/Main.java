@@ -25,6 +25,8 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
+import org.apache.commons.daemon.Daemon;
+import org.apache.commons.daemon.DaemonContext;
 
 /** Launcher for the OSGi environment that does not block at the end of startup.
  *  It is used for sbt to get hand back on the lifecycle when starting a test server.
@@ -32,7 +34,7 @@ import org.osgi.framework.launch.FrameworkFactory;
  *
  *  @author Lucas Satabin
  */
-public class Main
+public class Main implements Daemon
 {
     /**
      * Switch for specifying bundle directory.
@@ -190,8 +192,13 @@ public class Main
      *        the bundle cache directory.
      * @throws Exception If an error occurs.
     **/
-    public static void main(String[] args) throws Exception
+    @Override
+    public void init(DaemonContext dc) throws Exception
     {
+
+        System.out.println("Starting OSGi framework");
+
+        String[] args = dc.getArguments();
         // Look for bundle directory and/or cache directory.
         // We support at most one argument, which is the bundle
         // cache directory.
@@ -275,27 +282,49 @@ public class Main
             });
         }
 
-        try
+        // Create an instance of the framework.
+        FrameworkFactory factory = getFrameworkFactory();
+        m_fwk = factory.newFramework(configProps);
+        // Initialize the framework, but don't start it yet.
+        m_fwk.init();
+        // Use the system bundle context to process the auto-deploy
+        // and auto-install/auto-start properties.
+        AutoProcessor.process(configProps, m_fwk.getBundleContext());
+
+    }
+
+    @Override
+    public void start() throws Exception
+    {
+
+        // Start the framework.
+        if(m_fwk != null)
         {
-            // Create an instance of the framework.
-            FrameworkFactory factory = getFrameworkFactory();
-            m_fwk = factory.newFramework(configProps);
-            // Initialize the framework, but don't start it yet.
-            m_fwk.init();
-            // Use the system bundle context to process the auto-deploy
-            // and auto-install/auto-start properties.
-            AutoProcessor.process(configProps, m_fwk.getBundleContext());
-            // Start the framework.
             m_fwk.start();
             System.out.println("OSGi framework started");
-
         }
-        catch (Exception ex)
+        else
         {
-            System.err.println("Could not create framework: " + ex);
-            ex.printStackTrace();
-            System.exit(0);
+            throw new Exception("OSGi framework not initialized");
         }
+
+    }
+
+    @Override
+    public void stop() throws Exception
+    {
+
+        if(m_fwk != null)
+        {
+            m_fwk.stop();
+            m_fwk.waitForStop(0);
+        }
+
+    }
+
+    @Override
+    public void destroy()
+    {
     }
 
     /**
@@ -305,7 +334,7 @@ public class Main
      * @return The created <tt>FrameworkFactory</tt> instance.
      * @throws Exception if any errors occur.
     **/
-    private static FrameworkFactory getFrameworkFactory() throws Exception
+    private FrameworkFactory getFrameworkFactory() throws Exception
     {
         URL url = Main.class.getClassLoader().getResource(
             "META-INF/services/org.osgi.framework.launch.FrameworkFactory");

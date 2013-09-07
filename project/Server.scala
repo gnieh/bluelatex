@@ -21,21 +21,19 @@ trait Server {
       )
     )
 
-  val BlueServer = config("blue-server")
+  val blueStart =
+    taskKey[Boolean]("starts a \\BlueLaTeX test environment")
 
-  val blueStart: TaskKey[Boolean] =
-    TaskKey[Boolean]("blue-start", "starts a \\BlueLaTeX test environment")
+  val blueStop =
+    taskKey[Boolean]("stops \\BlueLaTeX test environment")
 
-  val blueStop: TaskKey[Boolean] =
-    TaskKey[Boolean]("blue-stop", "stops \\BlueLaTeX test environment")
-
-  val blueServerSettings: Seq[Project.Setting[_]] =
+  val blueServerSettings: Seq[Def.Setting[_]] =
     Seq(
       blueStartTask,
       blueStopTask
     )
 
-  private def blueStartTask = blueStart <<= (pack, packageBin in (launcher, Compile), update in launcher) map { (pack, jar, deps) =>
+  private def blueStartTask = blueStart <<= (streams, bluePack, packageBin in (launcher, Compile), update in launcher) map { (out, pack, jar, deps) =>
     val jars = for {
       c <- deps.configurations
       m <- c.modules
@@ -43,15 +41,60 @@ trait Server {
       if DependencyFilter.allPass(c.configuration, m.module, artifact)
     } yield file
     val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
-    Fork.java(None, Seq("-cp", cp, "org.gnieh.blue.launcher.Main"), Some(pack), StdoutOutput)
-    true
+    val javaHome = System.getProperty("java.home")
+    // TODO make it configurable for other platforms
+    val process = Process(
+      Seq(
+        "jsvc",
+        "-java-home", javaHome,
+        "-cp", cp,
+        "-user", "lucas",
+        "-pidfile", "/tmp/bluelatex.pid",
+        "-outfile", "/tmp/bluelatex.out",
+        "-errfile", "/tmp/bluelatex.err",
+        "org.gnieh.blue.launcher.Main"),
+      Some(pack)
+    )
+    process ! new Logger(out) == 0
   }
 
-  private def blueStopTask = blueStop := {
-    val s = new Socket("localhost", 8911)
-    s.getOutputStream.write("stop".getBytes("ISO-8859-1"))
-    s.close
-    true
+  private def blueStopTask = blueStop <<= (packageBin in (launcher, Compile), update in launcher) map { (jar, deps) =>
+    val jars = for {
+      c <- deps.configurations
+      m <- c.modules
+      (artifact, file) <- m.artifacts
+      if DependencyFilter.allPass(c.configuration, m.module, artifact)
+    } yield file
+    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
+    val javaHome = System.getProperty("java.home")
+    // TODO make it configurable for other platforms
+    println(cp)
+    val process = Process(
+      Seq(
+        "jsvc",
+        "-java-home", javaHome,
+        "-cp", cp,
+        "-user", "lucas",
+        "-pidfile", "/tmp/bluelatex.pid",
+        "-outfile", "/tmp/bluelatex.out",
+        "-errfile", "/tmp/bluelatex.err",
+        "-stop",
+        "org.gnieh.blue.launcher.Main"),
+      None
+    )
+    process.! == 0
+  }
+
+  private class Logger(out: TaskStreams) extends ProcessLogger {
+
+    def buffer[T](f: =>T): T = f
+
+    def error(s: =>String): Unit =
+      out.log.error(s)
+
+    def info(s: => String):Unit =
+      out.log.info(s)
+
   }
 
 }
