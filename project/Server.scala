@@ -42,13 +42,14 @@ trait Server {
     } yield file
     val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
     val javaHome = System.getProperty("java.home")
+    val user = System.getProperty("user.name")
     // TODO make it configurable for other platforms
     val process = Process(
       Seq(
         "jsvc",
         "-java-home", javaHome,
         "-cp", cp,
-        "-user", "lucas",
+        "-user", user,
         "-pidfile", "/tmp/bluelatex.pid",
         "-outfile", "/tmp/bluelatex.out",
         "-errfile", "/tmp/bluelatex.err",
@@ -67,13 +68,14 @@ trait Server {
     } yield file
     val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
     val javaHome = System.getProperty("java.home")
+    val user = System.getProperty("user.name")
     // TODO make it configurable for other platforms
     val process = Process(
       Seq(
         "jsvc",
         "-java-home", javaHome,
         "-cp", cp,
-        "-user", "lucas",
+        "-user", user,
         "-pidfile", "/tmp/bluelatex.pid",
         "-outfile", "/tmp/bluelatex.out",
         "-errfile", "/tmp/bluelatex.err",
