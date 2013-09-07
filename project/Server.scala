@@ -58,7 +58,7 @@ trait Server {
     process ! new Logger(out) == 0
   }
 
-  private def blueStopTask = blueStop <<= (packageBin in (launcher, Compile), update in launcher) map { (jar, deps) =>
+  private def blueStopTask = blueStop <<= (packageBin in (launcher, Compile), update in launcher, streams) map { (jar, deps, out) =>
     val jars = for {
       c <- deps.configurations
       m <- c.modules
@@ -68,7 +68,6 @@ trait Server {
     val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
     val javaHome = System.getProperty("java.home")
     // TODO make it configurable for other platforms
-    println(cp)
     val process = Process(
       Seq(
         "jsvc",
@@ -82,7 +81,7 @@ trait Server {
         "org.gnieh.blue.launcher.Main"),
       None
     )
-    process.! == 0
+    process ! new Logger(out) == 0
   }
 
   private class Logger(out: TaskStreams) extends ProcessLogger {
