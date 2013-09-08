@@ -20,7 +20,6 @@ class BlueBuild extends Build with Pack with Server with Tests {
       name := "bluelatex",
       version in ThisBuild := blueVersion,
       scalaVersion in ThisBuild := "2.10.2",
-      autoCompilerPlugins in ThisBuild := true,
       compileOptions,
       // fork jvm when running
       fork in run := true)
