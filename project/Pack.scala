@@ -117,7 +117,7 @@ trait Pack {
 
       val lastPacked = projectJars.map(_.lastModified).max
 
-      if(packDir.exists && packDir.lastModified < lastPacked) {
+      if(!packDir.exists || (packDir.exists && packDir.lastModified < lastPacked)) {
 
         val projectBundles = projectJars map osgify(bnddir, target)
         val depBundles = depJars map osgify(bnddir, target)
