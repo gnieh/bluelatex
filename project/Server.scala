@@ -47,6 +47,7 @@ trait Server {
     val process = Process(
       Seq(
         "jsvc",
+        "-cwd", pack.getCanonicalPath,
         "-java-home", javaHome,
         "-cp", cp,
         "-user", user,
@@ -73,6 +74,7 @@ trait Server {
     val process = Process(
       Seq(
         "jsvc",
+        "-cwd", pack.getCanonicalPath,
         "-java-home", javaHome,
         "-cp", cp,
         "-user", user,
