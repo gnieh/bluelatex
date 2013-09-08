@@ -60,7 +60,7 @@ trait Server {
     process ! new Logger(out) == 0
   }
 
-  private def blueStopTask = blueStop <<= (packageBin in (launcher, Compile), update in launcher, streams) map { (jar, deps, out) =>
+  private def blueStopTask = blueStop <<= (streams, bluePack, packageBin in (launcher, Compile), update in launcher) map { (out, pack, jar, deps) =>
     val jars = for {
       c <- deps.configurations
       m <- c.modules
