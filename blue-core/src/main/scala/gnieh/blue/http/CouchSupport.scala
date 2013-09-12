@@ -37,43 +37,40 @@ trait CouchSupport {
     new CouchConfiguration(config)
 
   /** Returns the current couch session object to issue queries to the database */
-  def couchSession(implicit talk: HTalk): Option[CouchSession] =
+  def couchSession(implicit talk: HTalk): CouchSession =
     talk.ses.get(SessionKeys.Couch).collect {
       case sess: CouchSession => sess
+    } match {
+      case Some(sess) => sess
+      case None =>
+        // start and register a new couch session
+        val sess = couchConfig.couch.startSession
+        talk.ses(SessionKeys.Couch) = sess
+        sess
     }
 
   /** Indicates whether the current session is a logged in user */
   def loggedIn(implicit talk: HTalk): Boolean =
-    couchSession.map(_.isLoggedIn).getOrElse(false)
+    couchSession.isLoggedIn
 
   /** Indicates whether the current session complies with role name */
   def hasRole(role: String)(implicit talk: HTalk): Boolean =
-    couchSession match {
-      case Some(session) => session.hasRole(role)
-      case None => role != null && role.isEmpty
-    }
+    couchSession .hasRole(role)
 
   /** Returns the current user information */
   def currentUser(implicit talk: HTalk): Option[UserInfo] =
-    for {
-      session <- couchSession
-      user <- session.currentUser
-    } yield user
+    couchSession.currentUser
 
   /** Returns the view object identified by database, design name and view name */
-  def view[Key: Manifest, Value: Manifest](dbName: String, designName: String, viewName: String)(implicit talk: HTalk): Option[View[Key, Value,
-  Any]] =
-    for {
-      couch <- couchSession
-      db = couch.database(couchConfig.database(dbName))
-      design = db.design(designName)
-    } yield design.view[Key, Value, Any](viewName)
+  def view[Key: Manifest, Value: Manifest](dbName: String, designName: String, viewName: String)(implicit talk: HTalk): View[Key, Value, Any] = {
+      val db = couchSession.database(couchConfig.database(dbName))
+      val design = db.design(designName)
+      design.view[Key, Value, Any](viewName)
+  }
 
   /** Returns the database object identified by its name */
-  def database(name: String)(implicit talk: HTalk): Option[Database] =
-    for {
-      couch <- couchSession
-    } yield couch.database(couchConfig.database(name))
+  def database(name: String)(implicit talk: HTalk): Database =
+    couchSession.database(couchConfig.database(name))
 
   def dbname(name: String): String =
     couchConfig.database(name)

@@ -96,8 +96,7 @@ abstract class RoleLet(val paperId: String, config: Config) extends Authenticate
 
   private def roles(implicit talk: HTalk): Map[String, PaperRole] =
     (for {
-      session <- couchSession
-      Paper(_, _, authors, reviewers, _, _, _, _, _, _) <- session.database(
+      Paper(_, _, authors, reviewers, _, _, _, _, _, _) <- couchSession.database(
         couchConfig.database("blue_papers")).getDocById[Paper](paperId)
     } yield {
       (authors.map(id => (id, Author)) ++

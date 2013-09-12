@@ -84,8 +84,7 @@ class CreatePaperLet(config: Config, templates: Templates) extends Authenticated
     configuration.bibFile(newId).createNewFile
 
     // create the paper database
-    for(db <- database("blue_papers"))
-      db.saveDoc(Paper(newId, title, Set(user.name), Set(), template))
+    database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template))
 
   }
 
