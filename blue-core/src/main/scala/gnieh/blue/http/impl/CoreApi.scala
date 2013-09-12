@@ -36,9 +36,6 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
     // registers a new user
     case p"users" =>
       new RegisterUserLet(config, templates, mailAgent, recaptcha)
-    // save the data for the authenticated user
-    case p"users/$username/info" =>
-      ???
     // performs password reset
     case p"users/$username/reset" =>
       ???
@@ -53,6 +50,12 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
       ???
     // synchronization request
     case p"sync" =>
+      ???
+  }
+
+  PATCH {
+    // save the data for the authenticated user
+    case p"users/$username/info" =>
       ???
   }
 
