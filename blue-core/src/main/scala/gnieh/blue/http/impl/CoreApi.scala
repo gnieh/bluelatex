@@ -18,6 +18,7 @@ package http
 package impl
 
 import user._
+import session._
 import paper._
 
 import com.typesafe.config.Config
@@ -47,7 +48,7 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
       ???
     // log a user in
     case p"session" =>
-      ???
+      new LoginLet(config)
     // synchronization request
     case p"sync" =>
       ???
