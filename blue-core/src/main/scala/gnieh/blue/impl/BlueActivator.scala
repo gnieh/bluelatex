@@ -61,9 +61,10 @@ class BlueActivator extends ActorSystemActivator {
     val previousCl = Thread.currentThread.getContextClassLoader
     Thread.currentThread.setContextClassLoader(getClass.getClassLoader)
     templates = Some(new TemplatesImpl(configuration))
+    // initialize the template compiler on start
+    templates.foreach(_.engine.compiler)
     Thread.currentThread.setContextClassLoader(previousCl)
     context.registerService(classOf[Templates], templates.get, null)
-
 
     // register the mail agent client
     val mailAgent = new MailAgentImpl(configuration)

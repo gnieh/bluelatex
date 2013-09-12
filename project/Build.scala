@@ -33,7 +33,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
   lazy val core =
     (Project(id = "blue-core", base = file("blue-core"))
       settings (
-        libraryDependencies ++= commonDependencies
+        libraryDependencies ++= coreDependencies
       )
     )
 
@@ -43,9 +43,10 @@ class BlueBuild extends Build with Pack with Server with Tests {
     "org.osgi" % "org.osgi.compendium" % "4.3.0" % "provided"
   )
 
-  lazy val commonDependencies = commonDeps ++ Seq(
-    "org.gnieh" %% "sohva-client" % "0.3",
+  lazy val coreDependencies = commonDeps ++ Seq(
+    "org.gnieh" %% "sohva-client" % "0.4-SNAPSHOT",
     "org.gnieh" %% "tiscaf" % "0.8-SNAPSHOT",
+    "org.gnieh" %% "diffson" % "0.2-SNAPSHOT",
     "commons-io" % "commons-io" % "1.4",
     "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
     "com.typesafe" % "config" %"1.0.1",

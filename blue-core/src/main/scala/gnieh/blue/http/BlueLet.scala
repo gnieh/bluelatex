@@ -18,6 +18,8 @@ package http
 
 import tiscaf._
 
+import gnieh.diffson._
+
 import gnieh.sohva.UserInfo
 
 import couch.Paper
@@ -26,23 +28,7 @@ import com.typesafe.config.Config
 
 import net.liftweb.json._
 
-/** Enriches the standard tiscaf `HTalk` object with methods that are useful in \BlueLaTeX
- *
- *  @author Lucas Satabin
- */
-class RichTalk(val talk: HTalk) extends AnyVal {
-
-  /** Serializes the value to its json representation and writes the response to the client,
-   *  corrrectly setting the result type and length */
-  def writeJson(json: Any): HTalk = {
-    val response = pretty(render(Extraction.decompose(json)(DefaultFormats)))
-    talk
-      .setContentType(HMime.json)
-      .setContentLength(response.length)
-      .write(response)
-  }
-
-}
+import scala.io.Source
 
 /** All modules in \BlueLaTeX should implement `BlueLet` or one of its derivatives
  *
@@ -51,6 +37,63 @@ class RichTalk(val talk: HTalk) extends AnyVal {
 abstract class BlueLet(val config: Config) extends HSimpleLet with CouchSupport {
 
   import scala.language.implicitConversions
+
+  /** The formats to (de)serialize json objects. You may override it if you need specific serializers */
+  implicit def formats = DefaultFormats + JsonPatchSerializer
+
+  /** Enriches the standard tiscaf `HTalk` object with methods that are useful in \BlueLaTeX
+   *
+   *  @author Lucas Satabin
+   */
+  class RichTalk(val talk: HTalk) {
+
+    def serialize(obj: Any) = obj match {
+      case i: Int => pretty(render(JInt(i)))
+      case i: BigInt => pretty(render(JInt(i)))
+      case l: Long => pretty(render(JInt(l)))
+      case d: Double => pretty(render(JDouble(d)))
+      case f: Float => pretty(render(JDouble(f)))
+      case d: BigDecimal => pretty(render(JDouble(d.doubleValue)))
+      case b: Boolean => pretty(render(JBool(b)))
+      case s: String => pretty(render(JString(s)))
+      case _ => pretty(render(Extraction.decompose(obj)))
+    }
+
+    /** Serializes the value to its json representation and writes the response to the client,
+     *  corrrectly setting the result type and length */
+    def writeJson(json: Any): HTalk = {
+      val response = serialize(json)
+      talk
+        .setContentType(HMime.json)
+        .setContentLength(response.length)
+        .write(response)
+    }
+
+    /** Serializes the value to its json representation and writes the response to the client,
+     *  corrrectly setting the result type and length and the revision of the modified resource
+     *  in the `ETag` field */
+    def writeJson(json: Any, rev: String): HTalk =
+      writeJson(json).setHeader("ETag", rev)
+
+    val regex = """\s*charset\s*=\s*(\S+)\s*""".r
+
+    /** Reads the content of the body as a Json value and extracts it as `T` */
+    def readJson[T: Manifest]: Option[T] =
+      (for {
+        tpe <- talk.req.header("content-type")
+        if tpe.startsWith(HMime.json)
+        octets <- talk.req.octets
+      } yield {
+        // try to infer the encoding from the Content-Type header
+        // otherwise it is ISO-8859-1
+        val charset = tpe.split(";").collect {
+          case regex(charset) => charset
+        }.headOption.getOrElse("ISO-8859-1")
+        val json = JsonParser.parse(Source.fromBytes(octets, charset).mkString)
+        json.extractOpt[T]
+      }).flatten
+
+  }
 
   @inline
   implicit def talk2rich(talk: HTalk): RichTalk =

@@ -43,9 +43,6 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
     // creates a new paper
     case p"papers" =>
       new CreatePaperLet(config, templates)
-    // save the authors involved in this paper (authors, reviewers)
-    case p"papers/$paperid/people" =>
-      ???
     // log a user in
     case p"session" =>
       new LoginLet(config)
@@ -58,6 +55,9 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
     // save the data for the authenticated user
     case p"users/$username/info" =>
       ???
+    // add or remove people involved in this paper (authors, reviewers), change modules, tag, branch, ...
+    case p"papers/$paperid/info" =>
+      new ModifyPaperLet(paperid, config)
   }
 
   GET {
@@ -73,8 +73,9 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
     // gets the currently logged in user information
     case p"session" =>
       ???
-    // gets the list of people involved in this paper with their role
-    case p"papers/$paperid/people" =>
+    // gets the list of people involved in this paper with their role, the currently
+    // enabled modules, the tags, the branch, ...
+    case p"papers/$paperid/info" =>
       ???
     // downloads a zip archive containing the paper files
     case p"papers/$paperid.zip" =>
