@@ -93,7 +93,7 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
       ???
     // log a user out
     case p"session" =>
-      ???
+      new LogoutLet(config)
     // deletes a paper
     case p"papers/$paperid" =>
       ???
