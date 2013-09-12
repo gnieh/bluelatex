@@ -42,11 +42,21 @@ import java.text.{ SimpleDateFormat, ParseException }
 trait RestApi {
 
   private[http] val posts = ListBuffer.empty[PartialFunction[HReqData, HLet]]
+  private[http] val puts = ListBuffer.empty[PartialFunction[HReqData, HLet]]
+  private[http] val patches = ListBuffer.empty[PartialFunction[HReqData, HLet]]
   private[http] val gets = ListBuffer.empty[PartialFunction[HReqData, HLet]]
   private[http] val deletes = ListBuffer.empty[PartialFunction[HReqData, HLet]]
 
   def POST(handler: PartialFunction[HReqData, HLet]) {
     posts += handler
+  }
+
+  def PUT(handler: PartialFunction[HReqData, HLet]) {
+    puts += handler
+  }
+
+  def PATCH(handler: PartialFunction[HReqData, HLet]) {
+    patches += handler
   }
 
   def GET(handler: PartialFunction[HReqData, HLet]) {

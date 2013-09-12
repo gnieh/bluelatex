@@ -49,6 +49,12 @@ class ExtensibleApp(config: Config) extends HApp {
   private def posts =
     (for((_, app) <- apps)
       yield app.posts).toList.flatten
+  private def puts =
+    (for((_, app) <- apps)
+      yield app.puts).toList.flatten
+  private def patches =
+    (for((_, app) <- apps)
+      yield app.patches).toList.flatten
   private def deletes =
     (for((_, app) <- apps)
       yield app.deletes).toList.flatten
@@ -72,6 +78,8 @@ class ExtensibleApp(config: Config) extends HApp {
         case HReqType.PostData | HReqType.PostMulti | HReqType.PostOctets =>
           posts
         case HReqType.Delete => deletes
+        case HReqType.Put    => puts
+        case HReqType.Patch  => patches
         case _               => throw new RuntimeException("Unknown request type")
       }
     }

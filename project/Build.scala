@@ -15,7 +15,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
   lazy val bluelatex = (Project(id = "bluelatex",
     base = file(".")) settings (
       resolvers in ThisBuild += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-      resolvers in ThisBuild += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
+      resolvers in ThisBuild += "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
       organization in ThisBuild := "org.gnieh",
       name := "bluelatex",
       version in ThisBuild := blueVersion,
