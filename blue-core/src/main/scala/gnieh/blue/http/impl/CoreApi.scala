@@ -54,7 +54,7 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
   PATCH {
     // save the data for the authenticated user
     case p"users/$username/info" =>
-      ???
+      new ModifyUserLet(username, config)
     // add or remove people involved in this paper (authors, reviewers), change modules, tag, branch, ...
     case p"papers/$paperid/info" =>
       new ModifyPaperLet(paperid, config)
