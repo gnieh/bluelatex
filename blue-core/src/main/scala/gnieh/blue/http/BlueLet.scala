@@ -47,22 +47,26 @@ abstract class BlueLet(val config: Config) extends HSimpleLet with CouchSupport 
    */
   class RichTalk(val talk: HTalk) {
 
-    def serialize(obj: Any) = obj match {
-      case i: Int => pretty(render(JInt(i)))
-      case i: BigInt => pretty(render(JInt(i)))
-      case l: Long => pretty(render(JInt(l)))
-      case d: Double => pretty(render(JDouble(d)))
-      case f: Float => pretty(render(JDouble(f)))
-      case d: BigDecimal => pretty(render(JDouble(d.doubleValue)))
-      case b: Boolean => pretty(render(JBool(b)))
-      case s: String => pretty(render(JString(s)))
-      case _ => pretty(render(Extraction.decompose(obj)))
+    def serialize(obj: Any): JValue = obj match {
+      case i: Int => JInt(i)
+      case i: BigInt => JInt(i)
+      case l: Long => JInt(l)
+      case d: Double => JDouble(d)
+      case f: Float => JDouble(f)
+      case d: BigDecimal => JDouble(d.doubleValue)
+      case b: Boolean => JBool(b)
+      case s: String => JString(s)
+      case _ => Extraction.decompose(obj) transform {
+        // drop couchdb specific fields
+        case JField("_id" | "_rev", _) => JNothing
+        case field                     => field
+      }
     }
 
     /** Serializes the value to its json representation and writes the response to the client,
      *  corrrectly setting the result type and length */
     def writeJson(json: Any): HTalk = {
-      val response = serialize(json)
+      val response = pretty(render(serialize(json)))
       talk
         .setContentType(HMime.json)
         .setContentLength(response.length)
