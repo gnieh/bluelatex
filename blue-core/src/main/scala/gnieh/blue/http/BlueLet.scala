@@ -59,7 +59,6 @@ abstract class BlueLet(val config: Config) extends HSimpleLet with CouchSupport 
       case _ => Extraction.decompose(obj) transform {
         // drop couchdb specific fields
         case JField("_id" | "_rev", _) => JNothing
-        case field                     => field
       }
     }
 

@@ -63,7 +63,7 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
   GET {
     // gets the data of the given user
     case p"users/$username/info" =>
-      ???
+      new GetUserInfoLet(username, config)
     // gets the list of papers the given user is involved in
     case p"users/$username/papers" =>
       ???
