@@ -78,7 +78,7 @@ class ModifyPaperLet(paperId: String, config: Config) extends RoleLet(paperId, c
         case (_, None) =>
           // known revision was not sent, precondition failed
           talk.writeJson(ErrorResponse("conflict", "Paper revision not provided"))
-            .setStatus(HStatus.PreconditionFailed)
+            .setStatus(HStatus.Conflict)
       }
     case _ =>
       talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may modify the list of involved people"))
