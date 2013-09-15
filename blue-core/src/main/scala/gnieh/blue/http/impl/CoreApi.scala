@@ -76,7 +76,7 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
     // gets the list of people involved in this paper with their role, the currently
     // enabled modules, the tags, the branch, ...
     case p"papers/$paperid/info" =>
-      ???
+      new GetPaperInfoLet(paperid, config)
     // downloads a zip archive containing the paper files
     case p"papers/$paperid.zip" =>
       ???
