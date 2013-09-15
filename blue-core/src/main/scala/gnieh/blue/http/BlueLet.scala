@@ -56,9 +56,10 @@ abstract class BlueLet(val config: Config) extends HSimpleLet with CouchSupport 
       case d: BigDecimal => JDouble(d.doubleValue)
       case b: Boolean => JBool(b)
       case s: String => JString(s)
-      case _ => Extraction.decompose(obj) transform {
+      case _ => Extraction.decompose(obj) remove {
         // drop couchdb specific fields
-        case JField("_id" | "_rev", _) => JNothing
+        case JField("_id" | "_rev", _) => true
+        case _                         => false
       }
     }
 
