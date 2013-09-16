@@ -35,7 +35,7 @@ trait Server {
 
   val blueServerSettings: Seq[Def.Setting[_]] =
     Seq(
-      couchdb <<= target(t => new CouchInstance(t / "couchdb", false, false)),
+      couchdb <<= target(t => new CouchInstance(t / "couchdb", false, true)),
       blueConfDir in BlueServer <<= sourceDirectory(_ / "configuration"),
       blueStartTask,
       blueStopTask
@@ -71,10 +71,11 @@ trait Server {
       Some(pack)
     )
     process ! new Logger(out)
+    println("started")
   }
 
-  private def blueStopTask = blueStop <<= (couchdb, streams, bluePack, packageBin in (launcher, Compile), update in launcher) map {
-    (couchdb, out, pack, jar, deps) =>
+  private def blueStopTask = blueStop <<= (couchdb, streams, packageBin in (launcher, Compile), update in launcher) map {
+    (couchdb, out, jar, deps) =>
 
     couchdb.stop()
 
@@ -103,6 +104,7 @@ trait Server {
       None
     )
     process ! new Logger(out)
+    println("stopped")
   }
 
   private class Logger(out: TaskStreams) extends ProcessLogger {

@@ -25,9 +25,15 @@ import akka.osgi.ActorSystemActivator
 
 import com.typesafe.config._
 
-import http.impl.BlueServer
+import http.RestApi
+import http.impl.{
+  BlueServer,
+  CoreApi
+}
+import couch.DbManager
 
 import gnieh.sohva.sync._
+
 
 /** The `BlueActivator` starts the \BlueLaTeX core system:
  *   - the configuration loader
@@ -40,6 +46,7 @@ class BlueActivator extends ActorSystemActivator {
   private var templates: Option[Templates] = None
   private var couch: Option[CouchClient] = None
   private var server: Option[BlueServer] = None
+  private var dbManager: Option[DbManager] = None
 
   def configure(context: BundleContext, system: ActorSystem): Unit = {
 
@@ -71,13 +78,21 @@ class BlueActivator extends ActorSystemActivator {
     context.registerService(classOf[MailAgent], mailAgent, null)
 
     // register the recaptcha service
-    context.registerService(classOf[ReCaptcha], new ReCaptchaUtilImpl(configuration), null)
+    val recaptcha = new ReCaptchaUtilImpl(configuration)
+    context.registerService(classOf[ReCaptcha], recaptcha, null)
 
     // register the couch client service
     context.registerService(classOf[CouchClient], couch(config), null)
 
+    // create the database, etc...
+    dbManager = Some(new DbManager(new CouchConfiguration(config)))
+    dbManager.foreach(_.start())
+
     // register the actor system as service so that other bundle can use it
     registerService(context, system)
+
+    // register the core Rest API
+    context.registerService(classOf[RestApi], new CoreApi(config, templates.get, mailAgent, recaptcha), null)
 
   }
 
@@ -93,13 +108,13 @@ class BlueActivator extends ActorSystemActivator {
   override def stop(context: BundleContext): Unit = {
 
     // stop the server
-    server.map(_.stop)
+    server.foreach(_.stop)
     // stop the actor system, etc...
     super.stop(context)
     // stop the couch client
-    couch.map(_.shutdown)
+    couch.foreach(_.shutdown)
     // stop the template engine
-    templates.map(_.engine.compiler.shutdown())
+    templates.foreach(_.engine.compiler.shutdown())
     // stop the framework
     context.getBundle(0).stop
 

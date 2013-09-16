@@ -1,5 +1,5 @@
 Bundle-Activator: gnieh.blue.impl.BlueActivator
-Bundle-SymbolicName: org.gnieh.blue.common
+Bundle-SymbolicName: org.gnieh.blue.core
 Bundle-Name: \\BlueLaTeX Server Core (Http, synchro, ...)
 
 Private-Package=gnieh.blue.impl, gnieh.blue.http.impl

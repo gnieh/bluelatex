@@ -18,6 +18,9 @@ trait Pack {
   val blueTemplateDir =
     settingKey[File]("the directory containing the templates")
 
+  val blueDesignDir =
+    settingKey[File]("the directory containing the couchdb design documents")
+
   val blueProjectBundles =
     taskKey[Seq[File]]("the project bundle files")
 
@@ -33,6 +36,7 @@ trait Pack {
       blueScriptDir <<= sourceDirectory(_ / "main" / "script"),
       blueConfDir <<= sourceDirectory(_ / "main" / "configuration"),
       blueTemplateDir <<= sourceDirectory(_ / "main" / "templates"),
+      blueDesignDir <<= sourceDirectory(_ / "main" / "designs"),
       blueProjectBundles <<= (thisProjectRef, buildStructure) flatMap { (project, structure) =>
         getFromSelectedProjects(packageBin.task in Runtime)(project, structure, Seq())
       },
@@ -106,55 +110,48 @@ trait Pack {
     projects.flatMap(p => targetTask in p get structure.data).join
   }
 
-  private def bluePackTask = bluePack <<= (blueBndDir, blueProjectBundles, blueDepBundles, blueScriptDir, blueConfDir, blueTemplateDir, streams, target) map {
-    (bnddir, projectJars, depJars, scriptdir, confdir, templatedir, out, target) =>
-      // create the directories
-      val packDir = new File(target, "pack")
-      val bundleDir = new File(packDir, "bundle")
-      val binDir = new File(packDir, "bin")
-      val confDir = new File(packDir, "conf")
-      val templateDir = new File(packDir, "templates")
+  private def bluePackTask =
+    bluePack <<= (blueBndDir, blueProjectBundles, blueDepBundles, blueScriptDir, blueConfDir, blueTemplateDir, blueDesignDir, streams, target) map {
+      (bnddir, projectJars, depJars, scriptdir, confdir, designdir, templatedir, out, target) =>
+        // create the directories
+        val packDir = target / "pack"
+        val bundleDir = packDir / "bundle"
+        val binDir = packDir / "bin"
+        val lastPacked = projectJars.map(_.lastModified).max
 
-      val lastPacked = projectJars.map(_.lastModified).max
+        if(!packDir.exists || (packDir.exists && packDir.lastModified < lastPacked)) {
 
-      if(!packDir.exists || (packDir.exists && packDir.lastModified < lastPacked)) {
+          val projectBundles = projectJars map osgify(bnddir, target)
+          val depBundles = depJars map osgify(bnddir, target)
 
-        val projectBundles = projectJars map osgify(bnddir, target)
-        val depBundles = depJars map osgify(bnddir, target)
+          if(packDir.exists)
+            IO.delete(packDir)
+          bundleDir.mkdirs
+          binDir.mkdirs
 
-        if(packDir.exists)
-          IO.delete(packDir)
-        bundleDir.mkdirs
-        binDir.mkdirs
-        templateDir.mkdirs
+          // copy the bundles to the bundle directory
+          out.log.info("copy bundles to " + bundleDir.getCanonicalPath)
+          for(bundle <- projectBundles ++ depBundles) {
+            IO.copyFile(bundle, bundleDir / bundle.getName)
+          }
 
-        // copy the bundles to the bundle directory
-        out.log.info("copy bundles to " + bundleDir.getCanonicalPath)
-        for(bundle <- projectBundles ++ depBundles) {
-          IO.copyFile(bundle, bundleDir / bundle.getName)
-        }
-
-        out.log.info("copy scripts")
-        for(script <- IO.listFiles(scriptdir)) {
-          IO.copyFile(script, binDir / script.getName)
-          (binDir / script.getName).setExecutable(true, false)
+          out.log.info("copy scripts")
+          for(script <- IO.listFiles(scriptdir)) {
+            IO.copyFile(script, binDir / script.getName)
+            (binDir / script.getName).setExecutable(true, false)
+          }
         }
 
         out.log.info("copy configuration")
-        IO.copyDirectory(confdir, confDir)
+        IO.copyDirectory(confdir, packDir / "conf")
 
         out.log.info("copy templates")
-        for (f <- IO.listFiles(templatedir)) {
-          if(f.isDirectory)
-            IO.copyDirectory(f, templateDir / f.getName)
-          else
-            IO.copyFile(f, templateDir / f.getName)
-        }
+        IO.copyDirectory(templatedir, packDir / "templates")
 
+        out.log.info("copy designs")
+        IO.copyDirectory(designdir, packDir / "designs")
+
+        packDir
     }
-
-    packDir
-
-  }
 
 }

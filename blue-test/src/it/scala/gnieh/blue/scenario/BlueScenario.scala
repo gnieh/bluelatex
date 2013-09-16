@@ -16,7 +16,22 @@
 package gnieh.blue
 package scenario
 
+import http.ErrorResponse
+
 import org.scalatest._
+
+import dispatch._
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import com.ning.http.client.{
+  RequestBuilder,
+  Response
+}
+
+import gnieh.diffson._
+
+import net.liftweb.json._
 
 /** Extend this class to implement a test scenario for a feature of \BlueLaTeX.
  *  It provides the environment that allows you to interact with the server and
@@ -24,7 +39,7 @@ import org.scalatest._
  *
  *  @author Lucas Satabin
  */
-abstract class BlueScenario extends FeatureSpec with GivenWhenThen with BeforeAndAfterAll {
+abstract class BlueScenario extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
   object mailbox extends Mailbox
 
@@ -35,5 +50,55 @@ abstract class BlueScenario extends FeatureSpec with GivenWhenThen with BeforeAn
   override def afterAll() {
     mailbox.stop()
   }
+
+  type AsyncResult[T] = Future[Either[(Int, ErrorResponse), T]]
+
+  case class BlueErrorException(status: Int, error: ErrorResponse) extends Exception {
+    override def toString  = s"error: $status, message: $error"
+  }
+
+  implicit val formats = DefaultFormats + JsonPatchSerializer
+
+  private def request =
+      :/("localhost", 8080)
+
+  private def serialize(obj: Any): String = pretty(render(obj match {
+    case i: Int => JInt(i)
+    case i: BigInt => JInt(i)
+    case l: Long => JInt(l)
+    case d: Double => JDouble(d)
+    case f: Float => JDouble(f)
+    case d: BigDecimal => JDouble(d.doubleValue)
+    case b: Boolean => JBool(b)
+    case s: String => JString(s)
+    case _ => Extraction.decompose(obj)
+  }))
+
+  private def synced[T](result: AsyncResult[T]): T = Await.result(result, Duration.Inf) match {
+    case Right(t) => t
+    case Left((code, error)) =>
+      throw BlueErrorException(code, error)
+  }
+
+  private def http(request: RequestBuilder): AsyncResult[JValue] =
+    Http(request > handleCouchResponse _)
+
+  private def handleCouchResponse(response: Response): Either[(Int, ErrorResponse), JValue] = {
+    val json = JsonParser.parse(as.String(response))
+    val code = response.getStatusCode
+    if (code / 100 != 2) {
+      // something went wrong...
+      val error = json.extract[ErrorResponse]
+      Left((code, error))
+    } else {
+      Right(json)
+    }
+  }
+
+  def post[T: Manifest](path: String, data: Any): T =
+    synced(http(request / path << serialize(data))).extract[T]
+
+  def post[T: Manifest](path: String, data: Map[String, String]): T =
+    synced(http(request / path << data)).extract[T]
 
 }

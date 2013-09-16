@@ -28,7 +28,7 @@ class DbManager(configuration: CouchConfiguration) extends Logging {
    *  It creates the databases that need to be created and update all
    *  needed design documents
    */
-  def start {
+  def start() {
     configuration.asAdmin { session =>
       configuration.databases.foreach { db =>
         try {

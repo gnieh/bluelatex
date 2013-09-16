@@ -36,8 +36,17 @@ class UserRegistrationSpec extends BlueScenario {
     scenario("a successful user registration") {
 
       Given("a person")
+      val person = Person("test", "Gérard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
 
       When("she sends a valid registration request to the server")
+      try {
+        val registered = post[Boolean]("users", person.toMap)
+
+        registered should be(true)
+      } catch {
+        case e: Exception =>
+          println(e)
+      }
 
       Then("she receives a confirmation email")
 
