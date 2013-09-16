@@ -26,7 +26,7 @@ import org.scalatest._
  *
  *  @author Lucas Satabin
  */
-class UserRegistrationSpec extends FeatureSpec with GivenWhenThen {
+class UserRegistrationSpec extends BlueScenario {
 
   feature("Any person must be able to register with the \\BlueLaTeX service"){
 
@@ -36,45 +36,34 @@ class UserRegistrationSpec extends FeatureSpec with GivenWhenThen {
     scenario("a successful user registration") {
 
       Given("a person")
-      ???
 
       When("she sends a valid registration request to the server")
-      ???
 
       Then("she receives a confirmation email")
-      ???
 
       And("must validate her account by reseting her password")
-      ???
 
       Then("she can log into the service with this password")
-      ???
 
     }
 
     scenario("a user registration with missing parameters") {
 
       Given("a person")
-      ???
 
       When("she sends a registration request with not username")
-      ???
 
       Then("she receives an error response")
-      ???
 
     }
 
     scenario("a user registration for an already existing name") {
 
       Given("a person")
-      ???
 
       When("she sends a registration request with an already existing username")
-      ???
 
       Then("she receives an error response")
-      ???
 
     }
 

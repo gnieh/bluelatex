@@ -126,7 +126,6 @@ trait Pack {
           IO.delete(packDir)
         bundleDir.mkdirs
         binDir.mkdirs
-        confDir.mkdirs
         templateDir.mkdirs
 
         // copy the bundles to the bundle directory
@@ -142,9 +141,7 @@ trait Pack {
         }
 
         out.log.info("copy configuration")
-        for(f <- IO.listFiles(confdir)) {
-          IO.copyFile(f, confDir / f.getName)
-        }
+        IO.copyDirectory(confdir, confDir)
 
         out.log.info("copy templates")
         for (f <- IO.listFiles(templatedir)) {

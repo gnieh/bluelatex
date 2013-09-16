@@ -6,29 +6,30 @@ import Keys._
 trait Tests {
   this: BlueBuild =>
 
-  lazy val BlueTest = config("blue-test") extend(Test)
+  val Scenario = config("scenario") extend(IntegrationTest)
 
-  lazy val test =
+  lazy val testing =
     (Project(id = "blue-test",
       base = file("blue-test"))
-      configs(BlueTest)
+      configs(IntegrationTest, Scenario)
       settings(
-        inConfig(BlueTest)(Defaults.testSettings): _*
+        inConfig(Scenario)(Defaults.itSettings): _*
+      )
+      settings(
+        inConfig(IntegrationTest)(Defaults.itSettings): _*
       )
       settings(
         libraryDependencies ++= testDeps,
-        fork in BlueTest := true,
-        parallelExecution in BlueTest := false,
-        baseDirectory in BlueTest <<= target(_ / "pack"),
-        testOptions in BlueTest <+= baseDirectory map (basedir => Tests.Argument("-Dbundle.dir=" + new File(basedir, "bundle").getCanonicalPath))
+        fork in IntegrationTest := true,
+        parallelExecution in IntegrationTest := false,
+        test in Scenario <<= (blueStop in bluelatex) dependsOn ((test in IntegrationTest) dependsOn (blueStart in bluelatex))
       )
     ) dependsOn(core)
 
   lazy val testDeps = Seq(
     "org.subethamail" % "subethasmtp" % "3.1.7",
     "org.scala-stm" %% "scala-stm" % "0.7",
-    "org.gnieh" %% "sohva-testing" % "0.3" % "blue-test",
-    "org.scalatest" %% "scalatest" % "2.0.M5b" % "blue-test,test"
+    "org.scalatest" %% "scalatest" % "2.0.M6" % "scenario,test,it"
   )
 
 }

@@ -1,0 +1,15 @@
+{
+   "_id": "_design/lists",
+   "language": "javascript",
+   "views": {
+       "by_author": {
+           "map": "function(doc) {\n  if(doc.authors) {\n    for(var i = 0; i < doc.authors.length ; i++) {\n      emit(doc.authors[i], {\"_id\": doc._id, \"title\": doc.title});\n    }\n  }\n}"
+       },
+       "title": {
+           "map": "function(doc) {\n  if(doc.title) {\n    emit(doc._id, doc.title);\n  }\n}"
+       },
+       "by_keyword": {
+           "map": "function(doc) {\n  if(doc.keywords) {\n    for(var i = 0; i < doc.keywords.length ; i++) {\n      emit(doc.keywords[i], {\"_id\": doc._id, \"title\": doc.title});\n    }\n  }\n}"
+       }
+   }
+}

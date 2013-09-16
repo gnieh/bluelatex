@@ -3,9 +3,12 @@ package blue
 import sbt._
 import Keys._
 import java.net.Socket
+import gnieh.sohva.testing._
 
 trait Server {
   this: BlueBuild =>
+
+  val BlueServer = config("blue-server")
 
   lazy val launcher = Project(id = "launcher",
     base = file("blue-launcher")) settings(
@@ -21,19 +24,28 @@ trait Server {
       )
     )
 
+  val couchdb =
+    settingKey[CouchInstance]("the CouchDB instance")
+
   val blueStart =
-    taskKey[Boolean]("starts a \\BlueLaTeX test environment")
+    taskKey[Unit]("starts a \\BlueLaTeX test environment")
 
   val blueStop =
-    taskKey[Boolean]("stops \\BlueLaTeX test environment")
+    taskKey[Unit]("stops \\BlueLaTeX test environment")
 
   val blueServerSettings: Seq[Def.Setting[_]] =
     Seq(
+      couchdb <<= target(t => new CouchInstance(t / "couchdb", false, false)),
+      blueConfDir in BlueServer <<= sourceDirectory(_ / "configuration"),
       blueStartTask,
       blueStopTask
     )
 
-  private def blueStartTask = blueStart <<= (streams, bluePack, packageBin in (launcher, Compile), update in launcher) map { (out, pack, jar, deps) =>
+  private def blueStartTask = blueStart <<= (couchdb, streams, bluePack, packageBin in (launcher, Compile), update in launcher) map {
+    (couchdb, out, pack, jar, deps) =>
+
+    couchdb.start()
+
     val jars = for {
       c <- deps.configurations
       m <- c.modules
@@ -47,7 +59,8 @@ trait Server {
     val process = Process(
       Seq(
         "jsvc",
-        "-cwd", pack.getCanonicalPath,
+        //"-cwd", pack.getCanonicalPath,
+        "-wait", "10",
         "-java-home", javaHome,
         "-cp", cp,
         "-user", user,
@@ -57,10 +70,14 @@ trait Server {
         "org.gnieh.blue.launcher.Main"),
       Some(pack)
     )
-    process ! new Logger(out) == 0
+    process ! new Logger(out)
   }
 
-  private def blueStopTask = blueStop <<= (streams, bluePack, packageBin in (launcher, Compile), update in launcher) map { (out, pack, jar, deps) =>
+  private def blueStopTask = blueStop <<= (couchdb, streams, bluePack, packageBin in (launcher, Compile), update in launcher) map {
+    (couchdb, out, pack, jar, deps) =>
+
+    couchdb.stop()
+
     val jars = for {
       c <- deps.configurations
       m <- c.modules
@@ -74,7 +91,7 @@ trait Server {
     val process = Process(
       Seq(
         "jsvc",
-        "-cwd", pack.getCanonicalPath,
+        //"-cwd", pack.getCanonicalPath,
         "-java-home", javaHome,
         "-cp", cp,
         "-user", user,
@@ -85,7 +102,7 @@ trait Server {
         "org.gnieh.blue.launcher.Main"),
       None
     )
-    process ! new Logger(out) == 0
+    process ! new Logger(out)
   }
 
   private class Logger(out: TaskStreams) extends ProcessLogger {

@@ -1,0 +1,9 @@
+{
+  "_id": "_design/lists",
+  "language": "javascript",
+  "views": {
+    "emails": {
+      "map": "function(doc) { if(doc.email) { emit(doc._id, doc.email); } }"
+    }
+  }
+}
