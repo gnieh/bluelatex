@@ -66,7 +66,7 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
       new GetUserInfoLet(username, config)
     // gets the list of papers the given user is involved in
     case p"users/$username/papers" =>
-      ???
+      new GetUserPapersLet(username, config)
     // generates a password reset token
     case p"users/$username/reset" =>
       ???
