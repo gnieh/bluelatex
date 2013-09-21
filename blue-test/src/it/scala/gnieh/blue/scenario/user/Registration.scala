@@ -36,7 +36,7 @@ class UserRegistrationSpec extends BlueScenario {
     scenario("a successful user registration") {
 
       Given("a person")
-      val person = Person("test", "Gérard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
+      val person = Person("test", "Gerard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
 
       When("she sends a valid registration request to the server")
       try {

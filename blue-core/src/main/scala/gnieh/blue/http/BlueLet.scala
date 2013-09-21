@@ -79,8 +79,6 @@ abstract class BlueLet(val config: Config) extends HSimpleLet with CouchSupport 
     def writeJson(json: Any, rev: String): HTalk =
       writeJson(json).setHeader("ETag", rev)
 
-    val regex = """\s*charset\s*=\s*(\S+)\s*""".r
-
     /** Reads the content of the body as a Json value and extracts it as `T` */
     def readJson[T: Manifest]: Option[T] =
       (for {
@@ -90,9 +88,7 @@ abstract class BlueLet(val config: Config) extends HSimpleLet with CouchSupport 
       } yield {
         // try to infer the encoding from the Content-Type header
         // otherwise it is ISO-8859-1
-        val charset = tpe.split(";").collect {
-          case regex(charset) => charset
-        }.headOption.getOrElse("ISO-8859-1")
+        val charset = talk.req.contentEncoding
         val json = JsonParser.parse(Source.fromBytes(octets, charset).mkString)
         json.extractOpt[T]
       }).flatten
@@ -143,7 +139,7 @@ abstract class RoleLet(val paperId: String, config: Config) extends Authenticate
 
   private def roles(implicit talk: HTalk): Map[String, PaperRole] =
     (for {
-      Paper(_, _, authors, reviewers, _, _, _, _, _, _) <- couchSession.database(
+      Paper(_, _, authors, reviewers, _, _, _, _, _) <- couchSession.database(
         couchConfig.database("blue_papers")).getDocById[Paper](paperId)
     } yield {
       (authors.map(id => (id, Author)) ++

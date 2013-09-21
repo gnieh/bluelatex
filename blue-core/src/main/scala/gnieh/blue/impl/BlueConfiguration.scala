@@ -49,7 +49,7 @@ class BlueConfiguration(conf: Config) extends PaperConfiguration(conf) {
   val emailConf = {
     val props = new Properties
     for(entry <- conf.getConfig("mail").entrySet.asScala) {
-      props.setProperty("mail." + entry.getKey, entry.getValue.render)
+      props.setProperty("mail." + entry.getKey, entry.getValue.unwrapped.toString)
     }
     props
   }
@@ -58,9 +58,6 @@ class BlueConfiguration(conf: Config) extends PaperConfiguration(conf) {
 
   val templateDir =
     new File(conf.getString("blue.template.directory"))
-
-  val templateLanguage =
-    conf.getString("blue.template.language")
 
   // ===== internals =====
 

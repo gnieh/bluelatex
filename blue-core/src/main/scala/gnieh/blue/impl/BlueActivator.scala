@@ -66,11 +66,14 @@ class BlueActivator extends ActorSystemActivator {
     // set the context classloader to the bundle classloader, because
     // scalate uses this classloader to determine whether we are in an OSGi context
     val previousCl = Thread.currentThread.getContextClassLoader
-    Thread.currentThread.setContextClassLoader(getClass.getClassLoader)
-    templates = Some(new TemplatesImpl(configuration))
-    // initialize the template compiler on start
-    templates.foreach(_.engine.compiler)
-    Thread.currentThread.setContextClassLoader(previousCl)
+    try {
+      Thread.currentThread.setContextClassLoader(getClass.getClassLoader)
+      templates = Some(new TemplatesImpl(configuration))
+      // initialize the template compiler on start
+      templates.foreach(_.engine.compiler)
+    } finally {
+      Thread.currentThread.setContextClassLoader(previousCl)
+    }
     context.registerService(classOf[Templates], templates.get, null)
 
     // register the mail agent client

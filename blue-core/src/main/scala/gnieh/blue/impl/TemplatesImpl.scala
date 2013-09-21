@@ -27,6 +27,8 @@ import java.io.{
 
 class TemplatesImpl(configuration: BlueConfiguration) extends Templates {
 
+  import FileProcessing._
+
   val engine = {
     val engine = new TemplateEngine
     engine.templateDirectories = List(configuration.templateDir.getCanonicalPath)
@@ -37,8 +39,17 @@ class TemplatesImpl(configuration: BlueConfiguration) extends Templates {
     engine
   }
 
+  // used to set the correct classloader
+  private val scope = org.fusesource.scalate.mustache.Scope
+
   def layout(name: String, params: (String, Any)*) = {
-    engine.layout(s"$name.${configuration.templateLanguage}", Map(params: _*))
+    val previousCl = Thread.currentThread.getContextClassLoader
+    try {
+      Thread.currentThread.setContextClassLoader(scope.getClass.getClassLoader)
+      engine.layout(s"$name.mustache", Map(params: _*))
+    } finally {
+      Thread.currentThread.setContextClassLoader(previousCl)
+    }
   }
 
 }

@@ -56,7 +56,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
     "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
     "commons-collections" % "commons-collections" % "3.2.1",
     "org.eclipse.jgit" % "org.eclipse.jgit" % "3.0.0.201306101825-r",
-    "javax.mail" % "mail" % "1.4.6",
+    "javax.mail" % "mail" % "1.4.7",
     "org.fusesource.scalate" %% "scalate-core" % "1.6.1"
   )
 

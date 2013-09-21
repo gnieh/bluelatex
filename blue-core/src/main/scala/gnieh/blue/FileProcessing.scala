@@ -65,10 +65,15 @@ object FileProcessing {
       file.getName.startsWith(".")
 
     def extension: String =
-      if(file.isDirectory)
+      if(file.isDirectory) {
         ""
-      else
-        file.getName.substring(file.getName.lastIndexOf('.'))
+      } else {
+        val name = file.getCanonicalPath
+        if(name.contains("."))
+          name.substring(name.lastIndexOf('.'))
+        else
+          ""
+      }
 
     def deleteRecursive() {
       def deleteFile(dfile: File) {

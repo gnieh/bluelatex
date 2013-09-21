@@ -95,6 +95,7 @@ class RegisterUserLet(config: Config, templates: Templates, mailAgent: MailAgent
                 } catch {
                   case e: Exception =>
                     // TODO log it
+                    e.printStackTrace
                     (HStatus.InternalServerError,
                       ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry"))
                 }

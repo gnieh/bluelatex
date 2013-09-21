@@ -3,6 +3,7 @@ Bundle-SymbolicName: org.gnieh.blue.core
 Bundle-Name: \\BlueLaTeX Server Core (Http, synchro, ...)
 
 Private-Package=gnieh.blue.impl, gnieh.blue.http.impl
+Import-Package=*
 
 Export-Package=gnieh.blue, gnieh.blue.couch, gnieh.blue.http
 

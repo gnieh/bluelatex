@@ -24,6 +24,8 @@ import java.util.{
   Properties
 }
 
+import scala.collection.JavaConverters._
+
 /** Encapsulates the logic to send emails from the \Blue platform
  *
  * @author Lucas Satabin
@@ -50,7 +52,8 @@ class MailAgentImpl(configuration: BlueConfiguration) extends MailAgent {
       message.setFrom(from)
       message.setRecipient(Message.RecipientType.TO, new InternetAddress(to))
       message.setSubject(subject)
-      message.setText(text)
+      //message.setText(text)
+      message.setText(text, "text/plain")
 
       Transport.send(message)
     }

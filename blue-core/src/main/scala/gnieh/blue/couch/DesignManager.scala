@@ -38,7 +38,7 @@ class DesignManager(configuration: CouchConfiguration, db: Database) extends Log
   /** Loads all the design files from the file system, compare their version
    *  with the existing one, and update/create if necessary
    */
-  def reload {
+  def reload: Unit = {
     if (dir.exists && dir.isDirectory) {
       // only reload if the directory exists
       dir.listFiles.foreach { file =>

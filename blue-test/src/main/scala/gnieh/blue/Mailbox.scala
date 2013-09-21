@@ -30,10 +30,10 @@ class Mailbox {
   private var wiser: Option[Wiser] = None
 
   /** The port on which to listen, by default `2500` */
-  var port: Int = 2500
+  var port: Int = 12525
 
   /** The hostname on which to listen, by default `localhost` */
-  var hostname: String = "localhost"
+  var hostname: String = "127.0.0.1"
 
   /** The timeout used to wait for received emails, by default, it is 10 seconds
    *  but you can modify it */

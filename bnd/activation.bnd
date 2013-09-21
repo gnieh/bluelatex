@@ -1,0 +1,7 @@
+Bundle-Name: activation
+Bundle-SymbolicName: activation
+Export-Package: *
+Frangment-Host: javax.mail
+
+Import-Package: *
+

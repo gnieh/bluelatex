@@ -27,8 +27,7 @@ case class User(name: String,
                 first_name: String,
                 last_name: String,
                 email: String,
-                affiliation: Option[String] = None,
-                _rev: Option[String] = None) {
+                affiliation: Option[String] = None) extends IdRev {
 
   val _id = "org.couchdb.user:" + name
 

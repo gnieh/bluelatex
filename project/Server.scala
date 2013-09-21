@@ -3,6 +3,7 @@ package blue
 import sbt._
 import Keys._
 import java.net.Socket
+import gnieh.sohva.Configuration
 import gnieh.sohva.testing._
 
 trait Server {
@@ -35,7 +36,7 @@ trait Server {
 
   val blueServerSettings: Seq[Def.Setting[_]] =
     Seq(
-      couchdb <<= target(t => new CouchInstance(t / "couchdb", false, true)),
+      couchdb <<= target(t => new CouchInstance(t / "couchdb", false, true, "1.4.0", Configuration(Map("log" -> Map("level" -> "debug"))))),
       blueConfDir in BlueServer <<= sourceDirectory(_ / "configuration"),
       blueStartTask,
       blueStopTask

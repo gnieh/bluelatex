@@ -18,6 +18,9 @@ trait Pack {
   val blueTemplateDir =
     settingKey[File]("the directory containing the templates")
 
+  val blueClassDir =
+    settingKey[File]("the directory containing the templates")
+
   val blueDesignDir =
     settingKey[File]("the directory containing the couchdb design documents")
 
@@ -36,6 +39,7 @@ trait Pack {
       blueScriptDir <<= sourceDirectory(_ / "main" / "script"),
       blueConfDir <<= sourceDirectory(_ / "main" / "configuration"),
       blueTemplateDir <<= sourceDirectory(_ / "main" / "templates"),
+      blueClassDir <<= sourceDirectory(_ / "main" / "classes"),
       blueDesignDir <<= sourceDirectory(_ / "main" / "designs"),
       blueProjectBundles <<= (thisProjectRef, buildStructure) flatMap { (project, structure) =>
         getFromSelectedProjects(packageBin.task in Runtime)(project, structure, Seq())
@@ -58,13 +62,13 @@ trait Pack {
   /* make an OSGi bundle out of a jar file */
   def osgify(bnddir: File, target: File)(file: File): File = {
     val jar = new Jar(file)
-    if(jar.getManifest == null || jar.getBsn == null) {
-      // it is not an OSGi bundle, wrap it
       // extract the name and version from filename
-      file.getName match {
-        case library(name, version) =>
-          //look if there is some bnd descriptor for this jar
-          val descriptor = new File(bnddir, name + ".bnd")
+    file.getName match {
+      case library(name, version) =>
+        //look if there is some bnd descriptor for this jar
+        val descriptor = new File(bnddir, name + ".bnd")
+        // it is not an OSGi bundle, wrap it
+        if(descriptor.exists || jar.getManifest == null || jar.getBsn == null) {
           val wrapper = new Analyzer
           wrapper.setJar(jar)
           if(descriptor.exists) {
@@ -86,12 +90,12 @@ trait Pack {
           } else {
             file
           }
-        case _ =>
+        } else {
+          // it is already an OSGi bundle, return the file
           file
-      }
-    } else {
-      // it is already an OSGi bundle, return the file
-      file
+        }
+      case _ =>
+        file
     }
   }
 
@@ -111,8 +115,8 @@ trait Pack {
   }
 
   private def bluePackTask =
-    bluePack <<= (blueBndDir, blueProjectBundles, blueDepBundles, blueScriptDir, blueConfDir, blueTemplateDir, blueDesignDir, streams, target) map {
-      (bnddir, projectJars, depJars, scriptdir, confdir, designdir, templatedir, out, target) =>
+    bluePack <<= (blueBndDir, blueProjectBundles, blueDepBundles, blueScriptDir, blueConfDir, blueTemplateDir, blueClassDir, blueDesignDir, streams, target) map {
+      (bnddir, projectJars, depJars, scriptdir, confdir, templatedir, classdir, designdir, out, target) =>
         // create the directories
         val packDir = target / "pack"
         val bundleDir = packDir / "bundle"
@@ -146,10 +150,15 @@ trait Pack {
         IO.copyDirectory(confdir, packDir / "conf")
 
         out.log.info("copy templates")
-        IO.copyDirectory(templatedir, packDir / "templates")
+        IO.copyDirectory(templatedir, packDir / "conf" / "templates")
+
+        (packDir / "data").mkdir
+
+        out.log.info("copy classes")
+        IO.copyDirectory(classdir, packDir / "data" / "classes")
 
         out.log.info("copy designs")
-        IO.copyDirectory(designdir, packDir / "designs")
+        IO.copyDirectory(designdir, packDir / "data" / "designs")
 
         packDir
     }

@@ -15,6 +15,8 @@
  */
 package gnieh.blue.couch
 
+import gnieh.sohva.IdRev
+
 case class Paper(_id: String,
                  title: String,
                  authors: Set[String],
@@ -23,6 +25,5 @@ case class Paper(_id: String,
                  references: List[String] = Nil,
                  enabled_modules: List[String] = Nil,
                  tags: List[String] = Nil,
-                 branch: String = "master",
-                 _rev: Option[String] = None)
+                 branch: String = "master") extends IdRev
 
