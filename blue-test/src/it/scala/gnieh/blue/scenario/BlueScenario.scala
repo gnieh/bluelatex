@@ -61,8 +61,8 @@ abstract class BlueScenario extends FeatureSpec with GivenWhenThen with ShouldMa
 
   implicit val formats = DefaultFormats + JsonPatchSerializer
 
-  private def request =
-      :/("localhost", 8080)
+  private def request(path: List[String]) =
+    path.foldLeft(:/("localhost", 8080)) { (acc, p) => acc / p }
 
   private def serialize(obj: Any): String = pretty(render(obj match {
     case i: Int => JInt(i)
@@ -97,10 +97,24 @@ abstract class BlueScenario extends FeatureSpec with GivenWhenThen with ShouldMa
     }
   }
 
-  def post[T: Manifest](path: List[String], data: Any): T =
-    synced(http(path.foldLeft(request) { (acc, p) => acc / p } << serialize(data))).extract[T]
+  /** Posts some data to the given path */
+  def postData[T: Manifest](path: List[String], data: Any, parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()): T =
+    synced(http(request(path) <<? parameters <:< headers << serialize(data))).extract[T]
 
-  def post[T: Manifest](path: List[String], data: Map[String, String]): T =
-    synced(http(path.foldLeft(request) { (acc, p) => acc / p } << data)).extract[T]
+  /** Posts some data as request parameters */
+  def post[T: Manifest](path: List[String], parameters: Map[String, String], headers: Map[String, String] = Map()): T =
+    synced(http(request(path) << parameters <:< headers)).extract[T]
+
+  /** Gets some resource */
+  def get[T: Manifest](path: List[String], parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()): T =
+    synced(http(request(path) <<? parameters <:< headers)).extract[T]
+
+  /** Patches some resource */
+  def patch[T: Manifest](path: List[String], patch: JsonPatch, parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()): T =
+    synced(http((request(path) <<? parameters <:< headers << serialize(patch)).PATCH)).extract[T]
+
+  /** Deletes some resource */
+  def delete[T: Manifest](path: List[String], parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()): T =
+    synced(http((request(path) <<? parameters <:< headers).DELETE)).extract[T]
 
 }
