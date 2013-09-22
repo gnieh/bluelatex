@@ -1,0 +1,13 @@
+language: scala
+
+scala:
+  - 2.10.2
+
+# only trigger builds on master
+branches:
+  only:
+    - master
+
+script:
+  - "sbt scenario:test"
+
