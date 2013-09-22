@@ -108,7 +108,7 @@ class RegisterUserLet(config: Config, templates: Templates, mailAgent: MailAgent
               case c: gnieh.sohva.ConflictException =>
                 // TODO log it
                 (HStatus.Conflict,
-                  ErrorResponse("unable_to_register", s"The user $username already exsists"))
+                  ErrorResponse("unable_to_register", s"The user $username already exists"))
               case e: Exception =>
                 // TODO log it
                 (HStatus.InternalServerError,

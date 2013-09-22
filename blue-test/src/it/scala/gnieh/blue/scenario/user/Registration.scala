@@ -88,10 +88,17 @@ class UserRegistrationSpec extends BlueScenario {
     scenario("a user registration for an already existing name") {
 
       Given("a person")
+      val person = Person("glambert", "Gerard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
 
       When("she sends a registration request with an already existing username")
+      val exc = evaluating {
+        post[Boolean](List("users"), person.toMap)
+      } should produce[BlueErrorException]
 
       Then("she receives an error response")
+      val error = exc.error
+      error.name should be("unable_to_register")
+      error.description should be(s"The user ${person.username} already exists")
 
     }
 
