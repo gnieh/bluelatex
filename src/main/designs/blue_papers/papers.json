@@ -14,6 +14,6 @@
     "for": {
       "map": "function(doc) { if(doc.authors.length !== undefined) { for(i in doc.authors) { emit(doc.authors[i], { 'id': doc._id, 'title' doc.title, 'role': 'author' }); } } if(doc.reviewers.length !== undefined) { for(i in doc.reviewers) { emit(doc.reviewers[i], { 'id': doc._id, 'title' doc.title, 'role': 'reviewer' }); } }}"
     }
-  }/*,
-  "validate_doc_update": "function(newDoc, oldDoc, userCtx, secObj) { if(oldDoc && oldDoc.authors.length > 0 && oldDoc.authors.indexOf('org.couchdb.user:' + userCtx.name) == -1) { throw 'only authors may modify a paper'; } }"*/
+  },
+  "validate_doc_update": "function(newDoc, oldDoc, userCtx, secObj) { if(oldDoc && oldDoc.authors.length > 0 && oldDoc.authors.indexOf('org.couchdb.user:' + userCtx.name) == -1) { throw 'only authors may modify a paper'; } }"
 }

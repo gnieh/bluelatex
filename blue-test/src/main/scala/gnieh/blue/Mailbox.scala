@@ -46,7 +46,7 @@ class Mailbox {
   def lastMailFor(address: String): Option[String] =
     atomic.withRetryTimeout(timeout) { implicit txn =>
       wiser.flatMap { w =>
-        val message = w.getMessages.asScala.find(_.getEnvelopeSender == address)
+        val message = w.getMessages.asScala.find(_.getEnvelopeReceiver == address)
 
         if(!message.isDefined)
           retry

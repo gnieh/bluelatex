@@ -53,6 +53,8 @@ abstract class BlueScenario extends FeatureSpec with GivenWhenThen with ShouldMa
 
   type AsyncResult[T] = Future[Either[(Int, ErrorResponse), T]]
 
+  val PasswordResetRegex = "(?s).*http://localhost:8080/reset\\.html\\?user=(.+)\\&token=(\\S+).*".r
+
   case class BlueErrorException(status: Int, error: ErrorResponse) extends Exception {
     override def toString  = s"error: $status, message: $error"
   }
@@ -95,10 +97,10 @@ abstract class BlueScenario extends FeatureSpec with GivenWhenThen with ShouldMa
     }
   }
 
-  def post[T: Manifest](path: String, data: Any): T =
-    synced(http(request / path << serialize(data))).extract[T]
+  def post[T: Manifest](path: List[String], data: Any): T =
+    synced(http(path.foldLeft(request) { (acc, p) => acc / p } << serialize(data))).extract[T]
 
-  def post[T: Manifest](path: String, data: Map[String, String]): T =
-    synced(http(request / path << data)).extract[T]
+  def post[T: Manifest](path: List[String], data: Map[String, String]): T =
+    synced(http(path.foldLeft(request) { (acc, p) => acc / p } << data)).extract[T]
 
 }

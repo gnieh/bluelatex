@@ -39,7 +39,7 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
       new RegisterUserLet(config, templates, mailAgent, recaptcha)
     // performs password reset
     case p"users/$username/reset" =>
-      ???
+      new ResetUserPassword(username, config)
     // creates a new paper
     case p"papers" =>
       new CreatePaperLet(config, templates)

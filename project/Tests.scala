@@ -22,7 +22,7 @@ trait Tests {
         libraryDependencies ++= testDeps,
         fork in IntegrationTest := true,
         parallelExecution in IntegrationTest := false,
-        test in Scenario <<= ((test in IntegrationTest) dependsOn (blueStart in bluelatex))
+        test in Scenario <<= (blueStop in bluelatex) dependsOn ((test in IntegrationTest) dependsOn (blueStart in bluelatex))
       )
     ) dependsOn(core)
 

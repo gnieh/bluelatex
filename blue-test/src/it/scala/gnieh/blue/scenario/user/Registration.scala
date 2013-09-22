@@ -31,28 +31,40 @@ class UserRegistrationSpec extends BlueScenario {
   feature("Any person must be able to register with the \\BlueLaTeX service"){
 
     info("The \\BlueLaTeX service requires the users to be registered")
-    info("Thus, the service mustr provide a way to the user to register")
+    info("Thus, the service must provide a way to the user to register")
 
     scenario("a successful user registration") {
 
       Given("a person")
-      val person = Person("test", "Gerard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
+      val person = Person("glambert", "Gerard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
 
       When("she sends a valid registration request to the server")
-      try {
-        val registered = post[Boolean]("users", person.toMap)
+      val registered = post[Boolean](List("users"), person.toMap)
 
-        registered should be(true)
-      } catch {
-        case e: Exception =>
-          println(e)
-      }
+      registered should be(true)
 
       Then("she receives a confirmation email")
+      val email = mailbox.lastMailFor(person.email_address).getOrElse(fail("No email received"))
+      val token = email match {
+        case PasswordResetRegex(name, token) if name == person.username => token
+        case _                                                          => fail("Received an invalid validation email")
+      }
 
       And("must validate her account by reseting her password")
+      val reset = post[Boolean](List("users", person.username, "reset"),
+        Map(
+          "reset_token" -> token,
+          "new_password1" -> person.password,
+          "new_password2" -> person.password
+        )
+      )
+
+      reset should be(true)
 
       Then("she can log into the service with this password")
+      val loggedin = post[Boolean](List("session"), Map("username" -> person.username, "password" -> person.password))
+
+      loggedin should be(true)
 
     }
 

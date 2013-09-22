@@ -22,4 +22,7 @@ case class Person(username: String, first_name: String, last_name: String, email
     "last_name" -> last_name,
     "email_address" -> email_address
   ) ++ affiliation.map(a => "affiliation" -> a).toMap
+
+  val password = username
+
 }
