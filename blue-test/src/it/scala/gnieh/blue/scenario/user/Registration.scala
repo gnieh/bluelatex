@@ -79,6 +79,7 @@ class UserRegistrationSpec extends BlueScenario {
       } should produce[BlueErrorException]
 
       Then("she receives an error response")
+      exc.status == 400
       val error = exc.error
       error.name should be("unable_to_register")
       error.description should be("Missing parameters")
@@ -96,6 +97,7 @@ class UserRegistrationSpec extends BlueScenario {
       } should produce[BlueErrorException]
 
       Then("she receives an error response")
+      exc.status == 400
       val error = exc.error
       error.name should be("unable_to_register")
       error.description should be(s"The user ${person.username} already exists")
