@@ -9,5 +9,5 @@ branches:
     - master
 
 script:
-  - "sbt scenario:test"
+  - "sbt \"project blue-test\" scenario:test"
 
