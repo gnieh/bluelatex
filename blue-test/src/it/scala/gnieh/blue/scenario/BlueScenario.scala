@@ -83,9 +83,9 @@ abstract class BlueScenario extends FeatureSpec with GivenWhenThen with ShouldMa
   }
 
   private def http(request: RequestBuilder): AsyncResult[JValue] =
-    Http(request > handleCouchResponse _)
+    Http(request > handleResponse _)
 
-  private def handleCouchResponse(response: Response): Either[(Int, ErrorResponse), JValue] = {
+  private def handleResponse(response: Response): Either[(Int, ErrorResponse), JValue] = {
     val json = JsonParser.parse(as.String(response))
     val code = response.getStatusCode
     if (code / 100 != 2) {

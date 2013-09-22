@@ -22,3 +22,4 @@ package http
  *  @author Lucas Satabin
  */
 case class ErrorResponse(name: String, description: String)
+

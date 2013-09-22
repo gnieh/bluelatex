@@ -71,10 +71,17 @@ class UserRegistrationSpec extends BlueScenario {
     scenario("a user registration with missing parameters") {
 
       Given("a person")
+      val person = Person("glambert", "Gerard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
 
       When("she sends a registration request with not username")
+      val exc = evaluating {
+        post[Boolean](List("users"), person.toMap - "username")
+      } should produce[BlueErrorException]
 
       Then("she receives an error response")
+      val error = exc.error
+      error.name should be("unable_to_register")
+      error.description should be("Missing parameters")
 
     }
 
