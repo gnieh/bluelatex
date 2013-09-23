@@ -69,7 +69,7 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
       new GetUserPapersLet(username, config)
     // generates a password reset token
     case p"users/$username/reset" =>
-      ???
+      new GeneratePasswordReset(username, templates, mailAgent, config)
     // gets the currently logged in user information
     case p"session" =>
       ???
