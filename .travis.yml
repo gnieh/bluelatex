@@ -11,3 +11,7 @@ branches:
 script:
   - "sbt \"project blue-test\" scenario:test"
 
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq jsvc
+
