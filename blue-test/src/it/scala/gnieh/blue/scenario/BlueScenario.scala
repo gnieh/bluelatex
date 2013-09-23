@@ -41,6 +41,8 @@ import net.liftweb.json._
  */
 abstract class BlueScenario extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
 
+  val bluePort = 18080
+
   object mailbox extends Mailbox
 
   override def beforeAll() {
@@ -53,7 +55,7 @@ abstract class BlueScenario extends FeatureSpec with GivenWhenThen with ShouldMa
 
   type AsyncResult[T] = Future[Either[(Int, ErrorResponse), T]]
 
-  val PasswordResetRegex = "(?s).*http://localhost:8080/reset\\.html\\?user=(.+)\\&token=(\\S+).*".r
+  val PasswordResetRegex = s"(?s).*http://localhost:$bluePort/reset\\.html\\?user=(.+)\\&token=(\\S+).*".r
 
   case class BlueErrorException(status: Int, error: ErrorResponse) extends Exception {
     override def toString  = s"error: $status, message: $error"
@@ -62,7 +64,7 @@ abstract class BlueScenario extends FeatureSpec with GivenWhenThen with ShouldMa
   implicit val formats = DefaultFormats + JsonPatchSerializer
 
   private def request(path: List[String]) =
-    path.foldLeft(:/("localhost", 8080)) { (acc, p) => acc / p }
+    path.foldLeft(:/("localhost", bluePort)) { (acc, p) => acc / p }
 
   private def serialize(obj: Any): String = pretty(render(obj match {
     case i: Int => JInt(i)
