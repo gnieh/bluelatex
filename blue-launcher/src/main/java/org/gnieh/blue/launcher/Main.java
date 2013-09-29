@@ -15,18 +15,26 @@
  */
 package org.gnieh.blue.launcher;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import org.apache.commons.daemon.Daemon;
+import org.apache.commons.daemon.DaemonContext;
 import org.apache.felix.framework.util.Util;
 import org.apache.felix.main.AutoProcessor;
 import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
-import org.apache.commons.daemon.Daemon;
-import org.apache.commons.daemon.DaemonContext;
 
 /** Launcher for the OSGi environment that does not block at the end of startup.
  *  It is used for sbt to get hand back on the lifecycle when starting a test server.
