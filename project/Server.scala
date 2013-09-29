@@ -5,11 +5,51 @@ import Keys._
 import java.net.Socket
 import gnieh.sohva.Configuration
 import gnieh.sohva.testing._
+import scala.util.Properties
 
 trait Server {
   this: BlueBuild =>
 
   val BlueServer = config("blue-server")
+
+  val javaHome = System.getProperty("java.home")
+  val user = System.getProperty("user.name")
+
+  private def defaultStartJsvcOptions(cp: String) =
+    List(
+      "-wait", "10",
+      "-java-home", javaHome,
+      "-cp", cp,
+      "-user", user,
+      "-pidfile", "/tmp/bluelatex.pid",
+      "-outfile", "/tmp/bluelatex.out",
+      "-errfile", "/tmp/bluelatex.err"
+    )
+
+  private def defaultStartPrunOptionsOptions(cp: String) =
+    Nil
+
+  private def defaultStartOptions(deps: UpdateReport, jar: File): List[String] = {
+    val jars = for {
+      c <- deps.configurations
+      m <- c.modules
+      (artifact, file) <- m.artifacts
+      if DependencyFilter.allPass(c.configuration, m.module, artifact)
+    } yield file
+    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
+    if(Properties.isWin) defaultStartPrunOptionsOptions(cp) else defaultStartJsvcOptions(cp)
+  }
+
+  private def defaultStopOptions(deps: UpdateReport, jar: File): List[String] = {
+    val jars = for {
+      c <- deps.configurations
+      m <- c.modules
+      (artifact, file) <- m.artifacts
+      if DependencyFilter.allPass(c.configuration, m.module, artifact)
+    } yield file
+    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
+    if(Properties.isWin) defaultStartPrunOptionsOptions(cp) else (defaultStartJsvcOptions(cp) ::: List("-stop"))
+  }
 
   lazy val launcher = Project(id = "launcher",
     base = file("blue-launcher")) settings(
@@ -25,6 +65,15 @@ trait Server {
       )
     )
 
+  val launchExe =
+    settingKey[String]("the command to launch the server")
+
+  val startOptions =
+    taskKey[List[String]]("the options to pass when starting the server")
+
+  val stopOptions =
+    taskKey[List[String]]("the options to pass when stopping the server")
+
   val couchdb =
     settingKey[CouchInstance]("the CouchDB instance")
 
@@ -37,71 +86,36 @@ trait Server {
   val blueServerSettings: Seq[Def.Setting[_]] =
     Seq(
       couchdb <<= target(t => new CouchInstance(t / "couchdb", false, true, "1.4.0", Configuration(Map("log" -> Map("level" -> "debug"))))),
+      launchExe := (if(Properties.isWin) "prunsrv" else "jsvc"),
+      startOptions <<= (update in launcher, packageBin in (launcher, Compile)) map (defaultStartOptions _),
+      stopOptions <<= (update in launcher, packageBin in (launcher, Compile)) map defaultStopOptions _,
       blueConfDir in BlueServer <<= sourceDirectory(_ / "configuration"),
       blueStartTask,
       blueStopTask
     )
 
-  private def blueStartTask = blueStart <<= (couchdb, streams, bluePack, packageBin in (launcher, Compile), update in launcher) map {
-    (couchdb, out, pack, jar, deps) =>
+  private def blueStartTask = blueStart <<= (launchExe, startOptions, couchdb, streams, bluePack, packageBin in (launcher, Compile), update in launcher) map {
+    (exe, options, couchdb, out, pack, jar, deps) =>
 
-    couchdb.start()
+    if(!Properties.isWin)
+      couchdb.start()
 
-    val jars = for {
-      c <- deps.configurations
-      m <- c.modules
-      (artifact, file) <- m.artifacts
-      if DependencyFilter.allPass(c.configuration, m.module, artifact)
-    } yield file
-    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
-    val javaHome = System.getProperty("java.home")
-    val user = System.getProperty("user.name")
-    // TODO make it configurable for other platforms
     val process = Process(
-      Seq(
-        "jsvc",
-        //"-cwd", pack.getCanonicalPath,
-        "-wait", "10",
-        "-java-home", javaHome,
-        "-cp", cp,
-        "-user", user,
-        "-pidfile", "/tmp/bluelatex.pid",
-        "-outfile", "/tmp/bluelatex.out",
-        "-errfile", "/tmp/bluelatex.err",
-        "org.gnieh.blue.launcher.Main"),
+      (exe :: options ::: List("org.gnieh.blue.launcher.Main")).toSeq,
       Some(pack)
     )
     process ! new Logger(out)
     println("started")
   }
 
-  private def blueStopTask = blueStop <<= (couchdb, streams, packageBin in (launcher, Compile), update in launcher) map {
-    (couchdb, out, jar, deps) =>
+  private def blueStopTask = blueStop <<= (launchExe, stopOptions, couchdb, streams, packageBin in (launcher, Compile), update in launcher) map {
+    (exe, options, couchdb, out, jar, deps) =>
 
-    couchdb.stop()
+    if(!Properties.isWin)
+      couchdb.stop()
 
-    val jars = for {
-      c <- deps.configurations
-      m <- c.modules
-      (artifact, file) <- m.artifacts
-      if DependencyFilter.allPass(c.configuration, m.module, artifact)
-    } yield file
-    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
-    val javaHome = System.getProperty("java.home")
-    val user = System.getProperty("user.name")
-    // TODO make it configurable for other platforms
     val process = Process(
-      Seq(
-        "jsvc",
-        //"-cwd", pack.getCanonicalPath,
-        "-java-home", javaHome,
-        "-cp", cp,
-        "-user", user,
-        "-pidfile", "/tmp/bluelatex.pid",
-        "-outfile", "/tmp/bluelatex.out",
-        "-errfile", "/tmp/bluelatex.err",
-        "-stop",
-        "org.gnieh.blue.launcher.Main"),
+      (exe :: options ::: List("org.gnieh.blue.launcher.Main")).toSeq,
       None
     )
     process ! new Logger(out)
