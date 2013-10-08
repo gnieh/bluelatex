@@ -99,3 +99,4 @@ class RichService[T](context: BundleContext, clazz: Class[T]) {
   }
 
 }
+
