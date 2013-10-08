@@ -79,7 +79,7 @@ class CoreApi(config: Config, syncServer: SynchroServer, templates: Templates, m
       new GetPaperInfoLet(paperid, config)
     // downloads a zip archive containing the paper files
     case p"papers/$paperid.zip" =>
-      ???
+      new BackupPaperLet("zip", paperid, config)
     // downloads the list of synchronized resources
     case p"papers/$paperid/files/synchronized" =>
       ???

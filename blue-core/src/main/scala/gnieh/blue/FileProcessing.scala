@@ -31,6 +31,8 @@ object FileProcessing {
 
   val synchronizedExt = """\.bib|\.tex"""
 
+  val generatedExt = """\.aux|\.toc|\.bbl|\.log|\.out|\.blg"""
+
   /** Extends `java.io.File` with more scalaish features.
    *
    *  @author Lucas Satabin */
@@ -62,7 +64,10 @@ object FileProcessing {
 
     @inline
     def isHidden: Boolean =
-      file.getName.startsWith(".")
+      file.getCanonicalPath.startsWith(".")
+
+    def isTeXTemporary: Boolean =
+      extension.matches(generatedExt)
 
     def extension: String =
       if(file.isDirectory) {
