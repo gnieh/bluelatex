@@ -72,7 +72,7 @@ class CoreApi(config: Config, syncServer: SynchroServer, templates: Templates, m
       new GeneratePasswordReset(username, templates, mailAgent, config)
     // gets the currently logged in user information
     case p"session" =>
-      ???
+      new GetSessionDataLet(config)
     // gets the list of people involved in this paper with their role, the currently
     // enabled modules, the tags, the branch, ...
     case p"papers/$paperid/info" =>
