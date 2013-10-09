@@ -82,7 +82,7 @@ class CoreApi(config: Config, syncServer: SynchroServer, templates: Templates, m
       new BackupPaperLet("zip", paperid, config)
     // downloads the list of synchronized resources
     case p"papers/$paperid/files/synchronized" =>
-      ???
+      new SynchronizedResourcesLet(paperid, config)
     // downloads the list of non synchronized resources
     case p"papers/$paperid/files/resources" =>
       ???
