@@ -137,6 +137,8 @@ abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
  */
 abstract class RoleLet(val paperId: String, config: Config) extends AuthenticatedLet(config) {
 
+  lazy val configuration = new PaperConfiguration(config)
+
   private def roles(implicit talk: HTalk): Map[String, PaperRole] =
     (for {
       Paper(_, _, authors, reviewers, _, _, _, _, _) <- couchSession.database(

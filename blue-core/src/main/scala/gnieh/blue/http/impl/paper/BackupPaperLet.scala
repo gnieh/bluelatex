@@ -42,8 +42,6 @@ import resource._
  */
 class BackupPaperLet(format: String, paperId: String, config: Config) extends RoleLet(paperId, config) {
 
-  val configuration = new PaperConfiguration(config)
-
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Unit = role match {
     case Author =>
       // only authors may backup the paper sources

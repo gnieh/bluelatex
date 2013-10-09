@@ -35,7 +35,6 @@ class NonSynchronizedResourcesLet(paperId: String, config: Config) extends RoleL
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Unit = role match {
     case Author =>
       // only authors may get the list of synchronized resources
-      val configuration = new PaperConfiguration(config)
       import FileProcessing._
       val files =
         configuration
