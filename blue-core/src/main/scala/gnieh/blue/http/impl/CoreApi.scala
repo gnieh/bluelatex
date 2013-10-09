@@ -85,7 +85,7 @@ class CoreApi(config: Config, syncServer: SynchroServer, templates: Templates, m
       new SynchronizedResourcesLet(paperid, config)
     // downloads the list of non synchronized resources
     case p"papers/$paperid/files/resources" =>
-      ???
+      new NonSynchronizedResourcesLet(paperid, config)
   }
 
   DELETE {
