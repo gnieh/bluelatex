@@ -26,13 +26,15 @@ import gnieh.sohva.UserInfo
 
 import scala.io.Source
 
+import scala.util.Try
+
 /** A synchronization request for a paper. Only authors may send this kind of request
  *
  *  @author Lucas Satabin
  */
 class SynchronizePaperLet(paperId: String, config: Config, synchroServer: SynchroServer) extends RoleLet(paperId, config) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Unit = role match {
+  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
       // only authors may modify the paper content
       talk.req.octets match {
@@ -50,6 +52,6 @@ class SynchronizePaperLet(paperId: String, config: Config, synchroServer: Synchr
     case _ =>
       talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may modify the paper content"))
         .setStatus(HStatus.Forbidden)
-  }
+  })
 
 }

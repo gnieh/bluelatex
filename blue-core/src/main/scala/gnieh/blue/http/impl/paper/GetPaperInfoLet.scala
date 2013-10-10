@@ -28,15 +28,17 @@ import gnieh.sohva.UserInfo
 
 import scala.io.Source
 
+import scala.util.Try
+
 /** Returns the paper data
  *
  *  @author Lucas Satabin
  */
 class GetPaperInfoLet(paperid: String, config: Config) extends AuthenticatedLet(config) {
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Unit = {
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] = {
     // only authenticated users may see other people information
-    database(blue_papers).getDocById[Paper](paperid) match {
+    database(blue_papers).getDocById[Paper](paperid) map {
       // we are sure that the paper has a revision because it comes from the database
       case Some(paper) => talk.writeJson(paper, paper._rev.get)
       case None       => talk.writeJson(ErrorResponse("not_found", s"Paper $paperid not found")).setStatus(HStatus.NotFound)

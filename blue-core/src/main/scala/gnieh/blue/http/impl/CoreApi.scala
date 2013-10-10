@@ -31,7 +31,7 @@ import com.typesafe.config.Config
  *
  *  @author Lucas Satabin
  */
-class CoreApi(config: Config, syncServer: SynchroServer, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha) extends RestApi {
+class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha) extends RestApi {
 
   POST {
     // registers a new user
@@ -47,8 +47,8 @@ class CoreApi(config: Config, syncServer: SynchroServer, templates: Templates, m
     case p"session" =>
       new LoginLet(config)
     // synchronization request
-    case p"papers/$paperid/sync" =>
-      new SynchronizePaperLet(paperid, config, syncServer)
+    //case p"papers/$paperid/sync" =>
+    //  new SynchronizePaperLet(paperid, config, syncServer)
   }
 
   PATCH {

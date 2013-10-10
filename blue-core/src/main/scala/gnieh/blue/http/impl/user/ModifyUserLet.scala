@@ -30,13 +30,19 @@ import gnieh.sohva.UserInfo
 
 import scala.io.Source
 
+import scala.util.{
+  Try,
+  Success,
+  Failure
+}
+
 /** Handle JSON Patches that modify the user data
  *
  *  @author Lucas Satabin
  */
 class ModifyUserLet(username: String, config: Config) extends AuthenticatedLet(config) {
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Unit =
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     if(username == user.name) {
       // a user can only modify his own data
       (talk.req.octets, talk.req.header("if-match")) match {
@@ -44,44 +50,47 @@ class ModifyUserLet(username: String, config: Config) extends AuthenticatedLet(c
           val db = database(blue_users)
           // the modification must be sent as a JSON Patch document
           // retrieve the user object from the database
-          (talk.readJson[JsonPatch], db.getDocById[User](username)) match {
-            case (Some(patch), Some(user)) if user._rev == knownRev =>
-              // the revision matches, we can apply the patch
-              val user1 = patch(user)
-              // and save the new paper data
-              db.saveDoc(user1) match {
-                case Some(u) =>
-                  // save successfully, return ok with the new ETag
-                  // we are sure that the revision is not empty because it comes from the database
-                  talk.writeJson(true, u._rev.get)
+          db.getDocById[User](username) flatMap {
+            case Some(user) if user._rev == knownRev =>
+              talk.readJson[JsonPatch] match {
+                case Some(patch) =>
+                  // the revision matches, we can apply the patch
+                  val user1 = patch(user)
+                  // and save the new paper data
+                  db.saveDoc(user1) map {
+                    case Some(u) =>
+                      // save successfully, return ok with the new ETag
+                      // we are sure that the revision is not empty because it comes from the database
+                      talk.writeJson(true, u._rev.get)
+                    case None =>
+                      // something went wrong
+                      talk.writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
+                        .setStatus(HStatus.InternalServerError)
+                  }
                 case None =>
-                  // something went wrong
-                  talk.writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
-                    .setStatus(HStatus.InternalServerError)
+                  // nothing to do
+                  Success(talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
+                    .setStatus(HStatus.NotModified))
               }
-            case (None, _) =>
-              // nothing to do
-              talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
-                .setStatus(HStatus.NotModified)
-            case (_, None) =>
+            case None =>
               // unknown paper
-              talk.writeJson(ErrorResponse("nothing_to_do", s"Unknown user $username"))
-                .setStatus(HStatus.NotFound)
+              Success(talk.writeJson(ErrorResponse("nothing_to_do", s"Unknown user $username"))
+                .setStatus(HStatus.NotFound))
           }
 
         case (None, _) =>
           // nothing to do
-          talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
-            .setStatus(HStatus.NotModified)
+          Success(talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
+            .setStatus(HStatus.NotModified))
 
         case (_, None) =>
           // known revision was not sent, precondition failed
-          talk.writeJson(ErrorResponse("conflict", "User revision not provided"))
-            .setStatus(HStatus.Conflict)
+          Success(talk.writeJson(ErrorResponse("conflict", "User revision not provided"))
+            .setStatus(HStatus.Conflict))
       }
     } else {
-      talk.writeJson(ErrorResponse("no_sufficient_rights", "A user can only modify his own data"))
-        .setStatus(HStatus.Forbidden)
+      Success(talk.writeJson(ErrorResponse("no_sufficient_rights", "A user can only modify his own data"))
+        .setStatus(HStatus.Forbidden))
     }
 
 }

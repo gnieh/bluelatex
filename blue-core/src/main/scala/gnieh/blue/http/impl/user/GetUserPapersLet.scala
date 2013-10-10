@@ -31,18 +31,22 @@ import gnieh.sohva.UserInfo
 
 import scala.io.Source
 
+import scala.util.Try
+
 /** Returns the list of paper a user is involved in, together with his role for this paper.
  *
  *  @author Lucas Satabin
  */
 class GetUserPapersLet(username: String, config: Config) extends AuthenticatedLet(config) {
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Unit = {
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     // only authenticated users may see other people information
-    val roles = view[String, UserRole](blue_papers, "papers", "for").query(key = Some(username)).values
-    val result = (for((_, userRole) <- roles)
-      yield userRole).toList
-    talk.writeJson(result)
-  }
+    view[String, UserRole](blue_papers, "papers", "for").query(key = Some(username)) map { res =>
+      val roles = res.values
+      val result = (for((_, userRole) <- roles)
+        yield userRole).toList
+      talk.writeJson(result)
+    }
 
 }
+

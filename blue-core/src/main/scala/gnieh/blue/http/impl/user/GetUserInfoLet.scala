@@ -28,19 +28,21 @@ import gnieh.sohva.UserInfo
 
 import scala.io.Source
 
+import scala.util.Try
+
 /** Returns the user data
  *
  *  @author Lucas Satabin
  */
 class GetUserInfoLet(username: String, config: Config) extends AuthenticatedLet(config) {
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Unit = {
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     // only authenticated users may see other people information
-    database(blue_users).getDocById[User](s"org.couchdb.user:$username") match {
+    database(blue_users).getDocById[User](s"org.couchdb.user:$username") map {
       // we are sure that the user has a revision because it comes from the database
       case Some(user) => talk.writeJson(user, user._rev.get)
       case None       => talk.writeJson(ErrorResponse("not_found", s"No user named $username found")).setStatus(HStatus.NotFound)
     }
-  }
 
 }
+

@@ -36,13 +36,15 @@ import gnieh.sohva.UserInfo
 
 import resource._
 
+import scala.util.Try
+
 /** Backup the paper sources as a zip file
  *
  *  @author Lucas Satabin
  */
 class BackupPaperLet(format: String, paperId: String, config: Config) extends RoleLet(paperId, config) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Unit = role match {
+  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
       // only authors may backup the paper sources
       import FileProcessing._
@@ -84,6 +86,6 @@ class BackupPaperLet(format: String, paperId: String, config: Config) extends Ro
       talk
         .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may backup the paper sources"))
         .setStatus(HStatus.Forbidden)
-  }
+  })
 
 }

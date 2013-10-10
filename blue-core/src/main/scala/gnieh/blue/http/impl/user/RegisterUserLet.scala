@@ -25,7 +25,12 @@ import com.typesafe.config.Config
 
 import java.util.Calendar
 
-import scala.util.Try
+import scala.util.{
+  Try,
+  Success,
+  Failure,
+  Random
+}
 
 /** Handle registration of a new user into the system.
  *  When a user is created it is created with a randomly generated password and a password reset
@@ -38,95 +43,80 @@ class RegisterUserLet(config: Config, templates: Templates, mailAgent: MailAgent
 
   // TODO logging
 
-  def act(talk: HTalk): Unit =
+  def act(talk: HTalk): Try[Unit] =
     if(recaptcha.verify(talk)) {
-        val result = for {
-          // the mandatory fields
-          username <- talk.req.param("username")
-          firstName <- talk.req.param("first_name")
-          lastName <- talk.req.param("last_name")
-          email <- talk.req.param("email_address")
-          affiliation = talk.req.param("affiliation")
-        } yield {
-          couchConfig.asAdmin { session =>
-            // generate a random password
-            val password = session._uuid
-            // first save the standard couchdb user
-            try {
-              val registered = session.users.add(username, password, couchConfig.defaultRoles)
-              if(registered) {
-                // now the user is registered as standard couchdb user, we can add the \BlueLaTeX specific data
-                val user = User(username, firstName, lastName, email, affiliation)
-                try {
-                  val db = session.database(blue_users)
-                  db.saveDoc(user) match {
-                    case Some(user) =>
-                      // the user is now registered
-                      // generate the password reset token
-                      val cal = Calendar.getInstance
-                      cal.add(Calendar.MILLISECOND, couchConfig.tokenValidity)
-                      session.users.generateResetToken(username, cal.getTime) match {
-                        case Some(token) =>
-                          // send the confirmation email
-                          val email = templates.layout("emails/register",
-                            "firstName" -> firstName,
-                            "baseUrl" -> config.getString("blue.base_url"),
-                            "name" -> username,
-                            "token" -> token,
-                            "validity" -> (couchConfig.tokenValidity / 24 / 3600 / 1000))
-                          mailAgent.send(username, "Welcome to \\BlueLaTeX", email)
-                          (HStatus.Created, true)
-                        case None =>
-                          // TODO log it
-                          Try(session.users.delete(username))
-                          Try(db.deleteDoc(user._id))
-                          (HStatus.InternalServerError,
-                            ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry"))
-                      }
+      val result = for {
+        // the mandatory fields
+        username <- talk.req.param("username")
+        firstName <- talk.req.param("first_name")
+        lastName <- talk.req.param("last_name")
+        email <- talk.req.param("email_address")
+        affiliation = talk.req.param("affiliation")
+      } yield {
+        couchConfig.asAdmin { session =>
+          // generate a random password
+          val password = session._uuid.getOrElse(Random.nextString(20))
+          // first save the standard couchdb user
+          session.users.add(username, password, couchConfig.defaultRoles) flatMap {
+            case true =>
+              // now the user is registered as standard couchdb user, we can add the \BlueLaTeX specific data
+              val user = User(username, firstName, lastName, email, affiliation)
+              val db = session.database(blue_users)
+              db.saveDoc(user) flatMap {
+                case Some(user) =>
+                  // the user is now registered
+                  // generate the password reset token
+                  val cal = Calendar.getInstance
+                  cal.add(Calendar.MILLISECOND, couchConfig.tokenValidity)
+                  session.users.generateResetToken(username, cal.getTime) map {
+                    case Some(token) =>
+                      // send the confirmation email
+                      val email = templates.layout("emails/register",
+                        "firstName" -> firstName,
+                        "baseUrl" -> config.getString("blue.base_url"),
+                        "name" -> username,
+                        "token" -> token,
+                        "validity" -> (couchConfig.tokenValidity / 24 / 3600 / 1000))
+                      mailAgent.send(username, "Welcome to \\BlueLaTeX", email)
+                      (HStatus.Created, true)
                     case None =>
                       // TODO log it
-                      // somehow we couldn't save it
-                      // remove the couchdb user from database
                       Try(session.users.delete(username))
-                      // send error
+                      Try(db.deleteDoc(user._id))
                       (HStatus.InternalServerError,
                         ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry"))
                   }
-                } catch {
-                  case e: Exception =>
-                    // TODO log it
-                    e.printStackTrace
-                    (HStatus.InternalServerError,
-                      ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry"))
-                }
-              } else {
-                // TODO log it
-                (HStatus.InternalServerError,
-                  ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry"))
+                case None =>
+                  // TODO log it
+                  // somehow we couldn't save it
+                  // remove the couchdb user from database
+                  Try(session.users.delete(username))
+                  // send error
+                  Success((HStatus.InternalServerError,
+                    ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry")))
               }
-            } catch {
-              case c: gnieh.sohva.ConflictException =>
-                // TODO log it
-                (HStatus.Conflict,
-                  ErrorResponse("unable_to_register", s"The user $username already exists"))
-              case e: Exception =>
-                // TODO log it
-                (HStatus.InternalServerError,
-                  ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry"))
-            }
+            case false =>
+              // TODO log it
+              Success((HStatus.InternalServerError,
+                ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry")))
+          } recover {
+            case c: gnieh.sohva.ConflictException =>
+              // TODO log it
+              (HStatus.Conflict,
+                ErrorResponse("unable_to_register", s"The user $username already exists"))
           }
         }
+      }
 
-        val (status, response) =
-          result.getOrElse((HStatus.BadRequest, ErrorResponse("unable_to_register", "Missing parameters")))
-
-        talk.setStatus(status).writeJson(response)
+      result.getOrElse(Success((HStatus.BadRequest, ErrorResponse("unable_to_register", "Missing parameters")))) map {
+        case (status, response) => talk.setStatus(status).writeJson(response)
+      }
 
     } else {
       // TODO log it
-      talk
+      Success(talk
         .setStatus(HStatus.Unauthorized)
-        .writeJson(ErrorResponse("not_authorized", "ReCaptcha did not verify"))
+        .writeJson(ErrorResponse("not_authorized", "ReCaptcha did not verify")))
     }
 
 }

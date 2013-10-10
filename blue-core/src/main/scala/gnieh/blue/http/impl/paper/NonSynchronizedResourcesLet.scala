@@ -26,13 +26,15 @@ import gnieh.sohva.UserInfo
 
 import scala.io.Source
 
+import scala.util.Try
+
 /** Gives access to the non-synchronized resource list for the given paper.
  *
  *  @author Lucas Satabin
  */
 class NonSynchronizedResourcesLet(paperId: String, config: Config) extends RoleLet(paperId, config) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Unit = role match {
+  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
       // only authors may get the list of synchronized resources
       import FileProcessing._
@@ -50,7 +52,7 @@ class NonSynchronizedResourcesLet(paperId: String, config: Config) extends RoleL
     case _ =>
       talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may see the list of non synchronized resources"))
         .setStatus(HStatus.Forbidden)
-  }
+  })
 
 }
 

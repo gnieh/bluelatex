@@ -24,14 +24,19 @@ import tiscaf._
 
 import gnieh.sohva.UserInfo
 
+import scala.util.{
+  Try,
+  Success
+}
+
 /** Get the session data if the request is authenticated.
  *
  *  @author Lucas Satabin
  */
 class GetSessionDataLet(config: Config) extends AuthenticatedLet(config) {
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Unit =
-    talk.writeJson(user)
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
+    Success(talk.writeJson(user))
 
 }
 

@@ -22,6 +22,8 @@ import com.typesafe.config.Config
 
 import tiscaf._
 
+import scala.util.Try
+
 /** Log the user in.
  *  It delegates to the CouchDB login system and keeps track of the CouchDB cookie
  *
@@ -29,13 +31,11 @@ import tiscaf._
  */
 class LogoutLet(config: Config) extends BlueLet(config) {
 
-  def act(talk: HTalk): Unit = {
-    if(couchSession(talk).logout) {
-      talk.writeJson(true)
-    } else {
-      talk.writeJson(ErrorResponse("unable_to_logout", "Unable to log user out"))
+  def act(talk: HTalk): Try[Unit] =
+    couchSession(talk).logout map {
+      case true  => talk.writeJson(true)
+      case false => talk.writeJson(ErrorResponse("unable_to_logout", "Unable to log user out"))
     }
-  }
 
 }
 

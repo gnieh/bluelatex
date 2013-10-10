@@ -25,24 +25,28 @@ import com.typesafe.config.Config
 
 import java.util.Calendar
 
+import scala.util.{
+  Try,
+  Success
+}
+
 /** Generates a password reset token and send it per email.
  *
  *  @author Lucas Satabin
  */
 class GeneratePasswordReset(username: String, templates: Templates, mailAgent: MailAgent, config: Config) extends AuthenticatedLet(config) {
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Unit = {
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     // if the user is authenticated, he cannot generate the password reset token
-    talk.writeJson(ErrorResponse("unable_to_generate", "Authenticated users cannot ask for password reset"))
-      .setStatus(HStatus.Unauthorized)
-  }
+    Success(talk.writeJson(ErrorResponse("unable_to_generate", "Authenticated users cannot ask for password reset"))
+      .setStatus(HStatus.Forbidden))
 
-  override def unauthenticatedAct(implicit talk: HTalk): Unit = {
+  override def unauthenticatedAct(implicit talk: HTalk): Try[Unit] =
     // generate reset token to send the link in an email
     couchConfig.asAdmin { sess =>
       val cal = Calendar.getInstance
       cal.add(Calendar.MILLISECOND, couchConfig.tokenValidity)
-      sess.users.generateResetToken(username, cal.getTime) match {
+      sess.users.generateResetToken(username, cal.getTime) map {
         case Some(token) =>
           // send the link to reset the password in an email
           val emailText =
@@ -59,7 +63,6 @@ class GeneratePasswordReset(username: String, templates: Templates, mailAgent: M
             .setStatus(HStatus.InternalServerError)
       }
     }
-  }
 
 }
 

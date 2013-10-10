@@ -19,7 +19,7 @@ package couch
 import util._
 import resource._
 
-import gnieh.sohva.sync._
+import gnieh.sohva.control._
 
 import net.liftweb.json._
 

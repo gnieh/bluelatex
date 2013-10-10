@@ -29,7 +29,7 @@ import scala.collection.mutable.Map
 
 import com.typesafe.config.Config
 
-import gnieh.sohva.sync.CouchSession
+import gnieh.sohva.control.CouchSession
 
 /** The rest interface may be extended by \BlueLaTeX modules.
  *  Theses module simply need to register services implementing this trait

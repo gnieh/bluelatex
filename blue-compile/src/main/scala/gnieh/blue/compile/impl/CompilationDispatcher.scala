@@ -24,7 +24,7 @@ import couch.{
   User
 }
 
-import gnieh.sohva.sync.CouchClient
+import gnieh.sohva.control.CouchClient
 
 import akka.actor.{
   Actor,
@@ -118,12 +118,12 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
     }
 
     try {
-      for (couch <- bndContext.get[CouchClient]) try {
+      for(couch <- bndContext.get[CouchClient]) {
         // save title and class in couch
         val database = couch.database("blue_papers")
         val title = extractor.texTitle(paperId)
         val clazz = extractor.documentClass(paperId)
-        database.getDocById[Paper](paperId) match {
+        database.getDocById[Paper](paperId) map {
           case Some(paper) =>
             val authors = paper.authors + user._id
             if (paper.title != title || paper.cls != clazz || paper.authors != authors)
@@ -132,11 +132,11 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
             // it does not exist yet, create it
             // (good for old papers with no couch support)
             database.saveDoc(Paper(paperId, title, Set(user._id), Set(), clazz))
+        } recover {
+          case e: Exception =>
+            logger.error("Unable to save paper settings in database for paper "
+              + paperId, e)
         }
-      } catch {
-        case e: Exception =>
-          logger.error("Unable to save paper settings in database for paper "
-            + paperId, e)
       }
 
       if (!configuration.buildDir(paperId).exists) {

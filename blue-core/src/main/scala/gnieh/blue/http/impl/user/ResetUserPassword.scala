@@ -21,13 +21,19 @@ import tiscaf._
 
 import com.typesafe.config.Config
 
+import scala.util.{
+  Try,
+  Success,
+  Failure
+}
+
 /** Performs the password reset action for a given user.
  *
  *  @author Lucas Satabin
  */
 class ResetUserPassword(username: String, config: Config) extends BlueLet(config) {
 
-  def act(talk: HTalk): Unit = {
+  def act(talk: HTalk): Try[Unit] = {
     val token = talk.req.param("reset_token")
     val password1 = talk.req.param("new_password1")
     val password2 = talk.req.param("new_password2")
@@ -35,18 +41,18 @@ class ResetUserPassword(username: String, config: Config) extends BlueLet(config
       case (Some(token), Some(password1), Some(password2)) if password1 == password2 =>
         // all parameters given, and passwords match, proceed
         couchConfig.asAdmin { sess =>
-          val ok = sess.users.resetPassword(username, token, password1)
-          if(ok) {
-            talk.writeJson(true)
-          } else {
-            talk.writeJson(ErrorResponse("unable_to_reset", "Cannot perform password reset"))
-              .setStatus(HStatus.InternalServerError)
+          sess.users.resetPassword(username, token, password1) map {
+            case true =>
+              talk.writeJson(true)
+            case false =>
+              talk.writeJson(ErrorResponse("unable_to_reset", "Cannot perform password reset"))
+                .setStatus(HStatus.InternalServerError)
           }
         }
       case (t, p1, p2) =>
         // a parameter is missing or password do not match
-        talk.writeJson(ErrorResponse("unable_to_reset", "Wrong parameters"))
-          .setStatus(HStatus.BadRequest)
+        Success(talk.writeJson(ErrorResponse("unable_to_reset", "Wrong parameters"))
+          .setStatus(HStatus.BadRequest))
     }
   }
 

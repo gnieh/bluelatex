@@ -30,6 +30,11 @@ import gnieh.sohva.UserInfo
 
 import scala.io.Source
 
+import scala.util.{
+  Try,
+  Success
+}
+
 /** Handle JSON Patches that add/remove/modify people involved in the given paper, tags,
  *  branches, ...
  *
@@ -37,7 +42,7 @@ import scala.io.Source
  */
 class ModifyPaperLet(paperId: String, config: Config) extends RoleLet(paperId, config) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Unit = role match {
+  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>
       // only authors may modify this list
       (talk.req.octets, talk.req.header("if-match")) match {
@@ -45,44 +50,47 @@ class ModifyPaperLet(paperId: String, config: Config) extends RoleLet(paperId, c
           val db = database(blue_papers)
           // the modification must be sent as a JSON Patch document
           // retrieve the paper object from the database
-          (talk.readJson[JsonPatch], db.getDocById[Paper](paperId)) match {
-            case (Some(patch), Some(paper)) if paper._rev == knownRev =>
-              // the revision matches, we can apply the patch
-              val paper1 = patch(paper)
-              // and save the new paper data
-              db.saveDoc(paper1) match {
-                case Some(p) =>
-                  // save successfully, return ok with the new ETag
-                  // we are sure that the revision is not empty because it comes from the database
-                  talk.writeJson(true, p._rev.get)
+          db.getDocById[Paper](paperId) flatMap {
+            case Some(paper) if paper._rev == knownRev =>
+              talk.readJson[JsonPatch] match {
+                case Some(patch) =>
+                  // the revision matches, we can apply the patch
+                  val paper1 = patch(paper)
+                  // and save the new paper data
+                  db.saveDoc(paper1) map {
+                    case Some(p) =>
+                      // save successfully, return ok with the new ETag
+                      // we are sure that the revision is not empty because it comes from the database
+                      talk.writeJson(true, p._rev.get)
+                    case None =>
+                      // something went wrong
+                      talk.writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
+                        .setStatus(HStatus.InternalServerError)
+                  }
                 case None =>
-                  // something went wrong
-                  talk.writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
-                    .setStatus(HStatus.InternalServerError)
+                  // nothing to do
+                  Success(talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
+                    .setStatus(HStatus.NotModified))
               }
-            case (None, _) =>
-              // nothing to do
-              talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
-                .setStatus(HStatus.NotModified)
-            case (_, None) =>
+            case None =>
               // unknown paper
-              talk.writeJson(ErrorResponse("nothing_to_do", s"Unknown paper $paperId"))
-                .setStatus(HStatus.NotFound)
+              Success(talk.writeJson(ErrorResponse("nothing_to_do", s"Unknown paper $paperId"))
+                .setStatus(HStatus.NotFound))
           }
 
         case (None, _) =>
           // nothing to do
-          talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
-            .setStatus(HStatus.NotModified)
+          Success(talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
+            .setStatus(HStatus.NotModified))
 
         case (_, None) =>
           // known revision was not sent, precondition failed
-          talk.writeJson(ErrorResponse("conflict", "Paper revision not provided"))
-            .setStatus(HStatus.Conflict)
+          Success(talk.writeJson(ErrorResponse("conflict", "Paper revision not provided"))
+            .setStatus(HStatus.Conflict))
       }
     case _ =>
-      talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may modify the list of involved people"))
-        .setStatus(HStatus.Forbidden)
+      Success(talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may modify the list of involved people"))
+        .setStatus(HStatus.Forbidden))
   }
 
 }

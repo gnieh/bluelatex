@@ -30,11 +30,18 @@ import net.liftweb.json._
 
 import scala.io.Source
 
+import scala.concurrent._
+
+import scala.util.{
+  Try,
+  Success
+}
+
 /** All modules in \BlueLaTeX should implement `BlueLet` or one of its derivatives
  *
  *  @author Lucas Satabin
  */
-abstract class BlueLet(val config: Config) extends HSimpleLet with CouchSupport {
+abstract class BlueLet(val config: Config) extends HLet with CouchSupport {
 
   import scala.language.implicitConversions
 
@@ -99,6 +106,16 @@ abstract class BlueLet(val config: Config) extends HSimpleLet with CouchSupport 
   implicit def talk2rich(talk: HTalk): RichTalk =
     new RichTalk(talk)
 
+  final override def aact(talk: HTalk)(implicit executionContext: ExecutionContext) = future {
+    act(talk) recover {
+      case e =>
+        // TODO log
+        talk.setStatus(HStatus.InternalServerError)
+    }
+  }
+
+  def act(talk: HTalk): Try[Unit]
+
 }
 
 /** Extend this class if you need to treat differently authenticated and unauthenticated
@@ -108,8 +125,8 @@ abstract class BlueLet(val config: Config) extends HSimpleLet with CouchSupport 
  */
 abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
 
-  final def act(talk: HTalk): Unit =
-    currentUser(talk) match {
+  final def act(talk: HTalk): Try[Unit] =
+    currentUser(talk) flatMap {
       case Some(user) =>
         authenticatedAct(user)(talk)
       case None =>
@@ -117,15 +134,15 @@ abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
     }
 
   /** The action to take when the user is authenticated */
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Unit
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit]
 
   /** The action to take when the user is not authenticated.
    *  By default sends an error object with code "Unauthorized"
    */
-  def unauthenticatedAct(implicit talk: HTalk): Unit = {
-    talk
+  def unauthenticatedAct(implicit talk: HTalk): Try[Unit] = {
+    Success(talk
       .setStatus(HStatus.Unauthorized)
-      .writeJson(ErrorResponse("unauthorized", "This action is only permitted to authenticated people"))
+      .writeJson(ErrorResponse("unauthorized", "This action is only permitted to authenticated people")))
   }
 
 }
@@ -139,22 +156,24 @@ abstract class RoleLet(val paperId: String, config: Config) extends Authenticate
 
   lazy val configuration = new PaperConfiguration(config)
 
-  private def roles(implicit talk: HTalk): Map[String, PaperRole] =
-    (for {
-      Paper(_, _, authors, reviewers, _, _, _, _, _) <- couchSession.database(
-        couchConfig.database("blue_papers")).getDocById[Paper](paperId)
-    } yield {
-      (authors.map(id => (id, Author)) ++
-        reviewers.map(id => (id, Reviewer))).toMap.withDefaultValue(Other)
-    }).getOrElse(Map().withDefaultValue(Other))
+  private def roles(implicit talk: HTalk): Try[Map[String, PaperRole]] =
+    couchSession.database(couchConfig.database("blue_papers")).getDocById[Paper](paperId) map {
+      case Some(Paper(_, _, authors, reviewers, _, _, _, _, _)) =>
+        (authors.map(id => (id, Author)) ++
+          reviewers.map(id => (id, Reviewer))).toMap.withDefaultValue(Other)
+      case None =>
+        Map().withDefaultValue(Other)
+    }
 
-  final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Unit =
-    roleAct(user, roles(talk)(s"org.couchdb.user:${user.name}"))
+  final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
+    roles(talk) map { m =>
+      roleAct(user, m(s"org.couchdb.user:${user.name}"))
+    }
 
   /** Implement this method that can behave differently depending on the user
    *  role for the current paper.
    *  It is only called when the user is authenticated
    */
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Unit
+  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit]
 
 }

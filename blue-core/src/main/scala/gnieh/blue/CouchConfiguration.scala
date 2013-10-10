@@ -17,7 +17,7 @@ package gnieh.blue
 
 import com.typesafe.config.Config
 
-import gnieh.sohva.sync._
+import gnieh.sohva.control._
 
 import java.io.File
 

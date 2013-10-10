@@ -22,6 +22,11 @@ import com.typesafe.config.Config
 
 import tiscaf._
 
+import scala.util.{
+  Try,
+  Success
+}
+
 /** Log the user in.
  *  It delegates to the CouchDB login system and keeps track of the CouchDB cookie
  *
@@ -29,19 +34,19 @@ import tiscaf._
  */
 class LoginLet(config: Config) extends BlueLet(config) {
 
-  def act(talk: HTalk): Unit = {
+  def act(talk: HTalk): Try[Unit] = {
     implicit val t = talk
     (talk.req.param("username"), talk.req.param("password")) match {
       case (Some(username), Some(password)) =>
-        if(couchSession.login(username, password)) {
-          talk.writeJson(true)
-        } else {
-          talk.writeJson(ErrorResponse("unable_to_login", "Wrong username and/or password"))
-            .setStatus(HStatus.Unauthorized)
+        couchSession.login(username, password) map {
+          case true  => talk.writeJson(true)
+          case false =>
+            talk.writeJson(ErrorResponse("unable_to_login", "Wrong username and/or password"))
+              .setStatus(HStatus.Unauthorized)
         }
       case (_, _) =>
-        talk.writeJson(ErrorResponse("unable_to_login", "Missing login information"))
-          .setStatus(HStatus.BadRequest)
+        Success(talk.writeJson(ErrorResponse("unable_to_login", "Missing login information"))
+          .setStatus(HStatus.BadRequest))
     }
   }
 

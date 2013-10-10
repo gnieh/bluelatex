@@ -18,7 +18,7 @@ package impl
 
 import java.util.Properties
 
-import gnieh.sohva.sync._
+import gnieh.sohva.control._
 
 import com.typesafe.config._
 

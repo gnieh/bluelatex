@@ -25,6 +25,10 @@ import java.util.{
 }
 
 import scala.collection.JavaConverters._
+import scala.util.{
+  Success,
+  Failure
+}
 
 /** Encapsulates the logic to send emails from the \Blue platform
  *
@@ -38,10 +42,15 @@ class MailAgentImpl(configuration: BlueConfiguration) extends MailAgent {
     couchConf.couch.database(couchConf.database("blue_users"))
       .design("lists")
       .view[String, String, Nothing]("emails")
-      .query(key = Some("org.couchdb.user:" + username))
-      .rows
-      .headOption
-      .map(_.value)
+      .query(key = Some("org.couchdb.user:" + username)) match {
+        case Success(result) =>
+          result.rows
+            .headOption
+            .map(_.value)
+        case Failure(e) =>
+          // TODO log
+          None
+      }
   }
 
   def send(username: String, subject: String, text: String): Unit =

@@ -36,13 +36,15 @@ import resource._
 
 import scala.sys.process._
 
+import scala.util.Try
+
 /** Create a new paper. The currently authenticated user is added as author of this paper
  *
  *  @author Lucas Satabin
  */
 class CreatePaperLet(config: Config, templates: Templates) extends AuthenticatedLet(config) {
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Unit = {
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] = {
 
     // new paper identifier
     val newId = "w" + UUID.randomUUID.getMostSignificantBits.toHexString
@@ -84,7 +86,7 @@ class CreatePaperLet(config: Config, templates: Templates) extends Authenticated
     configuration.bibFile(newId).createNewFile
 
     // create the paper database
-    database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template))
+    database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template)) map (_ => ())
 
   }
 

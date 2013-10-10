@@ -20,10 +20,12 @@ import couch.User
 
 import tiscaf._
 
-import gnieh.sohva.sync._
+import gnieh.sohva.control._
 import gnieh.sohva.UserInfo
 
 import com.typesafe.config.Config
+
+import scala.util.Try
 
 /** mixin this trait to access CouchDB facilities
  *
@@ -50,15 +52,15 @@ trait CouchSupport {
     }
 
   /** Indicates whether the current session is a logged in user */
-  def loggedIn(implicit talk: HTalk): Boolean =
+  def loggedIn(implicit talk: HTalk): Try[Boolean] =
     couchSession.isLoggedIn
 
   /** Indicates whether the current session complies with role name */
-  def hasRole(role: String)(implicit talk: HTalk): Boolean =
+  def hasRole(role: String)(implicit talk: HTalk): Try[Boolean] =
     couchSession .hasRole(role)
 
   /** Returns the current user information */
-  def currentUser(implicit talk: HTalk): Option[UserInfo] =
+  def currentUser(implicit talk: HTalk): Try[Option[UserInfo]] =
     couchSession.currentUser
 
   /** Returns the view object identified by database, design name and view name */
