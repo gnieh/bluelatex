@@ -97,7 +97,7 @@ class CoreApi(config: Config, syncServer: SynchroServer, templates: Templates, m
       new LogoutLet(config)
     // deletes a paper
     case p"papers/$paperid" =>
-      ???
+      new DeletePaperLet(paperid, config, recaptcha)
   }
 
 }

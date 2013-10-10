@@ -80,14 +80,19 @@ object FileProcessing {
           ""
       }
 
-    def deleteRecursive() {
-      def deleteFile(dfile: File) {
-        if (dfile.isDirectory) {
+    def deleteRecursive(): Boolean = {
+      def deleteFile(dfile: File): Boolean = {
+        val ok = if (dfile.isDirectory) {
           val files = dfile.listFiles
-          if (files != null)
-            files.foreach(deleteFile)
+          val oks = if (files != null)
+            files.map(deleteFile).toList
+          else
+            Nil
+          oks.forall(identity)
+        } else {
+          true
         }
-        dfile.delete
+        dfile.delete && ok
       }
       deleteFile(file)
     }
