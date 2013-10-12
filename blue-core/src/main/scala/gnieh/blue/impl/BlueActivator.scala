@@ -32,6 +32,7 @@ import http.impl.{
   CoreApi
 }
 import couch.DbManager
+import config.ConfigurationLoader
 
 import gnieh.sohva.control._
 
@@ -51,11 +52,7 @@ class BlueActivator extends ActorSystemActivator {
 
   import OsgiUtils._
 
-  def configure(context: BundleContext, system: ActorSystem): Unit = {
-    // the bundle configuration loader server
-    val loader = new ConfigurationLoaderImpl(new File(context.getProperty("blue.configuration.base")))
-    // register it
-    context.registerService(classOf[ConfigurationLoader], loader, null)
+  def configure(context: BundleContext, system: ActorSystem): Unit = for(loader <- context.get[ConfigurationLoader]) {
     // load the \BlueLaTeX common configuration
     val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
     val configuration = new BlueConfiguration(config)

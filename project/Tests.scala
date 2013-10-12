@@ -24,7 +24,7 @@ trait Tests {
         parallelExecution in IntegrationTest := false,
         test in Scenario <<= (blueStop in bluelatex) dependsOn ((test in IntegrationTest) dependsOn (blueStart in bluelatex))
       )
-    ) dependsOn(core)
+    ) dependsOn(blueCore)
 
   lazy val testDeps = Seq(
     "org.subethamail" % "subethasmtp" % "3.1.7",

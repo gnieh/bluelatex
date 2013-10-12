@@ -14,28 +14,24 @@
  * limitations under the License.
  */
 package gnieh.blue
-package mobwrite
+package config
+package impl
 
 import org.osgi.framework._
 
-import config.ConfigurationLoader
+import java.io.File
 
-/** Registers the mobwrite service that delegates synchronization
- *  to a standalone process
+/** Register the configuration loader service that is used by everybody
  *
  *  @author Lucas Satabin
  */
-class MobwriteActivator extends BundleActivator {
-
-  import OsgiUtils._
+class BlueConfigActivator extends BundleActivator {
 
   def start(context: BundleContext): Unit = {
-    for(loader <- context.get[ConfigurationLoader]) {
-      // instantiate the mobwrite server as synchronization server
-      val server = new MobwriteServer(loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader))
-      // register this as the synchronization server
-      context.registerService(classOf[SynchroServer], server, null)
-    }
+    // the bundle configuration loader server
+    val loader = new ConfigurationLoaderImpl(new File(context.getProperty("blue.configuration.base")))
+    // register it
+    context.registerService(classOf[ConfigurationLoader], loader, null)
   }
 
   def stop(context: BundleContext): Unit = {

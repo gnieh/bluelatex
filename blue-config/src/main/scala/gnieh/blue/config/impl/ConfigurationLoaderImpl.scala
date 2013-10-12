@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package gnieh.blue
+package config
+package impl
 
 import java.net.{
   URLClassLoader,

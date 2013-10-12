@@ -25,6 +25,8 @@ import akka.routing.{
   RoundRobinRouter
 }
 
+import config.ConfigurationLoader
+
 class CompileActivator extends BundleActivator {
 
   import OsgiUtils._

@@ -20,6 +20,8 @@ package impl
 import org.osgi.framework._
 import akka.actor._
 
+import config.ConfigurationLoader
+
 /** Registers the synchro service
  *
  *  @author Lucas Satabin
@@ -39,7 +41,7 @@ class SyncServerActivator extends BundleActivator {
       // create the dispatcher actor
       system.actorOf(Props(new SyncDispatcher(context, config)), name = "sync-dispatcher")
       // instantiate the sync server as synchronization server
-      val server = new SyncServer(loader.load(context.getBundle.getSymbolicName))
+      val server = new SyncServer(config)
       // register this as the synchronization server
       context.registerService(classOf[SynchroServer], server, null)
       _server = Some(server)

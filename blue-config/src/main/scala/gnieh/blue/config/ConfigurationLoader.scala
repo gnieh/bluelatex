@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package gnieh.blue
+package config
 
 import com.typesafe.config._
 

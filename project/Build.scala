@@ -25,22 +25,30 @@ class BlueBuild extends Build with Pack with Server with Tests {
       fork in run := true)
     settings(packSettings: _*)
     settings(blueServerSettings: _*)
-  ) aggregate(core, compile, mobwrite, sync)
+  ) aggregate(blueConfig, blueCore, blueCompile, blueMobwrite, blueSync)
 
   lazy val compileOptions = scalacOptions in ThisBuild ++=
       Seq("-deprecation", "-feature")
 
-  lazy val core =
+  lazy val blueConfig =
+    (Project(id = "blue-config", base = file("blue-config"))
+      settings (
+        libraryDependencies ++= commonDeps
+      )
+    )
+
+  lazy val blueCore =
     (Project(id = "blue-core", base = file("blue-core"))
       settings (
         libraryDependencies ++= coreDependencies
       )
-    )
+    ) dependsOn(blueConfig)
 
   lazy val commonDeps = Seq(
     "com.jsuereth" %% "scala-arm" % "1.3",
     "org.osgi" % "org.osgi.core" % "4.3.0" % "provided",
-    "org.osgi" % "org.osgi.compendium" % "4.3.0" % "provided"
+    "org.osgi" % "org.osgi.compendium" % "4.3.0" % "provided",
+    "com.typesafe" % "config" % "1.0.2"
   )
 
   lazy val coreDependencies = commonDeps ++ Seq(
@@ -49,7 +57,6 @@ class BlueBuild extends Build with Pack with Server with Tests {
     "org.gnieh" %% "diffson" % "0.2-SNAPSHOT",
     "commons-io" % "commons-io" % "1.4",
     "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
-    "com.typesafe" % "config" %"1.0.1",
     "com.typesafe.akka" %% "akka-osgi" % "2.2.0",
     "org.apache.pdfbox" % "pdfbox" % "1.8.2" exclude("commons-logging", "commons-logging"),
     "ch.qos.logback" % "logback-classic" % "1.0.10",
@@ -60,28 +67,28 @@ class BlueBuild extends Build with Pack with Server with Tests {
     "org.fusesource.scalate" %% "scalate-core" % "1.6.1"
   )
 
-  lazy val mobwrite =
+  lazy val blueMobwrite =
     (Project(id = "blue-mobwrite",
       base = file("blue-mobwrite"))
       settings (
         libraryDependencies ++= commonDeps
       )
-    ) dependsOn(core)
+    ) dependsOn(blueCore)
 
-  lazy val compile =
+  lazy val blueCompile =
     (Project(id = "blue-compile",
       base = file("blue-compile"))
       settings (
         libraryDependencies ++= commonDeps
       )
-    ) dependsOn(core)
+    ) dependsOn(blueCore)
 
-  lazy val sync =
+  lazy val blueSync =
     (Project(id = "blue-sync",
       base = file("blue-sync"))
       settings (
         libraryDependencies ++= commonDeps
       )
-    ) dependsOn(core)
+    ) dependsOn(blueCore)
 
 }

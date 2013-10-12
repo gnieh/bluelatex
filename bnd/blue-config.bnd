@@ -1,0 +1,9 @@
+Bundle-Activator: gnieh.blue.config.impl.BlueConfigActivator
+Bundle-SymbolicName: org.gnieh.blue.config
+Bundle-Name: the configuration loader
+
+Private-Package=gnieh.blue.config.impl
+Import-Package=*
+
+Export-Package=gnieh.blue.config
+

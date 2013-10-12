@@ -51,7 +51,7 @@ trait Server {
     if(Properties.isWin) defaultStartPrunOptionsOptions(cp) else (defaultStartJsvcOptions(cp) ::: List("-stop"))
   }
 
-  lazy val launcher = Project(id = "launcher",
+  lazy val blueLauncher = Project(id = "launcher",
     base = file("blue-launcher")) settings(
       name := "blue-launcher",
       organization := "org.gnieh",
@@ -87,14 +87,14 @@ trait Server {
     Seq(
       couchdb <<= target(t => new CouchInstance(t / "couchdb", false, true, "1.4.0", Configuration(Map("log" -> Map("level" -> "debug"))))),
       launchExe := (if(Properties.isWin) "prunsrv" else "jsvc"),
-      startOptions <<= (update in launcher, packageBin in (launcher, Compile)) map (defaultStartOptions _),
-      stopOptions <<= (update in launcher, packageBin in (launcher, Compile)) map defaultStopOptions _,
+      startOptions <<= (update in blueLauncher, packageBin in (blueLauncher, Compile)) map (defaultStartOptions _),
+      stopOptions <<= (update in blueLauncher, packageBin in (blueLauncher, Compile)) map defaultStopOptions _,
       blueConfDir in BlueServer <<= sourceDirectory(_ / "configuration"),
       blueStartTask,
       blueStopTask
     )
 
-  private def blueStartTask = blueStart <<= (launchExe, startOptions, couchdb, streams, bluePack, packageBin in (launcher, Compile), update in launcher) map {
+  private def blueStartTask = blueStart <<= (launchExe, startOptions, couchdb, streams, bluePack, packageBin in (blueLauncher, Compile), update in blueLauncher) map {
     (exe, options, couchdb, out, pack, jar, deps) =>
 
     if(!Properties.isWin)
@@ -108,7 +108,7 @@ trait Server {
     println("started")
   }
 
-  private def blueStopTask = blueStop <<= (launchExe, stopOptions, couchdb, streams, packageBin in (launcher, Compile), update in launcher) map {
+  private def blueStopTask = blueStop <<= (launchExe, stopOptions, couchdb, streams, packageBin in (blueLauncher, Compile), update in blueLauncher) map {
     (exe, options, couchdb, out, jar, deps) =>
 
     if(!Properties.isWin)
