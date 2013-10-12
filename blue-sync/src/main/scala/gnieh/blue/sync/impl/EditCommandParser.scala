@@ -19,10 +19,14 @@ package impl
 
 import scala.util.parsing.combinator._
 
+/** A simple parser for Edit commands.
+ * @author Lucas Satabin
+ *
+ */
 object EditCommandParsers extends RegexParsers {
 
   def parseEdits(input: String): List[Edit] =
-    parseAll(repsep(edit, "\t"), input) match {
+    parseAll(repsep(edit, '\t'), input) match {
       case Success(res, _) => res
       case _ => Nil
     }
@@ -33,7 +37,7 @@ object EditCommandParsers extends RegexParsers {
       | "=" ~> number ^^ Equality)
 
   private lazy val number: Parser[Int] =
-    "[0-9]+" ^^ (_.toInt)
+    "[0-9]+".r ^^ (_.toInt)
 
   private lazy val data: Parser[String] =
     "([-A-Za-z0-9_.!~*'();/?:@&=+$,# ]|%[A-Fa-f0-9]{2})+".r

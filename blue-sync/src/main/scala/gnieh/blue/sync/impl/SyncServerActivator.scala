@@ -42,9 +42,9 @@ class SyncServerActivator extends BundleActivator {
     } {
       val config = loader.load(context.getBundle.getSymbolicName)
       // create the dispatcher actor
-      system.actorOf(Props(new SyncDispatcher(context, config, logger)), name = "sync-dispatcher")
+      val dispatcher = system.actorOf(Props(new SyncDispatcher(context, config, logger)), name = "sync-dispatcher")
       // instantiate the sync server as synchronization server
-      val server = new SyncServer(config)
+      val server = new SyncServer(dispatcher, config)
       // register this as the synchronization server
       context.registerService(classOf[SynchroServer], server, null)
       _server = Some(server)

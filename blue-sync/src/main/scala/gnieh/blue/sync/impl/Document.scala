@@ -17,16 +17,12 @@ package gnieh.blue
 package sync
 package impl
 
+import java.io.File
+
 /** Server-side document
  *
  * @author Lucas Satabin
  */
-class Document(val path: String, private var _text: String) {
-
-  def text = _text
-
-  def text_=(t: String) {
-    _text = t
-  }
-
+class Document(val path: String, var text: String) {
+  lazy val filename = new File(path).getName()
 }
