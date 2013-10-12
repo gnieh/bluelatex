@@ -16,5 +16,5 @@ before_install:
   - sudo apt-get install -qq jsvc
 
 before_script:
-  - echo "startOptions <<= (startOptions, bluePack) map { (opt, pack) => \"-cwd\" :: pack.getCanonicalPath :: opt }\n\nlaunchExe := \"/usr/bin/jsvc\"" > build.sbt
+  - "echo \"startOptions <<= (startOptions, bluePack) map { (opt, pack) => \\\"-cwd\\\" :: pack.getCanonicalPath :: opt }\n\nlaunchExe := \\\"/usr/bin/jsvc\\\"\" > build.sbt"
 
