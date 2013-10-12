@@ -33,7 +33,7 @@ import org.osgi.service.log.LogService
 
 import gnieh.blue.sync.impl.store._
 
-import name.fraser.neil.plaintext.diff_match_patch
+import name.fraser.neil.plaintext.DiffMatchPatch;
 
 /** The synchronization system actor is responsible for managing
  *  the synchronisation and persistance of papers.
@@ -43,9 +43,10 @@ import name.fraser.neil.plaintext.diff_match_patch
 class SyncDispatcher(bndContext: BundleContext, config: Config, logger: LogService) extends ResourceDispatcher {
 
   val configuration = new PaperConfiguration(config)
+  private val dmp = new DiffMatchPatch
 
   def props(username: String, resourceid: String): Props =
-    Props(new SyncActor(bndContext, configuration, resourceid, logger))
+    Props(new SyncActor(bndContext, configuration, resourceid, dmp, logger))
 }
 
 /** This actor handles synchronisation of documents.
@@ -59,11 +60,11 @@ class SyncActor(
     bndContext: BundleContext,
     config: PaperConfiguration,
     documentPath: String,
+    dmp: DiffMatchPatch,
     val logger: LogService)
   extends Actor
   with Logging {
 
-  private val dmp = new diff_match_patch
 
   private val store = new FsStore
   private val document = store.load(documentPath)
