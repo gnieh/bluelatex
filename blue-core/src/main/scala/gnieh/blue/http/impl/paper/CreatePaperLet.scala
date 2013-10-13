@@ -44,7 +44,7 @@ import scala.util.Try
  */
 class CreatePaperLet(config: Config, templates: Templates) extends AuthenticatedLet(config) {
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] = {
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Option[Paper]] = {
 
     // new paper identifier
     val newId = "w" + UUID.randomUUID.getMostSignificantBits.toHexString
@@ -86,7 +86,7 @@ class CreatePaperLet(config: Config, templates: Templates) extends Authenticated
     configuration.bibFile(newId).createNewFile
 
     // create the paper database
-    database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template)) map (_ => ())
+    database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template))
 
   }
 

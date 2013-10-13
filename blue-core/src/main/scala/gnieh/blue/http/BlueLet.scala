@@ -116,7 +116,7 @@ abstract class BlueLet(val config: Config) extends HLet with CouchSupport {
     }
   }
 
-  def act(talk: HTalk): Try[Unit]
+  def act(talk: HTalk): Try[Any]
 
 }
 
@@ -127,7 +127,7 @@ abstract class BlueLet(val config: Config) extends HLet with CouchSupport {
  */
 abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
 
-  final def act(talk: HTalk): Try[Unit] =
+  final def act(talk: HTalk): Try[Any] =
     currentUser(talk) flatMap {
       case Some(user) =>
         authenticatedAct(user)(talk)
@@ -136,12 +136,12 @@ abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
     }
 
   /** The action to take when the user is authenticated */
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit]
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any]
 
   /** The action to take when the user is not authenticated.
    *  By default sends an error object with code "Unauthorized"
    */
-  def unauthenticatedAct(implicit talk: HTalk): Try[Unit] = {
+  def unauthenticatedAct(implicit talk: HTalk): Try[Any] = {
     Success(talk
       .setStatus(HStatus.Unauthorized)
       .writeJson(ErrorResponse("unauthorized", "This action is only permitted to authenticated people")))
@@ -167,7 +167,7 @@ abstract class RoleLet(val paperId: String, config: Config) extends Authenticate
         Map().withDefaultValue(Other)
     }
 
-  final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
+  final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
     roles(talk) map { m =>
       roleAct(user, m(s"org.couchdb.user:${user.name}"))
     }
@@ -176,6 +176,6 @@ abstract class RoleLet(val paperId: String, config: Config) extends Authenticate
    *  role for the current paper.
    *  It is only called when the user is authenticated
    */
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit]
+  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any]
 
 }
