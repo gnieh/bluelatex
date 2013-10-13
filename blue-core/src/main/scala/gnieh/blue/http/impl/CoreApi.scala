@@ -49,6 +49,7 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
     // synchronization request
     //case p"papers/$paperid/sync" =>
     //  new SynchronizePaperLet(paperid, config, syncServer)
+    // save a non synchronized resource
     case p"papers/$paperid/files/resources/$resourcename" =>
       new SaveResourceLet(paperid, resourcename, config)
   }
@@ -88,6 +89,9 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
     // downloads the list of non synchronized resources
     case p"papers/$paperid/files/resources" =>
       new NonSynchronizedResourcesLet(paperid, config)
+    // gets a non synchronized resource
+    case p"papers/$paperid/files/resources/$resourcename" =>
+      new GetResourceLet(paperid, resourcename, config)
   }
 
   DELETE {
