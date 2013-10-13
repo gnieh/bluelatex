@@ -15,5 +15,8 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq jsvc
 
+before_script:
+  - "echo \"couchdb := None\" > build.sbt"
+
 after_script:
   - "cat /tmp/bluelatex.err"

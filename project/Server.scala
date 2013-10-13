@@ -75,7 +75,7 @@ trait Server {
     taskKey[List[String]]("the options to pass when stopping the server")
 
   val couchdb =
-    settingKey[CouchInstance]("the CouchDB instance")
+    settingKey[Option[CouchInstance]]("the CouchDB instance")
 
   val blueStart =
     taskKey[Unit]("starts a \\BlueLaTeX test environment")
@@ -85,7 +85,12 @@ trait Server {
 
   val blueServerSettings: Seq[Def.Setting[_]] =
     Seq(
-      couchdb <<= target(t => new CouchInstance(t / "couchdb", false, true, "1.4.0", Configuration(Map("log" -> Map("level" -> "debug"))))),
+      couchdb <<= target(t =>
+          if(Properties.isWin)
+            None
+          else
+            Some(new CouchInstance(t / "couchdb", false, true, "1.4.0", Configuration(Map("log" -> Map("level" -> "debug")))))
+      ),
       launchExe := (if(Properties.isWin) "prunsrv" else "jsvc"),
       startOptions <<= (update in blueLauncher, packageBin in (blueLauncher, Compile)) map (defaultStartOptions _),
       stopOptions <<= (update in blueLauncher, packageBin in (blueLauncher, Compile)) map defaultStopOptions _,
@@ -97,8 +102,7 @@ trait Server {
   private def blueStartTask = blueStart <<= (launchExe, startOptions, couchdb, streams, bluePack, packageBin in (blueLauncher, Compile), update in blueLauncher) map {
     (exe, options, couchdb, out, pack, jar, deps) =>
 
-    if(!Properties.isWin)
-      couchdb.start()
+    couchdb.foreach(_.start())
 
     val process = Process(
       (exe :: options ::: List("org.gnieh.blue.launcher.Main")).toSeq,
@@ -111,8 +115,7 @@ trait Server {
   private def blueStopTask = blueStop <<= (launchExe, stopOptions, couchdb, streams, packageBin in (blueLauncher, Compile), update in blueLauncher) map {
     (exe, options, couchdb, out, jar, deps) =>
 
-    if(!Properties.isWin)
-      couchdb.stop()
+    couchdb.foreach(_.stop())
 
     val process = Process(
       (exe :: options ::: List("org.gnieh.blue.launcher.Main")).toSeq,
