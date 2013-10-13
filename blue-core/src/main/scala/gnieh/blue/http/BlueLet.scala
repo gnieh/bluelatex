@@ -127,6 +127,8 @@ abstract class BlueLet(val config: Config) extends HLet with CouchSupport {
  */
 abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
 
+  lazy val configuration = new PaperConfiguration(config)
+
   final def act(talk: HTalk): Try[Any] =
     currentUser(talk) flatMap {
       case Some(user) =>
@@ -155,8 +157,6 @@ abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
  *  @author Lucas Satabin
  */
 abstract class RoleLet(val paperId: String, config: Config) extends AuthenticatedLet(config) {
-
-  lazy val configuration = new PaperConfiguration(config)
 
   private def roles(implicit talk: HTalk): Try[Map[String, PaperRole]] =
     couchSession.database(couchConfig.database("blue_papers")).getDocById[Paper](paperId) map {

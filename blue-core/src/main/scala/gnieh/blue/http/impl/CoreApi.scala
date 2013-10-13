@@ -97,7 +97,7 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
   DELETE {
     // unregisters the authenticated user
     case p"users/$username" =>
-      ???
+      new DeleteUserLet(username, config,recaptcha)
     // log a user out
     case p"session" =>
       new LogoutLet(config)
