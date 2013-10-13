@@ -49,6 +49,8 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
     // synchronization request
     //case p"papers/$paperid/sync" =>
     //  new SynchronizePaperLet(paperid, config, syncServer)
+    case p"papers/$paperid/files/resources/$resourcename" =>
+      new SaveResourceLet(paperid, resourcename, config)
   }
 
   PATCH {

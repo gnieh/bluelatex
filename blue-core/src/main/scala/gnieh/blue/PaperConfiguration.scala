@@ -29,6 +29,9 @@ class PaperConfiguration(val config: Config) {
   def paperFile(paperId: String): File =
     paperDir(paperId) / s"$paperId.tex"
 
+  def resource(paperId: String, resourceName: String): File =
+    paperDir(paperId) / resourceName
+
   def bibFile(paperId: String): File =
     paperDir(paperId) / s"$paperId.bib"
 
