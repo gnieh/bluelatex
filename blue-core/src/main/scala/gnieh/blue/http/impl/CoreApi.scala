@@ -104,6 +104,9 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
     // deletes a paper
     case p"papers/$paperid" =>
       new DeletePaperLet(paperid, config, recaptcha)
+    // deletes a non synchronized resource
+    case p"papers/$paperid/files/resources/$resourcename" =>
+      new DeleteResourceLet(paperid, resourcename, config)
   }
 
 }
