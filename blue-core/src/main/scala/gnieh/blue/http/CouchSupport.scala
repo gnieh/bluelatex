@@ -64,10 +64,10 @@ trait CouchSupport {
     couchSession.currentUser
 
   /** Returns the view object identified by database, design name and view name */
-  def view[Key: Manifest, Value: Manifest](dbName: String, designName: String, viewName: String)(implicit talk: HTalk): View[Key, Value, Any] = {
+  def view[Key: Manifest, Value: Manifest, Doc: Manifest](dbName: String, designName: String, viewName: String)(implicit talk: HTalk): View[Key, Value, Doc] = {
       val db = couchSession.database(couchConfig.database(dbName))
       val design = db.design(designName)
-      design.view[Key, Value, Any](viewName)
+      design.view[Key, Value, Doc](viewName)
   }
 
   /** Returns the database object identified by its name */

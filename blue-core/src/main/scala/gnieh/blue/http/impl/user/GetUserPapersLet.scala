@@ -41,7 +41,7 @@ class GetUserPapersLet(username: String, config: Config) extends AuthenticatedLe
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     // only authenticated users may see other people information
-    view[String, UserRole](blue_papers, "papers", "for").query(key = Some(username)) map { res =>
+    view[String, UserRole, Any](blue_papers, "papers", "for").query(key = Some(username)) map { res =>
       val roles = res.values
       val result = (for((_, userRole) <- roles)
         yield userRole).toList

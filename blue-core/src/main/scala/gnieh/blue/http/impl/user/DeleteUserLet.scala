@@ -20,11 +20,16 @@ package user
 
 import tiscaf._
 
-import gnieh.sohva.UserInfo
+import gnieh.sohva.{
+  UserInfo,
+  Row
+}
 
 import couch._
 
 import com.typesafe.config.Config
+
+import gnieh.diffson._
 
 import scala.util.{
   Try,
@@ -41,45 +46,55 @@ class DeleteUserLet(username: String, config: Config, recaptcha: ReCaptcha) exte
 
   // TODO logging
 
+  object SingletonSet {
+    def unapply(set: Set[String]): Option[String] =
+      if(set.size == 1)
+        set.headOption
+      else
+        None
+  }
+
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     if(user.name == username && recaptcha.verify(talk)) {
 
+      val userid = s"org.couchdb.user:$username"
+
       // get the papers in which this user is involved
-      view[String, UserRole](blue_papers, "papers", "for").query(key = Some(username)) flatMap { res =>
-        val roles = res.values
-        // get all papers for which the user is an author
-        val papers = for((_, UserRole(paperId, _, "author")) <- roles)
-          yield paperId
+      view[String, UserRole, Paper](blue_papers, "papers", "for").query(key = Some(username), include_docs = true) flatMap { res =>
+        val rows = res.rows
 
-        // get the paper authors for each of these papers
-        view[String, List[String]](blue_papers, "papers", "authors").query(keys = papers) map { res =>
-          // the list of papers for which this user is the single author
-          val singleAuthor =
-            for((paperId, List(name)) <- res.values if name == username)
-              yield paperId
-
-          if(singleAuthor.isEmpty) {
-            // ok no paper for which this user is the single author, let's remove him
-            // first delete the \BlueLaTeX specific user document
-            database(blue_users).deleteDoc(s"org.couchdb.user:$username") flatMap {
-              case true =>
-                // delete the couchdb user
-                couchSession.users.delete(username)
-              case false =>
-                // TODO log it
-                Success(talk
-                  .writeJson(ErrorResponse("cannot_unregister", "Unable to delete user data from database"))
-                  .setStatus(HStatus.InternalServerError))
-            }
-
-          } else {
-            // Nope! You must first transfer the papers ownership, or delete them!
-            talk
-              .writeJson(ErrorResponse("cannot_unregister", s"""Your are the single author of the following papers: ${singleAuthor.mkString("[", ", ", "]")}"""))
-              .setStatus(HStatus.Forbidden)
-          }
+        // get the papers for which the user is the single author
+        val singleAuthor = rows.collect {
+          case Row(_, _, _, Some(Paper(id, _, SingletonSet(name), _, _, _, _, _, _))) if name == userid =>
+            id
         }
 
+        if(singleAuthor.isEmpty) {
+          // ok no paper for which this user is the single author, let's remove him
+          // first delete the \BlueLaTeX specific user document
+          database(blue_users).deleteDoc(userid) flatMap {
+            case true =>
+              // delete the couchdb user
+              couchSession.users.delete(username)
+              // remove user name from papers it is involved in
+              // get all papers in which the user is involved and remove his name
+              val newPapers =
+                for(Row(_, _, _, Some(p)) <- rows)
+                  yield p.copy(authors = p.authors - userid, reviewers = p.reviewers - userid).withRev(p._rev)
+              Try(database(blue_papers).saveDocs(newPapers))
+            case false =>
+              // TODO log it
+              Success(talk
+                .writeJson(ErrorResponse("cannot_unregister", "Unable to delete user data from database"))
+                .setStatus(HStatus.InternalServerError))
+          }
+
+        } else {
+          // Nope! You must first transfer the papers ownership, or delete them!
+          Try(talk
+            .writeJson(ErrorResponse("cannot_unregister", s"""Your are the single author of the following papers: ${singleAuthor.mkString("[", ", ", "]")}"""))
+            .setStatus(HStatus.Forbidden))
+        }
       }
 
     } else {
