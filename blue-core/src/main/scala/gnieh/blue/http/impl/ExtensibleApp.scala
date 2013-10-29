@@ -25,7 +25,7 @@ import tiscaf.{
   HTracking
 }
 
-import scala.collection.mutable.Map
+import scala.collection.{ mutable => mu }
 
 import com.typesafe.config.Config
 
@@ -42,7 +42,7 @@ import gnieh.sohva.control.CouchSession
  */
 class ExtensibleApp(config: Config) extends HApp {
 
-  private[impl] val apps = Map.empty[Long, RestApi]
+  private[impl] val apps = mu.Map.empty[Long, RestApi]
   private def gets =
     (for((_, app) <- apps)
       yield app.gets).toList.flatten

@@ -40,14 +40,8 @@ class BlueServer(context: BundleContext, configuration: Config) extends HServer 
 
   override protected def maxPostDataLength = 100000000
 
-  override protected def onError(t: Throwable) = t match {
-    case e: Exception =>
-      logger.error("Oooops something wrong happened…", e)
-    case e: Error =>
-      logger.error("Aaaaaaaargh something really wrong happened… Abort! Abort!", e)
-      stop
-      sys.exit(1)
-  }
+  override def error(msg: String, e: Exception) =
+    logger.error(msg, e)
 
   override protected def onStart {
     // start the application tracker

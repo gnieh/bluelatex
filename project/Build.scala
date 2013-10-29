@@ -52,8 +52,8 @@ class BlueBuild extends Build with Pack with Server with Tests {
   )
 
   lazy val coreDependencies = commonDeps ++ Seq(
-    "org.gnieh" %% "sohva-client" % "0.4-SNAPSHOT",
-    "org.gnieh" %% "tiscaf" % "0.8-SNAPSHOT",
+    "org.gnieh" %% "sohva-client" % "0.5-SNAPSHOT",
+    "org.gnieh" %% "tiscaf" % "0.8",
     "org.gnieh" %% "diffson" % "0.2-SNAPSHOT",
     "commons-io" % "commons-io" % "1.4",
     "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
