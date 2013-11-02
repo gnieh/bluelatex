@@ -6,6 +6,8 @@ import aQute.bnd.osgi._
 
 import java.io.File
 
+import sbtbuildinfo.Plugin._
+
 object BlueBuild extends BlueBuild
 
 class BlueBuild extends Build with Pack with Server with Tests {
@@ -35,11 +37,24 @@ class BlueBuild extends Build with Pack with Server with Tests {
       settings (
         libraryDependencies ++= commonDeps
       )
+      settings(buildInfoSettings: _*)
+      settings(
+        sourceGenerators in Compile <+= buildInfo,
+        buildInfoKeys := Seq[BuildInfoKey](
+          version,
+          scalaVersion,
+          BuildInfoKey.action("buildTime") {
+            System.currentTimeMillis
+          }
+        ),
+        buildInfoPackage := "gnieh.blue",
+        buildInfoObject := "BlueInfo"
+      )
     )
 
   lazy val blueCore =
     (Project(id = "blue-core", base = file("blue-core"))
-      settings (
+      settings(
         libraryDependencies ++= coreDependencies
       )
     ) dependsOn(blueConfig)
