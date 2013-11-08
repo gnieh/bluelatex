@@ -22,6 +22,9 @@ trait Tests {
         libraryDependencies ++= testDeps,
         fork in IntegrationTest := true,
         parallelExecution in IntegrationTest := false,
+        testOptions in IntegrationTest <+= (couchPort in bluelatex, couchAdmin in bluelatex, couchPassword in bluelatex) map { (port, admin, password) =>
+          Tests.Argument(s"-DcouchPort=$port", s"-Dadmin=$admin", s"-Dpassword=$password")
+        },
         test in Scenario <<= (blueStop in bluelatex) dependsOn ((test in IntegrationTest) dependsOn (blueStart in bluelatex))
       )
     ) dependsOn(blueCore)
@@ -29,7 +32,7 @@ trait Tests {
   lazy val testDeps = Seq(
     "org.subethamail" % "subethasmtp" % "3.1.7",
     "org.scala-stm" %% "scala-stm" % "0.7",
-    "org.scalatest" %% "scalatest" % "2.0.M6" % "scenario,test,it"
+    "org.scalatest" %% "scalatest" % "2.0" % "scenario,test,it"
   )
 
 }

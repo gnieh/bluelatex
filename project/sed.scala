@@ -48,7 +48,6 @@ object sed {
         val decoder = charset.newDecoder
         val cb = decoder.decode(bb)
 
-        println(substituteReplacement)
         val outString = pattern.replaceAllIn(cb, substituteReplacement)
 
         val fos = new FileOutputStream(file.getAbsolutePath)

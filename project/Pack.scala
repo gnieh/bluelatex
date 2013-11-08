@@ -12,6 +12,15 @@ trait Pack {
   val couchPort =
     settingKey[Int]("the port CouchDB is listening to")
 
+  val couchAdmin =
+    settingKey[String]("the CouchDB administrator name")
+
+  val couchPassword =
+    settingKey[String]("the CouchDB administrator password")
+
+  val couchConf =
+    settingKey[(Int, String, String)]("the CouchDB configuration")
+
   val blueBndDir =
     settingKey[File]("the directory containing the BND descriptors")
 
@@ -42,6 +51,9 @@ trait Pack {
   val packSettings: Seq[Def.Setting[_]] =
     Seq(
       couchPort := 15984,
+      couchAdmin := "admin",
+      couchPassword := "admin",
+      couchConf <<= (couchPort, couchAdmin, couchPassword)((_, _, _)),
       blueBndDir <<= baseDirectory(_ / "bnd"),
       blueScriptDir <<= sourceDirectory(_ / "main" / "script"),
       blueConfDir <<= sourceDirectory(_ / "main" / "configuration"),
@@ -122,8 +134,8 @@ trait Pack {
   }
 
   private def bluePackTask =
-    bluePack <<= (blueBndDir, blueProjectBundles, blueDepBundles, blueScriptDir, blueConfDir, couchPort, blueTemplateDir, blueClassDir, blueDesignDir, streams, target) map {
-      (bnddir, projectJars, depJars, scriptdir, confdir, couchport, templatedir, classdir, designdir, out, target) =>
+    bluePack <<= (blueBndDir, blueProjectBundles, blueDepBundles, blueScriptDir, blueConfDir, couchConf, blueTemplateDir, blueClassDir, blueDesignDir, streams, target) map {
+      (bnddir, projectJars, depJars, scriptdir, confdir, couchconf, templatedir, classdir, designdir, out, target) =>
         // create the directories
         val packDir = target / "pack"
         val bundleDir = packDir / "bundle"
@@ -156,7 +168,12 @@ trait Pack {
         out.log.info("copy configuration")
         IO.copyDirectory(confdir, packDir / "conf")
         // set the couchdb port in configuration
+        val couchport = couchconf._1
+        val couchadmin = couchconf._2
+        val couchpassword = couchconf._3
         sed.replaceAll(packDir / "conf" / "org.gnieh.blue.core" / "application.conf", "\\$couchPort", couchport.toString)
+        sed.replaceAll(packDir / "conf" / "org.gnieh.blue.core" / "application.conf", "\\$couchAdmin", couchadmin)
+        sed.replaceAll(packDir / "conf" / "org.gnieh.blue.core" / "application.conf", "\\$couchPassword", couchpassword)
 
         out.log.info("copy templates")
         IO.copyDirectory(templatedir, packDir / "conf" / "templates")

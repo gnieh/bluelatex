@@ -21,6 +21,7 @@ import http.ErrorResponse
 import org.scalatest._
 
 import dispatch._
+import gnieh.sohva.sync._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -39,18 +40,50 @@ import net.liftweb.json._
  *
  *  @author Lucas Satabin
  */
-abstract class BlueScenario extends FeatureSpec with GivenWhenThen with ShouldMatchers with BeforeAndAfterAll {
+abstract class BlueScenario extends FeatureSpec
+                            with GivenWhenThen
+                            with ShouldMatchers
+                            with BeforeAndAfterAllConfigMap {
 
   val bluePort = 18080
 
-  object mailbox extends Mailbox
+  var couchPort = 5984
 
-  override def beforeAll() {
-    mailbox.start()
+  var admin = "admin"
+
+  var password = "admin"
+
+  lazy val couch = {
+    val sess = new CouchClient(port = couchPort).startSession
+    sess.login(admin, password)
+    sess
   }
 
-  override def afterAll() {
+  object mailbox extends Mailbox
+
+  override def beforeAll(config: ConfigMap) {
+    assume(config.isDefinedAt("couchPort"), "couchPort must be provided")
+    assume(config.isDefinedAt("admin"), "admin must be provided")
+    assume(config.isDefinedAt("password"), "password must be provided")
+    try {
+      couchPort = config.getRequired[String]("couchPort").toInt
+      admin = config.getRequired[String]("admin")
+      password = config.getRequired[String]("password")
+    } catch {
+      case e: Exception =>
+        e.printStackTrace
+    }
+    mailbox.start()
+    // ensure the databases exist
+    couch.database("blue_users").create
+    couch.database("blue_papers").create
+  }
+
+  override def afterAll(config: ConfigMap) {
     mailbox.stop()
+    // cleanup databases
+    couch.database("blue_users").delete
+    couch.database("blue_papers").delete
   }
 
   type AsyncResult[T] = Future[Either[(Int, ErrorResponse), T]]
