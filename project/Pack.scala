@@ -2,9 +2,15 @@ package blue
 
 import sbt._
 import Keys._
+
 import aQute.bnd.osgi._
+import scala.io.Source
 
 trait Pack {
+  this: BlueBuild =>
+
+  val couchPort =
+    settingKey[Int]("the port CouchDB is listening to")
 
   val blueBndDir =
     settingKey[File]("the directory containing the BND descriptors")
@@ -35,6 +41,7 @@ trait Pack {
 
   val packSettings: Seq[Def.Setting[_]] =
     Seq(
+      couchPort := 15984,
       blueBndDir <<= baseDirectory(_ / "bnd"),
       blueScriptDir <<= sourceDirectory(_ / "main" / "script"),
       blueConfDir <<= sourceDirectory(_ / "main" / "configuration"),
@@ -115,8 +122,8 @@ trait Pack {
   }
 
   private def bluePackTask =
-    bluePack <<= (blueBndDir, blueProjectBundles, blueDepBundles, blueScriptDir, blueConfDir, blueTemplateDir, blueClassDir, blueDesignDir, streams, target) map {
-      (bnddir, projectJars, depJars, scriptdir, confdir, templatedir, classdir, designdir, out, target) =>
+    bluePack <<= (blueBndDir, blueProjectBundles, blueDepBundles, blueScriptDir, blueConfDir, couchPort, blueTemplateDir, blueClassDir, blueDesignDir, streams, target) map {
+      (bnddir, projectJars, depJars, scriptdir, confdir, couchport, templatedir, classdir, designdir, out, target) =>
         // create the directories
         val packDir = target / "pack"
         val bundleDir = packDir / "bundle"
@@ -148,6 +155,8 @@ trait Pack {
 
         out.log.info("copy configuration")
         IO.copyDirectory(confdir, packDir / "conf")
+        // set the couchdb port in configuration
+        sed.replaceAll(packDir / "conf" / "org.gnieh.blue.core" / "application.conf", "\\$couchPort", couchport.toString)
 
         out.log.info("copy templates")
         IO.copyDirectory(templatedir, packDir / "conf" / "templates")
