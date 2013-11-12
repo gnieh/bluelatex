@@ -34,19 +34,22 @@ import scala.util.{
  */
 class LoginLet(config: Config) extends BlueLet(config) {
 
-  def act(talk: HTalk): Try[Unit] = {
+  def act(talk: HTalk): Try[Any] = {
     implicit val t = talk
     (talk.req.param("username"), talk.req.param("password")) match {
       case (Some(username), Some(password)) =>
         couchSession.login(username, password) map {
-          case true  => talk.writeJson(true)
+          case true  =>
+            talk.writeJson(true)
           case false =>
-            talk.writeJson(ErrorResponse("unable_to_login", "Wrong username and/or password"))
+            talk
               .setStatus(HStatus.Unauthorized)
+              .writeJson(ErrorResponse("unable_to_login", "Wrong username and/or password"))
         }
       case (_, _) =>
-        Success(talk.writeJson(ErrorResponse("unable_to_login", "Missing login information"))
-          .setStatus(HStatus.BadRequest))
+        Success(talk
+          .setStatus(HStatus.BadRequest)
+          .writeJson(ErrorResponse("unable_to_login", "Missing login information")))
     }
   }
 

@@ -27,8 +27,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import com.ning.http.client.{
   RequestBuilder,
-  Response
+  Response,
+  Cookie
 }
+
+import scala.collection.JavaConverters._
 
 import gnieh.diffson._
 
@@ -52,6 +55,8 @@ abstract class BlueScenario extends FeatureSpec
   var admin = "admin"
 
   var password = "admin"
+
+  private var cookie: Option[Cookie] = None
 
   lazy val couch = {
     val sess = new CouchClient(port = couchPort).startSession
@@ -117,12 +122,17 @@ abstract class BlueScenario extends FeatureSpec
       throw BlueErrorException(code, error)
   }
 
-  private def http(request: RequestBuilder): AsyncResult[JValue] =
-    Http(request > handleResponse _)
+  private def http(request: RequestBuilder): AsyncResult[JValue] = cookie match {
+    case Some(cookie) =>
+      Http(request.addCookie(cookie) > handleResponse _)
+    case None =>
+      Http(request > handleResponse _)
+  }
 
   private def handleResponse(response: Response): Either[(Int, ErrorResponse), JValue] = {
     val json = JsonParser.parse(as.String(response))
     val code = response.getStatusCode
+    cookie = response.getCookies.asScala.headOption
     if (code / 100 != 2) {
       // something went wrong...
       val error = json.extract[ErrorResponse]

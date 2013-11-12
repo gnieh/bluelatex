@@ -85,11 +85,7 @@ class ExtensibleApp(config: Config) extends HApp {
     }
 
     // find the first
-    handlers.find(_.isDefinedAt(req)) match {
-      case Some(handler) =>
-        Some(handler(req))
-      case _ => None
-    }
+    handlers.find(_.isDefinedAt(req)) map (_(req))
 
   }
 

@@ -71,7 +71,7 @@ class CouchConfiguration(config: Config) {
 
   /** The list of default roles to assign to a newly created user */
   val defaultRoles =
-    config.getList("couch.user.roles").asScala.map(_.render).toList
+    config.getList("couch.user.roles").unwrapped.asScala.map(_.toString).toList
 
   val tokenValidity =
     config.getMilliseconds("couch.user.token_validity").toInt

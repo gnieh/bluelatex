@@ -33,8 +33,11 @@ class LogoutLet(config: Config) extends BlueLet(config) {
 
   def act(talk: HTalk): Try[Unit] =
     couchSession(talk).logout map {
-      case true  => talk.writeJson(true)
-      case false => talk.writeJson(ErrorResponse("unable_to_logout", "Unable to log user out"))
+      case true  =>
+        talk.writeJson(true)
+      case false =>
+        talk.writeJson(ErrorResponse("unable_to_logout", "Unable to log user out"))
+          .setStatus(HStatus.InternalServerError)
     }
 
 }
