@@ -93,6 +93,80 @@ class UserLoginLogoutSpec extends BlueScenario with SomeUsers {
       val exc2 = evaluating {
         post[Boolean](List("session"), Map("username" -> person.username, "password" -> (person.password + "_invalid")))
       } should produce[BlueErrorException]
+
+      Then("he should receive an error message")
+      exc2.status should be(401)
+      val error = exc2.error
+      error.name should be("unable_to_login")
+      error.description should be("Wrong username and/or password")
+
+    }
+
+    scenario("missing password") {
+
+      Given("a person")
+      val person = predefinedPeople.head
+
+      When("he is not logged in")
+      val exc = evaluating {
+        get[UserInfo](List("session"))
+      } should produce[BlueErrorException]
+      exc.status should be(401)
+
+      And("he sends a login request with no password")
+      val exc2 = evaluating {
+        post[Boolean](List("session"), Map("username" -> person.username))
+      } should produce[BlueErrorException]
+
+      Then("he should receive an error message")
+      exc2.status should be(400)
+      val error = exc2.error
+      error.name should be("unable_to_login")
+      error.description should be("Missing login information")
+
+    }
+
+    scenario("missing username") {
+
+      Given("a person")
+      val person = predefinedPeople.head
+
+      When("he is not logged in")
+      val exc = evaluating {
+        get[UserInfo](List("session"))
+      } should produce[BlueErrorException]
+      exc.status should be(401)
+
+      And("he sends a login request with no username")
+      val exc2 = evaluating {
+        post[Boolean](List("session"), Map("password" -> person.password))
+      } should produce[BlueErrorException]
+
+      Then("he should receive an error message")
+      exc2.status should be(400)
+      val error = exc2.error
+      error.name should be("unable_to_login")
+      error.description should be("Missing login information")
+
+    }
+
+    scenario("unknown user") {
+
+      Given("a person")
+      val person = predefinedPeople.head
+
+      When("he is not logged in")
+      val exc = evaluating {
+        get[UserInfo](List("session"))
+      } should produce[BlueErrorException]
+      exc.status should be(401)
+
+      And("he sends a login request for an unknown user")
+      val exc2 = evaluating {
+        post[Boolean](List("session"), Map("username" -> (person.username + "_uknown"), "password" -> person.password))
+      } should produce[BlueErrorException]
+
+      Then("he should receive an error message")
       exc2.status should be(401)
       val error = exc2.error
       error.name should be("unable_to_login")
