@@ -86,9 +86,16 @@ abstract class BlueScenario extends FeatureSpec
 
   override def afterAll(config: ConfigMap) {
     mailbox.stop()
-    // cleanup databases
-    couch.database("blue_users").delete
-    couch.database("blue_papers").delete
+    // cleanup databases from all non design documents
+    val usersDb = couch.database("blue_users")
+    // filter out design documents
+    val userDocs = usersDb._all_docs.filter(!_.startsWith("_design/"))
+    // and delete them
+    usersDb.deleteDocs(userDocs)
+    val papersDb = couch.database("blue_papers")
+    // filter out design documents
+    val paperDocs = papersDb._all_docs.filter(!_.startsWith("_design/"))
+    papersDb.deleteDocs(paperDocs)
   }
 
   type AsyncResult[T] = Future[Either[(Int, ErrorResponse), T]]

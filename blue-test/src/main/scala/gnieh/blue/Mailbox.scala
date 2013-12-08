@@ -29,7 +29,7 @@ class Mailbox {
 
   private var wiser: Option[Wiser] = None
 
-  /** The port on which to listen, by default `2500` */
+  /** The port on which to listen, by default `12525` */
   var port: Int = 12525
 
   /** The hostname on which to listen, by default `localhost` */
