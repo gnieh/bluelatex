@@ -50,29 +50,24 @@ class DeletePaperLet(paperId: String, config: Config, recaptcha: ReCaptcha) exte
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>
       // only authors may delete a paper
-      if(recaptcha.verify(talk)) {
-        // first delete the paper files
-        import FileProcessing._
-        val dirDeleted = configuration.paperDir(paperId).deleteRecursive()
-        if(dirDeleted) {
-          database("blue_papers").deleteDoc(paperId) map {
-            case true =>
-              talk.writeJson(true)
-            case false =>
-              talk
-                .writeJson(ErrorResponse("cannot_delete_paper", "Unable to delete the papre database"))
-                .setStatus(HStatus.InternalServerError)
-          }
-        } else {
-          Success(talk
-            .writeJson(ErrorResponse("cannot_delete_paper", "Unable to delete the paper files"))
-            .setStatus(HStatus.InternalServerError))
+      // first delete the paper files
+      import FileProcessing._
+      val dirDeleted = configuration.paperDir(paperId).deleteRecursive()
+      if(dirDeleted) {
+        database("blue_papers").deleteDoc(paperId) map {
+          case true =>
+            talk.writeJson(true)
+          case false =>
+            talk
+              .writeJson(ErrorResponse("cannot_delete_paper", "Unable to delete the paper database"))
+              .setStatus(HStatus.InternalServerError)
         }
       } else {
         Success(talk
-          .writeJson(ErrorResponse("not_authorized", "ReCaptcha did not verify"))
-          .setStatus(HStatus.Forbidden))
+          .writeJson(ErrorResponse("cannot_delete_paper", "Unable to delete the paper files"))
+          .setStatus(HStatus.InternalServerError))
       }
+
     case _ =>
       Success(talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may delete a paper"))
         .setStatus(HStatus.Forbidden))
