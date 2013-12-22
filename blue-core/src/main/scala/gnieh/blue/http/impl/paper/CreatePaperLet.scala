@@ -36,7 +36,10 @@ import resource._
 
 import scala.sys.process._
 
-import scala.util.Try
+import scala.util.{
+  Try,
+  Success
+}
 
 /** Create a new paper. The currently authenticated user is added as author of this paper
  *
@@ -44,51 +47,50 @@ import scala.util.Try
  */
 class CreatePaperLet(config: Config, templates: Templates) extends AuthenticatedLet(config) {
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Option[Paper]] = {
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[HTalk] =
+    talk.req.param("paper_title") match {
+      case Some(title) =>
+        // new paper identifier
+        val newId = "w" + UUID.randomUUID.getMostSignificantBits.toHexString
 
-    // new paper identifier
-    val newId = "w" + UUID.randomUUID.getMostSignificantBits.toHexString
+        val template = talk.req.param("template").getOrElse("article")
 
-    val title = talk.req.param("paper_title").getOrElse("New Paper")
-    val template = talk.req.param("template").getOrElse("article")
+        val configuration = new PaperConfiguration(config)
 
-    val configuration = new PaperConfiguration(config)
+        // if the template is not one of the standard styles,
+        // then there should be an associated .sty file to be copied in `resources'
+        // directory
+        val clazz = template match {
+          case "article" | "book" | "report" =>
+            // built-in template, ignore it
+          case cls if configuration.cls(cls).exists =>
+            // copy the file to the working directory
+            (configuration.cls(cls) #> new File(configuration.paperDir(newId), cls + ".cls")) !
+              CreationProcessLogger
+          case cls =>
+            // TODO just log that the template was not found. It can however be uploaded later by the user
+        }
 
-    // if the template is not one of the standard styles,
-    // then there should be an associated .sty file to be copied in `resources'
-    // directory
-    val clazz = template match {
-      case "article" | "book" | "report"        => None
-      case cls if configuration.cls(cls).exists => Some(cls)
-      case cls =>
-        // TODO just log and fallback to article
-        None
+        configuration.paperDir(newId).mkdirs
+
+        // write the template to the newly created paper
+        for(fw <- managed(new FileWriter(configuration.paperFile(newId)))) {
+          fw.write(templates.layout(s"$template.tex", "title" -> title, "id" -> newId))
+        }
+
+        // create empty bibfile
+        configuration.bibFile(newId).createNewFile
+
+        // create the paper database
+        for(_ <- database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template)))
+          yield talk.writeJson(true).setStatus(HStatus.Created)
+
+      case None =>
+        // missing parameter
+        Success(talk.writeJson(ErrorResponse("cannot_create_paper", "Some parameters are missing"))
+          .setStatus(HStatus.BadRequest))
+
     }
-
-    configuration.paperDir(newId).mkdirs
-
-    // write the template to the newly created paper
-    for(fw <- managed(new FileWriter(configuration.paperFile(newId)))) {
-      fw.write(templates.layout(s"$template.tex", "title" -> title, "id" -> newId))
-    }
-
-    // copy the style file if necessary
-    clazz match {
-      case Some(cls) =>
-        // copy the file to the working directory only
-        // it cannot be deleted by the user
-        (configuration.cls(cls) #> new File(configuration.paperDir(newId), cls + ".cls")) !
-          CreationProcessLogger
-      case _ => // do nothing
-    }
-
-    // create empty bibfile
-    configuration.bibFile(newId).createNewFile
-
-    // create the paper database
-    database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template))
-
-  }
 
   object CreationProcessLogger extends ProcessLogger {
     def out(s: => String) = ???
