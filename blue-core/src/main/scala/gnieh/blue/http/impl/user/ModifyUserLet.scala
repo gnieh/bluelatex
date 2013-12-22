@@ -72,6 +72,10 @@ class ModifyUserLet(username: String, config: Config) extends AuthenticatedLet(c
                   Success(talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
                     .setStatus(HStatus.NotModified))
               }
+            case Some(user) =>
+              // old revision sent
+              Success(talk.writeJson(ErrorResponse("conflict", "Old user revision provided"))
+                .setStatus(HStatus.Conflict))
             case None =>
               // unknown paper
               Success(talk.writeJson(ErrorResponse("nothing_to_do", s"Unknown user $username"))
