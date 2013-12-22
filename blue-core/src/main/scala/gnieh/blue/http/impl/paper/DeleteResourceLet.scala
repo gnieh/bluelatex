@@ -49,7 +49,7 @@ class DeleteResourceLet(resourceName: String, paperId: String, config: Config) e
 
     case _ =>
       talk
-        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may upload resources"))
+        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may delete resources"))
         .setStatus(HStatus.Forbidden)
   })
 
