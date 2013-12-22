@@ -81,7 +81,8 @@ class DeleteUserLet(username: String, config: Config, recaptcha: ReCaptcha) exte
               val newPapers =
                 for(Row(_, _, _, Some(p)) <- rows)
                   yield p.copy(authors = p.authors - userid, reviewers = p.reviewers - userid).withRev(p._rev)
-              Try(database(blue_papers).saveDocs(newPapers))
+              for(_ <- database(blue_papers).saveDocs(newPapers))
+                yield Success(talk.writeJson(true))
             case false =>
               // TODO log it
               Success(talk
@@ -91,7 +92,7 @@ class DeleteUserLet(username: String, config: Config, recaptcha: ReCaptcha) exte
 
         } else {
           // Nope! You must first transfer the papers ownership, or delete them!
-          Try(talk
+          Success(talk
             .writeJson(ErrorResponse("cannot_unregister", s"""Your are the single author of the following papers: ${singleAuthor.mkString("[", ", ", "]")}"""))
             .setStatus(HStatus.Forbidden))
         }
