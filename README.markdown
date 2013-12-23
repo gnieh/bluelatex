@@ -30,6 +30,7 @@ Try to type `compile` for example and it will compile the entire project.
 If you want to start a test server, just type `blueStart` in the sbt console. To stop it (it is quite easy to infer actually...), type `blueStop`.
 
 The project is structured as follows:
+ - `blue-commons` contains the commons utilities and registsers global services. This includes logging service, configuration loader, actor system, ...
  - `blue-core` contains the core server features, such as the Http server, the core Rest Api to manage users, sessions and paper synchronization,
  - `blue-compile` contains the compilation server features,
  - `blue-sync` contains the scala implementation of the synchronization server,
