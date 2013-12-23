@@ -48,18 +48,19 @@ import scala.sys.process._
 import com.typesafe.config.Config
 
 import org.osgi.framework.BundleContext
+import org.osgi.service.log.LogService
 
 /** The compilation system actor is responsible for managing
  *  the compilation actor for each paper
  *
  *  @author Lucas Satabin
  */
-class CompilationDispatcher(bndContext: BundleContext, config: Config) extends ResourceDispatcher {
+class CompilationDispatcher(bndContext: BundleContext, config: Config, val logger: LogService) extends ResourceDispatcher {
 
   val configuration = new CompileConfiguration(config)
 
   def props(username: String, paperId: String) =
-    Props(new CompileActor(bndContext, configuration, paperId))
+    Props(new CompileActor(bndContext, configuration, paperId, logger))
 
 }
 
@@ -71,7 +72,7 @@ class CompilationDispatcher(bndContext: BundleContext, config: Config) extends R
  *  @author Lucas Satabin
  *
  */
-class CompileActor(bndContext: BundleContext, configuration: CompileConfiguration, paperId: String) extends Actor with Logging {
+class CompileActor(bndContext: BundleContext, configuration: CompileConfiguration, paperId: String, val logger: LogService) extends Actor with Logging {
 
   val extractor = new TeXInfoExtractors(configuration)
 
@@ -81,17 +82,14 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
 
   def receive = {
     case PdfLatex(id, density, timeout, user) if id == paperId =>
-      if (logger.isDebugEnabled)
-        logger.debug("Compilation process starts for paper " + paperId + " with pdflatex")
+      logDebug("Compilation process starts for paper " + paperId + " with pdflatex")
       // compile with pdflatex and return execution code to sender
       sender ! compile(pdflatex(timeout), density, user)(timeout)
 
-      if (logger.isDebugEnabled)
-        logger.debug("Compilation process done for paper " + paperId + " with pdflatex")
+      logDebug("Compilation process done for paper " + paperId + " with pdflatex")
 
     case Latex(id, density, timeout, user) if id == paperId =>
-      if (logger.isDebugEnabled)
-        logger.debug("Compilation process starts for paper " + paperId + " with latex")
+      logDebug("Compilation process starts for paper " + paperId + " with latex")
       // compile with latex
       val ret = compile(latex(timeout), density, user)(timeout)
       // then convert to pdf
@@ -100,11 +98,9 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
       // return execution code to sender
       sender ! ret
 
-      if (logger.isDebugEnabled)
-        logger.debug("Compilation process done for paper " + paperId + " with latex")
+      logDebug("Compilation process done for paper " + paperId + " with latex")
     case ReceiveTimeout =>
-      if (logger.isDebugEnabled)
-        logger.debug("Stop compile actor for paper " + paperId)
+      logDebug("Stop compile actor for paper " + paperId)
       // stop this actor
       context.stop(self)
   }
@@ -135,33 +131,30 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
             database.saveDoc(Paper(paperId, title, Set(user._id), Set(), clazz))
         } recover {
           case e: Exception =>
-            logger.error("Unable to save paper settings in database for paper "
+            logError("Unable to save paper settings in database for paper "
               + paperId, e)
         }
       }
 
       if (!configuration.buildDir(paperId).exists) {
-        if (logger.isDebugEnabled)
-          logger.debug("Creating build directory for paper " + paperId)
+        logDebug("Creating build directory for paper " + paperId)
         configuration.buildDir(paperId).mkdir
       }
 
-      if (logger.isDebugEnabled)
-        logger.debug("Compile paper " + paperId)
+      logDebug("Compile paper " + paperId)
       // compile the paper
       val compilerRet = compiler
 
       if (compilerRet != 0) {
-        logger.warn("compiling .tex file returned " + compilerRet)
+        logWarn("compiling .tex file returned " + compilerRet)
       }
 
-      if (logger.isDebugEnabled)
-        logger.debug("Run bibtex on " + paperId)
+      logDebug("Run bibtex on " + paperId)
       // run bibtex
       val ret = bibtex
 
       if (ret != 0) {
-        logger.warn("bibtex returned " + ret)
+        logWarn("bibtex returned " + ret)
       }
       // XXX as long as we don't have a dedicated and efficient compilation server
       // the user will have to compile many times by himself to have citations and
@@ -173,8 +166,7 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
 
       // cleanup generated png files
       for(file <- configuration.buildDir(paperId).filter(f => f.extension == ".png")) {
-        if (logger.isDebugEnabled)
-          logger.debug("Cleaning page " + file)
+        logDebug("Cleaning page " + file)
         file.delete
       }
 
@@ -182,7 +174,7 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
       compilerRet
     } catch {
       case e: Exception =>
-        logger.error("Something went wrong while compiling", e)
+        logError("Something went wrong while compiling", e)
         // send error to sender actor
         sender ! akka.actor.Status.Failure(e)
         throw e

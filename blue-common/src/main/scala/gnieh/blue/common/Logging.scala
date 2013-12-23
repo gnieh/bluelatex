@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 package gnieh.blue
+package common
 
-import org.slf4j.LoggerFactory
+import org.osgi.service.log.LogService
 
 /** Mixin this trait in any class you want to have support for logging
  *
@@ -24,6 +25,28 @@ import org.slf4j.LoggerFactory
  */
 trait Logging {
 
-  protected lazy val logger = LoggerFactory.getLogger(this.getClass)
+  import LogService._
+
+  val logger: LogService
+
+  @inline
+  def logDebug(msg: String): Unit =
+    logger.log(LOG_DEBUG, msg)
+
+  @inline
+  def logInfo(msg: String): Unit =
+    logger.log(LOG_INFO, msg)
+
+  @inline
+  def logWarn(msg: String): Unit =
+    logger.log(LOG_WARNING, msg)
+
+  @inline
+  def logError(msg: String, exn: Exception): Unit =
+    logger.log(LOG_ERROR, msg, exn)
+
+  @inline
+  def logError(msg: String): Unit =
+    logger.log(LOG_ERROR, msg)
 
 }

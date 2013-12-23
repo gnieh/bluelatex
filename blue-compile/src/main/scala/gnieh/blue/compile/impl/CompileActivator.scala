@@ -18,6 +18,7 @@ package compile
 package impl
 
 import org.osgi.framework._
+import org.osgi.service.log.LogService
 
 import akka.actor._
 import akka.routing.{
@@ -35,10 +36,11 @@ class CompileActivator extends BundleActivator {
     for {
       loader <- context.get[ConfigurationLoader]
       system <- context.get[ActorSystem]
+      logger <- context.get[LogService]
     } {
       val config = loader.load(context.getBundle.getSymbolicName)
       // create the dispatcher actor
-      system.actorOf(Props(new CompilationDispatcher(context, config)), name = "dispatcher")
+      system.actorOf(Props(new CompilationDispatcher(context, config, logger)), name = "dispatcher")
       // create the system command actor
       system.actorOf(Props[SystemCommandActor]
           .withRouter(new RoundRobinRouter(

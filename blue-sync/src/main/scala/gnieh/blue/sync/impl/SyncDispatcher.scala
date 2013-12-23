@@ -29,6 +29,7 @@ import scala.collection.mutable.HashMap;
 import com.typesafe.config.Config
 
 import org.osgi.framework.BundleContext
+import org.osgi.service.log.LogService
 
 import gnieh.blue.sync.impl.store._
 
@@ -39,12 +40,12 @@ import name.fraser.neil.plaintext.diff_match_patch
  *
  *  @author Lucas Satabin
  */
-class SyncDispatcher(bndContext: BundleContext, config: Config) extends ResourceDispatcher {
+class SyncDispatcher(bndContext: BundleContext, config: Config, logger: LogService) extends ResourceDispatcher {
 
   val configuration = new PaperConfiguration(config)
 
   def props(username: String, resourceid: String): Props =
-    Props(new SyncActor(bndContext, configuration, resourceid))
+    Props(new SyncActor(bndContext, configuration, resourceid, logger))
 }
 
 /** This actor handles synchronisation of documents.
@@ -57,7 +58,8 @@ class SyncDispatcher(bndContext: BundleContext, config: Config) extends Resource
 class SyncActor(
     bndContext: BundleContext,
     config: PaperConfiguration,
-    documentPath: String)
+    documentPath: String,
+    val logger: LogService)
   extends Actor
   with Logging {
 

@@ -18,6 +18,8 @@ package sync
 package impl
 
 import org.osgi.framework._
+import org.osgi.service.log.LogService
+
 import akka.actor._
 
 import common._
@@ -36,10 +38,11 @@ class SyncServerActivator extends BundleActivator {
     for {
       loader <- context.get[ConfigurationLoader]
       system <- context.get[ActorSystem]
+      logger <- context.get[LogService]
     } {
       val config = loader.load(context.getBundle.getSymbolicName)
       // create the dispatcher actor
-      system.actorOf(Props(new SyncDispatcher(context, config)), name = "sync-dispatcher")
+      system.actorOf(Props(new SyncDispatcher(context, config, logger)), name = "sync-dispatcher")
       // instantiate the sync server as synchronization server
       val server = new SyncServer(config)
       // register this as the synchronization server

@@ -112,6 +112,7 @@ abstract class BlueLet(val config: Config) extends HLet with CouchSupport {
     act(talk) recover {
       case e =>
         // TODO log
+        e.printStackTrace
         talk
           .writeJson(ErrorResponse("internal_error","Something wrong happened"))
           .setStatus(HStatus.InternalServerError)

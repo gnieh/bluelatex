@@ -16,7 +16,7 @@
 package gnieh.blue
 package compile
 
-import util._
+import common._
 
 import akka.actor.Actor
 import akka.util.Timeout
@@ -25,19 +25,21 @@ import scala.sys.process._
 
 import java.io.File
 
+import org.osgi.service.log.LogService
+
 /** An actor that executes a system command with the configured timeout
  *
  *  @author Lucas Satabin
  *
  */
-class SystemCommandActor extends Actor with Logging {
+class SystemCommandActor(val logger: LogService) extends Actor with Logging {
 
   private def timeoutPrefix(timeout: Timeout) =
     "timeout -s 9 " + timeout.duration.toSeconds + "s "
 
   private object SystemProcessLogger extends ProcessLogger {
-    def out(s: => String) = logger.info(s)
-    def err(s: => String) = logger.error(s)
+    def out(s: => String) = logInfo(s)
+    def err(s: => String) = logError(s)
     def buffer[T](f: => T) = f
   }
 

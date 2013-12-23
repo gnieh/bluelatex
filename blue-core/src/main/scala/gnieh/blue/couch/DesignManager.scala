@@ -18,7 +18,7 @@ package couch
 
 import resource._
 
-import common.CouchConfiguration
+import common._
 
 import gnieh.sohva.control._
 
@@ -26,13 +26,15 @@ import net.liftweb.json._
 
 import scala.io._
 
+import org.osgi.service.log.LogService
+
 /** A design manager is able to check new design document and
  *  update existing design documents for a given database.
  *
  *  @author Lucas Satabin
  *
  */
-class DesignManager(configuration: CouchConfiguration, db: Database) extends Logging {
+class DesignManager(configuration: CouchConfiguration, db: Database, val logger: LogService) extends Logging {
 
   lazy val dir = configuration.designDir(db.name)
 
@@ -50,13 +52,13 @@ class DesignManager(configuration: CouchConfiguration, db: Database) extends Log
             val json = JsonParser.parse(source.mkString)
             Extraction.extractOpt[DesignDoc](json) match {
               case Some(design) =>
-                logger.info("Save design " + design._id)
+                logInfo("Save design " + design._id)
                 db.saveDoc(design)
               case None => // not a design ignore it
             }
           } catch {
             case e: Exception =>
-              logger.error("Error while parsing file " + file.getCanonicalPath, e)
+              logError(s"Error while parsing file ${file.getCanonicalPath}", e)
           }
 
         }

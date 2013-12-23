@@ -19,6 +19,7 @@ package impl
 import java.io.File
 
 import org.osgi.framework._
+import org.osgi.service.log.LogService
 import org.osgi.util.tracker.ServiceTracker
 
 import akka.actor.ActorSystem
@@ -52,13 +53,17 @@ class BlueActivator extends ActorSystemActivator {
 
   import common.OsgiUtils._
 
-  def configure(context: BundleContext, system: ActorSystem): Unit = for(loader <- context.get[ConfigurationLoader]) {
+  def configure(context: BundleContext, system: ActorSystem): Unit =
+    for {
+      loader <- context.get[ConfigurationLoader]
+      logger <- context.get[LogService]
+    } {
     // load the \BlueLaTeX common configuration
     val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
     val configuration = new BlueConfiguration(config)
 
     // create and start the http server
-    server = Some(new BlueServer(context, config))
+    server = Some(new BlueServer(context, config, logger))
     server.foreach(_.start)
 
     // register the template engine
@@ -87,7 +92,7 @@ class BlueActivator extends ActorSystemActivator {
     context.registerService(classOf[CouchClient], couch(config), null)
 
     // create the database, etc...
-    dbManager = Some(new DbManager(new CouchConfiguration(config)))
+    dbManager = Some(new DbManager(new CouchConfiguration(config), logger))
     dbManager.foreach(_.start())
 
     // register the actor system as service so that other bundle can use it

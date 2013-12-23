@@ -18,6 +18,7 @@ package common
 package impl
 
 import org.osgi.framework._
+import org.osgi.service.log.LogService
 
 import org.slf4j.LoggerFactory
 import ch.qos.logback.classic.LoggerContext
@@ -31,7 +32,7 @@ import java.io.File
  */
 class BlueCommonActivator extends BundleActivator {
 
-  import common.FileProcessing._
+  import FileProcessing._
 
   def start(context: BundleContext): Unit = {
     val configBase = new File(context.getProperty("blue.configuration.base"))
@@ -49,7 +50,9 @@ class BlueCommonActivator extends BundleActivator {
     } catch {
       case e: Exception =>
         // TODO what to do?
+        e.printStackTrace
     }
+    context.registerService(classOf[LogService].getName, new LogServiceFactory, null)
   }
 
   def stop(context: BundleContext): Unit = {
