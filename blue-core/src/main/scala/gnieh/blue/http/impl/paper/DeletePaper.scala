@@ -51,7 +51,7 @@ class DeletePaperLet(paperId: String, config: Config, recaptcha: ReCaptcha) exte
     case Author =>
       // only authors may delete a paper
       // first delete the paper files
-      import FileProcessing._
+      import common.FileProcessing._
       val dirDeleted = configuration.paperDir(paperId).deleteRecursive()
       if(dirDeleted) {
         database("blue_papers").deleteDoc(paperId) map {

@@ -27,7 +27,7 @@ import java.io.{
 
 class TemplatesImpl(configuration: BlueConfiguration) extends Templates {
 
-  import FileProcessing._
+  import common.FileProcessing._
 
   val engine = {
     val engine = new TemplateEngine

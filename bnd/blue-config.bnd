@@ -5,5 +5,5 @@ Bundle-Name: the configuration loader
 Private-Package=gnieh.blue.config.impl
 Import-Package=*
 
-Export-Package=gnieh.blue.config
+Export-Package=gnieh.blue.config,gnieh.blue.common
 

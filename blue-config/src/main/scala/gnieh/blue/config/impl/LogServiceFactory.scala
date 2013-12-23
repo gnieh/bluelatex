@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 package gnieh.blue
+package config.impl
 
-import common.FileProcessing._
+import org.osgi.framework.{
+  Bundle,
+  ServiceRegistration,
+  ServiceFactory
+}
+import org.osgi.service.log.LogService
 
-/** This class provides some utility functions to extract information from a .tex
- *  document.
- *
- *  @author Lucas Satabin
- *
- */
-class TeXInfoExtractors(configuration: PaperConfiguration) {
+class LogServiceFactory extends ServiceFactory[LogService] {
 
-  def texTitle(paperId: String) =
-    configuration.paperFile(paperId)
-      .extractFirst("\\\\title.([^}]+)".r)
-      .getOrElse("Id: " + paperId)
+  def getService(bundle: Bundle, registration: ServiceRegistration[LogService]): LogService =
+    new LogServiceImpl(bundle)
 
-  def documentClass(paperId: String) =
-    configuration.paperFile(paperId)
-      .extractFirst("""\\documentclass(?:\[[^\[]*\])?.([^}]+)""".r)
-      .getOrElse("article")
+  def ungetService(bundle: Bundle, registration: ServiceRegistration[LogService], service: LogService): Unit =
+    () // nothing to do
 
 }
+

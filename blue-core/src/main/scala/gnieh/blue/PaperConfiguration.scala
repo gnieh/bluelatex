@@ -21,7 +21,7 @@ import java.io.File
 
 class PaperConfiguration(val config: Config) {
 
-  import FileProcessing._
+  import common.FileProcessing._
 
   def paperDir(paperId: String): File =
     new File(config.getString("blue.paper.directory")) / paperId

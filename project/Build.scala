@@ -60,6 +60,8 @@ class BlueBuild extends Build with Pack with Server with Tests {
     ) dependsOn(blueConfig)
 
   lazy val commonDeps = Seq(
+    "ch.qos.logback" % "logback-classic" % "1.0.13",
+    "org.slf4j" % "jcl-over-slf4j" % "1.7.5",
     "com.jsuereth" %% "scala-arm" % "1.3",
     "org.osgi" % "org.osgi.core" % "4.3.0" % "provided",
     "org.osgi" % "org.osgi.compendium" % "4.3.0" % "provided",
@@ -73,8 +75,6 @@ class BlueBuild extends Build with Pack with Server with Tests {
     "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
     "com.typesafe.akka" %% "akka-osgi" % "2.2.0",
     "org.apache.pdfbox" % "pdfbox" % "1.8.2" exclude("commons-logging", "commons-logging"),
-    "ch.qos.logback" % "logback-classic" % "1.0.13",
-    "org.slf4j" % "jcl-over-slf4j" % "1.7.5",
     "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
     "commons-collections" % "commons-collections" % "3.2.1",
     "org.eclipse.jgit" % "org.eclipse.jgit" % "3.0.0.201306101825-r",

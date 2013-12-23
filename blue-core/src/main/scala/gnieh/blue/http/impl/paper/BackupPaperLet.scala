@@ -47,7 +47,7 @@ class BackupPaperLet(format: String, paperId: String, config: Config) extends Ro
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
       // only authors may backup the paper sources
-      import FileProcessing._
+      import common.FileProcessing._
       val toZip =
         configuration.paperDir(paperId).filter(f => !f.isDirectory && !f.isHidden && !f.isTeXTemporary).toArray
 

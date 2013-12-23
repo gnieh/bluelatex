@@ -19,6 +19,10 @@ package impl
 
 import org.osgi.framework._
 
+import org.slf4j.LoggerFactory
+import ch.qos.logback.classic.LoggerContext
+import ch.qos.logback.classic.joran.JoranConfigurator
+
 import java.io.File
 
 /** Register the configuration loader service that is used by everybody
@@ -27,11 +31,24 @@ import java.io.File
  */
 class BlueConfigActivator extends BundleActivator {
 
+  import common.FileProcessing._
+
   def start(context: BundleContext): Unit = {
+    val configBase = new File(context.getProperty("blue.configuration.base"))
     // the bundle configuration loader server
-    val loader = new ConfigurationLoaderImpl(new File(context.getProperty("blue.configuration.base")))
+    val loader = new ConfigurationLoaderImpl(configBase)
     // register it
     context.registerService(classOf[ConfigurationLoader], loader, null)
+    // configure the logging framework
+    val loggerContext = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
+    try {
+      val configurator = new JoranConfigurator
+      configurator.setContext(loggerContext)
+      configurator.doConfigure(configBase / "logback.xml")
+    } catch {
+      case e: Exception =>
+        // TODO what to do?
+    }
   }
 
   def stop(context: BundleContext): Unit = {
