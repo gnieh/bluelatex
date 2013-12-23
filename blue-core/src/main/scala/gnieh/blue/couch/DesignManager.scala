@@ -16,8 +16,9 @@
 package gnieh.blue
 package couch
 
-import util._
 import resource._
+
+import common.CouchConfiguration
 
 import gnieh.sohva.control._
 

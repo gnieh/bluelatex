@@ -18,7 +18,12 @@ package impl
 
 import tiscaf._
 
-import net.tanesha.recaptcha.{ ReCaptchaImpl, ReCaptchaResponse }
+import common._
+
+import net.tanesha.recaptcha.{
+  ReCaptchaImpl,
+  ReCaptchaResponse
+}
 
 /** @author Lucas Satabin
  *

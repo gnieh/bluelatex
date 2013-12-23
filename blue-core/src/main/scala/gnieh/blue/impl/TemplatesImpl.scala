@@ -16,6 +16,8 @@
 package gnieh.blue
 package impl
 
+import common._
+
 import org.fusesource.scalate._
 import org.fusesource.scalate.support._
 import org.fusesource.scalate.util._

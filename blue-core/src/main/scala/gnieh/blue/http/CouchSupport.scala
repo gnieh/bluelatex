@@ -18,6 +18,8 @@ package http
 
 import couch.User
 
+import common.CouchConfiguration
+
 import tiscaf._
 
 import gnieh.sohva.control._

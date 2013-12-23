@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package gnieh.blue
-package config.impl
+package common.impl
 
 import org.osgi.framework.{
   Bundle,

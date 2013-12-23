@@ -24,6 +24,8 @@ import gnieh.sohva.UserInfo
 
 import couch.Paper
 
+import common.PaperConfiguration
+
 import com.typesafe.config.Config
 
 import net.liftweb.json._

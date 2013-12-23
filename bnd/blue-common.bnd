@@ -1,0 +1,9 @@
+Bundle-Activator: gnieh.blue.common.impl.BlueCommonActivator
+Bundle-SymbolicName: org.gnieh.blue.common
+Bundle-Name: Common bundle allowing other bundles to load configuration, log event and use utilities
+
+Private-Package=gnieh.blue.common.impl
+Import-Package=*
+
+Export-Package=gnieh.blue.common
+

@@ -17,6 +17,7 @@ package gnieh.blue
 package http
 package impl
 
+import common._
 import user._
 import session._
 import paper._

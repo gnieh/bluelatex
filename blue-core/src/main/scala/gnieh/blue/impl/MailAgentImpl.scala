@@ -16,6 +16,8 @@
 package gnieh.blue
 package impl
 
+import common._
+
 import javax.mail._
 import javax.mail.internet._
 

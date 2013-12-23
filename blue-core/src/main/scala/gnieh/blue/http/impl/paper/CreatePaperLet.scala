@@ -19,6 +19,7 @@ package impl
 package paper
 
 import couch._
+import common._
 
 import gnieh.sohva.UserInfo
 

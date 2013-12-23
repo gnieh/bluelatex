@@ -110,7 +110,7 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
 
   def compile(compiler: => Int, density: Int, user: User)(implicit timeout: Timeout) = {
 
-    import OsgiUtils._
+    import common.OsgiUtils._
 
     // first persists files to the persistent storage
     for(sync <- bndContext.get[SynchroServer]) {

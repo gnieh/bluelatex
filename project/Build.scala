@@ -27,13 +27,13 @@ class BlueBuild extends Build with Pack with Server with Tests {
       fork in run := true)
     settings(packSettings: _*)
     settings(blueServerSettings: _*)
-  ) aggregate(blueConfig, blueCore, blueCompile, blueMobwrite, blueSync)
+  ) aggregate(blueCommon, blueCore, blueCompile, blueMobwrite, blueSync)
 
   lazy val compileOptions = scalacOptions in ThisBuild ++=
       Seq("-deprecation", "-feature")
 
-  lazy val blueConfig =
-    (Project(id = "blue-config", base = file("blue-config"))
+  lazy val blueCommon =
+    (Project(id = "blue-common", base = file("blue-common"))
       settings (
         libraryDependencies ++= commonDeps
       )
@@ -57,9 +57,12 @@ class BlueBuild extends Build with Pack with Server with Tests {
       settings(
         libraryDependencies ++= coreDependencies
       )
-    ) dependsOn(blueConfig)
+    ) dependsOn(blueCommon)
 
   lazy val commonDeps = Seq(
+    "org.gnieh" %% "sohva-client" % "0.5-SNAPSHOT",
+    "org.gnieh" %% "diffson" % "0.2-SNAPSHOT",
+    "javax.mail" % "mail" % "1.4.7",
     "ch.qos.logback" % "logback-classic" % "1.0.13",
     "org.slf4j" % "jcl-over-slf4j" % "1.7.5",
     "com.jsuereth" %% "scala-arm" % "1.3",
@@ -69,16 +72,13 @@ class BlueBuild extends Build with Pack with Server with Tests {
   )
 
   lazy val coreDependencies = commonDeps ++ Seq(
-    "org.gnieh" %% "sohva-client" % "0.5-SNAPSHOT",
     "org.gnieh" %% "tiscaf" % "0.8",
-    "org.gnieh" %% "diffson" % "0.2-SNAPSHOT",
     "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
     "com.typesafe.akka" %% "akka-osgi" % "2.2.0",
     "org.apache.pdfbox" % "pdfbox" % "1.8.2" exclude("commons-logging", "commons-logging"),
     "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
     "commons-collections" % "commons-collections" % "3.2.1",
     "org.eclipse.jgit" % "org.eclipse.jgit" % "3.0.0.201306101825-r",
-    "javax.mail" % "mail" % "1.4.7",
     "org.fusesource.scalate" %% "scalate-core" % "1.6.1"
   )
 

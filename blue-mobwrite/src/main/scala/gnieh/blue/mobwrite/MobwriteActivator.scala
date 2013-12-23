@@ -18,7 +18,7 @@ package mobwrite
 
 import org.osgi.framework._
 
-import config.ConfigurationLoader
+import common.ConfigurationLoader
 
 /** Registers the mobwrite service that delegates synchronization
  *  to a standalone process
@@ -27,7 +27,7 @@ import config.ConfigurationLoader
  */
 class MobwriteActivator extends BundleActivator {
 
-  import OsgiUtils._
+  import common.OsgiUtils._
 
   def start(context: BundleContext): Unit = {
     for(loader <- context.get[ConfigurationLoader]) {

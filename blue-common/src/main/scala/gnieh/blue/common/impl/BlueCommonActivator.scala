@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package gnieh.blue
-package config
+package common
 package impl
 
 import org.osgi.framework._
@@ -29,7 +29,7 @@ import java.io.File
  *
  *  @author Lucas Satabin
  */
-class BlueConfigActivator extends BundleActivator {
+class BlueCommonActivator extends BundleActivator {
 
   import common.FileProcessing._
 
@@ -39,6 +39,7 @@ class BlueConfigActivator extends BundleActivator {
     val loader = new ConfigurationLoaderImpl(configBase)
     // register it
     context.registerService(classOf[ConfigurationLoader], loader, null)
+
     // configure the logging framework
     val loggerContext = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
     try {

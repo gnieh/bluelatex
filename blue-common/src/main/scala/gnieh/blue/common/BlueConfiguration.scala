@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package gnieh.blue
-package impl
+package common
 
 import java.util.Properties
 
@@ -28,9 +28,6 @@ import java.io.{
   File,
   FileNotFoundException
 }
-
-import org.fusesource.scalate._
-import org.fusesource.scalate.util._
 
 class BlueConfiguration(conf: Config) extends PaperConfiguration(conf) {
 

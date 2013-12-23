@@ -17,6 +17,8 @@ package gnieh.blue
 package compile
 package impl
 
+import common._
+
 import com.typesafe.config.Config
 
 import java.io.File

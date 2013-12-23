@@ -17,6 +17,8 @@ package gnieh.blue
 package sync
 package impl
 
+import common._
+
 import akka.actor.{
   Actor,
   Props
@@ -28,9 +30,9 @@ import com.typesafe.config.Config
 
 import org.osgi.framework.BundleContext
 
-import gnieh.blue.sync.impl.store._;
+import gnieh.blue.sync.impl.store._
 
-import name.fraser.neil.plaintext.diff_match_patch;
+import name.fraser.neil.plaintext.diff_match_patch
 
 /** The synchronization system actor is responsible for managing
  *  the synchronisation and persistance of papers.

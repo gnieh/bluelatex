@@ -20,6 +20,7 @@ package impl.user
 import tiscaf._
 
 import couch.User
+import common._
 
 import com.typesafe.config.Config
 

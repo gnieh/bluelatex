@@ -16,7 +16,7 @@
 package gnieh.blue
 package couch
 
-import util._
+import common.CouchConfiguration
 
 /** the database manager is in charge of database creation and designs management.
  *

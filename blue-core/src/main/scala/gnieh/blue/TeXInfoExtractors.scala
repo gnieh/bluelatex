@@ -15,6 +15,7 @@
  */
 package gnieh.blue
 
+import common.PaperConfiguration
 import common.FileProcessing._
 
 /** This class provides some utility functions to extract information from a .tex

@@ -25,11 +25,11 @@ import akka.routing.{
   RoundRobinRouter
 }
 
-import config.ConfigurationLoader
+import common.ConfigurationLoader
 
 class CompileActivator extends BundleActivator {
 
-  import OsgiUtils._
+  import common.OsgiUtils._
 
   def start(context: BundleContext) {
     for {
