@@ -24,6 +24,8 @@ import tiscaf._
 
 import gnieh.sohva.UserInfo
 
+import common.SynchroServer
+
 import scala.io.Source
 
 import scala.util.Try

@@ -18,7 +18,7 @@ package mobwrite
 
 import org.osgi.framework._
 
-import common.ConfigurationLoader
+import common._
 
 /** Registers the mobwrite service that delegates synchronization
  *  to a standalone process

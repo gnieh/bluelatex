@@ -18,6 +18,8 @@ package mobwrite
 
 import resource._
 
+import common.SynchroServer
+
 import java.net.Socket
 import java.io.BufferedInputStream
 

@@ -23,6 +23,7 @@ import couch.{
   Paper,
   User
 }
+import common._
 
 import gnieh.sohva.control.CouchClient
 
@@ -110,7 +111,7 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
 
   def compile(compiler: => Int, density: Int, user: User)(implicit timeout: Timeout) = {
 
-    import common.OsgiUtils._
+    import OsgiUtils._
 
     // first persists files to the persistent storage
     for(sync <- bndContext.get[SynchroServer]) {
@@ -168,7 +169,7 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
       //      compiler()
       //      compiler()
 
-      import common.FileProcessing._
+      import FileProcessing._
 
       // cleanup generated png files
       for(file <- configuration.buildDir(paperId).filter(f => f.extension == ".png")) {
@@ -212,7 +213,7 @@ class CompileActor(bndContext: BundleContext, configuration: CompileConfiguratio
     // cannot handle compilation in a different directory correctly
     // technology from the 80's has limitations...
     // http://tex.stackexchange.com/questions/12686/how-do-i-run-bibtex-after-using-the-output-directory-flag-with-pdflatex-when-f
-    import common.FileProcessing._
+    import FileProcessing._
     for(file <- configuration.paperDir(paperId).filter(_.extension == ".bib")) {
       val destfile = new File(configuration.buildDir(paperId), file.getName)
       (file #> destfile)!

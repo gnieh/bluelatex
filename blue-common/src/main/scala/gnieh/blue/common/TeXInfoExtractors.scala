@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 package gnieh.blue
+package common
 
-/** Synchronization server interface
+import FileProcessing._
+
+/** This class provides some utility functions to extract information from a .tex
+ *  document.
  *
  *  @author Lucas Satabin
+ *
  */
-trait SynchroServer {
+class TeXInfoExtractors(configuration: PaperConfiguration) {
 
-  /** Starts a new session with the data and returns
-   *  the result data for the client
-   */
-  def session(data: String): String
+  def texTitle(paperId: String) =
+    configuration.paperFile(paperId)
+      .extractFirst("\\\\title.([^}]+)".r)
+      .getOrElse("Id: " + paperId)
 
-  /** Persists the synchronized files for the given paper
-   *  This call is synchronous and only returns when all files
-   *  are synchronized
-   */
-  def persist(paperId: String): Unit
+  def documentClass(paperId: String) =
+    configuration.paperFile(paperId)
+      .extractFirst("""\\documentclass(?:\[[^\[]*\])?.([^}]+)""".r)
+      .getOrElse("article")
 
 }
+

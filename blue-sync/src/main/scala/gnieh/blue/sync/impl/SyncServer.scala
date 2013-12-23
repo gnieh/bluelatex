@@ -17,6 +17,8 @@ package gnieh.blue
 package sync
 package impl
 
+import common.SynchroServer
+
 import com.typesafe.config.Config
 
 /** A synchronization server that simply does nothing

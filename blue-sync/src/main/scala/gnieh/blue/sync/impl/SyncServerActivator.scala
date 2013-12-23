@@ -20,7 +20,7 @@ package impl
 import org.osgi.framework._
 import akka.actor._
 
-import common.ConfigurationLoader
+import common._
 
 /** Registers the synchro service
  *
@@ -28,7 +28,7 @@ import common.ConfigurationLoader
  */
 class SyncServerActivator extends BundleActivator {
 
-  import common.OsgiUtils._
+  import OsgiUtils._
 
   private var _server: Option[SyncServer] = None
 
