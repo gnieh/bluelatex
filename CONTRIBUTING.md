@@ -63,7 +63,7 @@ Making Changes
     why this is a problem, and how the patch fixes the problem when applied.
 ```
 
- - Make sure you are apply the [commit message guidelines](http://git-scm.com/book/ch5-2.html#Commit-Guidelines) we are using for this project,
+ - Make sure you applied the [commit message guidelines](http://git-scm.com/book/ch5-2.html#Commit-Guidelines) we are using for this project,
  - Make sure you have added the necessary tests for your changes as described in the previous section,
  - Run _all_ the tests to assure nothing else was accidentally broken.
 
