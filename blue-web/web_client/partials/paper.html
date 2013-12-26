@@ -1,0 +1,267 @@
+<section class="paper">
+    <section class="centerRightCol">
+        <section class="centerCol">
+            <div ui-ace="{
+              useWrapMode : true,
+              showGutter: true,
+              theme:'TextMate',
+              mode: 'latex',
+              onLoad: aceLoaded,
+              onChange: aceChanged
+            }">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Stylish Article
+% LaTeX Template
+% Version 1.0 (31/1/13)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Mathias Legrand (legrand.mathias@gmail.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%   PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[fleqn,10pt]{article} % Document font size and equations flushed left
+
+\setlength{\columnsep}{0.55cm} % Distance between the two columns of text
+\setlength{\fboxrule}{0.75pt} % Width of the border around the abstract
+
+\definecolor{color1}{RGB}{0,0,90} % Color of the article title and sections
+\definecolor{color2}{RGB}{0,20,20} % Color of the boxes behind the abstract and headings
+
+\newlength{\tocsep}
+\setlength\tocsep{1.5pc} % Sets the indentation of the sections in the table of contents
+\setcounter{tocdepth}{3} % Show only three levels in the table of contents section: sections, subsections and subsubsections
+
+\usepackage{lipsum} % Required to insert dummy text
+
+%----------------------------------------------------------------------------------------
+%   ARTICLE INFORMATION
+%----------------------------------------------------------------------------------------
+
+\JournalInfo{Journal, Vol. XXI, No. 1, 1-5, 2013} % Journal information
+\Archive{Additional note} % Additional notes (e.g. copyright, DOI, review/research article)
+
+\PaperTitle{Article Title} % Article title
+
+\Authors{John Smith\textsuperscript{1}*, James Smith\textsuperscript{2}} % Authors
+\affiliation{\textsuperscript{1}\textit{Department of Biology, University of Examples, London, United Kingdom}} % Author affiliation
+\affiliation{\textsuperscript{2}\textit{Department of Chemistry, University of Examples, London, United Kingdom}} % Author affiliation
+\affiliation{*\textbf{Corresponding author}: john@smith.com} % Corresponding author
+
+\Keywords{Keyword1 --- Keyword2 --- Keyword3} % Keywords - if you don't want any simply remove all the text between the curly brackets
+\newcommand{\keywordname}{Keywords} % Defines the keywords heading name
+
+%----------------------------------------------------------------------------------------
+%   ABSTRACT
+%----------------------------------------------------------------------------------------
+
+\Abstract{Some test text here. \lipsum[1]~}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\flushbottom % Makes all text pages the same height
+
+\maketitle % Print the title and abstract box
+
+\tableofcontents % Print the contents section
+
+\thispagestyle{empty} % Removes page numbering from the first page
+
+%----------------------------------------------------------------------------------------
+%   ARTICLE CONTENTS
+%----------------------------------------------------------------------------------------
+
+\section*{Introduction} % The \section*{} command stops section numbering
+
+\addcontentsline{toc}{section}{\hspace*{-\tocsep}Introduction} % Adds this section to the table of contents with negative horizontal space equal to the indent for the numbered sections
+
+\lipsum[1-3] % Dummy text
+
+%------------------------------------------------
+
+\section{Methods}
+
+\begin{figure*}[ht]\centering % Using \begin{figure*} makes the figure take up the entire width of the page
+\includegraphics[width=\linewidth]{view}
+\caption{Wide Picture}
+\label{fig:view}
+\end{figure*}
+
+\lipsum[4] % Dummy text
+
+\begin{equation}
+\cos^3 \theta =\frac{1}{4}\cos\theta+\frac{3}{4}\cos 3\theta
+\label{eq:refname2}
+\end{equation}
+
+\lipsum[5] % Dummy text
+
+\begin{enumerate}[noitemsep] % [noitemsep] removes whitespace between the items for a compact look
+\item First item in a list
+\item Second item in a list
+\item Third item in a list
+\end{enumerate}
+
+\subsection{Subsection}
+
+\lipsum[6] % Dummy text
+
+\paragraph{Paragraph} \lipsum[7] % Dummy text
+\paragraph{Paragraph} \lipsum[8] % Dummy text
+
+\subsection{Subsection}
+
+\lipsum[9] % Dummy text
+
+\begin{figure}[ht]\centering
+\includegraphics[width=\linewidth]{results}
+\caption{In-text Picture}
+\label{fig:results}
+\end{figure}
+
+Reference to Figure \ref{fig:results}.
+
+%------------------------------------------------
+
+\section{Results and Discussion}
+
+\lipsum[10] % Dummy text
+
+\subsection{Subsection}
+
+\lipsum[11] % Dummy text
+
+\begin{table}[hbt]
+\caption{Table of Grades}
+\centering
+\begin{tabular}{llr}
+\toprule
+\multicolumn{2}{c}{Name} \\
+\cmidrule(r){1-2}
+First name & Last Name & Grade \\
+\midrule
+John & Doe & $7.5$ \\
+Richard & Miles & $2$ \\
+\bottomrule
+\end{tabular}
+\label{tab:label}
+\end{table}
+
+\subsubsection{Subsubsection}
+
+\lipsum[12] % Dummy text
+
+\begin{description}
+\item[Word] Definition
+\item[Concept] Explanation
+\item[Idea] Text
+\end{description}
+
+blabla
+
+
+\subsubsection{Subsubsection}
+
+\lipsum[13] % Dummy text
+
+\begin{itemize}[noitemsep] % [noitemsep] removes whitespace between the items for a compact look
+\item First item in a list
+\item Second item in a list
+\item Third item in a list
+\end{itemize}
+
+\subsubsection{Subsubsection}
+
+\lipsum[14] % Dummy text
+
+\subsection{Subsection}
+
+\lipsum[15-23] % Dummy text
+
+
+test
+
+
+%------------------------------------------------
+
+\section*{Acknowledgments} % The \section*{} command stops section numbering
+
+\addcontentsline{toc}{section}{\hspace*{-\tocsep}Acknowledgments} % Adds this section to the table of contents with negative horizontal space equal to the indent for the numbered sections
+
+So long and thanks for all the fish \cite{Figueredo:2009dg}.
+
+%----------------------------------------------------------------------------------------
+%   REFERENCE LIST
+%----------------------------------------------------------------------------------------
+
+\bibliographystyle{unsrt}
+\bibliography{sample}
+%----------------------------------------------------------------------------------------
+
+\end{document}\documentclass[12pt]{article}
+\usepackage{amsmath}
+\title{\LaTeX}
+\date{}
+\begin{document}
+  \maketitle
+  \LaTeX{} is a document preparation system for the \TeX{}
+  typesetting program. It offers programmable desktop
+  publishing features and extensive facilities for
+  automating most aspects of typesetting and desktop
+  publishing, including numbering and cross-referencing,
+  tables and figures, page layout, bibliographies, and
+  much more. \LaTeX{} was originally written in 1984 by
+  Leslie Lamport and has become the dominant method for
+  using \TeX; few people write in plain \TeX{} anymore.
+  The current version is \LaTeXe.
+
+  % This is a comment, not shown in final output.
+  % The following shows typesetting power of LaTeX:
+  \begin{align}
+    E_0 &= mc^2                              \\
+    E &= \frac{mc^2}{\sqrt{1-\frac{v^2}{c^2}}}
+  \end{align}
+\end{document}</div>
+        </section>
+        <section class="rightCol">
+            <div class="preview">
+
+            </div>
+        </section>
+    </section>
+    <section class="leftCol">
+      <div class="btn-group listType">
+        <label class="btn btn-default" ng-class="{'active': listType=='toc'}" for="toc">
+            <input type="radio" name="listType" value="toc" id="toc" ng-model="listType">
+            <span class="glyphicon glyphicon-list" ></span>
+        </label>
+        <label class="btn btn-default" ng-class="{'active': listType=='files'}" for="files">
+            <input type="radio" name="listType" value="files" id="files" ng-model="listType">
+            <span class="glyphicon glyphicon-file"></span>
+        </label>
+        <label class="btn btn-default" ng-class="{'active': listType=='figures'}" for="figure">
+            <input type="radio" name="listType" value="figures" id="figure" checked="true" ng-model="listType">
+            <span class="glyphicon glyphicon-th-large"></span>
+        </label>
+      </div>
+      <section class="list">
+        <div class="toc" ng-show="listType=='toc'" bl-toc="{{toc}}"></div>
+        <div class="files" ng-show="listType=='files'" ng-click="goToLine(12)">
+          files
+        </div>
+        <div class="figures" ng-show="listType=='figures'">
+          figures
+        </div>
+      </section>
+    </section>
+</section>

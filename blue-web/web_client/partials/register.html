@@ -1,0 +1,60 @@
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+      <h1 data-i18n="_RegisterTitle_"></h1>
+      <form name="registerForm" novalidate ng-submit="register()">
+        <div ng-show="errors.length > 0" class="errors bloc">
+          <div ng-repeat="error in errors" class="error">{{error}}</div>
+        </div>
+        <div class="form-group"
+          ng-class="{'has-error': registerForm.username.$invalid}">
+          <input class="form-control" name="username" type="text"
+            data-i18n-attr="_Username_|placeholder" required ng-model="user.username" />
+            <span class="control-label"
+              ng-show="registerForm.username.$error.required" data-i18n="_Required_"></span>
+        </div>
+        <div class="form-group"
+          ng-class="{'has-error': registerForm.password.$invalid}">
+          <input class="form-control" name="password" type="password"
+            data-i18n-attr="_Password_|placeholder" required ng-model="user.password" />
+            <span class="control-label"
+              ng-show="registerForm.password.$error.required" data-i18n="_Required_"></span>
+        </div>
+        <div class="form-group"
+          ng-class="{'has-error': registerForm.firstname.$invalid}">
+          <input class="form-control" name="firstname" type="text"
+            data-i18n-attr="_FirstName_|placeholder" required ng-model="user.first_name" />
+            <span class="control-label"
+              ng-show="registerForm.firstname.$error.required" data-i18n="_Required_"></span>
+        </div>
+        <div class="form-group"
+          ng-class="{'has-error': registerForm.lastname.$invalid}">
+          <input class="form-control" name="lastname" type="text"
+            data-i18n-attr="_LastName_|placeholder" required ng-model="user.last_name" />
+            <span class="control-label"
+              ng-show="registerForm.lastname.$error.required" data-i18n="_Required_"></span>
+        </div>
+        <div class="form-group"
+          ng-class="{'has-error': registerForm.email.$invalid}">
+          <input class="form-control" name="email" type="email"
+            data-i18n-attr="_Email_|placeholder" required ng-model="user.email_address" />
+            <span class="control-label"
+              ng-show="registerForm.email.$error.required" data-i18n="_Required_"></span>
+        </div>
+        <div class="form-group"
+          ng-class="{'has-error': registerForm.affiliation.$invalid}">
+          <input class="form-control" name="affiliation" type="text"
+            data-i18n-attr="_Affiliation_|placeholder" ng-model="user.affiliation" />
+            <span class="control-label"
+              ng-show="registerForm.affiliation.$error.required" data-i18n="_Required_"></span>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary pull-right" ng-disabled="!registerForm.$valid"
+            data-i18n-attr="_Register_|value" data-i18n-attr="_Register_|title">
+            <span data-i18n="_Register_"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

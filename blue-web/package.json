@@ -1,0 +1,12 @@
+{
+  "name": "BlueLatex_Client",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node ../web-server.js"
+  },
+  "dependencies": {
+    "express": "3.4.7",
+    "http-proxy": "1.0.0"
+  }
+}
