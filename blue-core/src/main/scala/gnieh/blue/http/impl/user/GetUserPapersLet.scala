@@ -22,6 +22,7 @@ import couch.{
   User,
   UserRole
 }
+import common._
 
 import com.typesafe.config.Config
 
@@ -37,7 +38,7 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class GetUserPapersLet(username: String, config: Config) extends AuthenticatedLet(config) {
+class GetUserPapersLet(username: String, config: Config, logger: Logger) extends AuthenticatedLet(config, logger) {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     // only authenticated users may see other people information

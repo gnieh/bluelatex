@@ -36,13 +36,15 @@ import gnieh.sohva.UserInfo
 
 import resource._
 
+import common._
+
 import scala.util.Try
 
 /** Backup the paper sources as a zip file
  *
  *  @author Lucas Satabin
  */
-class BackupPaperLet(format: String, paperId: String, config: Config) extends RoleLet(paperId, config) {
+class BackupPaperLet(format: String, paperId: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>

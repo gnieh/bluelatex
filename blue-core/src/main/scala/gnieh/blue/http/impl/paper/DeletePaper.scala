@@ -19,6 +19,7 @@ package impl
 package paper
 
 import couch._
+import common._
 
 import gnieh.sohva.UserInfo
 
@@ -45,7 +46,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class DeletePaperLet(paperId: String, config: Config, recaptcha: ReCaptcha) extends RoleLet(paperId, config) {
+class DeletePaperLet(paperId: String, config: Config, recaptcha: ReCaptcha, logger: Logger) extends RoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>

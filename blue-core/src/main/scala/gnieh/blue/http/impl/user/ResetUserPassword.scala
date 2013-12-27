@@ -19,6 +19,8 @@ package impl.user
 
 import tiscaf._
 
+import common._
+
 import com.typesafe.config.Config
 
 import scala.util.{
@@ -31,7 +33,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class ResetUserPassword(username: String, config: Config) extends BlueLet(config) {
+class ResetUserPassword(username: String, config: Config, logger: Logger) extends BlueLet(config, logger) {
 
   def act(talk: HTalk): Try[Unit] = {
     val token = talk.req.param("reset_token")

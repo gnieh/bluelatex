@@ -32,82 +32,82 @@ import com.typesafe.config.Config
  *
  *  @author Lucas Satabin
  */
-class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha) extends RestApi {
+class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha, logger: Logger) extends RestApi {
 
   POST {
     // registers a new user
     case p"users" =>
-      new RegisterUserLet(config, templates, mailAgent, recaptcha)
+      new RegisterUserLet(config, templates, mailAgent, recaptcha, logger)
     // performs password reset
     case p"users/$username/reset" =>
-      new ResetUserPassword(username, config)
+      new ResetUserPassword(username, config, logger)
     // creates a new paper
     case p"papers" =>
-      new CreatePaperLet(config, templates)
+      new CreatePaperLet(config, templates, logger)
     // log a user in
     case p"session" =>
-      new LoginLet(config)
+      new LoginLet(config, logger)
     // synchronization request
     //case p"papers/$paperid/sync" =>
     //  new SynchronizePaperLet(paperid, config, syncServer)
     // save a non synchronized resource
     case p"papers/$paperid/files/resources/$resourcename" =>
-      new SaveResourceLet(paperid, resourcename, config)
+      new SaveResourceLet(paperid, resourcename, config, logger)
   }
 
   PATCH {
     // save the data for the authenticated user
     case p"users/$username/info" =>
-      new ModifyUserLet(username, config)
+      new ModifyUserLet(username, config, logger)
     // add or remove people involved in this paper (authors, reviewers), change modules, tag, branch, ...
     case p"papers/$paperid/info" =>
-      new ModifyPaperLet(paperid, config)
+      new ModifyPaperLet(paperid, config, logger)
   }
 
   GET {
     // gets the data of the given user
     case p"users/$username/info" =>
-      new GetUserInfoLet(username, config)
+      new GetUserInfoLet(username, config, logger)
     // gets the list of papers the given user is involved in
     case p"users/$username/papers" =>
-      new GetUserPapersLet(username, config)
+      new GetUserPapersLet(username, config, logger)
     // generates a password reset token
     case p"users/$username/reset" =>
-      new GeneratePasswordReset(username, templates, mailAgent, config)
+      new GeneratePasswordReset(username, templates, mailAgent, config, logger)
     // gets the currently logged in user information
     case p"session" =>
-      new GetSessionDataLet(config)
+      new GetSessionDataLet(config, logger)
     // gets the list of people involved in this paper with their role, the currently
     // enabled modules, the tags, the branch, ...
     case p"papers/$paperid/info" =>
-      new GetPaperInfoLet(paperid, config)
+      new GetPaperInfoLet(paperid, config, logger)
     // downloads a zip archive containing the paper files
     case p"papers/$paperid.zip" =>
-      new BackupPaperLet("zip", paperid, config)
+      new BackupPaperLet("zip", paperid, config, logger)
     // downloads the list of synchronized resources
     case p"papers/$paperid/files/synchronized" =>
-      new SynchronizedResourcesLet(paperid, config)
+      new SynchronizedResourcesLet(paperid, config, logger)
     // downloads the list of non synchronized resources
     case p"papers/$paperid/files/resources" =>
-      new NonSynchronizedResourcesLet(paperid, config)
+      new NonSynchronizedResourcesLet(paperid, config, logger)
     // gets a non synchronized resource
     case p"papers/$paperid/files/resources/$resourcename" =>
-      new GetResourceLet(paperid, resourcename, config)
+      new GetResourceLet(paperid, resourcename, config, logger)
   }
 
   DELETE {
     // unregisters the authenticated user
     case p"users/$username" =>
-      new DeleteUserLet(username, config,recaptcha)
+      new DeleteUserLet(username, config,recaptcha, logger)
     // log a user out
     case p"session" =>
-      new LogoutLet(config)
+      new LogoutLet(config, logger)
     // deletes a paper
     case p"papers/$paperid" =>
-      new DeletePaperLet(paperid, config, recaptcha)
+      new DeletePaperLet(paperid, config, recaptcha, logger)
     // deletes a non synchronized resource
     case p"papers/$paperid/files/resources/$resourcename" =>
-      new DeleteResourceLet(paperid, resourcename, config)
+      new DeleteResourceLet(paperid, resourcename, config, logger)
   }
 
 }

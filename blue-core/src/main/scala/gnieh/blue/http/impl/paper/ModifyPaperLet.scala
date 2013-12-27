@@ -19,6 +19,7 @@ package impl
 package paper
 
 import couch.Paper
+import common._
 
 import com.typesafe.config.Config
 
@@ -40,7 +41,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class ModifyPaperLet(paperId: String, config: Config) extends RoleLet(paperId, config) {
+class ModifyPaperLet(paperId: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>

@@ -20,6 +20,8 @@ package session
 
 import com.typesafe.config.Config
 
+import common._
+
 import tiscaf._
 
 import scala.util.{
@@ -32,7 +34,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class LoginLet(config: Config) extends BlueLet(config) {
+class LoginLet(config: Config, logger: Logger) extends BlueLet(config, logger) {
 
   def act(talk: HTalk): Try[Any] = {
     implicit val t = talk

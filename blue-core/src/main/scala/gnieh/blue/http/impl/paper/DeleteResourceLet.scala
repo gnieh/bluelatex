@@ -20,6 +20,8 @@ package paper
 
 import com.typesafe.config.Config
 
+import common._
+
 import java.io.FileInputStream
 
 import tiscaf._
@@ -34,7 +36,7 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class DeleteResourceLet(resourceName: String, paperId: String, config: Config) extends RoleLet(paperId, config) {
+class DeleteResourceLet(resourceName: String, paperId: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>

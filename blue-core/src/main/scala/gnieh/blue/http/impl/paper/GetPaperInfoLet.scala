@@ -19,6 +19,7 @@ package impl
 package paper
 
 import couch.Paper
+import common._
 
 import com.typesafe.config.Config
 
@@ -34,7 +35,7 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class GetPaperInfoLet(paperid: String, config: Config) extends AuthenticatedLet(config) {
+class GetPaperInfoLet(paperid: String, config: Config, logger: Logger) extends AuthenticatedLet(config, logger) {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] = {
     // only authenticated users may see other people information

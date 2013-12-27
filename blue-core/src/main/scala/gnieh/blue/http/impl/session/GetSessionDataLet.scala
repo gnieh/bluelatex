@@ -20,6 +20,8 @@ package session
 
 import com.typesafe.config.Config
 
+import common._
+
 import tiscaf._
 
 import gnieh.sohva.UserInfo
@@ -33,7 +35,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class GetSessionDataLet(config: Config) extends AuthenticatedLet(config) {
+class GetSessionDataLet(config: Config, logger: Logger) extends AuthenticatedLet(config, logger) {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     Success(talk.writeJson(user))

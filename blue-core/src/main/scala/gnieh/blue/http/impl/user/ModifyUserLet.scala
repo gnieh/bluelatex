@@ -19,6 +19,7 @@ package impl
 package user
 
 import couch.User
+import common._
 
 import com.typesafe.config.Config
 
@@ -40,7 +41,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class ModifyUserLet(username: String, config: Config) extends AuthenticatedLet(config) {
+class ModifyUserLet(username: String, config: Config, logger: Logger) extends AuthenticatedLet(config, logger) {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     if(username == user.name) {

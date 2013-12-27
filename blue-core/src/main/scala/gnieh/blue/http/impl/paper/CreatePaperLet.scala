@@ -46,7 +46,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class CreatePaperLet(config: Config, templates: Templates) extends AuthenticatedLet(config) {
+class CreatePaperLet(config: Config, templates: Templates, logger: Logger) extends AuthenticatedLet(config, logger) {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[HTalk] =
     talk.req.param("paper_title") match {

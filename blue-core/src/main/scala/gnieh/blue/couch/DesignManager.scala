@@ -26,15 +26,13 @@ import net.liftweb.json._
 
 import scala.io._
 
-import org.osgi.service.log.LogService
-
 /** A design manager is able to check new design document and
  *  update existing design documents for a given database.
  *
  *  @author Lucas Satabin
  *
  */
-class DesignManager(configuration: CouchConfiguration, db: Database, val logger: LogService) extends Logging {
+class DesignManager(configuration: CouchConfiguration, db: Database, val logger: Logger) extends Logging {
 
   lazy val dir = configuration.designDir(db.name)
 

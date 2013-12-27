@@ -14,33 +14,12 @@
  * limitations under the License.
  */
 package gnieh.blue
-package http
-package impl
-package session
 
-import com.typesafe.config.Config
+import org.osgi.service.log.LogService
 
-import common._
+package object common {
 
-import tiscaf._
-
-import scala.util.Try
-
-/** Log the user in.
- *  It delegates to the CouchDB login system and keeps track of the CouchDB cookie
- *
- *  @author Lucas Satabin
- */
-class LogoutLet(config: Config, logger: Logger) extends BlueLet(config, logger) {
-
-  def act(talk: HTalk): Try[Unit] =
-    couchSession(talk).logout map {
-      case true  =>
-        talk.writeJson(true)
-      case false =>
-        talk.writeJson(ErrorResponse("unable_to_logout", "Unable to log user out"))
-          .setStatus(HStatus.InternalServerError)
-    }
+  type Logger = LogService
 
 }
 

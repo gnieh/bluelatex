@@ -27,7 +27,7 @@ trait Logging {
 
   import LogService._
 
-  val logger: LogService
+  val logger: Logger
 
   @inline
   def logDebug(msg: String): Unit =

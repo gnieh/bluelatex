@@ -26,6 +26,7 @@ import gnieh.sohva.{
 }
 
 import couch._
+import common._
 
 import com.typesafe.config.Config
 
@@ -42,7 +43,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class DeleteUserLet(username: String, config: Config, recaptcha: ReCaptcha) extends AuthenticatedLet(config) {
+class DeleteUserLet(username: String, config: Config, recaptcha: ReCaptcha, logger: Logger) extends AuthenticatedLet(config, logger) {
 
   // TODO logging
 

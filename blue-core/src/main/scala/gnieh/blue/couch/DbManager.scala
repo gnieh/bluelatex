@@ -18,13 +18,11 @@ package couch
 
 import common._
 
-import org.osgi.service.log.LogService
-
 /** the database manager is in charge of database creation and designs management.
  *
  *  @author Lucas Satabin
  */
-class DbManager(configuration: CouchConfiguration, val logger: LogService) extends Logging {
+class DbManager(configuration: CouchConfiguration, val logger: Logger) extends Logging {
 
   /** Starts the database manager.
    *  It creates the databases that need to be created and update all

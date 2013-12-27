@@ -31,13 +31,15 @@ import gnieh.sohva.UserInfo
 
 import resource._
 
+import common._
+
 import scala.util.Try
 
 /** Saves some resource associated to the paper.
  *
  *  @author Lucas Satabin
  */
-class SaveResourceLet(resourceName: String, paperId: String, config: Config) extends RoleLet(paperId, config) {
+class SaveResourceLet(resourceName: String, paperId: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
 
   override def partsAcceptor(reqInfo: HReqHeaderData) =
     Some(new ResourcePartsAcceptor(reqInfo))

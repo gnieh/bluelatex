@@ -19,7 +19,6 @@ package impl
 import java.io.File
 
 import org.osgi.framework._
-import org.osgi.service.log.LogService
 import org.osgi.util.tracker.ServiceTracker
 
 import akka.actor.ActorSystem
@@ -56,7 +55,7 @@ class BlueActivator extends ActorSystemActivator {
   def configure(context: BundleContext, system: ActorSystem): Unit =
     for {
       loader <- context.get[ConfigurationLoader]
-      logger <- context.get[LogService]
+      logger <- context.get[Logger]
     } {
     // load the \BlueLaTeX common configuration
     val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
@@ -99,7 +98,7 @@ class BlueActivator extends ActorSystemActivator {
     registerService(context, system)
 
     // register the core Rest API
-    context.registerService(classOf[RestApi], new CoreApi(config, templates.get, mailAgent, recaptcha), null)
+    context.registerService(classOf[RestApi], new CoreApi(config, templates.get, mailAgent, recaptcha, logger), null)
 
   }
 

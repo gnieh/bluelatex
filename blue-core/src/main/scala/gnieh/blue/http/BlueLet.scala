@@ -24,7 +24,7 @@ import gnieh.sohva.UserInfo
 
 import couch.Paper
 
-import common.PaperConfiguration
+import common._
 
 import com.typesafe.config.Config
 
@@ -43,7 +43,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-abstract class BlueLet(val config: Config) extends HLet with CouchSupport {
+abstract class BlueLet(val config: Config, val logger: Logger) extends HLet with CouchSupport with Logging {
 
   import scala.language.implicitConversions
 
@@ -110,9 +110,8 @@ abstract class BlueLet(val config: Config) extends HLet with CouchSupport {
 
   final override def aact(talk: HTalk)(implicit executionContext: ExecutionContext) = future {
     act(talk) recover {
-      case e =>
-        // TODO log
-        e.printStackTrace
+      case e: Exception =>
+        logError("Processing request failed", e)
         talk
           .writeJson(ErrorResponse("internal_error","Something wrong happened"))
           .setStatus(HStatus.InternalServerError)
@@ -128,7 +127,7 @@ abstract class BlueLet(val config: Config) extends HLet with CouchSupport {
  *
  *  @author Lucas Satabin
  */
-abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
+abstract class AuthenticatedLet(config: Config, logger: Logger) extends BlueLet(config, logger) {
 
   lazy val configuration = new PaperConfiguration(config)
 
@@ -159,7 +158,7 @@ abstract class AuthenticatedLet(config: Config) extends BlueLet(config) {
  *
  *  @author Lucas Satabin
  */
-abstract class RoleLet(val paperId: String, config: Config) extends AuthenticatedLet(config) {
+abstract class RoleLet(val paperId: String, config: Config, logger: Logger) extends AuthenticatedLet(config, logger) {
 
   private def roles(implicit talk: HTalk): Try[Map[String, PaperRole]] =
     couchSession.database(couchConfig.database("blue_papers")).getDocById[Paper](paperId) map {

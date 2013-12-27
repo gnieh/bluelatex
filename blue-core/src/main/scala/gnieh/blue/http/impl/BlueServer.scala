@@ -20,7 +20,6 @@ package impl
 import tiscaf._
 
 import org.osgi.framework.BundleContext
-import org.osgi.service.log.LogService
 
 import com.typesafe.config._
 
@@ -31,24 +30,29 @@ import scala.collection.mutable.{
 
 import common._
 
-class BlueServer(context: BundleContext, configuration: Config, val logger: LogService) extends HServer with Logging {
+class BlueServer(context: BundleContext, configuration: Config, val logger: Logger) extends HServer with Logging {
 
-  protected val ports = Set(configuration.getInt("http.port"))
+  protected val ports =
+    Set(configuration.getInt("http.port"))
 
-  private val extApp = new ExtensibleApp(configuration)
+  private val extApp =
+    new ExtensibleApp(configuration)
 
-  protected def apps = Seq(extApp)
+  protected def apps =
+    Seq(extApp)
 
-  private val tracker = new RestServiceTracker(context, extApp)
+  private val tracker =
+    new RestServiceTracker(context, extApp)
 
-  override protected def maxPostDataLength = 100000000
+  override protected def maxPostDataLength =
+    100000000
 
-  override protected def onStart {
+  override protected def onStart: Unit = {
     // start the application tracker
     tracker.open
   }
 
-  override protected def onStop {
+  override protected def onStop: Unit = {
     // stop the application tracker
     tracker.close
   }
