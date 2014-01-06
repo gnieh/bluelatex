@@ -52,11 +52,15 @@ angular.module("bluelatex.User", ["ngResource"])
         getPapers: function(user) {
             return papers.get({ username: user.username }).$promise;
         },
-        getPasswordToken: function() {
-            return password.getToken().$promise;
+        getPasswordToken: function(username) {
+            return password.getToken({ username: username }).$promise;
         },
-        resetPassword: function() {
-            return password.reset().$promise;
+        resetPassword: function(username,reset_token, new_password1, new_password2) {
+            return password.reset({ username: username }, jsonToPostParameters({
+                reset_token: reset_token,
+                new_password1: new_password1,
+                new_password2: new_password2
+            })).$promise;
         },
         getInfo: function(user) {
             return info.get({ username: user.username }).$promise;

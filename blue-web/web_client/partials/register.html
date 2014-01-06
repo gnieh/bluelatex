@@ -14,13 +14,6 @@
               ng-show="registerForm.username.$error.required" data-i18n="_Required_"></span>
         </div>
         <div class="form-group"
-          ng-class="{'has-error': registerForm.password.$invalid}">
-          <input class="form-control" name="password" type="password"
-            data-i18n-attr="_Password_|placeholder" required ng-model="user.password" />
-            <span class="control-label"
-              ng-show="registerForm.password.$error.required" data-i18n="_Required_"></span>
-        </div>
-        <div class="form-group"
           ng-class="{'has-error': registerForm.firstname.$invalid}">
           <input class="form-control" name="firstname" type="text"
             data-i18n-attr="_FirstName_|placeholder" required ng-model="user.first_name" />

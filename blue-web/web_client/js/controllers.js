@@ -32,7 +32,73 @@ angular.module('bluelatex.controller', ['bluelatex.User'])
             console.log(progress);
         });
     };
-  }]).controller('RegisterController', ['$scope','User','localize','$location', function ($scope, User,localize,$location) {
+  }]).controller('ResetController', ['$scope','$routeParams','User','localize','$location', function ($scope,$routeParams, User,localize,$location) {
+    var user = {};
+    $scope.user = user;
+    $scope.errors = [];
+
+    $scope.resetPassword = function () {
+        $scope.errors = [];
+        console.log(user);
+        User.resetPassword($routeParams.username,$routeParams.token, user.new_password, user.new_password_2).then(function(data) {
+          console.log(data);
+          if(data.name != 'unable_to_reset'){
+            $location.path( "/" );
+          } else {
+            $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
+          }
+        }, function(err) {
+          switch(err.status){
+            case 400:
+              $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
+              break;
+            case 401:
+              $scope.errors.push(localize.getLocalizedString('_Login_Wrong_username_and_or_password_'));
+              break;
+            case 500:
+              $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
+              break;
+            default:
+              $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
+              console.log(err);
+          }
+        }, function (progress) {
+            console.log(progress);
+        });
+    };
+    $scope.reset = function () {
+        $scope.errors = [];
+        console.log(user);
+        User.getPasswordToken(user.username).then(function(data) {
+          console.log(data);
+          if(data.name != 'unable_to_reset'){
+            $location.path( "/" );
+          } else {
+            $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
+          }
+        }, function(err) {
+          switch(err.status){
+            case 404:
+              $scope.errors.push(localize.getLocalizedString('_Reset_User_not_found'));
+              break;
+            case 400:
+              $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
+              break;
+            case 401:
+              $scope.errors.push(localize.getLocalizedString('_Login_Wrong_username_and_or_password_'));
+              break;
+            case 500:
+              $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
+              break;
+            default:
+              $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
+              console.log(err);
+          }
+        }, function (progress) {
+            console.log(progress);
+        });
+    };
+  }]).controller('RegisterController', ['$scope','$routeParams','User','localize','$location', function ($scope,$routeParams, User,localize,$location) {
     var user = {};
     $scope.user = user;
     $scope.errors = [];

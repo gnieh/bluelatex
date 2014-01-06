@@ -88,5 +88,31 @@
         "key":"_Login_Something_wrong_happened_",
         "value":"Something wrong happened on the server side",
         "description":"Login error"
+    },
+    {
+        "key":"_Password_Lost_",
+        "value":"Password lost",
+        "description":"Login page"
+    },
+    {
+        "key":"_ResetTitle_",
+        "value":"Reset password",
+        "description":"Reset password page"
+    },
+    {
+        "key":"_Reset_",
+        "value":"Reset",
+        "description":"Reset password page"
+    },
+    {
+        "key":"_Submit_",
+        "value":"Submit",
+        "description":"Reset page"
+    }
+    ,
+    {
+        "key":"_Reset_User_not_found",
+        "value":"User not found",
+        "description":"Reset page"
     }
 ]

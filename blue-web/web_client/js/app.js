@@ -15,6 +15,8 @@ angular.module('bluelatex', [
   $routeProvider.when('/login', {templateUrl: 'partials/login.html', controller: 'LoginController', name: 'login', private: false});
   $routeProvider.when('/logout', {templateUrl: 'partials/partial2.html', controller: 'MyCtrl2', name: 'logout', private: false});
   $routeProvider.when('/register', {templateUrl: 'partials/register.html', controller: 'RegisterController', name: 'register', private: false});
+  $routeProvider.when('/reset/?', {templateUrl: 'partials/reset.html', controller: 'ResetController', name: 'reset', private: false});
+  $routeProvider.when('/:username/reset/:token/?', {templateUrl: 'partials/resetPassword.html', controller: 'ResetController', name: 'resetPassword', private: false});
   $routeProvider.when('/profile', {templateUrl: 'partials/partial2.html', controller: 'MyCtrl2', name: 'profile', private: true});
   $routeProvider.when('/papers', {templateUrl: 'partials/partial1.html', controller: 'MyCtrl1', name: 'papers', private: true});
   $routeProvider.when('/paper/:id/?', {templateUrl: 'partials/paper.html', controller: 'PaperController', name: 'paper', private: false});
