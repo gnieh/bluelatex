@@ -35,7 +35,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class GetSessionDataLet(config: Config, logger: Logger) extends AuthenticatedLet(config, logger) {
+class GetSessionDataLet(config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     Success(talk.writeJson(user))

@@ -57,7 +57,7 @@ class BlueServer(context: BundleContext, configuration: Config, val logger: Logg
     tracker.close
   }
 
-  info("blue server started")
+  logInfo("blue server started")
 
 }
 

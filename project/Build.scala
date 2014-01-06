@@ -21,7 +21,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
       organization in ThisBuild := "org.gnieh",
       name := "bluelatex",
       version in ThisBuild := blueVersion,
-      scalaVersion in ThisBuild := "2.10.2",
+      scalaVersion in ThisBuild := "2.10.3",
       compileOptions,
       // fork jvm when running
       fork in run := true)
@@ -74,13 +74,12 @@ class BlueBuild extends Build with Pack with Server with Tests {
   )
 
   lazy val coreDependencies = commonDeps ++ Seq(
-    "org.gnieh" %% "tiscaf" % "0.8",
+    "org.gnieh" %% "tiscaf" % "0.9-SNAPSHOT",
     "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
     "com.typesafe.akka" %% "akka-osgi" % "2.2.3",
     "org.apache.pdfbox" % "pdfbox" % "1.8.2" exclude("commons-logging", "commons-logging"),
     "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
     "commons-collections" % "commons-collections" % "3.2.1",
-    "org.eclipse.jgit" % "org.eclipse.jgit" % "3.0.0.201306101825-r",
     "org.fusesource.scalate" %% "scalate-core" % "1.6.1"
   )
 

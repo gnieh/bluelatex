@@ -46,7 +46,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class CreatePaperLet(config: Config, templates: Templates, logger: Logger) extends AuthenticatedLet(config, logger) {
+class CreatePaperLet(config: Config, templates: Templates, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
     talk.req.param("paper_title") match {

@@ -36,7 +36,7 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class GetResourceLet(paperId: String, resourceName: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
+class GetResourceLet(paperId: String, resourceName: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
@@ -50,7 +50,7 @@ class GetResourceLet(paperId: String, resourceName: String, config: Config, logg
           val array = new Array[Byte](length)
           fis.read(array)
 
-          import common.FileProcessing._
+          import FileProcessing._
 
           val mime = HMime.exts.get(file.extension.tail.toLowerCase).getOrElse("application/octet-stream")
 

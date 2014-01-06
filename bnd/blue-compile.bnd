@@ -5,5 +5,7 @@ Require-Capability: org.gnieh.blue.sync
 
 Private-Package=gnieh.blue.compile.impl
 
+Import-Package=*
+
 Export-Package=gnieh.blue.compile
 

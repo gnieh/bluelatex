@@ -26,9 +26,12 @@ import http.RestApi
 class CompilationApi extends RestApi {
 
   POST {
-    // compile the paper with the configured compiler
+    // join the paper compiler stream
     case p"papers/$paperid/compiler" =>
       ???
+  }
+
+  PATCH {
     // saves the compilation settings
     case p"papers/$paperid/compiler/settings" =>
       ???

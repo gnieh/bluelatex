@@ -18,10 +18,7 @@ package http
 
 import tiscaf._
 
-import gnieh.diffson.{
-  JsonPatch,
-  JsonPatchSerializer
-}
+import gnieh.diffson._
 
 import gnieh.sohva.UserInfo
 
@@ -39,16 +36,14 @@ import scala.concurrent._
 
 import scala.util.{
   Try,
-  Success
+  Success,
+  Failure
 }
 
-/** All modules in \BlueLaTeX should implement `BlueLet` or one of its derivatives
- *
- *  @author Lucas Satabin
- */
-abstract class BlueLet(val config: Config, val logger: Logger) extends HLet with CouchSupport with Logging {
+import scala.language.higherKinds
+import scala.language.implicitConversions
 
-  import scala.language.implicitConversions
+object BlueLet {
 
   /** The formats to (de)serialize json objects. You may override it if you need specific serializers */
   implicit def formats = DefaultFormats + JsonPatchSerializer
@@ -110,34 +105,66 @@ abstract class BlueLet(val config: Config, val logger: Logger) extends HLet with
 
   }
 
-  @inline
-  implicit def talk2rich(talk: HTalk): RichTalk =
-    new RichTalk(talk)
-
-  final override def aact(talk: HTalk)(implicit executionContext: ExecutionContext) = future {
-    act(talk) recover {
-      case e: Exception =>
-        logError("Processing request failed", e)
-        talk
-          .setStatus(HStatus.InternalServerError)
-          .writeJson(ErrorResponse("internal_error","Something wrong happened"))
-    }
-  }
-
-  def act(talk: HTalk): Try[Any]
-
 }
 
-/** Extend this class if you need to treat differently authenticated and unauthenticated
- *  users.
+/** A `HLet` that is enriched with all utilities that are useful in \BlueLaTeX.
  *
  *  @author Lucas Satabin
  */
-abstract class AuthenticatedLet(config: Config, logger: Logger) extends BlueLet(config, logger) {
+sealed abstract class BlueLet[Ret[_]](val config: Config, val logger: Logger) extends HLet with CouchSupport with Logging {
+
+  implicit val formats = BlueLet.formats
 
   lazy val configuration = new PaperConfiguration(config)
 
-  final def act(talk: HTalk): Try[Any] =
+  @inline
+  implicit def talk2rich(talk: HTalk): BlueLet.RichTalk =
+    new BlueLet.RichTalk(talk)
+
+  def act(talk: HTalk): Ret[Any]
+
+  protected def try2future[T](t: Try[T]): Future[T] =
+    t match {
+      case Success(v) => Future.successful(v)
+      case Failure(t) => Future.failed(t)
+    }
+
+}
+
+/** A `HLet` used to perform synchronous tasks
+ *
+ *  @author Lucas Satabin
+ */
+abstract class SyncBlueLet(config: Config, logger: Logger) extends BlueLet[Try](config, logger) {
+
+  final override def aact(talk: HTalk) =
+    try2future(act(talk))
+
+}
+
+/** A `HLet` used to perform asynchronous tasks
+ *
+ *  @author Lucas Satabin
+ */
+abstract class AsyncBlueLet(config: Config, logger: Logger) extends BlueLet[Future](config, logger) {
+
+  /** Override this to enable your custom execution context if needed */
+  implicit val executionContext = ExecutionContext.Implicits.global
+
+  @inline
+  final override def aact(talk: HTalk) =
+    act(talk)
+
+}
+
+/** Mix this trait in to add support for authentication for this action
+ *
+ *  @author Lucas Satabin
+ */
+trait SyncAuthenticatedLet {
+  this: SyncBlueLet =>
+
+  override def act(talk: HTalk) =
     currentUser(talk) flatMap {
       case Some(user) =>
         authenticatedAct(user)(talk)
@@ -151,11 +178,38 @@ abstract class AuthenticatedLet(config: Config, logger: Logger) extends BlueLet(
   /** The action to take when the user is not authenticated.
    *  By default sends an error object with code "Unauthorized"
    */
-  def unauthenticatedAct(implicit talk: HTalk): Try[Any] = {
+  def unauthenticatedAct(implicit talk: HTalk): Try[Any] =
     Success(talk
       .setStatus(HStatus.Unauthorized)
       .writeJson(ErrorResponse("unauthorized", "This action is only permitted to authenticated people")))
-  }
+
+}
+
+/** Mix this trait in to add support for authentication for this action
+ *
+ *  @author Lucas Satabin
+ */
+trait AsyncAuthenticatedLet {
+  this: AsyncBlueLet =>
+
+  override def act(talk: HTalk) =
+    try2future(currentUser(talk)) flatMap {
+      case Some(user) =>
+        authenticatedAct(user)(talk)
+      case None =>
+        unauthenticatedAct(talk)
+    }
+
+  /** The action to take when the user is authenticated */
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Future[Any]
+
+  /** The action to take when the user is not authenticated.
+   *  By default sends an error object with code "Unauthorized"
+   */
+  def unauthenticatedAct(implicit talk: HTalk): Future[Any] =
+    Future.successful(talk
+      .setStatus(HStatus.Unauthorized)
+      .writeJson(ErrorResponse("unauthorized", "This action is only permitted to authenticated people")))
 
 }
 
@@ -164,7 +218,7 @@ abstract class AuthenticatedLet(config: Config, logger: Logger) extends BlueLet(
  *
  *  @author Lucas Satabin
  */
-abstract class RoleLet(val paperId: String, config: Config, logger: Logger) extends AuthenticatedLet(config, logger) {
+abstract class SyncRoleLet(val paperId: String, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   private def roles(implicit talk: HTalk): Try[Map[String, PaperRole]] =
     couchSession.database(couchConfig.database("blue_papers")).getDocById[Paper](paperId) map {

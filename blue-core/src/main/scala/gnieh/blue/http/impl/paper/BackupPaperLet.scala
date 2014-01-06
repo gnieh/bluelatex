@@ -44,12 +44,12 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class BackupPaperLet(format: String, paperId: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
+class BackupPaperLet(format: String, paperId: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
       // only authors may backup the paper sources
-      import common.FileProcessing._
+      import FileProcessing._
       val toZip =
         configuration.paperDir(paperId).filter(f => !f.isDirectory && !f.isHidden && !f.isTeXTemporary).toArray
 

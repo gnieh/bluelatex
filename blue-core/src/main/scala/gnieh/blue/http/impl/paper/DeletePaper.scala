@@ -46,13 +46,13 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class DeletePaperLet(paperId: String, config: Config, recaptcha: ReCaptcha, logger: Logger) extends RoleLet(paperId, config, logger) {
+class DeletePaperLet(paperId: String, config: Config, recaptcha: ReCaptcha, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>
       // only authors may delete a paper
       // first delete the paper files
-      import common.FileProcessing._
+      import FileProcessing._
       val dirDeleted = configuration.paperDir(paperId).deleteRecursive()
       if(dirDeleted) {
         database("blue_papers").deleteDoc(paperId) map {

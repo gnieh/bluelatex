@@ -41,7 +41,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class ModifyPaperLet(paperId: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
+class ModifyPaperLet(paperId: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>

@@ -41,7 +41,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class ModifyUserLet(username: String, config: Config, logger: Logger) extends AuthenticatedLet(config, logger) {
+class ModifyUserLet(username: String, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     if(username == user.name) {

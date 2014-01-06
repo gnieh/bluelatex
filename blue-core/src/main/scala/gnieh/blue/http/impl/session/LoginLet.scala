@@ -34,7 +34,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class LoginLet(config: Config, logger: Logger) extends BlueLet(config, logger) {
+class LoginLet(config: Config, logger: Logger) extends SyncBlueLet(config, logger) {
 
   def act(talk: HTalk): Try[Any] = {
     implicit val t = talk

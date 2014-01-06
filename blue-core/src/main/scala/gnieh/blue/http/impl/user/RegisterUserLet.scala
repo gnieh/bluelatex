@@ -41,7 +41,7 @@ import scala.util.{
  *  @author Lucas Satabin
  */
 class RegisterUserLet(config: Config, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha, logger: Logger)
-    extends BlueLet(config, logger) {
+    extends SyncBlueLet(config, logger) {
 
   // TODO logging
 

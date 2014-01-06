@@ -35,7 +35,7 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class GetUserInfoLet(username: String, config: Config, logger: Logger) extends AuthenticatedLet(config, logger) {
+class GetUserInfoLet(username: String, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     // only authenticated users may see other people information

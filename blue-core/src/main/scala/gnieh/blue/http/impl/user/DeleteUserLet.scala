@@ -43,7 +43,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class DeleteUserLet(username: String, config: Config, recaptcha: ReCaptcha, logger: Logger) extends AuthenticatedLet(config, logger) {
+class DeleteUserLet(username: String, config: Config, recaptcha: ReCaptcha, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   // TODO logging
 
@@ -82,8 +82,7 @@ class DeleteUserLet(username: String, config: Config, recaptcha: ReCaptcha, logg
               val newPapers =
                 for(Row(_, _, _, Some(p)) <- rows)
                   yield p.copy(authors = p.authors - userid, reviewers = p.reviewers - userid).withRev(p._rev)
-              for(_ <- database(blue_papers).saveDocs(newPapers))
-                yield Success(talk.writeJson(true))
+              Try(database(blue_papers).saveDocs(newPapers))
             case false =>
               // TODO log it
               Success(talk

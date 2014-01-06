@@ -3,5 +3,7 @@ Bundle-SymbolicName: org.gnieh.blue.sync
 Bundle-Name: \\BlueLaTeX Native Synchronization server
 Provide-Capability: org.gnieh.blue.sync
 
+Import-Package=*
+
 Private-Package=gnieh.blue.sync
 

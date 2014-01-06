@@ -36,7 +36,7 @@ import scala.util.{
  *  @author Lucas Satabin
  */
 class GeneratePasswordReset(username: String, templates: Templates, mailAgent: MailAgent, config: Config, logger: Logger)
-    extends AuthenticatedLet(config, logger) {
+    extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     // if the user is authenticated, he cannot generate the password reset token
