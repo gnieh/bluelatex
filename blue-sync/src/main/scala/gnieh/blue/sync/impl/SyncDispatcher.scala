@@ -27,6 +27,7 @@ import akka.actor.{
 import scala.collection.mutable.Map
 import scala.util.{Try, Success, Failure}
 import com.typesafe.config.Config
+
 import org.osgi.framework.BundleContext
 import org.osgi.service.log.LogService
 
@@ -45,8 +46,8 @@ class SyncDispatcher(bndContext: BundleContext, config: Config, logger: LogServi
   private val dmp = new DiffMatchPatch
   private val store = new FsStore
 
-  def props(username: String, paperId: String): Props =
-    Props(new SyncActor(configuration, paperId, store, dmp, logger))
+  def props(username: String, paperId: String): Try[Props] =
+    Try(Props(new SyncActor(configuration, paperId, store, dmp, logger)))
 }
 
 /** This actor handles synchronisation of documents.
@@ -57,6 +58,7 @@ class SyncDispatcher(bndContext: BundleContext, config: Config, logger: LogServi
  *  @author Audric Schiltknecht
  */
 class SyncActor(
+    bndContext: BundleContext,
     config: PaperConfiguration,
     paperId: String,
     store: Store,

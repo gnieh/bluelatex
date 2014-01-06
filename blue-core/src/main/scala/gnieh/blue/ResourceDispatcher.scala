@@ -27,7 +27,8 @@ abstract class ResourceDispatcher extends Actor {
     case join @ Join(username, resourceid) =>
       // create the actor if nobody uses this resource
       if(users(resourceid).size == 0) {
-        context.actorOf(props(username, resourceid), name = resourceid)
+        for(props <- props(username, resourceid))
+          context.actorOf(props, name = resourceid)
         users(resourceid) = Set(username)
       } else if(!users(resourceid).contains(username)) {
         users(resourceid) += username
@@ -51,6 +52,6 @@ abstract class ResourceDispatcher extends Actor {
       context.actorSelection(resourceid).tell(msg, sender)
   }
 
-  def props(username: String, resourceid: String): Props
+  def props(username: String, resourceid: String): Try[Props]
 
 }

@@ -25,7 +25,7 @@ import java.io.File
 import scala.collection.JavaConverters._
 
 /** The couchdb configuration part */
-class CouchConfiguration(config: Config) {
+class CouchConfiguration(val config: Config) {
 
   val couch = {
     val hostname = config.getString("couch.hostname")
