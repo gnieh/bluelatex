@@ -1,4 +1,5 @@
 package gnieh.blue
+package common
 
 import akka.actor._
 

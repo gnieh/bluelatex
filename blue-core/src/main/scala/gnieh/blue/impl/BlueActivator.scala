@@ -21,9 +21,6 @@ import java.io.File
 import org.osgi.framework._
 import org.osgi.util.tracker.ServiceTracker
 
-import akka.actor.ActorSystem
-import akka.osgi.ActorSystemActivator
-
 import com.typesafe.config._
 
 import http.RestApi
@@ -43,16 +40,16 @@ import gnieh.sohva.control._
  *
  *  @author Lucas Satabin
  */
-class BlueActivator extends ActorSystemActivator {
+class BlueActivator extends BundleActivator {
 
   private var templates: Option[Templates] = None
   private var couch: Option[CouchClient] = None
   private var server: Option[BlueServer] = None
   private var dbManager: Option[DbManager] = None
 
-  import common.OsgiUtils._
+  import OsgiUtils._
 
-  def configure(context: BundleContext, system: ActorSystem): Unit =
+  def start(context: BundleContext): Unit =
     for {
       loader <- context.get[ConfigurationLoader]
       logger <- context.get[Logger]
@@ -94,9 +91,6 @@ class BlueActivator extends ActorSystemActivator {
     dbManager = Some(new DbManager(new CouchConfiguration(config), logger))
     dbManager.foreach(_.start())
 
-    // register the actor system as service so that other bundle can use it
-    registerService(context, system)
-
     // register the core Rest API
     context.registerService(classOf[RestApi], new CoreApi(config, templates.get, mailAgent, recaptcha, logger), null)
 
@@ -115,8 +109,6 @@ class BlueActivator extends ActorSystemActivator {
 
     // stop the server
     server.foreach(_.stop)
-    // stop the actor system, etc...
-    super.stop(context)
     // stop the couch client
     couch.foreach(_.shutdown)
     // stop the template engine
