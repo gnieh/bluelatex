@@ -15,17 +15,17 @@
  */
 package gnieh.blue
 package compile
-package impl
 
 import common._
 
-import com.typesafe.config.Config
-
 import java.io.File
 
-class CompileConfiguration(config: Config) extends PaperConfiguration(config) {
+package object impl {
+  implicit class CompileConfiguration(val config: PaperConfiguration) extends AnyVal {
 
-  def buildDir(paperId: String) =
-    new File(paperDir(paperId), "build")
+    def buildDir(paperId: String) =
+      new File(config.paperDir(paperId), "build")
 
+  }
 }
+

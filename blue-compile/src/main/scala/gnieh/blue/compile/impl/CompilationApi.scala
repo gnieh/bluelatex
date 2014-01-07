@@ -15,47 +15,56 @@
  */
 package gnieh.blue
 package compile
+package impl
+
+import akka.actor.ActorRef
 
 import http.RestApi
+import common._
+import let._
+
+import com.typesafe.config.Config
 
 /** The compilation feature Rest API that offers the services to compile
  *  papers
  *
  *  @author Lucas Satabin
  */
-class CompilationApi extends RestApi {
+class CompilationApi(dispatcher: ActorRef, config: Config, logger: Logger) extends RestApi {
 
   POST {
     // join the paper compiler stream
     case p"papers/$paperid/compiler" =>
-      ???
+      new CompilerLet(paperid, dispatcher, config, logger)
   }
 
   PATCH {
     // saves the compilation settings
     case p"papers/$paperid/compiler/settings" =>
-      ???
+      new ModifyCompilerLet(paperid, config, logger)
   }
 
   GET {
     // return the compiled pdf file for the paper, if any
     case p"papers/$paperid.pdf" =>
-      ???
+      new GetPdfLet(paperid, config, logger)
     // return the last compilation log of any
     case p"papers/$paperid.log" =>
-      ???
+      new GetLogLet(paperid, config, logger)
     // return the page given as parameter converted as a png image
-    case p"papers/$paperid.png" =>
-      ???
+    case req @ p"papers/$paperid.png" =>
+      val page = req.asInt("page").map(math.max(_, 1)).getOrElse(1)
+      val density = req.asInt("density").getOrElse(100)
+      new GetPngLet(paperid, page, density, config, logger)
     // return the compilation settings
     case p"papers/$paperid/compiler/settings" =>
-      ???
+      new GetCompilerSettingsLet(paperid, config, logger)
   }
 
   DELETE {
     // cleanup the working directory
     case p"papers/$paperid/compiler" =>
-      ???
+      new CleanLet(paperid, config, logger)
   }
 
 }

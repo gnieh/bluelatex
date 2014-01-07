@@ -241,3 +241,34 @@ abstract class SyncRoleLet(val paperId: String, config: Config, logger: Logger) 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any]
 
 }
+
+/** Extends this class if you need to treat differently authors, reviewers or other users
+ *  for a given paper.
+ *
+ *  @author Lucas Satabin
+ */
+abstract class AsyncRoleLet(val paperId: String, config: Config, logger: Logger) extends AsyncBlueLet(config, logger) with AsyncAuthenticatedLet {
+
+  private def roles(implicit talk: HTalk): Try[Map[String, PaperRole]] =
+    couchSession.database(couchConfig.database("blue_papers")).getDocById[Paper](paperId) map {
+      case Some(Paper(_, _, authors, reviewers, _, _, _, _, _)) =>
+        (authors.map(id => (id, Author)) ++
+          reviewers.map(id => (id, Reviewer))).toMap.withDefaultValue(Other)
+      case None =>
+        Map().withDefaultValue(Other)
+    }
+
+  final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Future[Any] =
+    roles(talk) match {
+      case Success(m) => roleAct(user, m(s"org.couchdb.user:${user.name}"))
+      case Failure(t) => Future.failed(t)
+    }
+
+  /** Implement this method that can behave differently depending on the user
+   *  role for the current paper.
+   *  It is only called when the user is authenticated
+   */
+  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Future[Any]
+
+}
+

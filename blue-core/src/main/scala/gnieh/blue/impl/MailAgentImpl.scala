@@ -46,7 +46,6 @@ class MailAgentImpl(configuration: BlueConfiguration) extends MailAgent {
       .view[String, String, Nothing]("emails")
       .query(key = Some(s"org.couchdb.user:$username")) match {
         case Success(result) =>
-          System.err.println(result)
           result.rows
             .headOption
             .map(_.value)

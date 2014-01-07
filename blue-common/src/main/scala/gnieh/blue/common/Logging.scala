@@ -42,7 +42,7 @@ trait Logging {
     logger.log(LOG_WARNING, msg)
 
   @inline
-  def logError(msg: String, exn: Exception): Unit =
+  def logError(msg: String, exn: Throwable): Unit =
     logger.log(LOG_ERROR, msg, exn)
 
   @inline

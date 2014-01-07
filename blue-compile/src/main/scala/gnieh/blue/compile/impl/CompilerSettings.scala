@@ -17,5 +17,7 @@ package gnieh.blue
 package compile
 package impl
 
-case class CompilerSettings(compiler: String, timeout: Int, interval: Int)
+import gnieh.sohva.IdRev
+
+case class CompilerSettings(_id: String, compiler: String, timeout: Int, interval: Int) extends IdRev
 

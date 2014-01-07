@@ -24,6 +24,18 @@ abstract class ResourceDispatcher extends Actor {
   // count the number of users using a given resource by name
   private val users = Map.empty[String, Set[String]].withDefaultValue(Set())
 
+  override def preStart(): Unit = {
+    // subscribe to the dispatcher events
+    context.system.eventStream.subscribe(self, classOf[Join])
+    context.system.eventStream.subscribe(self, classOf[Part])
+  }
+
+  override def postStop(): Unit = {
+    // unsubscribe to the dispatcher events
+    context.system.eventStream.unsubscribe(self, classOf[Join])
+    context.system.eventStream.unsubscribe(self, classOf[Part])
+  }
+
   final def receive = {
     case join @ Join(username, resourceid) =>
       // create the actor if nobody uses this resource

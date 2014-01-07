@@ -17,7 +17,15 @@ package gnieh.blue
 package compile
 package impl
 
-import akka.actor.Actor
+import akka.actor.{
+  Actor,
+  ActorRef
+}
+import akka.util.Timeout
+
+import scala.concurrent.duration._
+
+import scala.util.Try
 
 import org.osgi.framework.BundleContext
 
@@ -31,11 +39,65 @@ import common._
  *  @author Lucas Satabin
  *
  */
-class CompilationActor(bndContext: BundleContext, configuration: CompileConfiguration, paperId: String, settings: CompilerSettings, val logger: Logger) extends Actor with Logging {
+class CompilationActor(bndContext: BundleContext, configuration: PaperConfiguration, paperId: String, defaultSettings: CompilerSettings, val logger: Logger) extends Actor with Logging {
 
-  def receive = {
-    case any =>
+  import OsgiUtils._
+
+  @inline
+  implicit def ec = context.system.dispatcher
+
+  val basedir = configuration.paperDir(paperId)
+
+  override def preStart(): Unit = {
+    context.system.scheduler.scheduleOnce(Duration.Zero, self, Compile)
+  }
+
+  def receive = receiving(Set(), defaultSettings)
+
+  def receiving(clients: Set[ActorRef], settings: CompilerSettings): Receive = {
+    case Compile =>
+
+      implicit val timeout = Timeout(settings.timeout.seconds)
+
+      for(compiler <- bndContext.get[Compiler]) {
+
+        // TODO iddeally the number of times we run the latex compiler, and bibtex,
+        // and the index compiler should be smarter than this.
+        // For the moment, we run only once, but we could make it configurable if the compilation
+        // occurs on its own compilation server
+        // it is also not necessary to run bibtex if no bibliography is to be generated
+        // the settings should be able to handle this properly
+        val res = for {
+          // if the compiler is defined, we first compile the paper
+          true <- compiler.compile(basedir)
+          // we run bibtex on it if the compilation succeeded
+          true <- compiler.bibtex(basedir)
+        } yield true
+
+        // and we send back the answer to the clients
+        for(client <- clients)
+          client ! res
+
+        // and listen again with an empty list of clients
+        context.become(receiving(Set(), settings))
+
+      }
+
+      // schedule the next compilation after the configured interval
+      context.system.scheduler.scheduleOnce(settings.interval.seconds, self, Compile)
+
+    case settings @ CompilerSettings(_, _, _, _) =>
+      // settings were changed, take them immediately into account
+      context.become(receiving(clients, settings))
+
+    case Register(client) =>
+
+      context.become(receiving(clients + client, settings))
+
   }
 
 }
+
+case object Compile
+case class Register(client: ActorRef)
 
