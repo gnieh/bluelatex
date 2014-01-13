@@ -204,17 +204,59 @@ angular.module('bluelatex.controller', ['bluelatex.User'])
 
   }]).controller('PaperController', ['$scope','localize','$location', function ($scope, User,localize,$location) {
     var paper = {};
-    $scope.user = paper;
+    var content;
+    var _session;
+    $scope.paper = paper;
     $scope.logs = [];
     $scope.toc = [];
     $scope.listType = 'toc';
 
+    $scope.content = content;
 
+    $scope.compile = function () {
+      err = '';
+      var pdftex = new PDFTeX();
+      pdftex.set_TOTAL_MEMORY(80*1024*1024).then(function() {
+        //pdftex.FS_createLazyFile('/', 'snowden.jpg', 'snowden.jpg', true, true);
+
+        pdftex.on_stdout = appendOutput;
+        pdftex.on_stderr = appendOutput;
+
+        var start_time = new Date().getTime();
+        pdftex.compile(content).then(function(pdf_dataurl) {
+          var end_time = new Date().getTime();
+          console.info("Execution time: " + (end_time-start_time)/1000+' sec');
+          console.log(pdf_dataurl);
+          var logs = LatexParser.parse(err,{});
+          var annotations = [];
+          for (var i = 0; i < logs.all.length; i++) {
+            var error = logs.all[i];
+            annotations.push({
+              row: error.line - 1,
+              column: 1,
+              text: error.message,
+              type: (error.level=="error")?"error":'warning' // also warning and information
+            });
+          }
+          _session.setAnnotations(annotations);
+          console.log(logs);
+          if(pdf_dataurl === false)
+            return;
+        });
+      });
+    };
+    var out = '';
+    var err = '';
+    var appendOutput = function(msg) {
+        err += "\r\n" + msg;
+    }
 
     $scope.aceLoaded = function(_editor) {
       // Editor part
-      var _session = _editor.getSession();
+      _session = _editor.getSession();
       var _renderer = _editor.renderer;
+
+      content = _session.getValue();
 
       $scope.goToLine = function (line) {
         _editor.gotoLine(line);
@@ -226,15 +268,18 @@ angular.module('bluelatex.controller', ['bluelatex.User'])
       _renderer.setShowGutter(true);
 
       // Events
-      _editor.on("changeSession", function(){  });
-      _session.on("change", function(){
-        parseTOC(_editor.getSession().getValue());
+      _editor.on("changeSession", function(){
+        _session = _editor.getSession();
       });
-      parseTOC(_editor.getSession().getValue());
+      _session.on("change", function(){
+        content = _session.getValue();
+        parseTOC(content);
+      });
+      parseTOC(content);
 
       // HACK to have the ace instance in the scope...
       $scope.modeChanged = function () {
-        _editor.getSession().setMode('ace/mode/latex');
+        _session.setMode('ace/mode/latex');
       };
     };
     var parseTOC = function (latex) {
@@ -259,7 +304,6 @@ angular.module('bluelatex.controller', ['bluelatex.User'])
           });
         }
       };
-      console.log(toc);
       $scope.toc = toc;
     }
     $scope.aceChanged = function(e) {

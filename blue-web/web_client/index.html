@@ -40,6 +40,8 @@
       'js/filters.js',
       'js/directives.js',
       'lib/ui-ace.js',
+      'lib/promise.js',
+      'lib/texlive.js/pdftex.js',
       'ace/ace.js'
     ], function() {
       // when all is done, execute bootstrap angular application
@@ -50,12 +52,14 @@
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/css.css">
   <script type="text/javascript" src='/js/jquery-2.0.3.min.js'></script>
+  <script type="text/javascript" src='/lib/latex-log-parser.js'></script>
 </head>
 <body>
   <header>
     <div class="logo">
       <a href="#/"><img src="/img/logo.png" alt="\BlueLatex"></a>
     </div>
+    <nav bl-options></nav>
     <nav bl-menu></nav>
   </header>
   <div ng-view></div>
