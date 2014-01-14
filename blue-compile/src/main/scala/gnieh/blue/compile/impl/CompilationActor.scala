@@ -39,7 +39,14 @@ import common._
  *  @author Lucas Satabin
  *
  */
-class CompilationActor(bndContext: BundleContext, configuration: PaperConfiguration, paperId: String, defaultSettings: CompilerSettings, val logger: Logger) extends Actor with Logging {
+class CompilationActor(
+  bndContext: BundleContext,
+  synchro: SynchroServer,
+  configuration: PaperConfiguration,
+  paperId: String,
+  defaultSettings: CompilerSettings,
+  val logger: Logger
+) extends Actor with Logging {
 
   import OsgiUtils._
 
@@ -58,6 +65,10 @@ class CompilationActor(bndContext: BundleContext, configuration: PaperConfigurat
     case Compile =>
 
       implicit val timeout = Timeout(settings.timeout.seconds)
+
+
+      // dump the files before printing
+      synchro.persist(paperId)
 
       for(compiler <- bndContext.get[Compiler]) {
 

@@ -39,7 +39,12 @@ import org.osgi.framework.BundleContext
  *
  *  @author Lucas Satabin
  */
-class CompilationDispatcher(bndContext: BundleContext, config: Config, val logger: Logger) extends ResourceDispatcher {
+class CompilationDispatcher(
+  bndContext: BundleContext,
+  synchro: SynchroServer,
+  config: Config,
+  val logger: Logger
+) extends ResourceDispatcher {
 
   val configuration = new PaperConfiguration(config)
 
@@ -50,7 +55,7 @@ class CompilationDispatcher(bndContext: BundleContext, config: Config, val logge
     // get the compiler settings
     val db = session.database(database("blue_papers"))
     for(settings <- getOrCreateSettings(paperId, db))
-      yield Props(new CompilationActor(bndContext, configuration, paperId, settings, logger))
+      yield Props(new CompilationActor(bndContext, synchro, configuration, paperId, settings, logger))
   }
 
   def getOrCreateSettings(paperId: String, db: Database): Try[CompilerSettings] =

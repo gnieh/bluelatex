@@ -28,6 +28,8 @@ import akka.routing.{
 
 import common._
 
+import http.RestApi
+
 class CompilationActivator extends BundleActivator {
 
   self =>
@@ -57,13 +59,12 @@ class CompilationActivator extends BundleActivator {
       val config = loader.load(context.getBundle.getSymbolicName, self.getClass.getClassLoader)
 
       // create the dispatcher actor
-      dispatcher =
-        Option(
-          system.actorOf(
-            Props(new CompilationDispatcher(context, config, logger)),
-            name = "compilation-dispatcher"
-          )
+      val disp =
+        system.actorOf(
+          Props(new CompilationDispatcher(context, synchro, config, logger)),
+          name = "compilation-dispatcher"
         )
+      dispatcher = Option(disp)
       // create the system command actor
       commands =
         Option(
@@ -80,10 +81,12 @@ class CompilationActivator extends BundleActivator {
           )
         )
 
+      // register the compilation Api
+      context.registerService(classOf[RestApi], new CompilationApi(disp, config, logger), null)
+
     }
 
   def undeploy(context: BundleContext): Unit = {
-    System.err.println("stopping compilation bundle")
     dispatcher.foreach(_ ! PoisonPill)
     commands.foreach(_ ! PoisonPill)
     dispatcher = None
