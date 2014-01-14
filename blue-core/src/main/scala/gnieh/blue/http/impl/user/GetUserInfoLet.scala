@@ -25,7 +25,6 @@ import com.typesafe.config.Config
 
 import tiscaf._
 
-import gnieh.sohva.UserInfo
 
 import scala.io.Source
 

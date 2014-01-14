@@ -34,7 +34,6 @@ import scala.util.Try
 
 import java.io.FileInputStream
 
-import gnieh.sohva.UserInfo
 
 import resource._
 

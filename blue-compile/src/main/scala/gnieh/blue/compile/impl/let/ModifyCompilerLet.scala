@@ -31,7 +31,6 @@ import scala.util.{
   Failure
 }
 
-import gnieh.sohva.UserInfo
 
 import gnieh.diffson.JsonPatch
 

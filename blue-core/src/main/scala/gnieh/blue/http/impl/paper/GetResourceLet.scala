@@ -24,7 +24,6 @@ import java.io.FileInputStream
 
 import tiscaf._
 
-import gnieh.sohva.UserInfo
 
 import resource._
 

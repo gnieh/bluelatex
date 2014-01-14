@@ -24,7 +24,6 @@ import tiscaf._
 
 import common._
 
-import gnieh.sohva.UserInfo
 
 import scala.io.Source
 

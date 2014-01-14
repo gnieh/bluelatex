@@ -31,7 +31,6 @@ import scala.util.{
   Failure
 }
 
-import gnieh.sohva.UserInfo
 
 /** Handle request that want to access the compiler data
  *

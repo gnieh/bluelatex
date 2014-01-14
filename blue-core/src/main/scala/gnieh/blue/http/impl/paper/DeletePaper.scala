@@ -21,7 +21,6 @@ package paper
 import couch._
 import common._
 
-import gnieh.sohva.UserInfo
 
 import java.util.UUID
 import java.io.{

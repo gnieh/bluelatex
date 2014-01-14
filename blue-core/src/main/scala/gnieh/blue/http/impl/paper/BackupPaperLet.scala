@@ -32,7 +32,6 @@ import java.io.{
 
 import tiscaf._
 
-import gnieh.sohva.UserInfo
 
 import resource._
 

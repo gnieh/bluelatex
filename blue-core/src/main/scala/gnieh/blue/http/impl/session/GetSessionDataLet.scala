@@ -24,7 +24,6 @@ import common._
 
 import tiscaf._
 
-import gnieh.sohva.UserInfo
 
 import scala.util.{
   Try,

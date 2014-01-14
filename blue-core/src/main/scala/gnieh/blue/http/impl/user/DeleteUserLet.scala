@@ -20,10 +20,7 @@ package user
 
 import tiscaf._
 
-import gnieh.sohva.{
-  UserInfo,
-  Row
-}
+import gnieh.sohva.Row
 
 import couch._
 import common._

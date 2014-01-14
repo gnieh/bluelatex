@@ -15,11 +15,11 @@
  */
 package gnieh.blue
 
-import org.osgi.service.log.LogService
-
 package object common {
 
-  type Logger = LogService
+  type Logger = org.osgi.service.log.LogService
+
+  type UserInfo = gnieh.sohva.UserInfo
 
 }
 

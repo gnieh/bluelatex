@@ -24,7 +24,6 @@ import akka.pattern.ask
 import http._
 import common._
 
-import gnieh.sohva.UserInfo
 
 import tiscaf._
 

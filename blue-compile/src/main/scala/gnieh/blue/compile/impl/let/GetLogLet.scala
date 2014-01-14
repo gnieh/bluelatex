@@ -29,7 +29,6 @@ import scala.util.Try
 
 import scala.io.Source
 
-import gnieh.sohva.UserInfo
 
 import resource._
 

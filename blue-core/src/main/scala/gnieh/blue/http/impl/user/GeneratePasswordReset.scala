@@ -19,7 +19,6 @@ package impl.user
 
 import tiscaf._
 
-import gnieh.sohva.UserInfo
 import common._
 
 import com.typesafe.config.Config

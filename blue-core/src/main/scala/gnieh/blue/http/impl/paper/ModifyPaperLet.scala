@@ -27,7 +27,6 @@ import tiscaf._
 
 import gnieh.diffson._
 
-import gnieh.sohva.UserInfo
 
 import scala.io.Source
 
