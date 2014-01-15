@@ -1,4 +1,65 @@
+@charset "UTF-8";
+
+@font-face {
+  font-family: "bluelatexicon";
+  src:url("fonts/bluelatexicon.eot");
+  src:url("fonts/bluelatexicon.eot?#iefix") format("embedded-opentype"),
+    url("fonts/bluelatexicon.ttf") format("truetype"),
+    url("fonts/bluelatexicon.svg#bluelatexicon") format("svg"),
+    url("fonts/bluelatexicon.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+[data-icon]:before {
+  font-family: "bluelatexicon" !important;
+  content: attr(data-icon);
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
+  font-family: "bluelatexicon" !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-list:before {
+   content: "a";
+}
+
+.icon-vignette:before {
+   content: "b";
+}
+
+.icon-down:before {
+   content: "c";
+}
+
+.icon-file:before {
+   content: "d";
+}
+
+.icon-search:before {
+   content: "e";
+}
+
 * {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
 ::-webkit-input-placeholder {
@@ -72,82 +133,16 @@ body {
     min-width:400px;
     max-width: 600px;
 }
-
-header .logo{
-    padding: 0 10px;
-    height: 26px;
-    float: left;
-}
-
-header .logo a {
-    color: #fff!important;
-}
-header  .logo img{
-    height: 42px;
-}
-
-nav {
-    position: relative;
-    line-height: 41px;
-    margin-left: 250px;
-}
-nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    float: left;
-}
-nav ul li {
-    white-space: nowrap;
-    float: left;
-}
-nav ul li button {
-    color: #f3f3f3;
-    font-size: 14px;
-    font-weight: bold;
-    white-space: nowrap;
-    padding: 0 10px;
-    display: block;
-    background: transparent;
-    margin: 0;
-    line-height: 41px;
-    border-radius: 0;
-}
-nav ul li button:hover {
-    background: #046DCC;
-    background: rgba(0,0,0,0.15);
-    opacity: 1;
-}
-nav ul li a,nav ul li a:visited,nav ul li a:focus,nav ul li a:active {
-    color: #f3f3f3;
-    font-size: 14px;
-    font-weight: bold;
-    white-space: nowrap;
-    padding: 0 10px;
-    display: block;
-}
-nav ul li a:hover,nav ul li a.current {
-    background: #046DCC;
-    background: rgba(0,0,0,0.15);
-    opacity: 1;
-    text-decoration: none;
-}
-#menu_user {
-    float: right;
-}
-#menu_navigation {
-    float: right;
-}
 header {
     position: absolute;
     width: 100%;
-    background: #025097;
-    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #†), color-stop(100%, #025097));
-    background: -webkit-linear-gradient(top, #0D689B,#025B97);
-    background: -moz-linear-gradient(top, #046DCC,#025097);
-    background: -o-linear-gradient(top, #046DCC,#025097);
-    background: -ms-linear-gradient(top, #046DCC,#025097);
-    background: linear-gradient(top, #046DCC,#025097);
+    background: #373942;
+    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #373942), color-stop(100%, #373942));
+    background: -webkit-linear-gradient(top, #373942,#373942);
+    background: -moz-linear-gradient(top, #373942,#373942);
+    background: -o-linear-gradient(top, #373942,#373942);
+    background: -ms-linear-gradient(top, #373942,#373942);
+    background: linear-gradient(top, #373942,#373942);
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     font-family: "Trade Gothic","Helvetica Neue",Helvetica,Arial,sans-serif;
     font-weight: bold;
@@ -210,6 +205,72 @@ header .user .firstname {
 header .user .lastname {
     line-height: 45px;
     display: inline-block;
+}
+header .logo{
+    padding: 0 10px;
+    height: 26px;
+    float: left;
+}
+
+header .logo a {
+    color: #fff!important;
+}
+
+header  .logo img{
+    height: 42px;
+}
+
+nav {
+    position: relative;
+    line-height: 41px;
+    margin-left: 250px;
+}
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    float: left;
+}
+nav ul li {
+    white-space: nowrap;
+    float: left;
+}
+nav ul li button {
+    color: #f3f3f3;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+    padding: 0 10px;
+    display: block;
+    background: transparent;
+    margin: 0;
+    line-height: 41px;
+    border-radius: 0;
+}
+nav ul li button:hover {
+    background: #046DCC;
+    background: rgba(0,0,0,0.15);
+    opacity: 1;
+}
+nav ul li a,nav ul li a:visited,nav ul li a:focus,nav ul li a:active {
+    color: #f3f3f3;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+    padding: 0 10px;
+    display: block;
+}
+nav ul li a:hover,nav ul li a.current {
+    background: #046DCC;
+    background: rgba(0,0,0,0.15);
+    opacity: 1;
+    text-decoration: none;
+}
+#menu_user {
+    float: right;
+}
+#menu_navigation {
+    float: right;
 }
 .footer {
     background: #3a3a3a;

@@ -1,4 +1,4 @@
-<section class="paper">
+<section id="paper">
     <section class="centerRightCol">
         <section class="centerCol">
             <div ui-ace="{
@@ -56,24 +56,29 @@
       <div class="btn-group listType">
         <label class="btn btn-default" ng-class="{'active': listType=='toc'}" for="toc">
             <input type="radio" name="listType" value="toc" id="toc" ng-model="listType">
-            <span class="glyphicon glyphicon-list" ></span>
-        </label>
-        <label class="btn btn-default" ng-class="{'active': listType=='files'}" for="files">
-            <input type="radio" name="listType" value="files" id="files" ng-model="listType">
-            <span class="glyphicon glyphicon-file"></span>
+            <span class="icon-list" ></span>
         </label>
         <label class="btn btn-default" ng-class="{'active': listType=='figures'}" for="figure">
             <input type="radio" name="listType" value="figures" id="figure" checked="true" ng-model="listType">
-            <span class="glyphicon glyphicon-th-large"></span>
+            <span class="icon-vignette"></span>
+        </label>
+        <label class="btn btn-default" ng-class="{'active': listType=='files'}" for="files">
+            <input type="radio" name="listType" value="files" id="files" ng-model="listType">
+            <span class="icon-file"></span>
         </label>
       </div>
       <section class="list">
-        <div class="toc" ng-show="listType=='toc'" bl-toc="{{toc}}"></div>
-        <div class="files" ng-show="listType=='files'" ng-click="goToLine(12)">
-          files
-        </div>
+        <div class="toc" ng-show="listType=='toc'"><div bl-toc="toc"></div></div>
         <div class="figures" ng-show="listType=='figures'">
-          figures
+          <div class="preview_page_container">
+            <img class="preview_page" src="//writelatex.s3.amazonaws.com/qkmscjgckstd/page/e3ec3f7bcb5c9e01a9e1630ddbabce9ec89edda4.jpeg">
+          </div>
+          <div class="preview_page_container">
+            <img class="preview_page" src="//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg">
+          </div>
+        </div>
+        <div class="files" ng-show="listType=='files'">
+          files
         </div>
       </section>
     </section>

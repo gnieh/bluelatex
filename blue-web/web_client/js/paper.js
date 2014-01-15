@@ -92,6 +92,7 @@ angular.module('bluelatex.paper',[])
             content = _session.getValue();
           });
           loadSettings();
+          callback(_editor);
         };
 
         var getToc = function () {
@@ -124,7 +125,9 @@ angular.module('bluelatex.paper',[])
             getContent: function () { return content;},
             setContent: function (c) { return _session.setValue(c);},
             _editor: _editor,
-            session: _session,
+            getSession: function () {
+              return _editor.getSession();
+            },
             loadSettings: loadSettings,
             aceLoaded: aceLoaded,
             getToc: getToc,
@@ -158,11 +161,11 @@ angular.module('bluelatex.paper',[])
         pdftex.on_stdout = pdftex.on_stderr = appendOutput;
 
         var start_time = new Date().getTime();
-        pdftex.compile(content).then(function(pdf_dataurl) {
+        pdftex.compile(ace.getContent()).then(function(pdf_dataurl) {
           var end_time = new Date().getTime();
           console.info("Execution time: " + (end_time-start_time)/1000+' sec');
           console.log(pdf_dataurl);
-          var logs = LatexParser.parse(err,{});
+          var logs = LatexParser.parse(textLog,{});
           var annotations = [];
           for (var i = 0; i < logs.all.length; i++) {
             var error = logs.all[i];
@@ -173,20 +176,22 @@ angular.module('bluelatex.paper',[])
               type: (error.level=="error")?"error":'warning' // also warning and information
             });
           }
-          ace.session.setAnnotations(annotations);
+          ace.getSession().setAnnotations(annotations);
           if(pdf_dataurl === false)
             return;
         });
       });
     };
+    $scope.goToLine = function (line) {
+      console.log("ici");
+      ace.goToLine(line);
+    }
 
     $scope.aceLoaded = function (_editor) {
-        console.log(ace);
         ace.aceLoaded(_editor, function() {
-            ace.loadSettings(aceSettings);
             $scope.toc = ace.getToc();
-            ace.session.on("change", function () {
-                $scope.toc = ace.getToc();
+            ace.getSession().on("change", function(){
+              $scope.toc = ace.getToc();
             });
         });
     };
@@ -194,4 +199,60 @@ angular.module('bluelatex.paper',[])
     $scope.aceChanged = function(e) {
     };
 
+  }]).directive('blToc', ['$compile',function($compile) {
+    var updateTOC = function (elm, toc,$scope) {
+        if(toc == null) return;
+        var top = null;
+        var current = null;
+        var currentlevel = -1;
+        elm.text('');
+        for (var i = 0; i < toc.length; i++) {
+            var line = toc[i];
+            //create a new ul/ol
+            if(current == null){
+                var l = document.createElement(line.level<3?'ol':'ul');
+                current = l;
+                top = current;
+            } else if(line.restart == true) {
+                var j = currentlevel;
+                for(; j >= line.level; j--) {
+                    current = current.parentElement;
+                }
+                var l = document.createElement('ul');
+                current.appendChild(l);
+                current = l;
+            }else if(currentlevel < line.level) {
+                var j = line.level;
+                for(; j>currentlevel; j--) {
+                    var t = document.createElement(j<3?'ol':'ul');
+                    current.appendChild(t);
+                    current = t;
+                }
+            } else if(currentlevel > line.level) {
+                var j = currentlevel;
+                for(; j > line.level; j--) {
+                    current = current.parentElement;
+                }
+            }
+            currentlevel = line.level;
+            //create li
+            var li = document.createElement('li');
+            var a = document.createElement('a');
+            a.setAttribute('ng-click','goToLine('+line.line+')');
+            a.innerHTML = line.title;
+            li.appendChild(a);
+            current.appendChild(li);
+        }
+        if(toc.length == 0) {
+          elm.html("No table of content");
+        } else {
+          angular.element(elm).append($compile(top)($scope));
+        }
+    };
+    return function(scope, elm, attrs) {
+        scope.$watch('toc', function(value) {
+            updateTOC(elm,value,scope);
+        });
+        updateTOC(elm,scope.toc,scope);
+    };
   }])

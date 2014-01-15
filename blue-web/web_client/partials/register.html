@@ -6,7 +6,7 @@
     </div>
     <div class="form-group"
       ng-class="{'has-error': registerForm.username.$invalid}">
-      <input class="form-control" name="username" type="text"
+      <input class="form-control" name="username" type="text" autofocus
         data-i18n-attr="_Username_|placeholder" required ng-model="user.username" />
         <span class="control-label"
           ng-show="registerForm.username.$error.required" data-i18n="_Required_"></span>

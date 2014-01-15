@@ -100,8 +100,8 @@
         "description":"Login page"
     },
     {
-        "key":"_ResetTitle_",
-        "value":"Reset password",
+        "key":"_ChangePasswordTitle_",
+        "value":"Change password",
         "description":"Reset password page"
     },
     {

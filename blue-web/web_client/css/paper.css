@@ -1,53 +1,82 @@
-.paper {
+#paper {
     position: absolute;
     left:0;
     right:0;
     top:0;
     bottom:0;
 }
-.paper .listType {
+#paper .listType input {
+    visibility: hidden;
+    width: 0;
+}
+#paper .listType span {
+    font-size: 20px;
+    color: #444;
+    line-height: 45px;
+    cursor: pointer;
+}
+#paper .listType input:checked + span {
+    color: red;
+}
+#paper .listType {
+    position: relative;
     background: #F8F8F8;
     width: 100%;
-    padding-left: 61px;
+    z-index: 4;
+    text-align: center;
+    height: 37px;
     z-index: 4;
 }
-.paper .listType label {
-    margin-top: 2px;
-}
-.paper .listType input {
-    display: none;
-}
-.paper .leftCol .list {
-    position: relative;
+#paper .leftCol .list {
+    position: absolute;
     overflow: auto;
     height: 100%;
-    top: -37px;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
     padding-top: 37px;
     padding-left: 7px;
 }
-.paper .toc {
+#paper .toc {
     padding-left:13px
 }
-.paper .toc a {
+#paper .toc a {
  cursor: pointer;
  color: #333;
 }
-.paper .leftCol .toc ul li {
+#paper .leftCol .toc ul li {
     list-style: none;
 }
-.paper .leftCol .toc ul,.paper .leftCol .list ol {
+#paper .leftCol .toc ul,#paper .leftCol .list ol {
     margin-left: 0;
     padding-left: 10px;
 }
-.paper .leftCol {
+#paper .leftCol div.preview_page_container {
+    background: #FFF;
+    overflow-x: hidden;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    margin: 7px;
+    margin-left: 0;
+    cursor: pointer;
+}
+#paper .leftCol img.preview_page {
+    width: 100%;
+    height: auto;
+}
+#paper .leftCol {
     position: absolute;
     width: 250px;
     float: left;
     top: 0;
     margin-top: 42px;
+    margin-right: 3px;
     bottom: 0;
+    background: #fff;
+    box-shadow: 2px 0px 3px rgba(0, 0, 0, 0.2);
+    z-index: 9;
 }
-.paper .centerRightCol {
+#paper .centerRightCol {
     position: absolute;
     left: 0;
     padding-left: 250px;
@@ -56,13 +85,13 @@
     bottom:0;
     padding-top: 42px;
 }
-.paper .centerCol {
+#paper .centerCol {
     position:relative;
     float: left;
     width: 50%;
     height: 100%;
 }
-.paper .rightCol {
+#paper .rightCol {
     position:relative;
     float: left;
     width: 50%;
@@ -84,8 +113,9 @@
 }
 #preview div.preview_page_container {
     background: #FFF;
-    border-bottom: 8px solid #999;
     overflow-x: hidden;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    margin: 10px;
 }
 #preview img.preview_page {
     width: 100%;
@@ -94,7 +124,7 @@
 
 #paper_settings {
     position: absolute;
-    background: #025b97;
+    background: #373942;
     padding: 7px;
     color: #fff;
     width: 450px;

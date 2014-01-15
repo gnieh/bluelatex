@@ -1,0 +1,80 @@
+<div id="papers">
+    <div class="top">
+        <h1>Papers</h1>
+        <div class="options">
+            <div id="display_style">
+                <label>
+                    <input type="radio" name="display_style" value="list" ng-model="display_style">
+                    <span class="icon-list"></span>
+                </label>
+                <label>
+                    <input type="radio" name="display_style" value="vignette" ng-model="display_style">
+                    <span class="icon-vignette"></span>
+                </label>
+            </div>
+            <form id="search">
+                <input type="search" placeholder="Search..." ng-model="search" autofocus>
+            </form>
+            <form id="sort">
+                <select ng-model="predicate">
+                    <option value="id">Id</option>
+                    <option value="title">Title</option>
+                    <option value="date">Date</option>
+                    <option value="auhtors">Auhtors</option>
+                </select>
+                <select ng-model="reverse">
+                    <option value="false">Asc</option>
+                    <option value="true">Desc</option>
+                </select>
+            </form>
+            <div class="clear"></div>
+        </div>
+    </div>
+    <div class="left">
+        All: {{(papers| filter:search).length }}<br>
+        Today: 0<br>
+        This week: 0<br>
+        Last week: 0<br>
+        This month: 0<br>
+        This Year: 0<br>
+    </div>
+    <div class="center">
+        <div id="paper_list" ng-class="display_style">
+            <div class="paper" ng-if="display_style=='list'">
+                <div class="title">
+                    Title
+                </div>
+                <div class="date">
+                    Date
+                </div>
+                <div class="authors">
+                    Auhtor
+                </div>
+                <div class="options">
+                    Options
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="paper" ng-repeat="paper in papers | filter:search | orderBy:predicate:reverse">
+                <div class="icon">
+                    <a href="#/paper/{{paper.id}}"><img src="{{paper.icon}}" alt="{{paper.title}}" title="{{paper.title}}"></a>
+                </div>
+                <div class="title">
+                    <a href="#/paper/{{paper.id}}">{{paper.title}}</a>
+                </div>
+                <div class="date">
+                    <a href="#/paper/{{paper.id}}">{{paper.date | date:'MM/dd/yyyy'}}</a>
+                </div>
+                <div class="authors">
+                    <a href="#/paper/{{paper.id}}"><span ng-repeat="author in paper.authors">{{author}},</span></a>
+                </div>
+                <div class="options">
+                    <button class="option rename" ng-click="rename(paper)">Rename</button>
+                    <button class="option detele" ng-click="delete(paper)">Delete</button>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="no-paper" ng-if="(papers| filter:search).length == 0">No paper found</div>
+        </div>
+    </div>
+</div>

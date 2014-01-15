@@ -10,6 +10,7 @@ angular.module('bluelatex', [
   'bluelatex.User',
   'bluelatex.controller',
   'bluelatex.paper',
+  'bluelatex.papers',
   'bluelatex.menu',
   'ui.ace'
 ]).config(['$routeProvider', function($routeProvider) {
@@ -33,8 +34,8 @@ angular.module('bluelatex', [
   $routeProvider.when('/profil', {templateUrl: 'partials/partial2.html', controller: 'MyCtrl2',options:{
     name: 'profile', private: true, title: 'Profil'
   }});
-  $routeProvider.when('/papers', {templateUrl: 'partials/partial1.html', controller: 'papersController',options:{
-    name: 'papers', private: true, title: 'Papers'
+  $routeProvider.when('/papers', {templateUrl: 'partials/papers.html', controller: 'PapersController',options:{
+    name: 'papers', private: false, title: 'Papers'
   }});
   $routeProvider.when('/paper/:id/?', {templateUrl: 'partials/paper.html', controller: 'PaperController',options:{
     name: 'paper', private: false, title: 'Paper'

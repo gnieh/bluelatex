@@ -1,4 +1,4 @@
-#register_form {
+#register_form, #reset_form, #reset_password_form {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -12,14 +12,14 @@
     margin-left: -137.5px;
     overflow: hidden;
 }
-#register_form h1 {
+#register_form h1, #reset_form h1, #reset_password_form h1 {
     margin: 0;
     padding: 7px 4px 7px 7px;
     color: #E7E7E7;
     background: #025097;
     margin-bottom: 24px;
 }
-#register_form input {
+#register_form input, #reset_form input, #reset_password_form input {
     padding: 10px;
     background: #ECF2F4;
     border: 0;
@@ -28,10 +28,10 @@
     width: 100%;
     display: inline-block;
 }
-#register_form .has-error input {
+#register_form .has-error input, #reset_form .has-error input, #reset_password_form .has-error input {
     background: #F5EAEA;
 }
-#register_form button,#register_form .button {
+#register_form button,#register_form .button, #reset_form button, #reset_form .button, #reset_password_form button, #reset_password_form .button {
     display: inline-block;
     width:49%;
     border-radius: 0;
@@ -39,19 +39,17 @@
     outline: none;
     padding: 10px;
 }
-#register_form .logo {
-    height: 210px;
-}
-#register_form form {
+#register_form form, #reset_form form, #reset_password_form form {
     position: absolute;
     bottom: 0px;
     right: 0;
     left: 0;
     padding: 7px;
 }
-#register_form .control-label {
+#register_form .control-label, #reset_form .control-label, #reset_password_form .control-label {
     position: absolute;
     right: 0;
     top: 0;
     display: none;
 }
+
