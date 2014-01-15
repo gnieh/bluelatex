@@ -33,14 +33,8 @@ import couch._
  */
 class PaperListSpec extends BlueScenario with SomeUsers with SomePapers {
 
-  val gerard = Person("glambert", "Gérard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
-  val prince = Person("pprince", "Petit", "Prince", "petit@prince.org", None)
-
   val predefinedPeople =
     List(gerard, prince)
-
-  val paper1 = Paper("paper1", "Some Paper", Set("glambert"), Set(), "article")
-  val paper2 = Paper("paper2", "Some Other Paper", Set("toto"), Set("glambert"), "article")
 
   val predefinedPapers =
     List(paper1, paper2)

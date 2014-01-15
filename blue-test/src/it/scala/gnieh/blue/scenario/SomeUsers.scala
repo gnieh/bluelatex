@@ -30,6 +30,9 @@ import gnieh.sohva.CouchUser
 trait SomeUsers extends BeforeAndAfterEach {
   this: BlueScenario =>
 
+  val gerard = Person("glambert", "Gérard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
+  val prince = Person("pprince", "Petit", "Prince", "petit@prince.org", None)
+
   val predefinedPeople: List[Person]
 
   private def couchUsers =

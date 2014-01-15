@@ -30,6 +30,9 @@ import gnieh.sohva.CouchUser
 trait SomePapers extends BeforeAndAfterEach {
   this: BlueScenario =>
 
+  val paper1 = Paper("paper1", "Some Paper", Set("glambert"), Set(), "article")
+  val paper2 = Paper("paper2", "Some Other Paper", Set("toto"), Set("glambert"), "article")
+
   val predefinedPapers: List[Paper]
 
   override def beforeEach(): Unit = try {

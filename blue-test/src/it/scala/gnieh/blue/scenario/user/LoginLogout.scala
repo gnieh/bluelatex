@@ -37,7 +37,7 @@ import http.ErrorResponse
 class UserLoginLogoutSpec extends BlueScenario with SomeUsers {
 
   val predefinedPeople =
-    List(Person("glambert", "Gérard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc.")))
+    List(gerard)
 
   feature("Any registered user must be able to log into the \\BlueLaTeX service"){
 
