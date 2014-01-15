@@ -177,7 +177,7 @@ abstract class RoleLet(val paperId: String, config: Config, logger: Logger) exte
 
   final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
     roles(talk) map { m =>
-      roleAct(user, m(s"org.couchdb.user:${user.name}"))
+      roleAct(user, m(user.name))
     }
 
   /** Implement this method that can behave differently depending on the user
