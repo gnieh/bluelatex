@@ -61,41 +61,53 @@ class ModifyCompilerLet(paperId: String, config: Config, logger: Logger) extends
                       talk.writeJson(true, s._rev.get)
                     case None =>
                       // something went wrong
-                      talk.writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
+                      talk
                         .setStatus(HStatus.InternalServerError)
+                        .writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
                   }
                 case None =>
                   // nothing to do
-                  Success(talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
-                    .setStatus(HStatus.NotModified))
+                  Success(
+                    talk
+                      .setStatus(HStatus.NotModified)
+                      .writeJson(ErrorResponse("nothing_to_do", "No changes sent")))
               }
 
             case Some(settings) =>
               // old revision sent
-              Success(talk.writeJson(ErrorResponse("conflict", "Old settings revision provided"))
-                .setStatus(HStatus.Conflict))
+              Success(
+                talk
+                  .setStatus(HStatus.Conflict)
+                  .writeJson(ErrorResponse("conflict", "Old settings revision provided")))
 
             case None =>
               // unknown compiler
-              Success(talk.writeJson(ErrorResponse("nothing_to_do", s"Unknown compiler for paper $paperId"))
-                .setStatus(HStatus.NotFound))
+              Success(
+                talk
+                  .setStatus(HStatus.NotFound)
+                  .writeJson(ErrorResponse("nothing_to_do", s"Unknown compiler for paper $paperId")))
           }
 
         case (None, _) =>
-          System.err.println("plop")
-          Success(talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
-            .setStatus(HStatus.NotModified))
+          Success(
+            talk
+              .setStatus(HStatus.NotModified)
+              .writeJson(ErrorResponse("nothing_to_do", "No changes sent")))
 
         case (_, None) =>
           // known revision was not sent, precondition failed
-          Success(talk.writeJson(ErrorResponse("conflict", "Settings revision not provided"))
-            .setStatus(HStatus.Conflict))
+          Success(
+            talk
+              .setStatus(HStatus.Conflict)
+              .writeJson(ErrorResponse("conflict", "Settings revision not provided")))
 
       }
 
     case _ =>
-      Try(talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may change compiler settings"))
-        .setStatus(HStatus.Forbidden))
+      Try(
+        talk
+          .setStatus(HStatus.Forbidden)
+          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may change compiler settings")))
   }
 
 }

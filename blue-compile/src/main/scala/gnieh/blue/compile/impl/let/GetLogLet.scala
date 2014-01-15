@@ -51,12 +51,16 @@ class GetLogLet(paperId: String, config: Config, logger: Logger) extends SyncRol
             .write(text)
         })
       else
-        Try(talk.writeJson(ErrorResponse("not_found", "compilation log for paper $paperId not found"))
-          .setStatus(HStatus.NotFound))
+        Try(
+          talk
+            .setStatus(HStatus.NotFound)
+            .writeJson(ErrorResponse("not_found", "compilation log for paper $paperId not found")))
 
     case _ =>
-      Try(talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may see compilation results"))
-        .setStatus(HStatus.Forbidden))
+      Try(
+        talk
+          .setStatus(HStatus.Forbidden)
+          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may see compilation results")))
 
   }
 

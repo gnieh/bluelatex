@@ -75,13 +75,17 @@ class GetPngLet(paperId: String, page: Int, density: Int, config: Config, logger
             .write(array)
         })
       } else {
-        Try(talk.writeJson(ErrorResponse("not_found", "page $page not found for paper $paperId"))
-          .setStatus(HStatus.NotFound))
+        Try(
+          talk
+            .setStatus(HStatus.NotFound)
+            .writeJson(ErrorResponse("not_found", "page $page not found for paper $paperId")))
       }
 
     case _ =>
-      Try(talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors and reviewers may see compiled paper"))
-        .setStatus(HStatus.Forbidden))
+      Try(
+        talk
+          .setStatus(HStatus.Forbidden)
+          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors and reviewers may see compiled paper")))
 
   }
 

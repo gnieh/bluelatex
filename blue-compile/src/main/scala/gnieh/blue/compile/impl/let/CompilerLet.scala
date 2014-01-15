@@ -54,8 +54,8 @@ class CompilerLet(paperId: String, dispatcher: ActorRef, config: Config, logger:
         case Failure(t) =>
           logError(s"Could not compile paper $paperId", t)
           talk
-            .writeJson(ErrorResponse("unable_to_compile", s"Something went wrong when compiling paper $paperId"))
             .setStatus(HStatus.InternalServerError)
+            .writeJson(ErrorResponse("unable_to_compile", s"Something went wrong when compiling paper $paperId"))
       }
 
 }

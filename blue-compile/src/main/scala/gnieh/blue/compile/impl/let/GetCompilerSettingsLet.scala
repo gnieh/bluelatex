@@ -46,12 +46,14 @@ class GetCompilerSettingsLet(paperId: String, config: Config, logger: Logger) ex
         case Some(settings) =>
           talk.writeJson(settings, settings._rev.get)
         case None =>
-          talk.writeJson(ErrorResponse("not_found", s"No compiler for paper $paperId found")).setStatus(HStatus.NotFound)
+          talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"No compiler for paper $paperId found"))
       }
 
     case _ =>
-      Try(talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may see compiler settings"))
-        .setStatus(HStatus.Forbidden))
+      Try(
+        talk
+          .setStatus(HStatus.Forbidden)
+          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may see compiler settings")))
 
   }
 

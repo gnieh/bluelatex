@@ -33,9 +33,6 @@ import couch.Paper
  */
 class CompilerSettingsSpec extends BlueScenario with SomeUsers with SomePapers {
 
-  val gerard = Person("glambert", "Gérard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
-  val prince = Person("pprince", "Petit", "Prince", "petit@prince.org", None)
-
   val predefinedPapers: List[Paper] =
     List(Paper("paper1", "Some Test Paper", Set("glambert"), Set("pprince"), "article"))
 

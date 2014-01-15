@@ -50,8 +50,10 @@ class CleanLet(paperId: String, config: Config, logger: Logger) extends SyncRole
       }
 
     case _ =>
-      Try(talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may clean compilation results"))
-        .setStatus(HStatus.Forbidden))
+      Try(
+        talk
+          .setStatus(HStatus.Forbidden)
+          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may clean compilation results")))
 
   }
 
