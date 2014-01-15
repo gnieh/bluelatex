@@ -35,4 +35,4 @@ case class User(name: String,
 
 }
 
-case class UserRole(paper: String, title: String, role: String)
+case class UserRole(id: String, title: String, role: String)

@@ -108,7 +108,9 @@ abstract class BlueLet(val config: Config, val logger: Logger) extends HLet with
   implicit def talk2rich(talk: HTalk): RichTalk =
     new RichTalk(talk)
 
-  final override def aact(talk: HTalk)(implicit executionContext: ExecutionContext) = future {
+  import ExecutionContext.Implicits.global
+
+  final override def aact(talk: HTalk) = future {
     act(talk) recover {
       case e: Exception =>
         logError("Processing request failed", e)
