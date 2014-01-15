@@ -76,13 +76,13 @@ class ModifyCompilerLet(paperId: String, config: Config, logger: Logger) extends
                 .setStatus(HStatus.Conflict))
 
             case None =>
-              // unknown paper
+              // unknown compiler
               Success(talk.writeJson(ErrorResponse("nothing_to_do", s"Unknown compiler for paper $paperId"))
                 .setStatus(HStatus.NotFound))
           }
 
         case (None, _) =>
-          // nothing to do
+          System.err.println("plop")
           Success(talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
             .setStatus(HStatus.NotModified))
 
