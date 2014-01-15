@@ -42,7 +42,7 @@ class GetUserInfoLet(username: String, config: Config, logger: Logger) extends A
     database(blue_users).getDocById[User](s"org.couchdb.user:$username") map {
       // we are sure that the user has a revision because it comes from the database
       case Some(user) => talk.writeJson(user, user._rev.get)
-      case None       => talk.writeJson(ErrorResponse("not_found", s"No user named $username found")).setStatus(HStatus.NotFound)
+      case None       => talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"No user named $username found"))
     }
 
 }

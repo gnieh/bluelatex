@@ -137,7 +137,8 @@ abstract class BlueScenario extends FeatureSpec
   }
 
   private def handleResponse(response: Response): Either[(Int, ErrorResponse), JValue] = {
-    val json = JsonParser.parse(as.String(response))
+    val str = as.String(response)
+    val json = JsonParser.parse(str)
     val code = response.getStatusCode
     cookie = response.getCookies.asScala.headOption
     if (code / 100 != 2) {

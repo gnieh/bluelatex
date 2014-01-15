@@ -86,8 +86,8 @@ class BackupPaperLet(format: String, paperId: String, config: Config, logger: Lo
 
     case _ =>
       talk
-        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may backup the paper sources"))
         .setStatus(HStatus.Forbidden)
+        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may backup the paper sources"))
   })
 
 }

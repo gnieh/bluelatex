@@ -40,8 +40,10 @@ class GeneratePasswordReset(username: String, templates: Templates, mailAgent: M
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     // if the user is authenticated, he cannot generate the password reset token
-    Success(talk.writeJson(ErrorResponse("unable_to_generate", "Authenticated users cannot ask for password reset"))
-      .setStatus(HStatus.Forbidden))
+    Success(
+      talk
+        .setStatus(HStatus.Forbidden)
+        .writeJson(ErrorResponse("unable_to_generate", "Authenticated users cannot ask for password reset")))
 
   override def unauthenticatedAct(implicit talk: HTalk): Try[Unit] =
     // generate reset token to send the link in an email
@@ -61,8 +63,9 @@ class GeneratePasswordReset(username: String, templates: Templates, mailAgent: M
           mailAgent.send(username, "Password Reset Requested", emailText)
           talk.writeJson(true)
         case None =>
-          talk.writeJson(ErrorResponse("unable_to_generate", "Something went wrong when generating password reset token"))
+          talk
             .setStatus(HStatus.InternalServerError)
+            .writeJson(ErrorResponse("unable_to_generate", "Something went wrong when generating password reset token"))
       }
     }
 

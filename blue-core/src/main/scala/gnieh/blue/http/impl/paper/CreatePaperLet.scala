@@ -48,7 +48,7 @@ import scala.util.{
  */
 class CreatePaperLet(config: Config, templates: Templates, logger: Logger) extends AuthenticatedLet(config, logger) {
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[HTalk] =
+  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
     talk.req.param("paper_title") match {
       case Some(title) =>
         // new paper identifier
@@ -84,12 +84,14 @@ class CreatePaperLet(config: Config, templates: Templates, logger: Logger) exten
 
         // create the paper database
         for(_ <- database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template)))
-          yield talk.writeJson(true).setStatus(HStatus.Created)
+          yield talk.setStatus(HStatus.Created).writeJson(true)
 
       case None =>
         // missing parameter
-        Success(talk.writeJson(ErrorResponse("cannot_create_paper", "Some parameters are missing"))
-          .setStatus(HStatus.BadRequest))
+        Success(
+          talk
+            .setStatus(HStatus.BadRequest)
+            .writeJson(ErrorResponse("cannot_create_paper", "Some parameters are missing")))
 
     }
 

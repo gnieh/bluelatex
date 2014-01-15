@@ -90,15 +90,15 @@ class SaveResourceLet(resourceName: String, paperId: String, config: Config, log
 
         case None =>
           talk
-            .writeJson(ErrorResponse("no_content", "No file sent to save"))
             .setStatus(HStatus.NoContent)
+            .writeJson(ErrorResponse("no_content", "No file sent to save"))
 
       }
 
     case _ =>
       talk
-        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may upload resources"))
         .setStatus(HStatus.Forbidden)
+        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may upload resources"))
   })
 
 }

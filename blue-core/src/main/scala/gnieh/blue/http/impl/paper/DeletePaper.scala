@@ -60,18 +60,20 @@ class DeletePaperLet(paperId: String, config: Config, recaptcha: ReCaptcha, logg
             talk.writeJson(true)
           case false =>
             talk
-              .writeJson(ErrorResponse("cannot_delete_paper", "Unable to delete the paper database"))
               .setStatus(HStatus.InternalServerError)
+              .writeJson(ErrorResponse("cannot_delete_paper", "Unable to delete the paper database"))
         }
       } else {
         Success(talk
-          .writeJson(ErrorResponse("cannot_delete_paper", "Unable to delete the paper files"))
-          .setStatus(HStatus.InternalServerError))
+          .setStatus(HStatus.InternalServerError)
+          .writeJson(ErrorResponse("cannot_delete_paper", "Unable to delete the paper files")))
       }
 
     case _ =>
-      Success(talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may delete a paper"))
-        .setStatus(HStatus.Forbidden))
+      Success(
+        talk
+          .setStatus(HStatus.Forbidden)
+          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may delete a paper")))
 
   }
 

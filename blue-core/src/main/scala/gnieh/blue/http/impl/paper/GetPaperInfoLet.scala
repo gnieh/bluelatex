@@ -42,7 +42,7 @@ class GetPaperInfoLet(paperid: String, config: Config, logger: Logger) extends A
     database(blue_papers).getDocById[Paper](paperid) map {
       // we are sure that the paper has a revision because it comes from the database
       case Some(paper) => talk.writeJson(paper, paper._rev.get)
-      case None       => talk.writeJson(ErrorResponse("not_found", s"Paper $paperid not found")).setStatus(HStatus.NotFound)
+      case None       => talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"Paper $paperid not found"))
     }
   }
 

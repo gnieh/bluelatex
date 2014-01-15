@@ -38,8 +38,9 @@ class LogoutLet(config: Config, logger: Logger) extends BlueLet(config, logger) 
       case true  =>
         talk.writeJson(true)
       case false =>
-        talk.writeJson(ErrorResponse("unable_to_logout", "Unable to log user out"))
+        talk
           .setStatus(HStatus.InternalServerError)
+          .writeJson(ErrorResponse("unable_to_logout", "Unable to log user out"))
     }
 
 }

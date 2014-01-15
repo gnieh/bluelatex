@@ -47,14 +47,17 @@ class ResetUserPassword(username: String, config: Config, logger: Logger) extend
             case true =>
               talk.writeJson(true)
             case false =>
-              talk.writeJson(ErrorResponse("unable_to_reset", "Cannot perform password reset"))
+              talk
                 .setStatus(HStatus.InternalServerError)
+                .writeJson(ErrorResponse("unable_to_reset", "Cannot perform password reset"))
           }
         }
       case (t, p1, p2) =>
         // a parameter is missing or password do not match
-        Success(talk.writeJson(ErrorResponse("unable_to_reset", "Wrong parameters"))
-          .setStatus(HStatus.BadRequest))
+        Success(
+          talk
+            .setStatus(HStatus.BadRequest)
+            .writeJson(ErrorResponse("unable_to_reset", "Wrong parameters")))
     }
   }
 

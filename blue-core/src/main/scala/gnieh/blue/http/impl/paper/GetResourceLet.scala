@@ -61,13 +61,13 @@ class GetResourceLet(resourceName: String, paperId: String, config: Config, logg
       } else {
         // resource not found => error 404
         talk
-          .writeJson(ErrorResponse("unknown_resource",s"Unable to find resource $resourceName for paper $paperId"))
           .setStatus(HStatus.NotFound)
+          .writeJson(ErrorResponse("unknown_resource",s"Unable to find resource $resourceName for paper $paperId"))
       }
     case _ =>
       talk
-        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may upload resources"))
         .setStatus(HStatus.Forbidden)
+        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may upload resources"))
   })
 
 }

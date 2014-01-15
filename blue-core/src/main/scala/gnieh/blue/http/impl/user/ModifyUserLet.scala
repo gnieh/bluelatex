@@ -65,37 +65,50 @@ class ModifyUserLet(username: String, config: Config, logger: Logger) extends Au
                       talk.writeJson(true, u._rev.get)
                     case None =>
                       // something went wrong
-                      talk.writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
+                      talk
                         .setStatus(HStatus.InternalServerError)
+                        .writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
                   }
                 case None =>
                   // nothing to do
-                  Success(talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
-                    .setStatus(HStatus.NotModified))
+                  Success(
+                    talk
+                      .setStatus(HStatus.NotModified)
+                      .writeJson(ErrorResponse("nothing_to_do", "No changes sent")))
               }
             case Some(user) =>
               // old revision sent
-              Success(talk.writeJson(ErrorResponse("conflict", "Old user revision provided"))
-                .setStatus(HStatus.Conflict))
+              Success(
+                talk
+                  .setStatus(HStatus.Conflict)
+                  .writeJson(ErrorResponse("conflict", "Old user revision provided")))
             case None =>
               // unknown paper
-              Success(talk.writeJson(ErrorResponse("nothing_to_do", s"Unknown user $username"))
-                .setStatus(HStatus.NotFound))
+              Success(
+                talk
+                  .setStatus(HStatus.NotFound)
+                  .writeJson(ErrorResponse("nothing_to_do", s"Unknown user $username")))
           }
 
         case (None, _) =>
           // nothing to do
-          Success(talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
-            .setStatus(HStatus.NotModified))
+          Success(
+            talk
+              .setStatus(HStatus.NotModified)
+              .writeJson(ErrorResponse("nothing_to_do", "No changes sent")))
 
         case (_, None) =>
           // known revision was not sent, precondition failed
-          Success(talk.writeJson(ErrorResponse("conflict", "User revision not provided"))
-            .setStatus(HStatus.Conflict))
+          Success(
+            talk
+              .setStatus(HStatus.Conflict)
+              .writeJson(ErrorResponse("conflict", "User revision not provided")))
       }
     } else {
-      Success(talk.writeJson(ErrorResponse("no_sufficient_rights", "A user can only modify his own data"))
-        .setStatus(HStatus.Forbidden))
+      Success(
+        talk
+          .setStatus(HStatus.Forbidden)
+          .writeJson(ErrorResponse("no_sufficient_rights", "A user can only modify his own data")))
     }
 
 }

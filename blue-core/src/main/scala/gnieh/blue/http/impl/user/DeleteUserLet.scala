@@ -87,15 +87,16 @@ class DeleteUserLet(username: String, config: Config, recaptcha: ReCaptcha, logg
             case false =>
               // TODO log it
               Success(talk
-                .writeJson(ErrorResponse("cannot_unregister", "Unable to delete user data from database"))
-                .setStatus(HStatus.InternalServerError))
+                .setStatus(HStatus.InternalServerError)
+                .writeJson(ErrorResponse("cannot_unregister", "Unable to delete user data from database")))
           }
 
         } else {
           // Nope! You must first transfer the papers ownership, or delete them!
           Success(talk
-            .writeJson(ErrorResponse("cannot_unregister", s"""Your are the single author of the following papers: ${singleAuthor.mkString("[", ", ", "]")}"""))
-            .setStatus(HStatus.Forbidden))
+            .setStatus(HStatus.Forbidden)
+            .writeJson(ErrorResponse("cannot_unregister",
+              s"""Your are the single author of the following papers: ${singleAuthor.mkString("[", ", ", "]")}""")))
         }
       }
 

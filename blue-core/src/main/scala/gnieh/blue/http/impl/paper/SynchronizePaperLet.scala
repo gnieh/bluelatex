@@ -51,12 +51,14 @@ class SynchronizePaperLet(paperId: String, config: Config, synchroServer: Synchr
 
         case None =>
           // nothing to do
-          talk.writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
+          talk
             .setStatus(HStatus.NotModified)
+            .writeJson(ErrorResponse("nothing_to_do", "No changes sent"))
       }
     case _ =>
-      talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may modify the paper content"))
+      talk
         .setStatus(HStatus.Forbidden)
+        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may modify the paper content"))
   })
 
 }

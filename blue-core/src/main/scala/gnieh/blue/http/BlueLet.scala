@@ -18,7 +18,10 @@ package http
 
 import tiscaf._
 
-import gnieh.diffson._
+import gnieh.diffson.{
+  JsonPatch,
+  JsonPatchSerializer
+}
 
 import gnieh.sohva.UserInfo
 
@@ -74,19 +77,22 @@ abstract class BlueLet(val config: Config, val logger: Logger) extends HLet with
 
     /** Serializes the value to its json representation and writes the response to the client,
      *  corrrectly setting the result type and length */
-    def writeJson(json: Any): HTalk = {
+    def writeJson(json: Any): Unit = {
       val response = pretty(render(serialize(json)))
+      val array = response.getBytes(talk.encoding)
       talk
-        .setContentType(HMime.json)
-        .setContentLength(response.length)
-        .write(response)
+        .setContentType(s"${HMime.json};charset=${talk.encoding}")
+        .setContentLength(array.length)
+        .write(array)
     }
 
     /** Serializes the value to its json representation and writes the response to the client,
      *  corrrectly setting the result type and length and the revision of the modified resource
      *  in the `ETag` field */
-    def writeJson(json: Any, rev: String): HTalk =
-      writeJson(json).setHeader("ETag", rev)
+    def writeJson(json: Any, rev: String): Unit = {
+      talk.setHeader("ETag", rev)
+      writeJson(json)
+    }
 
     /** Reads the content of the body as a Json value and extracts it as `T` */
     def readJson[T: Manifest]: Option[T] =
@@ -113,8 +119,8 @@ abstract class BlueLet(val config: Config, val logger: Logger) extends HLet with
       case e: Exception =>
         logError("Processing request failed", e)
         talk
-          .writeJson(ErrorResponse("internal_error","Something wrong happened"))
           .setStatus(HStatus.InternalServerError)
+          .writeJson(ErrorResponse("internal_error","Something wrong happened"))
     }
   }
 

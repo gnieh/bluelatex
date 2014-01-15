@@ -43,8 +43,9 @@ class SynchronizedResourcesLet(paperId: String, config: Config, logger: Logger) 
       val files = configuration.paperDir(paperId).filter(_.extension.matches(synchronizedExt)).map(_.getName)
       talk.writeJson(files)
     case _ =>
-      talk.writeJson(ErrorResponse("no_sufficient_rights", "Only authors may see the list of synchronized resources"))
+      talk
         .setStatus(HStatus.Forbidden)
+        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may see the list of synchronized resources"))
   })
 
 }
