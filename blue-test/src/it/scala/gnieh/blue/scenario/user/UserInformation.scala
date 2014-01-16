@@ -18,9 +18,12 @@ package scenario
 package user
 
 import org.scalatest._
+import OptionValues._
 
 import http.ErrorResponse
 import couch.User
+
+import gnieh.diffson.JsonDiff
 
 /** Scenarios to test user data management:
  *   - getting user data for authenticated user
@@ -41,12 +44,12 @@ class UserInformationSpec extends BlueScenario with SomeUsers {
     scenario("successfully getting own user data") {
 
       Given("an authenticated person")
-      val loggedin = post[Boolean](List("session"), Map("username" -> gerard.username, "password" -> gerard.password))
+      val (loggedin, _) = post[Boolean](List("session"), Map("username" -> gerard.username, "password" -> gerard.password))
 
       loggedin should be(true)
 
       When("he asks for his user data")
-      val data = get[User](List("users", gerard.username, "info"))
+      val (data, _) = get[User](List("users", gerard.username, "info"))
 
       Then("he should receive his personal data")
       data.name should be(gerard.username)
@@ -55,17 +58,21 @@ class UserInformationSpec extends BlueScenario with SomeUsers {
       data.email should be(gerard.email_address)
       data.affiliation should be(gerard.affiliation)
 
+      val (loggedout, _) = delete[Boolean](List("session"))
+
+      loggedout should be(true)
+
     }
 
     scenario("successfully getting other user data") {
 
       Given("an authenticated person")
-      val loggedin = post[Boolean](List("session"), Map("username" -> gerard.username, "password" -> gerard.password))
+      val (loggedin, _) = post[Boolean](List("session"), Map("username" -> gerard.username, "password" -> gerard.password))
 
       loggedin should be(true)
 
       When("he asks for some other user data")
-      val data = get[User](List("users", prince.username, "info"))
+      val (data, _) = get[User](List("users", prince.username, "info"))
 
       Then("he should receive the other user data")
       data.name should be(prince.username)
@@ -74,12 +81,16 @@ class UserInformationSpec extends BlueScenario with SomeUsers {
       data.email should be(prince.email_address)
       data.affiliation should be(prince.affiliation)
 
+      val (loggedout, _) = delete[Boolean](List("session"))
+
+      loggedout should be(true)
+
     }
 
     scenario("getting unknown user data") {
 
       Given("an authenticated person")
-      val loggedin = post[Boolean](List("session"), Map("username" -> gerard.username, "password" -> gerard.password))
+      val (loggedin, _) = post[Boolean](List("session"), Map("username" -> gerard.username, "password" -> gerard.password))
 
       loggedin should be(true)
 
@@ -89,11 +100,50 @@ class UserInformationSpec extends BlueScenario with SomeUsers {
       } should produce[BlueErrorException]
       exc.status should be(404)
 
+      val (loggedout, _) = delete[Boolean](List("session"))
+
+      loggedout should be(true)
+
     }
 
   }
 
   feature("Any authenticated user must be able to save his own user information") {
+
+    scenario("successfully saving personal information") {
+
+      Given("an authenticated person")
+      val (loggedin, _) = post[Boolean](List("session"), Map("username" -> gerard.username, "password" -> gerard.password))
+
+      loggedin should be(true)
+
+      When("he asks for his user data")
+      val (savedData, headers) = get[User](List("users", gerard.username, "info"))
+
+      headers.get("ETag") should be('defined)
+      headers.get("ETag").value.size should be(1)
+
+      And("he modifies and saves his own user data")
+      val etag = headers("ETag").head
+      val p = JsonDiff.diff(savedData, savedData.copy(affiliation = None))
+      val (saved, _) = patch[Boolean](List("users", gerard.username, "info"), p, etag)
+
+      saved should be(true)
+
+      Then("he can retrieve the new settings")
+      val (data, _) = get[User](List("users", gerard.username, "info"))
+      data.name should be(gerard.username)
+      data.first_name should be(gerard.first_name)
+      data.last_name should be(gerard.last_name)
+      data.email should be(gerard.email_address)
+      data.affiliation should be(None)
+
+      val (loggedout, _) = delete[Boolean](List("session"))
+
+      loggedout should be(true)
+
+    }
+
   }
 
 }

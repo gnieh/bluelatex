@@ -39,7 +39,7 @@ class UserRegistrationSpec extends BlueScenario {
       val person = Person("glambert", "Gerard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
 
       When("she sends a valid registration request to the server")
-      val registered = post[Boolean](List("users"), person.toMap)
+      val (registered, _) = post[Boolean](List("users"), person.toMap)
 
       registered should be(true)
 
@@ -51,7 +51,7 @@ class UserRegistrationSpec extends BlueScenario {
       }
 
       And("must validate her account by reseting her password")
-      val reset = post[Boolean](List("users", person.username, "reset"),
+      val (reset, _) = post[Boolean](List("users", person.username, "reset"),
         Map(
           "reset_token" -> token,
           "new_password1" -> person.password,
@@ -62,7 +62,7 @@ class UserRegistrationSpec extends BlueScenario {
       reset should be(true)
 
       Then("she can log into the service with this password")
-      val loggedin = post[Boolean](List("session"), Map("username" -> person.username, "password" -> person.password))
+      val (loggedin, _) = post[Boolean](List("session"), Map("username" -> person.username, "password" -> person.password))
 
       loggedin should be(true)
 

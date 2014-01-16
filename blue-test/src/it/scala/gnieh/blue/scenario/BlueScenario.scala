@@ -31,7 +31,10 @@ import com.ning.http.client.{
   Cookie
 }
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.{
+  mapAsScalaMapConverter,
+  asScalaBufferConverter
+}
 
 import gnieh.diffson._
 
@@ -98,7 +101,9 @@ abstract class BlueScenario extends FeatureSpec
     papersDb.deleteDocs(paperDocs)
   }
 
-  type AsyncResult[T] = Future[Either[(Int, ErrorResponse), T]]
+  type AsyncResult[T] = Future[Result[T]]
+
+  type Result[T] = Either[(Int, ErrorResponse), (T, Map[String, List[String]])]
 
   val PasswordResetRegex = s"(?s).*http://localhost:$bluePort/reset\\.html\\?user=(.+)\\&token=(\\S+).*".r
 
@@ -123,51 +128,56 @@ abstract class BlueScenario extends FeatureSpec
     case _ => Extraction.decompose(obj)
   }))
 
-  private def synced[T](result: AsyncResult[T]): T = Await.result(result, Duration.Inf) match {
+  private def synced[T](result: AsyncResult[T]): (T, Map[String, List[String]]) = Await.result(result, Duration.Inf) match {
     case Right(t) => t
     case Left((code, error)) =>
       throw BlueErrorException(code, error)
   }
 
-  private def http(request: RequestBuilder): AsyncResult[JValue] = cookie match {
+  private def http[T: Manifest](request: RequestBuilder): AsyncResult[T] = cookie match {
     case Some(cookie) =>
-      Http(request.addCookie(cookie) > handleResponse _)
+      Http(request.addCookie(cookie) > handleResponse[T] _)
     case None =>
-      Http(request > handleResponse _)
+      Http(request > handleResponse[T] _)
   }
 
-  private def handleResponse(response: Response): Either[(Int, ErrorResponse), JValue] = {
+  private def handleResponse[T: Manifest](response: Response): Result[T] = {
     val str = as.String(response)
     val json = JsonParser.parse(str)
     val code = response.getStatusCode
     cookie = response.getCookies.asScala.headOption
+    val headers = response.getHeaders.asScala.map { case (k, v) => (k, v.asScala.toList) }.toMap
     if (code / 100 != 2) {
       // something went wrong...
       val error = json.extract[ErrorResponse]
       Left((code, error))
     } else {
-      Right(json)
+      Right(json.extract[T] -> headers)
     }
   }
 
   /** Posts some data to the given path */
-  def postData[T: Manifest](path: List[String], data: Any, parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()): T =
-    synced(http(request(path) <<? parameters <:< headers << serialize(data))).extract[T]
+  def postData[T: Manifest](path: List[String], data: Any, parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()) =
+    synced(http[T](request(path) <<? parameters <:< headers << serialize(data)))
 
   /** Posts some data as request parameters */
-  def post[T: Manifest](path: List[String], parameters: Map[String, String], headers: Map[String, String] = Map()): T =
-    synced(http(request(path) << parameters <:< headers)).extract[T]
+  def post[T: Manifest](path: List[String], parameters: Map[String, String], headers: Map[String, String] = Map()) =
+    synced(http[T](request(path) << parameters <:< headers))
 
   /** Gets some resource */
-  def get[T: Manifest](path: List[String], parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()): T =
-    synced(http(request(path) <<? parameters <:< headers)).extract[T]
+  def get[T: Manifest](path: List[String], parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()) =
+    synced(http[T](request(path) <<? parameters <:< headers))
 
   /** Patches some resource */
-  def patch[T: Manifest](path: List[String], patch: JsonPatch, parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()): T =
-    synced(http((request(path) <<? parameters <:< headers << serialize(patch)).PATCH)).extract[T]
+  def patch[T: Manifest](path: List[String],
+                         patch: JsonPatch,
+                         revision: String,
+                         parameters: Map[String, String] = Map(),
+                         headers: Map[String, String] = Map()) =
+                           synced(http[T]((request(path) <<? parameters <:< Map("Content-Type" -> "application/json", "If-Match" -> revision) <:< headers << serialize(patch)).PATCH))
 
   /** Deletes some resource */
-  def delete[T: Manifest](path: List[String], parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()): T =
-    synced(http((request(path) <<? parameters <:< headers).DELETE)).extract[T]
+  def delete[T: Manifest](path: List[String], parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()) =
+    synced(http[T]((request(path) <<? parameters <:< headers).DELETE))
 
 }

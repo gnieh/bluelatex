@@ -55,18 +55,18 @@ class UserLoginLogoutSpec extends BlueScenario with SomeUsers {
       exc.status should be(401)
 
       And("he sends a valid login request")
-      val loggedin = post[Boolean](List("session"), Map("username" -> person.username, "password" -> person.password))
+      val (loggedin, _) = post[Boolean](List("session"), Map("username" -> person.username, "password" -> person.password))
 
       loggedin should be(true)
 
       Then("he is logged in")
-      val info = get[UserInfo](List("session"))
+      val (info, _) = get[UserInfo](List("session"))
 
       info.name should be("glambert")
       info.roles.head should be("blue_user")
 
       When("he sends a valid logout request")
-      val loggedout = delete[Boolean](List("session"))
+      val (loggedout, _) = delete[Boolean](List("session"))
 
       loggedout should be(true)
 

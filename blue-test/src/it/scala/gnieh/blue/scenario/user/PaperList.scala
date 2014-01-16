@@ -44,49 +44,61 @@ class PaperListSpec extends BlueScenario with SomeUsers with SomePapers {
     scenario("non empty list of papers") {
 
       Given("an authenticated person")
-      val loggedin = post[Boolean](List("session"), Map("username" -> gerard.username, "password" -> gerard.password))
+      val (loggedin, _) = post[Boolean](List("session"), Map("username" -> gerard.username, "password" -> gerard.password))
 
       loggedin should be(true)
 
       When("he asks for his list of papers")
-      val papers = get[List[UserRole]](List("users", gerard.username, "papers"))
+      val (papers, _) = get[List[UserRole]](List("users", gerard.username, "papers"))
 
       Then("he should receive the list of papers he is involved in with his role")
       papers.size should be(2)
       papers should contain(UserRole("paper1", "Some Paper", "author"))
       papers should contain(UserRole("paper2", "Some Other Paper", "reviewer"))
 
+      val (loggedout, _) = delete[Boolean](List("session"))
+
+      loggedout should be(true)
+
     }
 
     scenario("non empty list of papers for other user") {
 
       Given("an authenticated person")
-      val loggedin = post[Boolean](List("session"), Map("username" -> prince.username, "password" -> prince.password))
+      val (loggedin, _) = post[Boolean](List("session"), Map("username" -> prince.username, "password" -> prince.password))
 
       loggedin should be(true)
 
       When("he asks for the list of papers for another person")
-      val papers = get[List[UserRole]](List("users", gerard.username, "papers"))
+      val (papers, _) = get[List[UserRole]](List("users", gerard.username, "papers"))
 
       Then("he should receive the list of papers this other person is involved in with his role")
       papers.size should be(2)
       papers should contain(UserRole("paper1", "Some Paper", "author"))
       papers should contain(UserRole("paper2", "Some Other Paper", "reviewer"))
 
+      val (loggedout, _) = delete[Boolean](List("session"))
+
+      loggedout should be(true)
+
     }
 
     scenario("empty list of papers") {
 
       Given("an authenticated person")
-      val loggedin = post[Boolean](List("session"), Map("username" -> prince.username, "password" -> prince.password))
+      val (loggedin, _) = post[Boolean](List("session"), Map("username" -> prince.username, "password" -> prince.password))
 
       loggedin should be(true)
 
       When("he asks for his list of papers")
-      val papers = get[List[UserRole]](List("users", prince.username, "papers"))
+      val (papers, _) = get[List[UserRole]](List("users", prince.username, "papers"))
 
       Then("he should receive an empty list if he is not involved in any paper")
       papers.size should be(0)
+
+      val (loggedout, _) = delete[Boolean](List("session"))
+
+      loggedout should be(true)
 
     }
 

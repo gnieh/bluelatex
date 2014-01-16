@@ -51,12 +51,12 @@ class ModifyUserLet(username: String, config: Config, logger: Logger) extends Au
           val db = database(blue_users)
           // the modification must be sent as a JSON Patch document
           // retrieve the user object from the database
-          db.getDocById[User](username) flatMap {
-            case Some(user) if user._rev == knownRev =>
+          db.getDocById[User](s"org.couchdb.user:$username") flatMap {
+            case Some(user) if user._rev == Some(knownRev) =>
               talk.readJson[JsonPatch] match {
                 case Some(patch) =>
                   // the revision matches, we can apply the patch
-                  val user1 = patch(user)
+                  val user1 = patch(user).withRev(Some(knownRev))
                   // and save the new paper data
                   db.saveDoc(user1) map {
                     case Some(u) =>
