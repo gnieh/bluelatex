@@ -44,7 +44,7 @@ class CompilerSettingsSpec extends BlueScenario with SomeUsers with SomePapers {
     scenario("Successful retrieval") {
 
       Given("an authenticated person")
-      val loggedin = post[Boolean](List("session"), Map("username" -> gerard.username, "password" -> gerard.password))
+      val (loggedin, _) = post[Boolean](List("session"), Map("username" -> gerard.username, "password" -> gerard.password))
 
       loggedin should be(true)
 
@@ -65,7 +65,7 @@ class CompilerSettingsSpec extends BlueScenario with SomeUsers with SomePapers {
                           |    "value":30
                           |  }
                           |]""".stripMargin)
-      val saved = patch[Boolean](List("papers", "paper1", "compiler", "settings"), p)
+      val (saved, _) = patch[Boolean](List("papers", "paper1", "compiler", "settings"), p, "")
 
       saved should be(true)
 

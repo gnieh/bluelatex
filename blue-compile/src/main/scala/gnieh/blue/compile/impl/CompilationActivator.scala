@@ -82,7 +82,7 @@ class CompilationActivator extends BundleActivator {
         )
 
       // register the compilation Api
-      context.registerService(classOf[RestApi], new CompilationApi(disp, config, logger), null)
+      context.registerService(classOf[RestApi], new CompilationApi(context, disp, config, logger), null)
 
     }
 

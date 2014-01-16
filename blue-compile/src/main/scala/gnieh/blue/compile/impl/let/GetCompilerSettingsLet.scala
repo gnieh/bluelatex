@@ -31,7 +31,6 @@ import scala.util.{
   Failure
 }
 
-
 /** Handle request that want to access the compiler data
  *
  *  @author Lucas Satabin

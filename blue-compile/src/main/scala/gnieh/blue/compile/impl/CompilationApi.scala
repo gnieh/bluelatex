@@ -25,12 +25,14 @@ import let._
 
 import com.typesafe.config.Config
 
+import org.osgi.framework.BundleContext
+
 /** The compilation feature Rest API that offers the services to compile
  *  papers
  *
  *  @author Lucas Satabin
  */
-class CompilationApi(dispatcher: ActorRef, config: Config, logger: Logger) extends RestApi {
+class CompilationApi(context: BundleContext, dispatcher: ActorRef, config: Config, logger: Logger) extends RestApi {
 
   POST {
     // join the paper compiler stream
@@ -45,6 +47,9 @@ class CompilationApi(dispatcher: ActorRef, config: Config, logger: Logger) exten
   }
 
   GET {
+    // return the list of available compilers
+    case p"compilers" =>
+      new GetCompilersLet(context, config, logger)
     // return the compiled pdf file for the paper, if any
     case p"papers/$paperid.pdf" =>
       new GetPdfLet(paperid, config, logger)
