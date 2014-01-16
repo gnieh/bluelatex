@@ -47,16 +47,16 @@ class ModifyUserLet(username: String, config: Config, logger: Logger) extends Au
     if(username == user.name) {
       // a user can only modify his own data
       (talk.req.octets, talk.req.header("if-match")) match {
-        case (Some(octets), Some(knownRev)) =>
+        case (Some(octets), knownRev @ Some(_)) =>
           val db = database(blue_users)
           // the modification must be sent as a JSON Patch document
           // retrieve the user object from the database
           db.getDocById[User](s"org.couchdb.user:$username") flatMap {
-            case Some(user) if user._rev == Some(knownRev) =>
+            case Some(user) if user._rev == knownRev =>
               talk.readJson[JsonPatch] match {
                 case Some(patch) =>
                   // the revision matches, we can apply the patch
-                  val user1 = patch(user).withRev(Some(knownRev))
+                  val user1 = patch(user).withRev(knownRev)
                   // and save the new paper data
                   db.saveDoc(user1) map {
                     case Some(u) =>

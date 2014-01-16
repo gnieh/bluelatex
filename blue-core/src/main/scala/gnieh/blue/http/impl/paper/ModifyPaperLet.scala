@@ -47,7 +47,7 @@ class ModifyPaperLet(paperId: String, config: Config, logger: Logger) extends Ro
     case Author =>
       // only authors may modify this list
       (talk.req.octets, talk.req.header("if-match")) match {
-        case (Some(octets), Some(knownRev)) =>
+        case (Some(octets), knownRev @ Some(_)) =>
           val db = database(blue_papers)
           // the modification must be sent as a JSON Patch document
           // retrieve the paper object from the database
@@ -56,7 +56,7 @@ class ModifyPaperLet(paperId: String, config: Config, logger: Logger) extends Ro
               talk.readJson[JsonPatch] match {
                 case Some(patch) =>
                   // the revision matches, we can apply the patch
-                  val paper1 = patch(paper)
+                  val paper1 = patch(paper).withRev(knownRev)
                   // and save the new paper data
                   db.saveDoc(paper1) map {
                     case Some(p) =>
