@@ -1,5 +1,5 @@
 angular.module('bluelatex.papers',[])
-    .controller('PapersController', ['$rootScope','$scope','localize','User', function ($rootScope,$scope,localize, User) {
+    .controller('PapersController', ['$rootScope','$scope','localize','User','Paper', function ($rootScope,$scope,localize, User, Paper) {
     $scope.reverse = false;
     $scope.predicate = 'title';
     var papers = [
@@ -186,7 +186,14 @@ angular.module('bluelatex.papers',[])
     };
 
     $scope.delete = function (paper) {
-      console.log("delete", paper)
+      console.log("delete", paper);
+      Paper.delete(paper.id).then(function (data) {
+        if(data.response == 'true') {
+          $scope.papers.shift($scope.papers.indexOf(paper), 0);
+        }
+      }, function (error) {
+        console.log(error)
+      })
     };
 
     //action listener: action in the menu

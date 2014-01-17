@@ -5,7 +5,7 @@
     margin: auto;
     padding: 10px;
     padding-top: 50px;
-    height: 100%;
+    min-height: 100%;
     box-shadow: 0 0 3px rgba(0,0,0,0.2);
 }
 #manage h1 {

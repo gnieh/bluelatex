@@ -77,6 +77,9 @@
     border-bottom: 1px solid #ddd;
     /* height: 34px; */
 }
+#paper_list.list .paper a {
+    display: block;
+}
 #paper_list.list .paper .title{
     position: relative;
     display: block;

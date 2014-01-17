@@ -1,3 +1,5 @@
+/* Just click to select the code */
+
 @charset "UTF-8";
 
 @font-face {
@@ -45,16 +47,40 @@
    content: "b";
 }
 
-.icon-down:before {
-   content: "c";
-}
-
 .icon-file:before {
    content: "d";
 }
 
 .icon-search:before {
    content: "e";
+}
+
+.icon-down-empty:before {
+   content: "f";
+}
+
+.icon-down:before {
+   content: "g";
+}
+
+.icon-add:before {
+   content: "c";
+}
+
+.icon-delete:before {
+   content: "h";
+}
+
+.icon-menu:before {
+   content: "i";
+}
+
+.icon-left-empty:before {
+   content: "j";
+}
+
+.icon-right-empty:before {
+   content: "k";
 }
 
 * {

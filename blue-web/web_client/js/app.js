@@ -52,9 +52,9 @@ angular.module('bluelatex', [
   $routeProvider.when('/404/?', {templateUrl: 'partials/404.html',options:{
     name: 'new_paper', connected: true, unconnected: true, title: '404'
   }});
-  $routeProvider.when('/', {redirectTo: '/papers'});
+  $routeProvider.when('/', {redirectTo: '/papers', options: {}});
 
-  $routeProvider.otherwise({redirectTo: '/404'});
+  $routeProvider.otherwise({redirectTo: '/404', options: {}});
 }]).run( function($rootScope, $location, $route) {
   $rootScope.loggedUser = {};
     $rootScope.$watch('loggedUser', function(value) {

@@ -275,6 +275,16 @@
         "description":"Author"
     },
     {
+        "key":"_Sort_by_",
+        "value":"Sort by",
+        "description":"Sort by"
+    },
+    {
+        "key":"_Delete_",
+        "value":"Delete",
+        "description":"Delete"
+    },
+    {
         "key":"_Ascending_",
         "value":"Ascending",
         "description":"Ascending"
@@ -288,6 +298,11 @@
         "key":"_Date_filter_",
         "value":"Date filter",
         "description":"Date filter"
+    },
+    {
+        "key":"_No_paper_found_",
+        "value":"No paper found",
+        "description":"No paper found"
     },
     {
         "key":"_Today_",
