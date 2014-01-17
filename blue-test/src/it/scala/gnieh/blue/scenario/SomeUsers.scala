@@ -32,6 +32,7 @@ trait SomeUsers extends BeforeAndAfterEach {
 
   val gerard = Person("glambert", "Gérard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
   val prince = Person("pprince", "Petit", "Prince", "petit@prince.org", None)
+  val rene = Person("rfallet", "René", "Fallet", "rene@falle.org", None)
 
   val predefinedPeople: List[Person]
 

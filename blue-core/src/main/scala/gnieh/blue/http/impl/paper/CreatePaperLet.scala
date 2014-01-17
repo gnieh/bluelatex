@@ -84,7 +84,7 @@ class CreatePaperLet(config: Config, templates: Templates, logger: Logger) exten
 
         // create the paper database
         for(_ <- database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template)))
-          yield talk.setStatus(HStatus.Created).writeJson(true)
+          yield talk.setStatus(HStatus.Created).writeJson(newId)
 
       case None =>
         // missing parameter

@@ -183,6 +183,9 @@ trait Pack {
         out.log.info("copy classes")
         IO.copyDirectory(classdir, packDir / "data" / "classes")
 
+        out.log.info("create paper dir")
+        (packDir / "data" / "papers").mkdir
+
         out.log.info("copy designs")
         IO.copyDirectory(designdir, packDir / "data" / "designs")
 
