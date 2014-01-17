@@ -63,8 +63,7 @@ class MailAgentImpl(configuration: BlueConfiguration) extends MailAgent {
       message.setFrom(from)
       message.setRecipient(Message.RecipientType.TO, new InternetAddress(to))
       message.setSubject(subject)
-      //message.setText(text)
-      message.setText(text, "text/plain")
+      message.setText(text, "utf-8")
 
       Transport.send(message)
     }

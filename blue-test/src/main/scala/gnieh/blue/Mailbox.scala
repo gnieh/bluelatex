@@ -53,7 +53,7 @@ class Mailbox {
 
         for(m <- message) yield {
           w.getMessages.asScala -= m
-          m.toString
+          m.getMimeMessage.getContent.asInstanceOf[String]
         }
       }
     }

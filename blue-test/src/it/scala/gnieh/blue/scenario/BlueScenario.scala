@@ -158,11 +158,15 @@ abstract class BlueScenario extends FeatureSpec
 
   /** Posts some data to the given path */
   def postData[T: Manifest](path: List[String], data: Any, parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()) =
-    synced(http[T](request(path) <<? parameters <:< headers << serialize(data)))
+    synced(http[T](request(path) << parameters <:< headers << serialize(data)))
 
   /** Posts some data as request parameters */
   def post[T: Manifest](path: List[String], parameters: Map[String, String], headers: Map[String, String] = Map()) =
     synced(http[T](request(path) << parameters <:< headers))
+
+  /** Posts some data as form data */
+  def postForm[T: Manifest](path: List[String], parameters: Map[String, String], headers: Map[String, String] = Map()) =
+    synced(http[T](request(path) << parameters.map { case (k, v) => s"$k=$v" }.mkString("&") <:< Map("Content-Type" -> "application/x-www-form-urlencoded; charset=UTF-8") <:< headers))
 
   /** Gets some resource */
   def get[T: Manifest](path: List[String], parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()) =

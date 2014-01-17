@@ -26,7 +26,9 @@ import org.scalatest._
  *
  *  @author Lucas Satabin
  */
-class UserRegistrationSpec extends BlueScenario {
+class UserRegistrationSpec extends BlueScenario with SomeUsers {
+
+  val predefinedPeople = List()
 
   feature("Any person must be able to register with the \\BlueLaTeX service"){
 
@@ -36,10 +38,10 @@ class UserRegistrationSpec extends BlueScenario {
     scenario("a successful user registration") {
 
       Given("a person")
-      val person = Person("glambert", "Gerard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
+      val person = gerard
 
       When("she sends a valid registration request to the server")
-      val (registered, _) = post[Boolean](List("users"), person.toMap)
+      val (registered, _) = postForm[Boolean](List("users"), person.toMap)
 
       registered should be(true)
 
@@ -71,7 +73,7 @@ class UserRegistrationSpec extends BlueScenario {
     scenario("a user registration with missing parameters") {
 
       Given("a person")
-      val person = Person("glambert", "Gerard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
+      val person = gerard
 
       When("she sends a registration request with not username")
       val exc = evaluating {
@@ -89,7 +91,7 @@ class UserRegistrationSpec extends BlueScenario {
     scenario("a user registration for an already existing name") {
 
       Given("a person")
-      val person = Person("glambert", "Gerard", "Lambert", "gerard@lambert.org", Some("Gnieh Inc."))
+      val person = gerard
 
       When("she sends a registration request with an already existing username")
       val exc = evaluating {
