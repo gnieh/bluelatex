@@ -1,0 +1,47 @@
+#manage {
+    background: #fff;
+    position: relative;
+    width: 724px;
+    margin: auto;
+    padding: 10px;
+    padding-top: 50px;
+    height: 100%;
+    box-shadow: 0 0 3px rgba(0,0,0,0.2);
+}
+#manage h1 {
+    margin-top: 1px;
+    margin-bottom: 10px;
+}
+#manage label {
+    display: block;
+    background: #eee;
+    padding: 4px;
+    line-height: 30px;
+    margin-right: 4px;
+}
+#manage input{
+    padding: 10px;
+    background: #ECF2F4;
+    border: 0;
+    margin: 4px 0;
+    outline: none;
+    width: 100%;
+    display: inline-block;
+}
+#manage .has-error input {
+    background: #F5EAEA;
+}
+#manage .control-label {
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: none;
+}
+#manage button,#manage .button {
+    display: inline-block;
+    width:33%;
+    border-radius: 0;
+    margin: 2px 0;
+    outline: none;
+    padding: 10px;
+}

@@ -68,31 +68,60 @@
 }
 #paper_list.list {
     border: 1px solid #ddd;
+    background: #fff;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
 }
 #paper_list.list .paper {
-    padding: 7px;
+    position: relative;
     border-bottom: 1px solid #ddd;
+    /* height: 34px; */
 }
 #paper_list.list .paper .title{
+    position: relative;
+    display: block;
     float: left;
     width: 55%;
+    padding: 7px;
+    border-right: 1px solid #ddd;
 }
 #paper_list.list .paper .date {
     float: left;
     width: 15%;
+    padding: 7px;
+    border-right: 1px solid #ddd;
+    height: 34px;
 }
 #paper_list.list .paper .authors {
+    position: relative;
+    display: block;
     float: left;
     width: 15%;
+    min-height: 1px;
+    padding: 7px;
+    border-right: 1px solid #DDD;
+    height: 34px;
 }
 #paper_list.list .paper .options{
     float: left;
     width: 15%;
+    padding-left: 11px;
 }
 #paper_list.list .paper .options .option {
+    display: inline;
     float: left!important;
+    color: #fff;
+    background: #025097;
+    padding: 4px 7px;
+    border-radius: 2px;
+    margin: 2px 2px;
+    cursor: pointer;
+    border: 0;
+    outline: none;
+    font-size: 17px;
+    overflow: hidden;
 }
 #paper_list.list .icon {
+    position: relative;
     display: none;
 }
 #paper_list.vignette .paper {
@@ -104,6 +133,7 @@
     margin: 7px;
     border-radius: 2px;
     box-shadow: 0px 0px 3px rgba(0,0,0,0.2);
+    background: #fff;
 }
 #paper_list.vignette .paper a {
     color: #fff;
@@ -149,19 +179,24 @@
 #paper_list.vignette .paper:hover .options {
     bottom: 0px;
 }
-#paper_list.vignette .paper button {
+#paper_list.vignette .paper .option {
+    display: block;
     background: transparent;
     border: 0;
     float: left;
     width: 50%;
     margin: 0;
     border-radius: 0;
+    text-align: center;
 }
-#paper_list.vignette .paper button:last-child {
+#paper_list.vignette .paper .options:last-child {
     border-left: 1px solid #fefefe;
 }
-#paper_list.vignette .paper button:hover {
+#paper_list.vignette .paper .option:hover {
     background: rgba(0,0,0,0.2);
+}
+#paper_list .no-paper {
+    padding: 10px;
 }
 #display_style input {
     visibility: hidden;
@@ -205,4 +240,38 @@
     margin-top: 10px;
     min-width: 110px;
     border-radius: 2px;
+}
+
+#papers .left label {
+    position: relative;
+    display: block;
+    border-bottom: 1px solid #DDD;
+    margin: 0;
+    padding: 0;
+}
+#papers .left label input {
+    position: absolute;
+    top: -100px;
+    visibility: hidden;
+    width: 0;
+    margin: 0;
+    float: right;
+}
+#papers .left label .label {
+    padding: 2px 6px;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    width: 100%;
+    display: inline-block;
+}
+#papers .left label input:checked + .label {
+    border-left: 3px solid #025097;
+}
+#papers .left label .nb {
+    position: absolute;
+    top: 0;
+    right: 7px;
+    font-size: 12px;
+    color: #888;
+    line-height: 28px;
 }

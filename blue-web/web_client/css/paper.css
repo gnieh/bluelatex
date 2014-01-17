@@ -16,7 +16,7 @@
     cursor: pointer;
 }
 #paper .listType input:checked + span {
-    color: red;
+    color: #025097;
 }
 #paper .listType {
     position: relative;

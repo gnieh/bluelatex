@@ -1,0 +1,19 @@
+<div id="manage">
+    <h1 data-i18n="_Edit_paper_">Edit Paper</h1>
+    <form name="editPaperForm" ng-submit="edit()">
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="title" data-i18n="_Title_">Title</label>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': editPaperForm.title.$invalid}">
+              <input class="form-control" id="title" name="title" type="text" autofocus
+                data-i18n-attr="_Title_|placeholder" required ng-model="paper.title" />
+                <span class="control-label"
+                  ng-show="editPaperForm.title.$error.required" data-i18n="_Required_"></span>
+            </div>
+        </div>
+        <button type="submit" ng-disabled="!editPaperForm.$valid" data-i18n="_Edit_">Edit</button>
+        <a class="button" href="#/papers" data-i18n="_Cancel_">Cancel</a>
+    </form>
+</div>

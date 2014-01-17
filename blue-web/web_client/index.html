@@ -27,9 +27,10 @@
 
     // load all of the dependencies asynchronously.
     $script([
-      'lib/angular/angular.js',
-      'lib/angular/angular-resource.js',
-      'lib/angular/angular-route.js',
+      'lib/angular/angular.min.js',
+      'lib/angular/angular-resource.min.js',
+      'lib/angular/angular-route.min.js',
+      'lib/angular/angular-md5.js',
       'lib/localize.js',
       'js/app.js',
       'js/menu.js',
@@ -44,7 +45,8 @@
       'lib/promise.js',
       'lib/texlive.js/pdftex.js',
       'lib/latex-log-parser.js',
-      'ace/ace.js'
+      'ace/ace.js',
+      'js/utilities.js'
     ], function() {
       // when all is done, execute bootstrap angular application
       angular.bootstrap(document, ['bluelatex']);
@@ -54,15 +56,15 @@
   <link rel="stylesheet" href="css/css.css">
   <link rel="stylesheet" href="css/register.css">
   <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/profile.css">
   <link rel="stylesheet" href="css/paper.css">
   <link rel="stylesheet" href="css/papers.css">
-  <link rel="stylesheet" href="css/profil.css">
-  <link rel="stylesheet" href="css/papers.css">
+  <link rel="stylesheet" href="css/manage.css">
 </head>
 <body>
   <header>
     <div class="logo">
-      <a href="#/"><img src="/img/logo1.png" alt="\BlueLatex"></a>
+      <a href="#/"><img src="/img/logo.png" alt="\BlueLatex"></a>
     </div>
     <nav bl-menu></nav>
   </header>

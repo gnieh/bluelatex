@@ -1,0 +1,56 @@
+<div id="manage">
+    <h2 data-i18n="_Edit_profile_">Edit profile</h2>
+    <form name="editProfileForm">
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="username" data-i18n="_Username_">Username</label>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': editProfileForm.username.$invalid}">
+              <input class="form-control" id="username" name="username" type="text" autofocus
+                data-i18n-attr="_Username_|placeholder" required ng-model="user.name" />
+                <span class="control-label"
+                  ng-show="editProfileForm.username.$error.required" data-i18n="_Required_"></span>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="first_name" data-i18n="_FirstName_">First name</label>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': editProfileForm.first_name.$invalid}">
+              <input class="form-control" id="first_name" name="first_name" type="text"
+                data-i18n-attr="_FirstName_|placeholder" required ng-model="user.first_name" />
+                <span class="control-label"
+                  ng-show="editProfileForm.first_name.$error.required" data-i18n="_Required_"></span>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="last_name" data-i18n="_LastName_">Last name</label>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': editProfileForm.last_name.$invalid}">
+              <input class="form-control" id="last_name" name="last_name" type="text"
+                data-i18n-attr="_LastName_|placeholder" required ng-model="user.last_name" />
+                <span class="control-label"
+                  ng-show="editProfileForm.last_name.$error.required" data-i18n="_Required_"></span>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="email" data-i18n="_Email_">Email</label>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': editProfileForm.email.$invalid}">
+              <input class="form-control" id="email" name="email" type="text"
+                data-i18n-attr="_Email_|placeholder" required ng-model="user.email" />
+                <span class="control-label"
+                  ng-show="editProfileForm.email.$error.required" data-i18n="_Required_"></span>
+            </div>
+        </div>
+        <button type="submit" data-i18n="_Save_">Save</button>
+    </form>
+    <h2 data-i18n="_Reset_password_">Reset Password</h2>
+    <button ng-click="resetPassword" data-i18n="_Reset_password_">Reset Password</button>
+</div>

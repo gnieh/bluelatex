@@ -1,0 +1,31 @@
+<div id="manage">
+    <h1 data-i18n="_New_paper_">New Paper</h1>
+    <form name="newPaperForm" ng-submit="create()">
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="title" data-i18n="_Title_">Title</label>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': newPaperForm.title.$invalid}">
+              <input class="form-control" id="title" name="title" type="text" autofocus
+                data-i18n-attr="_Title_|placeholder" required ng-model="paper.paper_title" />
+                <span class="control-label"
+                  ng-show="newPaperForm.title.$error.required" data-i18n="_Required_"></span>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="template" data-i18n="_Template_">Template</label>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': newPaperForm.template.$invalid}">
+              <input class="form-control" id="template" name="template" type="text"
+                data-i18n-attr="_Template_|placeholder" ng-model="paper.template" />
+                <span class="control-label"
+                  ng-show="newPaperForm.template.$error.required" data-i18n="_Required_"></span>
+            </div>
+        </div>
+        <button type="submit" ng-disabled="!newPaperForm.$valid" data-i18n="_Create_">Create</button>
+        <a class="button" href="#/papers" data-i18n="_Cancel_">Cancel</a>
+    </form>
+</div>

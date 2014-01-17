@@ -1,8 +1,14 @@
 angular.module('bluelatex.menu', [])
-  .controller('menuController', function($scope,$route) {
+  .controller('menuController', function($rootScope, $scope,$route) {
+    $rootScope.$watch('loggedUser', function(value) {
+      if(value.name == null) {
+        $scope.openUserMenu = false;
+      }
+      $scope.user= value;
+    });
     $scope.$on( "$routeChangeSuccess", function(event, route) {
-      console.log(route);
       $scope.menus = [];
+      if(route.$$route == null) return;
       for (var i = 0; i < defaulfMenu.length; i++) {
         defaulfMenu[i].active = route.$$route.options.name == defaulfMenu[i].name;
         $scope.menus.push(defaulfMenu[i]);
@@ -14,6 +20,9 @@ angular.module('bluelatex.menu', [])
         $scope.options.push(_options[i]);
       }
     });
+
+    $scope.openUserMenu= false;
+
     var defaulfMenu = [
       {
         label: 'Papers',
@@ -43,9 +52,9 @@ angular.module('bluelatex.menu', [])
     var optionsPage = {
       'papers': [
         {
-          label: 'Add Paper',
-          type: 'action',
-          action: 'add_paper',
+          label: 'New Paper',
+          type: 'link',
+          link: '#/paper/new',
           class: '',
           icon: null
         }
@@ -72,8 +81,6 @@ angular.module('bluelatex.menu', [])
     $scope.options = [];
 
     $scope.action = function (option) {
-      console.log(option);
-
       if(option.type == 'action') {
         $scope.$emit('handleTopAction', option.action);
       } else if(option.type == 'menu') {

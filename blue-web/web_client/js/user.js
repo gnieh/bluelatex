@@ -1,20 +1,25 @@
 var apiRoot = '/api';
 
-var jsonToPostParameters = function (json) {
-    return Object.keys(json).map(function(k) {
-        return encodeURIComponent(k) + '=' + encodeURIComponent(json[k])
-    }).join('&')
-}
 angular.module("bluelatex.User", ["ngResource"])
-  .factory("User", function ($resource, $http) {
+  .factory("User", function ($resource, $http, $log) {
     var session =  $resource( apiRoot+"/session", null, {
-            "login": {method: "POST", headers:{'Content-Type':'application/x-www-form-urlencoded'}},
+            "login": {
+              method: "POST",
+              headers:{'Content-Type':'application/x-www-form-urlencoded'},
+              format: 'json',
+              isArray: false,
+              transformResponse: [function(data, headersGetter) {
+                if(data = 'true')
+                return {response: data};
+                return data;
+              }].concat($http.defaults.transformResponse)
+            },
             "get": {method: "GET"},
             "logout": {'method': 'DELETE'}
         }
     );
     var papers =  $resource( apiRoot+"/users/:username/papers", {username: "@username" }, {
-            "get": {method: "GET"}
+            "get": {method: "GET", isArray:true, headers:{'Content-Type':'application/x-www-form-urlencoded'}}
         }
     );
     var password =  $resource( apiRoot+"/users/:username/reset", {username: "@username" }, {
@@ -23,8 +28,22 @@ angular.module("bluelatex.User", ["ngResource"])
         }
     );
     var info = $resource( apiRoot+"/users/:username/info", {username: "@username" }, {
-            "get": {method: "get"},
-            "modify": {'method': 'PATCH', headers:{'Content-Type':'application/x-www-form-urlencoded'}}
+            "get": {
+              method: "get",
+              format: 'json',
+              transformResponse: [function(data, headersGetter) {
+                data = JSON.parse(data);
+                data.header = headersGetter();
+                return data;
+              }].concat($http.defaults.transformResponse)
+            },
+            "modify": {
+              'method': 'PATCH',
+              transformRequest: [function(data, headersGetter) {
+                console.log(data, headersGetter);
+                return data;
+              }].concat($http.defaults.transformRequest)
+            }
         }
     );
     var register = $resource( apiRoot+"/users", null, {
@@ -37,8 +56,6 @@ angular.module("bluelatex.User", ["ngResource"])
     );
     return {
         login: function(username, password) {
-            console.log("login");
-
             return session.login({},jsonToPostParameters({
                 "username":username,'password':password
             })).$promise;
@@ -50,7 +67,7 @@ angular.module("bluelatex.User", ["ngResource"])
             return session.get().$promise;
         },
         getPapers: function(user) {
-            return papers.get({ username: user.username }).$promise;
+            return papers.get({ username: user.name }).$promise;
         },
         getPasswordToken: function(username) {
             return password.getToken({ username: username }).$promise;
@@ -66,7 +83,7 @@ angular.module("bluelatex.User", ["ngResource"])
             return info.get({ username: user.username }).$promise;
         },
         save: function(user) {
-            return info.modify({ username: user.username }, jsonToPostParameters(user)).$promise;
+          return info.modify({ username: user.name }, user).$promise;
         },
         register: function(user) {
             return register.register({},jsonToPostParameters(user)).$promise
@@ -75,41 +92,34 @@ angular.module("bluelatex.User", ["ngResource"])
             return removeUser.remove({ username: user.username }).$promise
         }
     };
-}).controller('LoginLogoutController', ['$scope','User','localize','$location', function ($scope, User,localize,$location) {
+}).controller('LoginController', ['$rootScope', '$scope','User','localize','$location', function ($rootScope,$scope, User,localize,$location) {
     var user = {};
     $scope.user = user;
     $scope.errors = [];
-
-    $scope.logout = function () {
-        $scope.errors = [];
-
-        User.login(user.username, user.password).then(function(data) {
-            $location.path( "/papers" );
-        }, function(err) {
-          switch(err.status){
-            case 400:
-              $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
-              break;
-            case 401:
-              $scope.errors.push(localize.getLocalizedString('_Login_Wrong_username_and_or_password_'));
-              break;
-            case 500:
-              $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
-              break;
-            default:
-              $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
-              console.log(err);
-          }
-        }, function (progress) {
-            console.log(progress);
-        });
-    };
 
     $scope.login = function () {
         $scope.errors = [];
 
         User.login(user.username, user.password).then(function(data) {
-            $location.path( "/papers" );
+            if(data.response == 'true') {
+              User.getInfo(user).then(function (data) {
+                console.log(data);
+                $rootScope.loggedUser = {
+                  name: data.name,
+                  first_name: data.first_name,
+                  last_name: data.last_name,
+                  email: data.email,
+                  etag: data.header.etag
+                };
+                $location.path( "/papers" );
+              }, function (err) {
+                console.log(err);
+              }, function (progress) {
+                // body...
+              });
+
+            } else {
+            }
         }, function(err) {
           switch(err.status){
             case 400:
@@ -129,6 +139,30 @@ angular.module("bluelatex.User", ["ngResource"])
             console.log(progress);
         });
     };
+}]).controller('LogoutController', ['$rootScope', '$scope','User','localize','$location', function ($rootScope,$scope, User,localize,$location) {
+  $scope.errors = [];
+  console.log('logout');
+  User.logout().then(function(data) {
+    $rootScope.loggedUser = {};
+    $location.path( "/login" );
+  }, function(err) {
+    switch(err.status){
+      case 400:
+        $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
+        break;
+      case 401:
+        $scope.errors.push(localize.getLocalizedString('_Login_Wrong_username_and_or_password_'));
+        break;
+      case 500:
+        $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
+        break;
+      default:
+        $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
+        console.log(err);
+    }
+  }, function (progress) {
+      console.log(progress);
+  });
 }]).controller('ResetController', ['$scope','$routeParams','User','localize','$location', function ($scope,$routeParams, User,localize,$location) {
     var user = {};
     $scope.user = user;
@@ -227,23 +261,38 @@ angular.module("bluelatex.User", ["ngResource"])
         });
     };
 
-  }]).controller('ProfileController', ['$scope','User','localize','$location', function ($scope, User,localize,$location) {
-    var user = {};
-    $scope.user = user;
+  }]).controller('ProfileController', ['$rootScope', '$scope','User','localize','$location', function ($rootScope,$scope, User,localize,$location) {
     $scope.errors = [];
-
-    User.getInfo(user).then(function(data){
-      user = data;
-    }, function (err) {
-      switch(err.status){
-        case 500:
-          $scope.errors.push(localize.getLocalizedString('_User_info_Something_wrong_happened_'));
-          break;
-        default:
-          $scope.errors.push(localize.getLocalizedString('_User_info_Something_wrong_happened_'));
-          console.log(err);
-      }
-    }, function(progress){});
+    $scope.user = {
+      name: $rootScope.loggedUser.name,
+      first_name: $rootScope.loggedUser.first_name,
+      last_name: $rootScope.loggedUser.last_name,
+      email: $rootScope.loggedUser.email,
+      roles: $rootScope.loggedUser.roles
+    };
+    $scope.editProfile = function () {
+      $scope.errors = [];
+      User.save(save).then(function(data) {
+          console.log(data);
+      }, function(err) {
+        switch(err.status){
+          case 400:
+            $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
+            break;
+          case 401:
+            $scope.errors.push(localize.getLocalizedString('_Login_Wrong_username_and_or_password_'));
+            break;
+          case 500:
+            $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
+            break;
+          default:
+            $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
+            console.log(err);
+        }
+      }, function (progress) {
+          console.log(progress);
+      });
+    };
 
     $scope.remove = function () {
         User.remove(user).then(function(data) {

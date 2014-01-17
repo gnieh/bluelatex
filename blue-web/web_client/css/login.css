@@ -1,3 +1,15 @@
+#logout {
+    position: absolute;
+    top: 45px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+#logout h1 {
+    text-align: center;
+    width: 100%;
+    font-size: 48px;
+}
 #login_form {
     position: absolute;
     left: 50%;

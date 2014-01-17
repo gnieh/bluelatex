@@ -90,6 +90,10 @@ body {
     padding: 0;
     height: 100%;
 }
+body > div {
+    position: relative;
+    height: 100%;
+}
 #page .wrap {
     padding: 10px;
     border: 1px solid #ECECEC;
@@ -189,22 +193,60 @@ header .langs .lang .flag img{
 header .langs .lang .name {
     float: left;
 }
-header .user {
+#menu_user {
     position: relative;
-    padding: 0 20px;
     float: right;
+    color: #fff;
+    margin-left: auto;
 }
-header .user .username {
-    line-height: 45px;
-    display: inline-block;
+#menu_user label{
+    color: #fff;
+    position: relative;
+    display: block;
+    line-height: 34px;
+    padding: 0 27px;
+    padding-left: 30px;
+    cursor: pointer;
 }
-header .user .firstname {
-    line-height: 45px;
-    display: inline-block;
+#menu_user input {
+    visibility: hidden;
+    width: 0;
+    float: right;
+    margin: 0;
 }
-header .user .lastname {
-    line-height: 45px;
+#menu_user .submenu {
+    position: absolute;
+    /* top: 0; */
+    background: #373942;
+    padding: 7px;
+    color: #fff;
+    width: 170px;
+    overflow: auto;
+    right: 0;
+}
+#menu_user .submenu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+#menu_user a {
+    color: #f3f3f3;
+    font-size: 14px;
+    white-space: nowrap;
+    display: block;
+    line-height: 25px;
+}
+#menu_user label .icon {
+    width: 33px;
+    height: 33px;
+    overflow: hidden;
     display: inline-block;
+    float: left;
+    border-radius: 13px;
+    margin-right: 15px;
+}
+#menu_user label .icon img {
+  width:100%;
 }
 header .logo{
     padding: 0 10px;
@@ -225,13 +267,13 @@ nav {
     line-height: 41px;
     margin-left: 250px;
 }
-nav ul {
+nav > div > ul {
     list-style: none;
     margin: 0;
     padding: 0;
     float: left;
 }
-nav ul li {
+nav > div > ul li {
     white-space: nowrap;
     float: left;
 }
@@ -252,7 +294,7 @@ nav ul li button:hover {
     background: rgba(0,0,0,0.15);
     opacity: 1;
 }
-nav ul li a,nav ul li a:visited,nav ul li a:focus,nav ul li a:active {
+nav > div > ul li a,nav > div > ul li a:visited,nav > div > ul li a:focus,nav > div > ul li a:active {
     color: #f3f3f3;
     font-size: 14px;
     font-weight: bold;
@@ -260,14 +302,11 @@ nav ul li a,nav ul li a:visited,nav ul li a:focus,nav ul li a:active {
     padding: 0 10px;
     display: block;
 }
-nav ul li a:hover,nav ul li a.current {
+nav > div > ul li a:hover,nav > div > ul li a.current {
     background: #046DCC;
     background: rgba(0,0,0,0.15);
     opacity: 1;
     text-decoration: none;
-}
-#menu_user {
-    float: right;
 }
 #menu_navigation {
     float: right;

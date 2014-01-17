@@ -4,6 +4,8 @@
 angular.module('bluelatex', [
   'localization',
   'ngRoute',
+  'angular-md5',
+  'gdi2290.gravatar-filter',
   'myApp.filters',
   'myApp.services',
   'myApp.directives',
@@ -14,37 +16,63 @@ angular.module('bluelatex', [
   'bluelatex.menu',
   'ui.ace'
 ]).config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/login', {templateUrl: 'partials/login.html', controller: 'LoginLogoutController', options:{
+  $routeProvider.when('/login', {templateUrl: 'partials/login.html', controller: 'LoginController', options:{
     name: 'login',
-    private: false,
+    connected: false,
+    unconnected: true,
     title: 'Login'
   }});
-  $routeProvider.when('/logout', {controller: 'LoginLogoutController',options:{
-    name: 'logout', private: false, title: 'Logout'
+  $routeProvider.when('/logout', {templateUrl: 'partials/logout.html', controller: 'LogoutController',options:{
+    name: 'logout', connected: true, unconnected: false,title: 'Logout'
   }});
   $routeProvider.when('/register', {templateUrl: 'partials/register.html', controller: 'RegisterController',options:{
-    name: 'register', private: false, title: 'Register'
+    name: 'register', connected: false, unconnected: true,title: 'Register'
   }});
   $routeProvider.when('/reset/?', {templateUrl: 'partials/reset.html', controller: 'ResetController',options:{
-    name: 'reset', private: false, title: 'Login'
+    name: 'reset', connected: false, unconnected: true,title: 'Login'
   }});
   $routeProvider.when('/:username/reset/:token/?', {templateUrl: 'partials/resetPassword.html', controller: 'ResetController',options:{
-     name: 'resetPassword', private: false, title: 'Rset password'
+     name: 'resetPassword', connected: false,unconnected: true, title: 'Rset password'
   }});
-  $routeProvider.when('/profil', {templateUrl: 'partials/partial2.html', controller: 'MyCtrl2',options:{
-    name: 'profile', private: true, title: 'Profil'
+  $routeProvider.when('/profile', {templateUrl: 'partials/profile.html', controller: 'ProfileController',options:{
+    name: 'profile', connected: true, unconnected: false, title: 'Profile'
   }});
   $routeProvider.when('/papers', {templateUrl: 'partials/papers.html', controller: 'PapersController',options:{
-    name: 'papers', private: false, title: 'Papers'
+    name: 'papers', connected: true, unconnected: false, title: 'Papers'
+  }});
+  $routeProvider.when('/paper/new', {templateUrl: 'partials/new_paper.html', controller: 'NewPaperController',options:{
+    name: 'new_paper', connected: true, unconnected: false, title: 'New paper'
+  }});
+  $routeProvider.when('/paper/:id/edit', {templateUrl: 'partials/edit_paper.html', controller: 'EditPaperController',options:{
+    name: 'new_paper', connected: true, unconnected: false, title: 'Edit paper'
   }});
   $routeProvider.when('/paper/:id/?', {templateUrl: 'partials/paper.html', controller: 'PaperController',options:{
-    name: 'paper', private: false, title: 'Paper'
+    name: 'paper', connected: true, unconnected: true, title: 'Paper'
   }});
-  $routeProvider.otherwise({redirectTo: '/papers'});
-}]).run( function($rootScope, $location) {
+  $routeProvider.when('/404/?', {templateUrl: 'partials/404.html',options:{
+    name: 'new_paper', connected: true, unconnected: true, title: '404'
+  }});
+  $routeProvider.when('/', {redirectTo: '/papers'});
+
+  $routeProvider.otherwise({redirectTo: '/404'});
+}]).run( function($rootScope, $location, $route) {
+  $rootScope.loggedUser = {};
+    $rootScope.$watch('loggedUser', function(value) {
+      if ( $rootScope.loggedUser.name == null && $route.current != null && !$route.current.$$route.options.unconnected) {
+        // no logged user, we should be going to #login
+        if ( $route.current.$$route.options.name == "login" ) {
+          // already going to #login, no redirect needed
+        } else {
+          // not going to #login, we should redirect now
+          $location.path( "/login" );
+        }
+      } else if ( $route.current != null && $route.current.$$route.options.connected == false && $rootScope.loggedUser.name != null) {
+        $location.path( "/" );
+      }
+    });
     // register listener to watch route changes
     $rootScope.$on( "$routeChangeStart", function(event, next, current) {
-      if ( $rootScope.loggedUser == null && next.$$route != null && next.$$route.options.private) {
+      if ( $rootScope.loggedUser.name == null && next.$$route != null && !next.$$route.options.unconnected) {
         // no logged user, we should be going to #login
         if ( next.$$route.options.name == "login" ) {
           // already going to #login, no redirect needed
@@ -52,8 +80,8 @@ angular.module('bluelatex', [
           // not going to #login, we should redirect now
           $location.path( "/login" );
         }
-      } else if ( next.$$route!= null && next.$$route.options.private == false && $rootScope.loggedUser != null) {
-        $location.path( "/" );
+      } else if ( next.$$route!= null && next.$$route.options.connected == false && $rootScope.loggedUser.name != null) {
+        $location.path( "/papers" );
       }
     });
 });
