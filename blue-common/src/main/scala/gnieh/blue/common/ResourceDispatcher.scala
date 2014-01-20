@@ -8,6 +8,8 @@ import scala.collection.mutable.{
   Set
 }
 
+import scala.util.Try
+
 final case class Join(username: String, resourceid: String)
 final case class Part(username: String, resourceid: String)
 final case class Forward(resourceid: String, msg: Any)

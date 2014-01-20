@@ -58,7 +58,6 @@ class SyncDispatcher(bndContext: BundleContext, config: Config, logger: LogServi
  *  @author Audric Schiltknecht
  */
 class SyncActor(
-    bndContext: BundleContext,
     config: PaperConfiguration,
     paperId: String,
     store: Store,

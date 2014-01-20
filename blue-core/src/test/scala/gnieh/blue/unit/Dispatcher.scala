@@ -21,6 +21,10 @@ import akka.util.Timeout
 import akka.actor.{Actor, Props, PoisonPill, ActorSystem}
 import akka.testkit.{TestKit, TestActorRef, ImplicitSender, TestProbe}
 
+import common._
+
+import scala.util.Try
+
 import java.util.UUID
 
 class EchoActor extends Actor {
@@ -31,7 +35,7 @@ class SimpleResourceDispatcher extends ResourceDispatcher {
   var createdActors: Int = 0
   override def props(username: String, resourceid: String) = {
     createdActors += 1
-    Props[EchoActor]
+    Try(Props[EchoActor])
   }
 }
 
