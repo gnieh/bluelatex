@@ -39,7 +39,7 @@ class DocumentView(val document: Document) {
   var backupShadowRevision: Long = 0
 
   /** List of unacknowledged edits sent to the client */
-  var edits = ListBuffer.empty[(Long, SyncCommand)]
+  var edits = ListBuffer.empty[SyncCommand]
 
   /** Is the delta valid ? */
   var deltaOk = true

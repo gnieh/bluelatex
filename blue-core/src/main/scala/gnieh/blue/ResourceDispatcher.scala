@@ -28,6 +28,7 @@ abstract class ResourceDispatcher extends Actor {
       // create the actor if nobody uses this resource
       if(users(resourceid).size == 0) {
         context.actorOf(props(username, resourceid), name = resourceid)
+        users(resourceid) = Set(username)
       } else if(!users(resourceid).contains(username)) {
         users(resourceid) += username
         // resent the Join message to the resource

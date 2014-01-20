@@ -23,41 +23,52 @@ import net.liftweb.json._
  * http://code.google.com/p/google-mobwrite/wiki/Protocol
  */
 
-/** A command list sent for specific user and file.
+/** A command sent for persisting a paper.
+ *
+ * @author Audric Schiltknecht
+ */
+case object PersistPaper
+
+/** A command list sent for specific peer and file.
  *
  *  @author Audric Schiltknecht
  *  @author Lucas Satabin
  */
-final case class SyncSession(user: String,
-                             file: String,
-                             echo: Boolean,
-                             revision: Long,
+final case class SyncSession(peerId: String,
+                             paperId: String,
                              commands: List[SyncCommand])
 
-/** A command to apply on a file from a given user
+/** A command to apply on a file from a given peer
  *
  *  @author Audric Schiltknecht
  *  @author Lucas Satabin
  */
-sealed trait SyncCommand
+final case class SyncCommand(filename: String, revision: Long, action: SyncAction)
 
-/** Request an edit to be made to the current session user and file
+/** An action to apply on a file from a given peer
+ *
+ *  @author Audric Schiltknecht
+ *  @author Lucas Satabin
+ */
+sealed trait SyncAction
+
+/** Request an edit to be made to the current session peer and file
  *  with given client (when sent by client)
  *  or server (when sent by server) revision.
  */
-final case class Delta(revision: Long, data: List[Edit], overwrite: Boolean) extends SyncCommand
+final case class Delta(revision: Long, data: List[Edit], overwrite: Boolean) extends SyncAction
 
 /** Transmit the entire contents of the session file.
  */
-final case class Raw(clientRevision: Long, data: String, overwrite: Boolean) extends SyncCommand
+final case class Raw(revision: Long, data: String, overwrite: Boolean) extends SyncAction
 
 /** Delete the session file.
  */
-case object Nullify extends SyncCommand
+case object Nullify extends SyncAction
 
-/** Broadcast a message to all users currently viewing the session paper.
+/** Broadcast a message to all peers currently viewing the session paper.
 */
-final case class Message(json: JObject, from: Option[String]) extends SyncCommand
+final case class Message(json: JObject) extends SyncAction
 
 
 /** Commands to edit file.
