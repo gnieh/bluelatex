@@ -9,7 +9,7 @@ branches:
     - master
 
 script:
-  - "sbt \"project blue-test\" scenario:test"
+  - "sbt test blue-test/scenario:test"
 
 services:
     - couchdb
