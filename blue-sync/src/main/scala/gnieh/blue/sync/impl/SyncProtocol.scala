@@ -36,14 +36,26 @@ case object PersistPaper
  */
 final case class SyncSession(peerId: String,
                              paperId: String,
-                             commands: List[SyncCommand])
+                             commands: List[Command])
+
+/** A command to be performed during a Synchronization Session
+ *
+ *  @author Audric Schiltknecht
+ */
+sealed trait Command
+
+/** Broadcast a message to all peers currently viewing the session paper.
+ *
+ *  @author Audric Schiltknecht
+ */
+final case class Message(from: String, json: JObject, retrieve: Boolean, filename: Option[String]) extends Command
 
 /** A command to apply on a file from a given peer
  *
  *  @author Audric Schiltknecht
  *  @author Lucas Satabin
  */
-final case class SyncCommand(filename: String, revision: Long, action: SyncAction)
+final case class SyncCommand(filename: String, revision: Long, action: SyncAction) extends Command
 
 /** An action to apply on a file from a given peer
  *
@@ -65,10 +77,6 @@ final case class Raw(revision: Long, data: String, overwrite: Boolean) extends S
 /** Delete the session file.
  */
 case object Nullify extends SyncAction
-
-/** Broadcast a message to all peers currently viewing the session paper.
-*/
-final case class Message(json: JObject) extends SyncAction
 
 
 /** Commands to edit file.

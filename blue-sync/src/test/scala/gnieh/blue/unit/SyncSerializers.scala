@@ -31,6 +31,7 @@ class SyncSerializerParsersSpec extends FeatureSpec
   private implicit val formats = DefaultFormats +
                                  new SyncSessionSerializer +
                                  new SyncCommandSerializer +
+                                 new MessageSerializer +
                                  new SyncActionSerializer +
                                  new EditSerializer
 
@@ -127,6 +128,72 @@ class SyncSerializerParsersSpec extends FeatureSpec
                                                                   false)),
                                                   SyncCommand("file2.tex", 87432,
                                                               Raw(4324523, "Complete raw text", false)))))
+    }
+
+    scenario("Broadcast messages") {
+      Given("a JSON message")
+      val json = """|{
+                    |  "peerId": "toto",
+                    |  "paperId": "v987fed987da70987f",
+                    |  "commands": [
+                    |    {
+                    |      "from": "someone",
+                    |      "json": {
+                    |        "content": "Hello all"
+                    |      },
+                    |      "retrieve": false
+                    |    },
+                    |    {
+                    |      "from": "whale",
+                    |      "json": {
+                    |        "content": "Thanks for the fish"
+                    |      },
+                    |      "retrieve": true
+                    |    }
+                    |  ]
+                    |}""".stripMargin
+
+        When("serialized to a scala object")
+        val syncSession = Serialization.read[SyncSession](json)
+
+        Then("a correct SyncSession object shall be produced")
+        syncSession should be (SyncSession("toto", "v987fed987da70987f",
+                                           List(Message("someone",
+                                                        JObject(List(JField("content",
+                                                                            JString("Hello all")))),
+                                                        false, None),
+                                                Message("whale",
+                                                        JObject(List(JField("content",
+                                                                            JString("Thanks for the fish")))),
+                                                        true, None))))
+    }
+
+    scenario("Broadcast messages with filename") {
+      Given("a JSON message")
+      val json = """|{
+                    |  "peerId": "toto",
+                    |  "paperId": "v987fed987da70987f",
+                    |  "commands": [
+                    |    {
+                    |      "from": "Sherlock",
+                    |      "json": {
+                    |        "content": "I'm not a psychopath, I'm a high-functioning sociopath"
+                    |      },
+                    |      "retrieve": false,
+                    |      "filename": "quote.tex"
+                    |    }
+                    |  ]
+                    |}""".stripMargin
+
+        When("serialized to a scala object")
+        val syncSession = Serialization.read[SyncSession](json)
+
+        Then("a correct SyncSession object shall be produced")
+        syncSession should be (SyncSession("toto", "v987fed987da70987f",
+                                           List(Message("Sherlock",
+                                                        JObject(List(JField("content",
+                                                                            JString("I'm not a psychopath, I'm a high-functioning sociopath")))),
+                                                        false, Some("quote.tex")))))
     }
   }
 }
