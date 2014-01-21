@@ -36,7 +36,7 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class GetResourceLet(resourceName: String, paperId: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
+class GetResourceLet(paperId: String, resourceName: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
@@ -52,7 +52,7 @@ class GetResourceLet(resourceName: String, paperId: String, config: Config, logg
 
           import common.FileProcessing._
 
-          val mime = HMime.exts.get(file.extension.toLowerCase).getOrElse("application/octet-stream")
+          val mime = HMime.exts.get(file.extension.tail.toLowerCase).getOrElse("application/octet-stream")
 
           talk.setContentLength(length)
             .setContentType(mime)
@@ -67,7 +67,7 @@ class GetResourceLet(resourceName: String, paperId: String, config: Config, logg
     case _ =>
       talk
         .setStatus(HStatus.Forbidden)
-        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may upload resources"))
+        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may get resources"))
   })
 
 }

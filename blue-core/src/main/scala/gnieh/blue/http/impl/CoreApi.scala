@@ -47,9 +47,6 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
     // log a user in
     case p"session" =>
       new LoginLet(config, logger)
-    // synchronization request
-    //case p"papers/$paperid/sync" =>
-    //  new SynchronizePaperLet(paperid, config, syncServer)
     // save a non synchronized resource
     case p"papers/$paperid/files/resources/$resourcename" =>
       new SaveResourceLet(paperid, resourcename, config, logger)

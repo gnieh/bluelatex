@@ -40,6 +40,8 @@ import gnieh.diffson._
 
 import net.liftweb.json._
 
+import java.io.File
+
 /** Extend this class to implement a test scenario for a feature of \BlueLaTeX.
  *  It provides the environment that allows you to interact with the server and
  *  check that it runs ok.
@@ -141,6 +143,13 @@ abstract class BlueScenario extends FeatureSpec
       Http(request > handleResponse[T] _)
   }
 
+  private def rawHttp(request: RequestBuilder): AsyncResult[String] = cookie match {
+    case Some(cookie) =>
+      Http(request.addCookie(cookie) > handleRawResponse _)
+    case None =>
+      Http(request > handleRawResponse _)
+  }
+
   private def handleResponse[T: Manifest](response: Response): Result[T] = {
     val str = as.String(response)
     val json = JsonParser.parse(str)
@@ -156,9 +165,32 @@ abstract class BlueScenario extends FeatureSpec
     }
   }
 
+  private def handleRawResponse(response: Response): Result[String] = {
+    val str = as.String(response)
+    val code = response.getStatusCode
+    cookie = response.getCookies.asScala.headOption
+    val headers = response.getHeaders.asScala.map { case (k, v) => (k, v.asScala.toList) }.toMap
+    if (code / 100 != 2) {
+      // something went wrong...
+      val json = JsonParser.parse(str)
+      val error = json.extract[ErrorResponse]
+      Left((code, error))
+    } else {
+      Right(str -> headers)
+    }
+  }
+
   /** Posts some data to the given path */
   def postData[T: Manifest](path: List[String], data: Any, parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()) =
     synced(http[T](request(path) << parameters <:< headers << serialize(data)))
+
+  /** Posts the content of the given file */
+  def postFile[T: Manifest](path: List[String],
+                            file: File,
+                            mime: String,
+                            parameters: Map[String, String] = Map(),
+                            headers: Map[String, String] = Map()) =
+    synced(http[T]((request(path) <<< file).POST <<? parameters <:< Map("Content-Type" -> mime) <:< headers))
 
   /** Posts some data as request parameters */
   def post[T: Manifest](path: List[String], parameters: Map[String, String], headers: Map[String, String] = Map()) =
@@ -172,6 +204,10 @@ abstract class BlueScenario extends FeatureSpec
   def get[T: Manifest](path: List[String], parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()) =
     synced(http[T](request(path) <<? parameters <:< headers))
 
+  /** Gets raw result */
+  def getRaw(path: List[String], parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()) =
+    synced(rawHttp(request(path) <<? parameters <:< headers))
+
   /** Patches some resource */
   def patch[T: Manifest](path: List[String],
                          patch: JsonPatch,
@@ -183,5 +219,9 @@ abstract class BlueScenario extends FeatureSpec
   /** Deletes some resource */
   def delete[T: Manifest](path: List[String], parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()) =
     synced(http[T]((request(path) <<? parameters <:< headers).DELETE))
+
+  /** Log the person in */
+  def login(person: Person) =
+    post[Boolean](List("session"), Map("username" -> person.username, "password" -> person.password))
 
 }

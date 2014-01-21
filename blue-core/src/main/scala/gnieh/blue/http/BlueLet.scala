@@ -175,10 +175,12 @@ abstract class RoleLet(val paperId: String, config: Config, logger: Logger) exte
         Map().withDefaultValue(Other)
     }
 
-  final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
+  final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] = {
+    System.err.println(roles)
     roles(talk) map { m =>
       roleAct(user, m(user.name))
     }
+  }
 
   /** Implement this method that can behave differently depending on the user
    *  role for the current paper.

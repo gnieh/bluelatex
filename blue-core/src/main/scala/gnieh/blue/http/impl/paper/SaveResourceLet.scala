@@ -39,7 +39,7 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class SaveResourceLet(resourceName: String, paperId: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
+class SaveResourceLet(paperId: String, resourceName: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
 
   override def partsAcceptor(reqInfo: HReqHeaderData) =
     Some(new ResourcePartsAcceptor(reqInfo))
@@ -72,6 +72,7 @@ class SaveResourceLet(resourceName: String, paperId: String, config: Config, log
       val data = image.orElse(talk.req.octets)
 
       val file = configuration.resource(paperId, resourceName)
+      logDebug(s"Upload file $file")
 
       data match {
         case Some(resourceFile) =>
