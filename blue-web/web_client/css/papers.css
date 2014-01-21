@@ -84,31 +84,44 @@
     position: relative;
     display: block;
     float: left;
-    width: 55%;
+    width: auto;
     padding: 7px;
-    border-right: 1px solid #ddd;
+}
+#paper_list.list .paper.header .date, #paper_list.list .paper.header .options, #paper_list.list .paper.header .authors, #paper_list.list .paper.header .role {
+    text-align: left;
+    height: 34px;
+    padding: 7px;
 }
 #paper_list.list .paper .date {
-    float: left;
-    width: 15%;
+    float: right;
+    width: 110px;
     padding: 7px;
-    border-right: 1px solid #ddd;
-    height: 34px;
+    border-left: 1px solid #ddd;
+    text-align: center;
 }
 #paper_list.list .paper .authors {
     position: relative;
     display: block;
-    float: left;
-    width: 15%;
+    float: right;
+    width: 170px;
     min-height: 1px;
     padding: 7px;
-    border-right: 1px solid #DDD;
-    height: 34px;
+    border-left: 1px solid #DDD;
+}
+#paper_list.list .paper .role{
+    position: relative;
+    display: block;
+    float: right;
+    width: 100px;
+    padding: 7px;
+    border-left: 1px solid #ddd;
+    text-align: center;
 }
 #paper_list.list .paper .options{
-    float: left;
-    width: 15%;
-    padding-left: 11px;
+    float: right;
+    width: 170px;
+    border-left: 1px solid #ddd;
+    padding: 1px 0 1px 12px;
 }
 #paper_list.list .paper .options .option {
     display: inline;

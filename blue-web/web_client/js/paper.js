@@ -1,5 +1,5 @@
 angular.module('bluelatex.paper',[])
-    .factory("Paper", function ($resource, $http) {
+    .factory("Paper", function ($resource, $http, $upload, $q) {
       var paper =  $resource( apiRoot+"/papers/:paper_id", null, {
           "new": {
             method: "POST", headers:{'Content-Type':'application/x-www-form-urlencoded'},
@@ -27,21 +27,53 @@ angular.module('bluelatex.paper',[])
         }
       );
       var synchronizedFile =  $resource( apiRoot+"/papers/:paper_id/files/synchronized", null, {
-          "get": {method: "GET"}
+          "get": {method: "GET",format: 'json',isArray: true}
         }
       );
       var resources =  $resource( apiRoot+"/papers/:paper_id/files/resources/:resource", null, {
-          "get": {method: "GET"},
-          "upload": {method: "POST"},
+        "get": {method: "GET",isArray: true,
+          transformResponse: [function(data, headersGetter) {
+            var array = [];
+            data = JSON.parse(data);
+            for (var i = 0; i < data.length; i++) {
+              var resource = data[i]
+              array.push({
+                name: resource,
+                type: getFileType(resource),
+                extension: getFileNameExtension(resource)
+              });
+            }
+            return array;
+          }].concat($http.defaults.transformResponse)
+        },
           "delete": {method: "DELETE"}
         }
       );
-      var resources =  $resource( apiRoot+"/papers/:paper_id/files/resources/:resource", null, {
-          "get": {method: "GET"},
-          "upload": {method: "POST"},
-          "delete": {method: "DELETE"}
-        }
-      );
+      var upload = function (paper_id, file, resource) {
+        var deferred = $q.defer();
+        var promise = deferred.promise;
+        $upload.upload({
+          url: apiRoot+'/papers/'+paper_id+'/files/resources/'+resource,
+          method: 'POST',
+          // headers: {'headerKey': 'headerValue'}, withCredential: true,
+          file: file,
+          // file: $files, //upload multiple files, this feature only works in HTML5 FromData browsers
+          /* set file formData name for 'Content-Desposition' header. Default: 'file' */
+          //fileFormDataName: myFile, //OR for HTML5 multiple upload only a list: ['name1', 'name2', ...]
+          /* customize how data is added to formData. See #40#issuecomment-28612000 for example */
+          //formDataAppender: function(formData, key, val){}
+        }).progress(function(evt) {
+          console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+          deferred.notify(parseInt(100.0 * evt.loaded / evt.total));
+        }).success(function(data, status, headers, config) {
+          // file is uploaded successfully
+          console.log(data);
+          deferred.resolve({data: data, status: status,headers:headers, config:config});
+        }).error(function (data, status) {
+          deferred.reject({data:data, status: status});
+        });
+        return promise;
+      }
       return {
         create: function (p) {
           return paper.new({},jsonToPostParameters(p)).$promise;
@@ -62,7 +94,7 @@ angular.module('bluelatex.paper',[])
           return resources.get({ paper_id: paper_id, resource: resource }).$promise;
         },
         uploadResource: function (paper_id,resource, data) {
-          return resources.upload({ paper_id: paper_id, resource: resource },jsonToPostParameters(data)).$promise;
+          return upload(paper_id, data, resource);
         },
         removeResource: function (paper_id,resource) {
           return resources.delete({ paper_id: paper_id, resource: resource }).$promise;
@@ -215,8 +247,9 @@ angular.module('bluelatex.paper',[])
           getToc: getToc,
           aceSettings: aceSettings
       }
-  }).controller('PaperController', ['$scope','localize','$location','ace','Paper','$routeParams', function ($scope,localize,$location, ace, Paper,$routeParams) {
+  }).controller('PaperController', ['$scope','localize','$location','ace','Paper','$routeParams','$upload', function ($scope,localize,$location, ace, Paper,$routeParams,$upload) {
     var paper_id = $routeParams.id;
+
     Paper.getInfo(paper_id).then(function (data) {
       $scope.paper = data;
       $scope.paper.etag = data.header.etag;
@@ -228,15 +261,20 @@ angular.module('bluelatex.paper',[])
     }, function (error) {
       console.log(error);
     });
+    Paper.getResources(paper_id).then(function (data) {
+      $scope.resources = data;
+    }, function (error) {
+      console.log(error);
+    });
 
-    var paper = {};
     var textLog= '';
 
-
+    $scope.resources = [];
+    $scope.paper = {};
+    $scope.listType = 'files';
     $scope.mode = 'ace';
     $scope.logs = [];
     $scope.toc = [];
-    $scope.listType = 'files';
 
     //action listener: action in the menu
     $scope.$on('handleAction', function(event, data){
@@ -297,6 +335,34 @@ angular.module('bluelatex.paper',[])
     };
 
     $scope.aceChanged = function(e) {
+    };
+
+    $scope.new_file = {};
+
+    $scope.onFileSelect = function($files) {
+      console.log($files);
+      if($files.length > 0) {
+        var file = $files [0];
+        $scope.new_file= {
+          title: file.name,
+          type: getFileType(file.name),
+          file: file,
+          extension: getFileNameExtension(file.name)
+        };
+      }
+      console.log($scope.new_file);
+    };
+    $scope.uploadResource = function () {
+      Paper.uploadResource(paper_id, $scope.new_file.title, $scope.new_file.file).then(function (data) {
+        console.log(data);
+      }, function (error) {
+        console.log(error);
+      }, function (progress) {
+        console.log(progress);
+      });
+    };
+    $scope.cancelUploadResource = function () {
+      $scope.new_file = {};
     };
 
   }]).controller('NewPaperController', ['$scope','localize','$location','Paper', function ($scope,localize,$location, Paper) {
@@ -395,4 +461,4 @@ angular.module('bluelatex.paper',[])
         });
         updateTOC(elm,scope.toc,scope);
     };
-  }])
+  }]);

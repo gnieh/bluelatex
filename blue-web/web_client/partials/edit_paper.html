@@ -1,5 +1,5 @@
 <div id="manage">
-    <h1 data-i18n="_Edit_paper_">Edit Paper</h1>
+    <h1 data-i18n="_Edit_paper_"></h1>
     <form name="editPaperForm" ng-submit="edit()">
         <div class="grid">
             <div class="col c1-3">
@@ -7,10 +7,26 @@
             </div>
             <div class="col c2-3 form-group"
               ng-class="{'has-error': editPaperForm.title.$invalid}">
-              <input class="form-control" id="title" name="title" type="text" autofocus
+              <input class="form-control" id="title" disabled="disabled" name="title" type="text" autofocus
                 data-i18n-attr="_Title_|placeholder" required ng-model="paper.title" />
                 <span class="control-label"
                   ng-show="editPaperForm.title.$error.required" data-i18n="_Required_"></span>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="authors" data-i18n="_Authors_"></label>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': editPaperForm.title.$invalid}">
+              <div class="authors">
+                <div class="auhtor" ng-repeat="author in paper.authors">
+                  <input type="hidden" ng-model="author">
+                  <div class="label">{{author}}</div>
+                  <button ng-click="remove(author)" class="icon-delete"></button>
+                </div>
+              </div>
+              <button ng-click="add(author)" class="icon-add"></div>
             </div>
         </div>
         <button type="submit" ng-disabled="!editPaperForm.$valid" data-i18n="_Edit_">Edit</button>

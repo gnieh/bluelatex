@@ -15,25 +15,29 @@ angular.module('bluelatex.controller', ['bluelatex.User'])
     $scope.$on('handleTopAction', function(event, data){
       $scope.$broadcast('handleAction', data);
     });
-
-    User.getSession().then(function (data) {
-      $rootScope.loggedUser = {
-        username: data.name,
-        name: data.name,
-         roles: data.roles
-      };
-      User.getInfo($rootScope.loggedUser).then(function (data) {
-        $rootScope.loggedUser.first_name = data.first_name;
-        $rootScope.loggedUser.last_name = data.last_name;
-        $rootScope.loggedUser.email = data.email;
-        $rootScope.loggedUser.etag = data.header.etag
-      }, function (err) {
-        console.log(err);
-      }, function (progress) {
-        // body...
+    var getUserSession = function () {
+      User.getSession().then(function (data) {
+        $rootScope.loggedUser = {
+          username: data.name,
+          name: data.name,
+           roles: data.roles
+        };
+        User.getInfo($rootScope.loggedUser).then(function (data) {
+          $rootScope.loggedUser.first_name = data.first_name;
+          $rootScope.loggedUser.last_name = data.last_name;
+          $rootScope.loggedUser.email = data.email;
+          $rootScope.loggedUser.etag = data.header.etag
+        }, function (err) {
+          console.log(err);
+        }, function (progress) {
+          // body...
+        });
+      }, function (error) {
+        $rootScope.loggedUser = {};
+        console.log(error);
       });
-    }, function (error) {
-      console.log(error);
-    });
-
+    }
+    getUserSession();
+    //check user session every 5 minutes
+    setInterval(getUserSession, 5*60*1000);
   }]);

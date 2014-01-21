@@ -47,7 +47,26 @@
           </div>
         </div>
         <div class="files" ng-show="listType=='files'">
-          files
+          <div id="file_list">
+            <div class="file" ng-repeat="file in resources" ng-click="">
+              <div class="icon type-{{file.extension}}"></div>
+              <div class="label" ng-click="insertResource(file)">{{file.name}}</div>
+              <button ng-click="deleteResource(file)" class="icon-delete"></button>
+              <button ng-click="viewResource(file)" class="icon-view"></button>
+              <div class="clear"></div>
+            </div>
+          </div>
+          <section id="upload_resource" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="file-hover">
+            <h3>New Resource</h3>
+            <label id="new_file">
+              <span class="icon type-{{new_file.extension}}"></span>
+              <div class="label" ng-click="insertResource(file)">{{new_file.title}}</div>
+              <span ng-hide="new_file.title!=null">Select a file <span ng-file-drop-available="dropSupported=true" ng-show="!dropSupported"> or drag a file</span></span>
+              <input type="file" ng-file-select="onFileSelect($files)">
+            </div>
+            <button ng-click="uploadResource()" ng-disabled="new_file.title==null">Upload</button>
+            <button ng-click="cancelUploadResource()" ng-disabled="new_file.title==null">Cancel Upload</button>
+          </section>
         </div>
       </section>
     </section>

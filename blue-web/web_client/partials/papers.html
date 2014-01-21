@@ -87,18 +87,19 @@
     </div>
     <div class="center">
         <div id="paper_list" ng-class="display_style">
-            <div class="paper" ng-if="display_style=='list'">
+            <div class="paper header" ng-if="display_style=='list'">
                 <div class="title" data-i18n="_Title_">
                     Title
                 </div>
-                <div class="date" data-i18n="_Date_">
-                    Date
+                <div class="options" data-i18n="_Options_">
+                    Options
                 </div>
                 <div class="authors" data-i18n="_Authors_">
                     Auhtors
                 </div>
-                <div class="authors" data-i18n="_Options_">
-                    Options
+                <div class="role" data-i18n="_Role_"></div>
+                <div class="date" data-i18n="_Date_">
+                    Date
                 </div>
                 <div class="clear"></div>
             </div>
@@ -109,16 +110,19 @@
                 <div class="title">
                     <a href="#/paper/{{paper.id}}">{{paper.title}}</a>
                 </div>
-                <div class="date">
-                    <a href="#/paper/{{paper.id}}">{{paper.date | date:'MM/dd/yyyy'}}</a>
-                </div>
-                <div class="authors">
-                    <a href="#/paper/{{paper.id}}"><span ng-repeat="author in paper.authors">{{author}},</span></a>
-                </div>
                 <div class="options">
                     <a class="option rename" href="#/paper/{{paper.id}}/edit" data-i18n="_Options_">Options</a>
                     <button class="option detele" ng-click="delete(paper)" data-i18n="_Delete_">Delete</button>
                     <div class="clear"></div>
+                </div>
+                <div class="authors">
+                    <a href="#/paper/{{paper.id}}"><span ng-repeat="author in paper.authors">{{author}},</span></a>
+                </div>
+                <div class="role">
+                    <a href="#/paper/{{paper.id}}">{{paper.role}}</a>
+                </div>
+                <div class="date">
+                    <a href="#/paper/{{paper.id}}">{{paper.date | date:'MM/dd/yyyy'}}</a>
                 </div>
                 <div class="clear"></div>
             </div>

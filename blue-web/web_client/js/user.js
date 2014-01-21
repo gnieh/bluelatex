@@ -111,7 +111,8 @@ angular.module("bluelatex.User", ["ngResource"])
                   email: data.email,
                   etag: data.header.etag
                 };
-                $location.path( "/papers" );
+                $window.history.back();
+                //$location.path( "/papers" );
               }, function (err) {
                 console.log(err);
               }, function (progress) {

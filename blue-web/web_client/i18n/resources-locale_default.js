@@ -373,5 +373,10 @@
         "key":"_Goodbye_",
         "value":"Goodbye",
         "description":"Goodbye"
+    },
+    {
+        "key":"_Role_",
+        "value":"Role",
+        "description":"Role"
     }
 ]

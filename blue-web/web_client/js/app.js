@@ -2,6 +2,7 @@
 
 // Declare app level module which depends on filters, and services
 angular.module('bluelatex', [
+  'ngAnimate',
   'localization',
   'ngRoute',
   'angular-md5',
@@ -14,7 +15,8 @@ angular.module('bluelatex', [
   'bluelatex.paper',
   'bluelatex.papers',
   'bluelatex.menu',
-  'ui.ace'
+  'ui.ace',
+  'angularFileUpload'
 ]).config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/login', {templateUrl: 'partials/login.html', controller: 'LoginController', options:{
     name: 'login',

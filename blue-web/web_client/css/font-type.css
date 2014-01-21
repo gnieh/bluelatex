@@ -1,0 +1,511 @@
+@charset "UTF-8";
+
+@font-face {
+  font-family: "font-type";
+  src:url("fonts/font-type.eot");
+  src:url("fonts/font-type.eot?#iefix") format("embedded-opentype"),
+    url("fonts/font-type.woff") format("woff"),
+    url("fonts/font-type.ttf") format("truetype"),
+    url("fonts/font-type.svg#font-type") format("svg");
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+[data-icon]:before {
+  font-family: "font-type" !important;
+  content: attr(data-icon);
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class^="type-"]:before,
+[class*=" type-"]:before {
+  font-family: "font-type" !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.type-aiff:before {
+  content: "a";
+}
+.type-bat:before {
+  content: "b";
+}
+.type-cpp:before {
+  content: "c";
+}
+.type-dvf:before {
+  content: "d";
+}
+.type-dss:before {
+  content: "e";
+}
+.type-aiff-1:before {
+  content: "f";
+}
+.type-dll:before {
+  content: "g";
+}
+.type-epub:before {
+  content: "h";
+}
+.type-hqx:before {
+  content: "i";
+}
+.type-mcd:before {
+  content: "j";
+}
+.type-otc:before {
+  content: "k";
+}
+.type-pcx:before {
+  content: "l";
+}
+.type-pps:before {
+  content: "m";
+}
+.type-txt:before {
+  content: "n";
+}
+.type-vob:before {
+  content: "o";
+}
+.type-xlsx:before {
+  content: "p";
+}
+.type-net:before {
+  content: "q";
+}
+.type-rtf:before {
+  content: "r";
+}
+.type-vcd:before {
+  content: "s";
+}
+.type-bup:before {
+  content: "t";
+}
+.type-aif:before {
+  content: "u";
+}
+.type-avi:before {
+  content: "v";
+}
+.type-tga:before {
+  content: "w";
+}
+.type-swf:before {
+  content: "x";
+}
+.type-sea:before {
+  content: "y";
+}
+.type-ram:before {
+  content: "z";
+}
+.type-js:before {
+  content: "A";
+}
+.type-ogg:before {
+  content: "B";
+}
+.type-odb:before {
+  content: "C";
+}
+.type-fla:before {
+  content: "D";
+}
+.type-divx:before {
+  content: "E";
+}
+.type-eml:before {
+  content: "F";
+}
+.type-xcf:before {
+  content: "G";
+}
+.type-otg:before {
+  content: "H";
+}
+.type-pptx:before {
+  content: "I";
+}
+.type-qbb:before {
+  content: "J";
+}
+.type-rmvb:before {
+  content: "K";
+}
+.type-wma:before {
+  content: "L";
+}
+.type-xml:before {
+  content: "M";
+}
+.type-asp:before {
+  content: "N";
+}
+.type-cdl:before {
+  content: "O";
+}
+.type-ods:before {
+  content: "P";
+}
+.type-ptb:before {
+  content: "Q";
+}
+.type-xaml:before {
+  content: "R";
+}
+.type-ai:before {
+  content: "S";
+}
+.type-chm:before {
+  content: "T";
+}
+.type-mov:before {
+  content: "U";
+}
+.type-odi:before {
+  content: "V";
+}
+.type-otf:before {
+  content: "W";
+}
+.type-pdb:before {
+  content: "X";
+}
+.type-png:before {
+  content: "Y";
+}
+.type-rm:before {
+  content: "Z";
+}
+.type-sln:before {
+  content: "0";
+}
+.type-blend:before {
+  content: "1";
+}
+.type-dat:before {
+  content: "2";
+}
+.type-dxf:before {
+  content: "3";
+}
+.type-docx:before {
+  content: "4";
+}
+.type-exe:before {
+  content: "5";
+}
+.type-key:before {
+  content: "6";
+}
+.type-jar:before {
+  content: "7";
+}
+.type-ico:before {
+  content: "8";
+}
+.type-cdr:before {
+  content: "9";
+}
+.type-blank:before {
+  content: "!";
+}
+.type-zip:before {
+  content: "\"";
+}
+.type-mdb:before {
+  content: "#";
+}
+.type-eps:before {
+  content: "$";
+}
+.type-amr:before {
+  content: "%";
+}
+.type-webp:before {
+  content: "&";
+}
+.type-trt:before {
+  content: "'";
+}
+.type-tif:before {
+  content: "(";
+}
+.type-psd:before {
+  content: ")";
+}
+.type-sql:before {
+  content: "*";
+}
+.type-tiff:before {
+  content: "+";
+}
+.type-wav:before {
+  content: ",";
+}
+.type-ink:before {
+  content: "-";
+}
+.type-bin:before {
+  content: ".";
+}
+.type-cab:before {
+  content: "/";
+}
+.type-gif:before {
+  content: ":";
+}
+.type-flac:before {
+  content: ";";
+}
+.type-m4b:before {
+  content: "<";
+}
+.type-mp3:before {
+  content: "=";
+}
+.type-mid:before {
+  content: ">";
+}
+.type-oti:before {
+  content: "?";
+}
+.type-pdf:before {
+  content: "@";
+}
+.type-raw:before {
+  content: "[";
+}
+.type-php:before {
+  content: "]";
+}
+.type-mkv:before {
+  content: "^";
+}
+.type-rar:before {
+  content: "_";
+}
+.type-odc:before {
+  content: "`";
+}
+.type-msi:before {
+  content: "{";
+}
+.type-iso:before {
+  content: "|";
+}
+.type-htm:before {
+  content: "}";
+}
+.type-flv:before {
+  content: "~";
+}
+.type-xhtml:before {
+  content: "\";
+}
+.type-pdd:before {
+  content: "\e000";
+}
+.type-odg:before {
+  content: "\e001";
+}
+.type-cs:before {
+  content: "\e002";
+}
+.type-jpeg:before {
+  content: "\e003";
+}
+.type-indd:before {
+  content: "\e004";
+}
+.type-m4v:before {
+  content: "\e005";
+}
+.type-mpg:before {
+  content: "\e006";
+}
+.type-ots:before {
+  content: "\e007";
+}
+.type-qxd:before {
+  content: "\e008";
+}
+.type-svg:before {
+  content: "\e009";
+}
+.type-tgz:before {
+  content: "\e00a";
+}
+.type-wmv:before {
+  content: "\e00b";
+}
+.type-xls:before {
+  content: "\e00c";
+}
+.type-aicf:before {
+  content: "\e00d";
+}
+.type-asx:before {
+  content: "\e00e";
+}
+.type-cda:before {
+  content: "\e00f";
+}
+.type-sitx:before {
+  content: "\e010";
+}
+.type-jar-1:before {
+  content: "\e011";
+}
+.type-mp2:before {
+  content: "\e012";
+}
+.type-h:before {
+  content: "\e013";
+}
+.type-gz:before {
+  content: "\e014";
+}
+.type-m4p:before {
+  content: "\e015";
+}
+.type-pub:before {
+  content: "\e016";
+}
+.type-ps:before {
+  content: "\e017";
+}
+.type-oth:before {
+  content: "\e018";
+}
+.type-odi-1:before {
+  content: "\e019";
+}
+.type-jpg:before {
+  content: "\e01a";
+}
+.type-c:before {
+  content: "\e01b";
+}
+.type-com:before {
+  content: "\e01c";
+}
+.type-ifo:before {
+  content: "\e01d";
+}
+.type-mp4:before {
+  content: "\e01e";
+}
+.type-3gp:before {
+  content: "\e01f";
+}
+.type-resx:before {
+  content: "\e020";
+}
+.type-mov-1:before {
+  content: "\e021";
+}
+.type-doc:before {
+  content: "\e022";
+}
+.type-ace:before {
+  content: "\e023";
+}
+.type-sit:before {
+  content: "\e024";
+}
+.type-xar:before {
+  content: "\e025";
+}
+.type-dmg:before {
+  content: "\e026";
+}
+.type-odf:before {
+  content: "\e027";
+}
+.type-lnk:before {
+  content: "\e028";
+}
+.type-chm-1:before {
+  content: "\e029";
+}
+.type-rw:before {
+  content: "\e02a";
+}
+.type-qbw:before {
+  content: "\e02b";
+}
+.type-log:before {
+  content: "\e02c";
+}
+.type-csv:before {
+  content: "\e02d";
+}
+.type-dwg:before {
+  content: "\e02e";
+}
+.type-html:before {
+  content: "\e02f";
+}
+.type-css:before {
+  content: "\e030";
+}
+.type-cad:before {
+  content: "\e031";
+}
+.type-xtm:before {
+  content: "\e032";
+}
+.type-ss:before {
+  content: "\e033";
+}
+.type-pub-1:before {
+  content: "\e034";
+}
+.type-cbr:before {
+  content: "\e035";
+}
+.type-bmp:before {
+  content: "\e036";
+}
+.type-pdb-1:before {
+  content: "\e037";
+}
+.type-ses:before {
+  content: "\e038";
+}
+.type-otp:before {
+  content: "\e039";
+}
+.type-otf-1:before {
+  content: "\e03a";
+}
+.type-wps:before {
+  content: "\e03b";
+}
+.type-wpd:before {
+  content: "\e03c";
+}
+.type-mp4-1:before {
+  content: "\e03d";
+}
+.type-odm:before {
+  content: "\e03e";
+}

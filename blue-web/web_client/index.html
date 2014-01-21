@@ -2,6 +2,8 @@
 <html lang="en" ng-controller="MainController">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <script>
     // include angular loader, which allows the files to load in any order
     /*
@@ -28,9 +30,11 @@
     // load all of the dependencies asynchronously.
     $script([
       'lib/angular/angular.min.js',
+      'lib/angular/angular-animate.min.js',
       'lib/angular/angular-resource.min.js',
       'lib/angular/angular-route.min.js',
       'lib/angular-md5.js',
+      'lib/angular-file-upload.min.js',
       'lib/localize.js',
       'js/app.js',
       'js/menu.js',
@@ -67,6 +71,7 @@
     </div>
     <nav bl-menu></nav>
   </header>
-  <div ng-view></div>
+  <div ng-view ng-animate="{enter: 'view-enter', leave: 'view-leave'}"></div>
+  <link rel="stylesheet" href="css/font-type.css">
 </body>
 </html>
