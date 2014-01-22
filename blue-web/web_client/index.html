@@ -30,11 +30,11 @@
     // load all of the dependencies asynchronously.
     $script([
       'lib/angular/angular.min.js',
-      'lib/angular/angular-animate.min.js',
       'lib/angular/angular-resource.min.js',
       'lib/angular/angular-route.min.js',
       'lib/angular-md5.js',
       'lib/angular-file-upload.min.js',
+      'lib/angular/angular-animate.js',
       'lib/localize.js',
       'js/app.js',
       'js/menu.js',
@@ -58,6 +58,7 @@
   </script>
   <title ng-bind="$route.current.$$route.options.title">\BlueLatex</title>
   <link rel="stylesheet" href="css/css.css">
+  <link rel="stylesheet" href="css/mobile.css">
   <link rel="stylesheet" href="css/register.css">
   <link rel="stylesheet" href="css/login.css">
   <link rel="stylesheet" href="css/paper.css">
@@ -65,13 +66,27 @@
   <link rel="stylesheet" href="css/manage.css">
 </head>
 <body>
-  <header>
+  <header ng-controller="menuController">
     <div class="logo">
       <a href="#/"><img src="/img/logo.png" alt="\BlueLatex"></a>
     </div>
-    <nav bl-menu></nav>
+    <label href="#" id="pull" class="icon-menu"><input type="checkbox" ng-model="isMenuOpen"></label>
+    <div id="menu_user" ng-show="loggedUser.name" class="ng-hide menu_user">
+      <label>
+        <input type="checkbox" ng-model="openUserMenu">
+        <span class="icon" bl-gravatar data-email="loggedUser.email"></span>
+        <span ng-bind="loggedUser.first_name"></span>
+      </label>
+      <div class="submenu" ng-show="openUserMenu">
+        <ul>
+          <li><a href="#/profile" data-i18n="_Profile_"></a></li>
+          <li><a href="#/logout" ng-click="logout" data-i18n="_Logout_"></a></li>
+        </ul>
+      </div>
+    </div>
+    <nav bl-menu ng-class="{'show': isMenuOpen, 'hide': !isMenuOpen}"></nav>
   </header>
-  <div ng-view ng-animate="{enter: 'view-enter', leave: 'view-leave'}"></div>
+  <div ng-view ng-animate="'view'"></div>
   <link rel="stylesheet" href="css/font-type.css">
 </body>
 </html>

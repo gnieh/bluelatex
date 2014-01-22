@@ -74,8 +74,13 @@
 .icon-view:before {
   content: "l";
 }
+.icon-download:before {
+  content: "m";
+}
 
-
+@media screen {
+    @-ms-viewport { width: device-width; }
+}
 * {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -95,33 +100,28 @@
 }
 html {
   height: 100%;
+  width:100%;
   overflow-x:hidden;
   overflow-y:scroll;
   position:relative;
-  width:100%;
 }
 
 body {
+  position: relative;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #eee;
+  color: #333;
+  font-size: 13pt;
+  padding: 0;
+  height:100%;
+  width:100%;
   font-weight:100;
   margin:0;
-  min-height:100%;
-  width:100%;
-}
-body {
-    position: relative;
-    font-family: Arial, Helvetica, sans-serif;
-    background-color: #eee;
-    color: #333;
-    font-size: 13pt;
-    padding: 0;
-    font-weight:100;
-    margin:0;
-    height: 100%;
-    width:100%;
 }
 body > div {
     position: relative;
     height: 100%;
+    overflow: auto;
 }
 #page .wrap {
     padding: 10px;
@@ -222,13 +222,13 @@ header .langs .lang .flag img{
 header .langs .lang .name {
     float: left;
 }
-#menu_user {
+.menu_user {
     position: relative;
     float: right;
     color: #fff;
     margin-left: auto;
 }
-#menu_user label{
+.menu_user label{
     color: #fff;
     position: relative;
     display: block;
@@ -237,13 +237,13 @@ header .langs .lang .name {
     padding-left: 30px;
     cursor: pointer;
 }
-#menu_user input {
+.menu_user input {
     visibility: hidden;
     width: 0;
     float: right;
     margin: 0;
 }
-#menu_user .submenu {
+.menu_user .submenu {
     position: absolute;
     /* top: 0; */
     background: #373942;
@@ -253,19 +253,19 @@ header .langs .lang .name {
     overflow: auto;
     right: 0;
 }
-#menu_user .submenu ul {
+.menu_user .submenu ul {
     list-style: none;
     margin: 0;
     padding: 0;
 }
-#menu_user a {
+.menu_user a {
     color: #f3f3f3;
     font-size: 14px;
     white-space: nowrap;
     display: block;
     line-height: 25px;
 }
-#menu_user label .icon {
+.menu_user label .icon {
     width: 33px;
     height: 33px;
     overflow: hidden;
@@ -275,7 +275,7 @@ header .langs .lang .name {
     margin-right: 15px;
     box-shadow: 0 0 0 0px #FFF, 0 0 0 0px #eee, 0 0px 0px 2px rgba(0, 0, 0, 0.2);
 }
-#menu_user label .icon img {
+.menu_user label .icon img {
   width:100%;
 }
 header .logo{
@@ -338,8 +338,25 @@ nav > div > ul li a:hover,nav > div > ul li a.current {
     opacity: 1;
     text-decoration: none;
 }
-#menu_navigation {
+#menu_navigation{
     float: right;
+}
+#menu_user_mobile {
+  display: none;
+}
+#pull {
+  display: none;
+  color: #fff;
+  float: right;
+  font-size: 27px;
+  padding: 4px 14px;
+  cursor: pointer;
+}
+#pull input {
+  visibility: hidden;
+  width: 0;
+  float: right;
+  height: 0;
 }
 .footer {
     background: #3a3a3a;
@@ -960,28 +977,20 @@ label.error {
 }
 
 .view-enter,.view-leave {
-  -moz-transition:all .5s;
-  -o-transition:all .5s;
-  -webkit-transition:all .5s;
-  transition:all .5s;
+  -moz-transition:all 1.5s;
+  -o-transition:all 1.5s;
+  -webkit-transition:all 1.5s;
+  transition:all 1.5s;
 }
 .view-enter {
-  left:20px;
-  opacity:0;
-  position:absolute;
-  top:0;
+  transform: translate(130px, 0);
 }
 .view-enter.view-enter-active {
-  left:0;
-  opacity:1;
+  transform: translate(130px, 0);
 }
 .view-leave {
-  left:0;
-  opacity:1;
-  position:absolute;
-  top:0;
+  transform: translate(130px, 0);
 }
 .view-leave.view-leave-active {
-  left:-20px;
-  opacity:0;
+  transform: translate(-130px, 0);
 }

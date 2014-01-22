@@ -1,4 +1,16 @@
-<div ng-controller="menuController">
+<div>
+    <div id="menu_user_mobile" class="menu_user" ng-show="loggedUser.name" class="ng-hide">
+      <label>
+        <span class="icon" bl-gravatar data-email="loggedUser.email"></span>
+        <span ng-bind="loggedUser.first_name"></span>
+      </label>
+      <div class="submenu">
+        <ul>
+          <li><a href="#/profile" data-i18n="_Profile_"></a></li>
+          <li><a href="#/logout" ng-click="logout" data-i18n="_Logout_"></a></li>
+        </ul>
+      </div>
+    </div>
     <ul id="menu_options">
         <li ng-repeat="option in options">
             <a href="{{option.link}}" ng-if="option.type == 'link'">{{option.label}}</a>
@@ -6,23 +18,10 @@
             <div class="sub_menu" ng-show="option.display" ng-if="option.type == 'menu'" ng-include src="option.action"></div>
         </li>
     </ul>
-    <div id="menu_user" ng-if="user.name">
-        <label>
-            <input type="checkbox" ng-model="openUserMenu">
-            <span class="icon" bl-gravatar data-email="user.email"></span>
-            <span>{{user.first_name}}</span>
-        </label>
-        <div class="submenu" ng-show="openUserMenu">
-            <ul>
-                <li><a href="#/profile" data-i18n="_Profile_">Profile</a></li>
-                <li><a href="#/logout" ng-click="logout" data-i18n="_Logout_">Logout</a></li>
-            </ul>
-        </div>
-    </div>
     <ul id="menu_navigation">
         <li ng-repeat="link in menus"
             ng-if="(user.name == null && link.unconnected) || (user.name != null && link.connected)" >
             <a href="{{link.link}}" ng-class="{'current': link.active}">{{link.label}}</a>
         </li>
     </ul>
-<div>
+</div>

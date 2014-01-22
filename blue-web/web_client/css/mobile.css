@@ -1,0 +1,150 @@
+@media only screen and (max-width : 478px) {
+  #menu_user {
+    display: none;
+  }
+  #menu_user_mobile {
+    display: block;
+    float: none;
+  }
+  #menu_user_mobile label {
+    padding: 0 11px;
+
+  }
+  #menu_user_mobile .submenu {
+    position: relative;
+    background: transparent;
+    padding: 0;
+  }
+  #menu_user_mobile .submenu a {
+    color: #fff;
+    padding-left: 60px;
+    display: block;
+
+    width: 100%;
+  }
+
+
+  #sort {
+    display: none;
+  }
+  #search input {
+    width: 250px!important;
+  }
+
+  #paper_list.list .paper .date {
+    display: none;
+  }
+}
+@media only screen and (max-width : 768px) {
+  nav {
+      position: fixed;
+      left: -250px;
+      line-height: inherit;
+      margin: 0px;
+      height: 100%;
+      background: #373942;
+      width: 250px;
+      margin-top: 42px;
+  }
+  nav.show, nav.hide {
+    -moz-transition:left .5s;
+    -o-transition:left .5s;
+    -webkit-transition:left .5s;
+    transition:left .5s;
+  }
+  nav.show {
+    left: 0;
+  }
+  nav > div > ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      float: none;
+  }
+  nav > div > ul li {
+      position: relative;
+      white-space: nowrap;
+      float: none;
+
+      border-bottom: 1px solid #555;
+}
+  nav ul li button {
+      color: #f3f3f3;
+      font-size: 14px;
+      font-weight: bold;
+      white-space: nowrap;
+      padding: 0 10px;
+      display: block;
+      background: transparent;
+      margin: 0;
+      line-height: 41px;
+      border-radius: 0;
+      width: 100%;
+      text-align: left;
+}
+  nav ul li button:hover {
+      background: #046DCC;
+      background: rgba(0,0,0,0.15);
+      opacity: 1;
+  }
+  nav > div > ul li a,nav > div > ul li a:visited,nav > div > ul li a:focus,nav > div > ul li a:active {
+    color: #f3f3f3;
+    font-size: 16px;
+    font-weight: bold;
+    white-space: nowrap;
+    padding: 0 11px;
+    display: block;
+    line-height: 39px;
+  }
+  nav > div > ul li a:hover,nav > div > ul li a.current {
+    background: rgba(0,0,0,0.15);
+    text-decoration: none;
+  }
+  #menu_navigation{
+    float: none;
+  }
+  #pull {
+    display: block;
+  }
+
+  #papers .top h1 {
+    display: none;
+  }
+  #papers .left{
+    display: none;
+  }
+  #papers .center {
+    left: 0!important;
+  }
+  #sort > span {
+    display: none;
+  }
+  #sort select {
+    min-width: 0!important;
+    margin: 0px;
+  }
+  #search input {
+    padding-left: 1px!important;
+    padding-right: 1px!important;
+    margin-right: 4px!important;
+    width: 140px;
+  }
+
+  #paper .leftCol {
+    display: none;
+  }
+  #paper .centerRightCol {
+    padding-left: 0!important;
+  }
+}
+@media only screen and (max-width : 900px) {
+  #paper_list.list .paper .role {
+    display: none!important;
+  }
+}
+@media only screen and (max-width : 1000px) {
+  #paper_list.list .paper .authors {
+    display: none!important;
+  }
+}

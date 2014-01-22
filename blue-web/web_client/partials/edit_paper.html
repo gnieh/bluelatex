@@ -5,8 +5,7 @@
             <div class="col c1-3">
                 <label for="title" data-i18n="_Title_">Title</label>
             </div>
-            <div class="col c2-3 form-group"
-              ng-class="{'has-error': editPaperForm.title.$invalid}">
+            <div class="col c2-3 form-group">
               <input class="form-control" id="title" disabled="disabled" name="title" type="text" autofocus
                 data-i18n-attr="_Title_|placeholder" required ng-model="paper.title" />
                 <span class="control-label"
@@ -17,19 +16,41 @@
             <div class="col c1-3">
                 <label for="authors" data-i18n="_Authors_"></label>
             </div>
-            <div class="col c2-3 form-group"
-              ng-class="{'has-error': editPaperForm.title.$invalid}">
+            <div class="col c2-3 form-group">
               <div class="authors">
-                <div class="auhtor" ng-repeat="author in paper.authors">
+                <div class="author" ng-repeat="author in paper.authors">
                   <input type="hidden" ng-model="author">
                   <div class="label">{{author}}</div>
-                  <button ng-click="remove(author)" class="icon-delete"></button>
+                  <button ng-click="removeAuthor(author)" class="icon-delete"></button>
                 </div>
+                <div class="clear"></div>
               </div>
-              <button ng-click="add(author)" class="icon-add"></div>
+              <div class="new">
+                <input type="text" ng-model="new_author" placeholder="New author">
+                <button ng-click="addAuthor()" class="icon-add"></button>
+              </div>
             </div>
         </div>
-        <button type="submit" ng-disabled="!editPaperForm.$valid" data-i18n="_Edit_">Edit</button>
-        <a class="button" href="#/papers" data-i18n="_Cancel_">Cancel</a>
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="reviewers" data-i18n="_Reviewers_">Reviewers</label>
+            </div>
+            <div class="col c2-3 form-group">
+              <div class="reviewers">
+                <div class="reviewer" ng-repeat="reviewer in paper.reviewers">
+                  <input type="hidden" ng-model="reviewer">
+                  <div class="label">{{reviewer}}</div>
+                  <button ng-click="removeReviewers(reviewer)" class="icon-delete"></button>
+                </div>
+                <div class="clear"></div>
+              </div>
+              <div class="new">
+                <input type="text" ng-model="new_reviewer" placeholder="New reviewer">
+                <button ng-click="addReviewer()" class="icon-add"></button>
+              </div>
+            </div>
+        </div>
+        <button type="submit" ng-disabled="!editPaperForm.$valid" data-i18n="_Edit_"></button>
+        <a class="button" href="#/papers" data-i18n="_Cancel_"></a>
     </form>
 </div>

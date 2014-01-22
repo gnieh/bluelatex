@@ -103,7 +103,7 @@
                 </div>
                 <div class="clear"></div>
             </div>
-            <div class="paper" ng-repeat="paper in papers | filter:search | filter:dateFilter | filter:roleFilter | orderBy:predicate:reverse">
+            <div class="paper" ng-repeat="paper in papers | filter:search | filter:dateFilter | filter:roleFilter | orderBy:predicate:reverse" ng-animate=" 'animate' ">
                 <div class="icon">
                     <a href="#/paper/{{paper.id}}" ng-if="paper.icon"><img src="{{paper.icon}}" alt="{{paper.title}}" title="{{paper.title}}" ></a>
                 </div>

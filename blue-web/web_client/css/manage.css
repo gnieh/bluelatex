@@ -13,11 +13,11 @@
     margin-bottom: 10px;
 }
 #manage label {
+    margin-right: 4px;
     display: block;
     background: #eee;
     padding: 4px;
     line-height: 30px;
-    margin-right: 4px;
 }
 #manage input{
     padding: 10px;
@@ -44,4 +44,33 @@
     margin: 2px 0;
     outline: none;
     padding: 10px;
+}
+
+#manage .authors,#manage .reviewers {
+}
+#manage .authors .author,#manage .reviewers .reviewer {
+    background: #eee;
+    float:left;
+    margin-top: 4px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+#manage .authors .author .label, #manage .reviewers .reviewer .label {
+    display: inline;
+    line-height: 22px;
+    padding: 8px;
+    float: left;
+}
+#manage .authors .author button, #manage .reviewers .reviewer button {
+    display: inline;
+    margin: 0;
+    background: transparent;
+    color: #4D4D4D;
+    padding: 0 5px;
+    padding-top: 9px;
+    font-size: 21px;
+    width: auto;
+}
+#manage .new input {
+    width: 250px;
 }

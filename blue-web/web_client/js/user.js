@@ -103,7 +103,6 @@ angular.module("bluelatex.User", ["ngResource"])
         User.login(user.username, user.password).then(function(data) {
             if(data.response == 'true') {
               User.getInfo(user).then(function (data) {
-                console.log(data);
                 $rootScope.loggedUser = {
                   name: data.name,
                   first_name: data.first_name,
@@ -111,14 +110,11 @@ angular.module("bluelatex.User", ["ngResource"])
                   email: data.email,
                   etag: data.header.etag
                 };
-                $window.history.back();
-                //$location.path( "/papers" );
               }, function (err) {
                 console.log(err);
               }, function (progress) {
                 // body...
               });
-
             } else {
             }
         }, function(err) {

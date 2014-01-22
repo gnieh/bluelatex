@@ -165,6 +165,7 @@
     top: 0;
     left: 0;
     font-size: 37px;
+    color: #555;
 }
 
 #upload_resource {
@@ -183,9 +184,14 @@
     background: #F0F0F0;
     padding: 7px;
     margin-right: 7px;
+    cursor: pointer;
 }
 #upload_resource .label {
     margin-left: 30px;
+}
+#upload_resource .label .extension {
+    color: #999;
+    font-size: 80%;
 }
 .file-hover {
     border: 2px solid #ddd;
@@ -198,7 +204,6 @@
 #file_list .file{
     position: relative;
     cursor: pointer;
-
     border-bottom: 1px solid #ddd;
 }
 #file_list .file .icon {
@@ -213,6 +218,10 @@
 
     float: left;
     line-height: 24px;
+}
+#file_list .file .label .extension {
+    color: #999;
+    font-size: 80%;
 }
 #file_list .file button {
     float: right;
