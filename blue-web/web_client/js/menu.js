@@ -25,6 +25,14 @@ angular.module('bluelatex.menu', [])
 
     var defaulfMenu = [
       {
+        label: 'New Paper',
+        link: '#/paper/new',
+        name: 'new_paper',
+        connected: true,
+        unconnected: false,
+        active: false
+      },
+      {
         label: 'Papers',
         link: '#/papers',
         name: 'papers',
@@ -51,13 +59,6 @@ angular.module('bluelatex.menu', [])
     ];
     var optionsPage = {
       'papers': [
-        {
-          label: 'New Paper',
-          type: 'link',
-          link: '#/paper/new',
-          class: '',
-          icon: null
-        }
       ],
       'paper': [
         {

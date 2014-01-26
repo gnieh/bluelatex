@@ -295,7 +295,7 @@ header  .logo img{
 nav {
     position: relative;
     line-height: 41px;
-    margin-left: 250px;
+    margin-left: 205px;
 }
 nav > div > ul {
     list-style: none;
@@ -686,7 +686,7 @@ table textarea {
     font-weight: normal;
     letter-spacing: normal;
     line-height: normal;
-    border-radius: 3px;
+    border-radius: 1px;
     outline: none;
 }
 .button.start{

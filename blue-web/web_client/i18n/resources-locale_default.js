@@ -350,9 +350,39 @@
         "description":"Reviewer"
     },
     {
+        "key":"_Reviewers_",
+        "value":"Reviewers",
+        "description":"Reviewers"
+    },
+    {
         "key":"_Options_",
         "value":"Options",
         "description":"Options"
+    },
+    {
+        "key":"_Delete_paper_Something_wrong_happened_",
+        "value":"Something wrong happened",
+        "description":"Delete paper: Something wrong happened"
+    },
+    {
+        "key":"_Delete_paper_Authenticated_user_has_no_sufficient_rights_to_delete_the_paper_",
+        "value":"Authenticated user has no sufficient rights to delete the paper",
+        "description":"Delete paper: Authenticated user has no sufficient rights to delete the paper"
+    },
+    {
+        "key":"_Delete_paper_User_must_be_authentified",
+        "value":"User must be authentified",
+        "description":"Delete paper: Delete paper User must be authentified"
+    },
+    {
+        "key":"_List_Papers_User_must_be_authentified_",
+        "value":"User must be authentified",
+        "description":"Delete paper: Delete paper User must be authentified"
+    },
+    {
+        "key":"_List_Papers_Something_wrong_happened_",
+        "value":"Something wrong happened",
+        "description":"List paper: Something wrong happened"
     },
     {
         "key":"_Edit_profile_",

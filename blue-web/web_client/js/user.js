@@ -95,7 +95,6 @@ angular.module("bluelatex.User", ["ngResource"])
 }).controller('LoginController', ['$rootScope', '$scope','User','localize','$location', function ($rootScope,$scope, User,localize,$location) {
     var user = {};
     $scope.user = user;
-    $scope.errors = [];
 
     $scope.login = function () {
         $scope.errors = [];
@@ -110,6 +109,7 @@ angular.module("bluelatex.User", ["ngResource"])
                   email: data.email,
                   etag: data.header.etag
                 };
+                $location.path( "/" );
               }, function (err) {
                 console.log(err);
               }, function (progress) {
@@ -118,6 +118,7 @@ angular.module("bluelatex.User", ["ngResource"])
             } else {
             }
         }, function(err) {
+          $scope.errors = [];
           switch(err.status){
             case 400:
               $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
@@ -143,6 +144,7 @@ angular.module("bluelatex.User", ["ngResource"])
     $rootScope.loggedUser = {};
     $location.path( "/login" );
   }, function(err) {
+    $scope.errors = [];
     switch(err.status){
       case 400:
         $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
@@ -176,6 +178,7 @@ angular.module("bluelatex.User", ["ngResource"])
             $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
           }
         }, function(err) {
+          $scope.errors = [];
           switch(err.status){
             case 400:
               $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
@@ -205,6 +208,7 @@ angular.module("bluelatex.User", ["ngResource"])
             $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
           }
         }, function(err) {
+          $scope.errors = [];
           switch(err.status){
             case 404:
               $scope.errors.push(localize.getLocalizedString('_Reset_User_not_found'));
@@ -237,6 +241,7 @@ angular.module("bluelatex.User", ["ngResource"])
         User.register(user).then(function(data) {
             $location.path( "/papers" );
         }, function(err) {
+          $scope.errors = [];
           switch(err.status){
             case 400:
               $scope.errors.push(localize.getLocalizedString('_Registration_Some_parameters_are_missing_'));
@@ -272,6 +277,7 @@ angular.module("bluelatex.User", ["ngResource"])
       User.save(save).then(function(data) {
           console.log(data);
       }, function(err) {
+        $scope.errors = [];
         switch(err.status){
           case 400:
             $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
@@ -295,6 +301,7 @@ angular.module("bluelatex.User", ["ngResource"])
         User.remove(user).then(function(data) {
             $location.path( "/login" );
         }, function(err) {
+          $scope.errors = [];
           switch(err.status){
             case 400:
               $scope.errors.push(localize.getLocalizedString('_Remove_user_Captcha_not_verify_or_user_not_authenticated_'));
@@ -319,6 +326,7 @@ angular.module("bluelatex.User", ["ngResource"])
         User.save(user).then(function(data) {
             $scope.errors.message(localize.getLocalizedString('_Edit_profile_success_'));
         }, function(err) {
+          $scope.errors = [];
           switch(err.status){
             case 304:
               $scope.errors.push(localize.getLocalizedString('_Edit_profile_No_enough_data_'));

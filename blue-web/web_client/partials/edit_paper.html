@@ -1,6 +1,9 @@
 <div id="manage">
     <h1 data-i18n="_Edit_paper_"></h1>
-    <form name="editPaperForm" ng-submit="edit()">
+    <form name="editPaperForm" ng-submit="modify()">
+        <div ng-show="errors.length > 0" class="errors">
+          <div ng-repeat="error in errors" class="error">{{error}}</div>
+        </div>
         <div class="grid">
             <div class="col c1-3">
                 <label for="title" data-i18n="_Title_">Title</label>
@@ -21,13 +24,13 @@
                 <div class="author" ng-repeat="author in paper.authors">
                   <input type="hidden" ng-model="author">
                   <div class="label">{{author}}</div>
-                  <button ng-click="removeAuthor(author)" class="icon-delete"></button>
+                  <button type="link" ng-click="removeAuthor(author)" class="icon-delete"></button>
                 </div>
                 <div class="clear"></div>
               </div>
               <div class="new">
                 <input type="text" ng-model="new_author" placeholder="New author">
-                <button ng-click="addAuthor()" class="icon-add"></button>
+                <a ng-click="addAuthor()" class="button icon-add"></a>
               </div>
             </div>
         </div>
@@ -40,13 +43,13 @@
                 <div class="reviewer" ng-repeat="reviewer in paper.reviewers">
                   <input type="hidden" ng-model="reviewer">
                   <div class="label">{{reviewer}}</div>
-                  <button ng-click="removeReviewers(reviewer)" class="icon-delete"></button>
+                  <button type="link"  ng-click="removeReviewers(reviewer)" class="icon-delete"></button>
                 </div>
                 <div class="clear"></div>
               </div>
               <div class="new">
                 <input type="text" ng-model="new_reviewer" placeholder="New reviewer">
-                <button ng-click="addReviewer()" class="icon-add"></button>
+                <a ng-click="addReviewer()" class="button icon-add"></a>
               </div>
             </div>
         </div>

@@ -2,97 +2,7 @@ angular.module('bluelatex.papers',[])
     .controller('PapersController', ['$rootScope','$scope','localize','User','Paper', function ($rootScope,$scope,localize, User, Paper) {
     $scope.reverse = false;
     $scope.predicate = 'title';
-    var papers = [
-      {
-        id: 'id',
-        icon: '//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg',
-        title: 'my First Paper',
-        date: new Date(),
-        authors: [
-          'thomas', 'lui'
-          ]
-      },{
-        id: 'id',
-        icon: '//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg',
-        title: 'my two Paper',
-        date: new Date(),
-        authors: [
-          'thomas', 'lui'
-          ]
-      },{
-        id: 'id',
-        icon: '//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg',
-        title: 'my tree Paper',
-        date: new Date(),
-        authors: [
-          'thomas', 'lui'
-          ]
-      },{
-        id: 'id',
-        icon: '//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg',
-        title: 'my fore Paper',
-        date: new Date(new Date().setDate(new Date().getDate()-1)),
-        authors: [
-          'thomas', 'lui'
-          ]
-      },{
-        id: 'id',
-        icon: '//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg',
-        title: 'my five Paper',
-        date: new Date(new Date().setDate(new Date().getDate()-30)),
-        authors: [
-          'thomas', 'lui'
-          ]
-      },{
-        id: 'id',
-        icon: '//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg',
-        title: 'my six Paper',
-        date: new Date(new Date().setDate(new Date().getDate()-5)),
-        authors: [
-          'thomas', 'lui'
-          ]
-      },{
-        id: 'id',
-        icon: '//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg',
-        title: 'my seven Paper',
-        date: new Date(new Date().setDate(new Date().getDate()-2)),
-        authors: [
-          'thomas', 'lui'
-          ]
-      },{
-        id: 'id',
-        icon: '//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg',
-        title: 'my First Paper',
-        date: new Date(),
-        authors: [
-          'thomas', 'lui'
-          ]
-      },{
-        id: 'id',
-        icon: '//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg',
-        title: 'my First Paper',
-        date: new Date(new Date().setDate(new Date().getDate()-365)),
-        authors: [
-          'thomas', 'lui'
-          ]
-      },{
-        id: 'id',
-        icon: '//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg',
-        title: 'my First Paper',
-        date: new Date(new Date().setDate(new Date().getDate()-100)),
-        authors: [
-          'thomas', 'lui'
-          ]
-      },{
-        id: 'id',
-        icon: '//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg',
-        title: 'my First Paper',
-        date: new Date(new Date().setDate(new Date().getDate()-1)),
-        authors: [
-          'thomas', 'lui', 'elle'
-          ]
-      }
-    ];
+
 
     User.getPapers($rootScope.loggedUser).then(function (data) {
       $scope.papers = [];
@@ -102,13 +12,25 @@ angular.module('bluelatex.papers',[])
         $scope.papers.push(data[i]);
       };
     }, function (err) {
-      console.log(err);
+      $scope.errors = [];
+      switch(err.status){
+        case 401:
+          $scope.errors.push(localize.getLocalizedString('_List_Papers_User_must_be_authentified_'));
+          break;
+        case 500:
+          $scope.errors.push(localize.getLocalizedString('_List_Papers_Something_wrong_happened_'));
+          break;
+        default:
+          $scope.errors.push(localize.getLocalizedString('_List_Papers_Something_wrong_happened_'));
+          console.log(err);
+      }
     })
     $scope.papers = [];
+    $scope.tags = ['A tag','CV'];
     $scope.display_style = 'list';
     $scope.date_filter = 'all';
-
     $scope.role_filter = 'all';
+    $scope.tag_filter = 'all';
 
     var dateFilterToday = function (paper) {
       var now = new Date();
@@ -169,10 +91,12 @@ angular.module('bluelatex.papers',[])
     var roleFilterAuthor = function (paper) {
       return paper.role == 'author';
     };
+
     $scope.roleFilterAuthor = roleFilterAuthor;
     var roleFilterReviewer = function (paper) {
       return paper.role == 'reviewer';
     };
+
     $scope.roleFilterReviewer = roleFilterReviewer;
     $scope.roleFilter = function (paper) {
       switch ($scope.role_filter) {
@@ -186,13 +110,27 @@ angular.module('bluelatex.papers',[])
     };
 
     $scope.delete = function (paper) {
-      console.log("delete", paper);
       Paper.delete(paper.id).then(function (data) {
-        if(data.response == 'true') {
-          $scope.papers.shift($scope.papers.indexOf(paper), 0);
+        if(data.response == true) {
+          $scope.papers.splice($scope.papers.indexOf(paper), 1);
         }
-      }, function (error) {
-        console.log(error)
+      }, function (err) {
+        $scope.errors = [];
+        switch(err.status){
+          case 401:
+            $scope.errors.push(localize.getLocalizedString('_Delete_paper_User_must_be_authentified_'));
+            $rootScope.loggedUser = {};
+            break;
+          case 403:
+            $scope.errors.push(localize.getLocalizedString('_Delete_paper_Authenticated_user_has_no_sufficient_rights_to_delete_the_paper_'));
+            break;
+          case 500:
+            $scope.errors.push(localize.getLocalizedString('_Delete_paper_Something_wrong_happened_'));
+            break;
+          default:
+            $scope.errors.push(localize.getLocalizedString('_Delete_paper_Something_wrong_happened_'));
+            console.log(err);
+        }
       })
     };
 

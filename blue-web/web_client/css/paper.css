@@ -66,7 +66,7 @@
 }
 #paper .leftCol {
     position: absolute;
-    width: 250px;
+    width: 215px;
     float: left;
     top: 0;
     margin-top: 42px;
@@ -79,7 +79,7 @@
 #paper .centerRightCol {
     position: absolute;
     left: 0;
-    padding-left: 250px;
+    padding-left: 215px;
     right:0;
     top: 0;
     bottom:0;

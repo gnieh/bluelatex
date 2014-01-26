@@ -7,6 +7,8 @@ angular.module('bluelatex.controller', ['bluelatex.User'])
     $scope.$on( "$routeChangeSuccess", function(event, route) {
       $scope.currentRoute = route;
     });
+    $scope.$errors = [];
+    $scope.$messages = [];
     $scope.$route = $route;
     $scope.$location = $location;
     $scope.$routeParams = $routeParams;
@@ -38,6 +40,6 @@ angular.module('bluelatex.controller', ['bluelatex.User'])
       });
     }
     getUserSession();
-    //check user session every 5 minutes
-    setInterval(getUserSession, 5*60*1000);
+    //check user session every  minute
+    setInterval(getUserSession, 60*1000);
   }]);

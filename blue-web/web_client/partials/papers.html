@@ -84,9 +84,23 @@
             <span class="label" data-i18n="_Reviewer_">Reviewer</span>
             <span class="nb">{{(papers| filter:search | filter:dateFilter | filter:roleFilterReviewer).length }}</span>
         </label>
+        <h3 data-i18n="_Tag_filter_">Tar filter</h3>
+        <label>
+            <input type="radio" name="tag" ng-model="tag_filter" value="all">
+            <span class="label" data-i18n="_All_">All</span>
+            <span class="nb">{{(papers| filter:search | filter:dateFilter | filter:roleFilter ).length }}</span>
+        </label>
+        <label ng-repeat="tag in tags">
+            <input type="radio" name="tag" ng-model="tag_filter" value="{{tag}}">
+            <span class="label">{{tag}}</span>
+            <span class="nb">{{(papers| filter:search | filter:dateFilter | filter:roleFilter ).length }}</span>
+        </label>
     </div>
     <div class="center">
         <div id="paper_list" ng-class="display_style">
+            <div ng-show="errors.length > 0" class="errors">
+              <div ng-repeat="error in errors" class="error">{{error}}</div>
+            </div>
             <div class="paper header" ng-if="display_style=='list'">
                 <div class="title" data-i18n="_Title_">
                     Title

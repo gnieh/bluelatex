@@ -1,6 +1,9 @@
 <div id="manage">
     <h1 data-i18n="_New_paper_">New Paper</h1>
     <form name="newPaperForm" ng-submit="create()">
+        <div ng-show="errors.length > 0" class="errors">
+          <div ng-repeat="error in errors" class="error">{{error}}</div>
+        </div>
         <div class="grid">
             <div class="col c1-3">
                 <label for="title" data-i18n="_Title_">Title</label>

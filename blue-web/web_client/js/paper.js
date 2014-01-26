@@ -6,16 +6,24 @@ angular.module('bluelatex.paper',[])
             format: 'json',
             isArray: false,
             transformResponse: [function(data, headersGetter) {
-              if(data = 'true')
-              return {response: data};
-              return data;
+              return {response: JSON.parse(data)};
             }].concat($http.defaults.transformResponse)
           },
-          "delete": {method: "DELETE"}
+          "delete": {method: "DELETE",
+            transformResponse: [function(data, headersGetter) {
+              return {response: JSON.parse(data)};
+            }].concat($http.defaults.transformResponse)}
         }
       );
       var info =  $resource( apiRoot+"/papers/:paper_id/info", null, {
-          "edit": {method: "PATCH", headers:{'Content-Type':'application/x-www-form-urlencoded'}},
+          "edit": {method: "PATCH",
+            headers:{'Content-Type':'application/json-patch'},
+            transformRequest: [function(data, headersGetter) {
+              var header = headersGetter();
+              header['If-Match'] = data.etag;
+              return data.path_json;
+            }].concat($http.defaults.transformRequest)
+          },
           "get": {
             method: "GET",
             transformResponse: [function(data, headersGetter) {
@@ -47,7 +55,10 @@ angular.module('bluelatex.paper',[])
             return array;
           }].concat($http.defaults.transformResponse)
         },
-          "delete": {method: "DELETE"}
+          "delete": {method: "DELETE",
+            transformResponse: [function(data, headersGetter) {
+              return {response: JSON.parse(data)};
+            }].concat($http.defaults.transformResponse)}
         }
       );
       var upload = function (paper_id, file, resource) {
@@ -85,8 +96,78 @@ angular.module('bluelatex.paper',[])
         getInfo: function (paper_id) {
           return info.get({ paper_id: paper_id }).$promise;
         },
-        modify: function (paper) {
-          return info.edit({ paper_id: paper.id },jsonToPostParameters(paper)).$promise;
+        modify: function (paper, initial_paper) {
+          var path_json = [];
+          if(paper.title != initial_paper.title) {
+            path_json.push({
+              'op': 'replace',
+              "path": "/title",
+              "value": paper.title
+            });
+          }
+          var reaplce_authors = false;
+          for (var i = 0; i < paper.authors.length; i++) {
+            var author = paper.authors[i];
+            if(initial_paper.authors.indexOf(author)<0) {
+              reaplce_authors = true;
+              break;
+            }
+          }
+          for (var i = 0; i < initial_paper.authors.length; i++) {
+            var author = initial_paper.authors[i];
+            if(paper.authors.indexOf(author)>=0) {
+              reaplce_authors = true;
+              break;
+            }
+          }
+          if(reaplce_authors) {
+            path_json.push({
+              'op': 'replace',
+              "path": "/authors",
+              "value": paper.authors
+            });
+          }
+          var reaplce_reviewers = false;
+          for (var i = 0; i < paper.reviewers.length; i++) {
+            var reviewer = paper.reviewers[i];
+            if(initial_paper.reviewers.indexOf(reviewer)<0) {
+              reaplce_reviewers = true;
+              break;
+            }
+          }
+          for (var i = 0; i < initial_paper.reviewers.length; i++) {
+            var reviewer = initial_paper.reviewers[i];
+            if(paper.reviewers.indexOf(reviewer)>=0) {
+              reaplce_reviewers = true;
+              break;
+            }
+          }
+          if(reaplce_authors) {
+            path_json.push({
+              'op': 'replace',
+              "path": "/reviewers",
+              "value": paper.reviewers
+            });
+          }
+          if(paper.branch != initial_paper.branch) {
+            path_json.push({
+              'op': 'replace',
+              "path": "/branch",
+              "value": paper.branch
+            });
+          }
+          if(paper.cls != initial_paper.cls) {
+            path_json.push({
+              'op': 'replace',
+              "path": "/cls",
+              "value": paper.cls
+            });
+          }
+          return info.edit({ paper_id: paper.id },
+            {
+              "etag": paper.etag,
+              path_json: path_json
+            }).$promise;
         },
         getResources: function (paper_id) {
           return resources.get({ paper_id: paper_id }).$promise;
@@ -366,7 +447,6 @@ angular.module('bluelatex.paper',[])
           extension: getFileNameExtension(file.name)
         };
       }
-      console.log($scope.new_file);
     };
 
     $scope.uploadResource = function () {
@@ -375,6 +455,20 @@ angular.module('bluelatex.paper',[])
         getResources();
         $scope.new_file = {};
       }, function (error) {
+        switch(err.status){
+          case 400:
+            $scope.errors.push(localize.getLocalizedString('_Upload_resource_Some_parameters_are_missing_'));
+            break;
+          case 401:
+            $scope.errors.push(localize.getLocalizedString('_Upload_resource_Wrong_username_and_or_password_'));
+            break;
+          case 500:
+            $scope.errors.push(localize.getLocalizedString('_Upload_resource_Something_wrong_happened_'));
+            break;
+          default:
+            $scope.errors.push(localize.getLocalizedString('_Upload_resource_Something_wrong_happened_'));
+            console.log(err);
+        }
         console.log(error);
       }, function (progress) {
         console.log(progress);
@@ -391,6 +485,21 @@ angular.module('bluelatex.paper',[])
       Paper.removeResource(paper_id, resource.title).then(function (data) {
         getResources();
       }, function (error) {
+        $scope.errors = [];
+        switch(err.status){
+          case 400:
+            $scope.errors.push(localize.getLocalizedString('_Delete_resource_Some_parameters_are_missing_'));
+            break;
+          case 401:
+            $scope.errors.push(localize.getLocalizedString('_Delete_resource_Wrong_username_and_or_password_'));
+            break;
+          case 500:
+            $scope.errors.push(localize.getLocalizedString('_Delete_resource_Something_wrong_happened_'));
+            break;
+          default:
+            $scope.errors.push(localize.getLocalizedString('_Delete_resource_Something_wrong_happened_'));
+            console.log(err);
+        }
         console.log(error);
       });
     };
@@ -404,26 +513,51 @@ angular.module('bluelatex.paper',[])
 
     $scope.create = function () {
       Paper.create(paper).then(function (data) {
-        console.log(data);
-        if(data.response == 'true') {
-          $location.path("/papers")
-        } else {
-          $scope.errors.push(data);
+        $location.path("/paper/"+data.response)
+      }, function (err) {
+        $scope.errors = [];
+        switch(err.status){
+          case 400:
+            $scope.errors.push(localize.getLocalizedString('_New_paper_Some_parameters_are_missing_'));
+            break;
+          case 401:
+            $scope.errors.push(localize.getLocalizedString('_New_paper_Wrong_username_and_or_password_'));
+            break;
+          case 500:
+            $scope.errors.push(localize.getLocalizedString('_New_paper_Something_wrong_happened_'));
+            break;
+          default:
+            $scope.errors.push(localize.getLocalizedString('_New_paper_Something_wrong_happened_'));
+            console.log(err);
         }
-      }, function (error) {
-        console.log(error);
       });
     };
 
   }]).controller('EditPaperController', ['$scope','localize','$location','Paper','$routeParams', function ($scope,localize,$location, Paper, $routeParams) {
     var paper_id = $routeParams.id;
+    var clone_paper = {};
     Paper.getInfo(paper_id).then(function (data) {
       $scope.paper = data;
       $scope.paper.etag = data.header.etag;
-    }, function (error) {
-      console.log(error);
+      $scope.paper.id = paper_id;
+      clone_paper = clone($scope.paper);
+    }, function (err) {
+      $scope.errors = [];
+      switch(err.status){
+        case 400:
+          $scope.errors.push(localize.getLocalizedString('_Edit_paper_Some_parameters_are_missing_'));
+          break;
+        case 401:
+          $scope.errors.push(localize.getLocalizedString('_Edit_paper_Wrong_username_and_or_password_'));
+          break;
+        case 500:
+          $scope.errors.push(localize.getLocalizedString('_Edit_paper_Something_wrong_happened_'));
+          break;
+        default:
+          $scope.errors.push(localize.getLocalizedString('_Edit_paper_Something_wrong_happened_'));
+          console.log(err);
+      }
     });
-    console.log("edit_paper");
 
     $scope.new_author = '';
     $scope.new_reviewer = '';
@@ -448,14 +582,10 @@ angular.module('bluelatex.paper',[])
       $scope.new_reviewer = '';
     };
 
-    $scope.create = function () {
-      Paper.create(paper).then(function (data) {
+    $scope.modify = function () {
+      Paper.modify($scope.paper, clone_paper).then(function (data) {
         console.log(data);
-        if(data.response == 'true') {
-          $location.path("/papers")
-        } else {
-          $scope.errors.push(data);
-        }
+
       }, function (error) {
         console.log(error);
       });

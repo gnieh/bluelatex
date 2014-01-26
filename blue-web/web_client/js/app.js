@@ -45,7 +45,7 @@ angular.module('bluelatex', [
     name: 'new_paper', connected: true, unconnected: false, title: 'New paper'
   }});
   $routeProvider.when('/paper/:id/edit', {templateUrl: 'partials/edit_paper.html', controller: 'EditPaperController',options:{
-    name: 'new_paper', connected: true, unconnected: false, title: 'Edit paper'
+    name: 'edit_paper', connected: true, unconnected: false, title: 'Edit paper'
   }});
   $routeProvider.when('/paper/:id/?', {templateUrl: 'partials/paper.html', controller: 'PaperController',options:{
     name: 'paper', connected: true, unconnected: false, title: 'Paper'
@@ -70,10 +70,11 @@ angular.module('bluelatex', [
           $location.path( "/login" );
         }
       } else if ( $route.current != null && $route.current.$$route.options.connected == false && $rootScope.loggedUser.name != null) {
+        console.log("prev_page: "+prev_page);
         if(prev_page!=null && prev_page!='/login'){
           setTimeout(function () {
             $location.path(prev_page);
-          },50)
+          },50);
         } else
           $location.path( "/" );
       }
