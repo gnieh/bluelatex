@@ -45,7 +45,7 @@ angular.module('bluelatex.controller', ['bluelatex.User'])
 
     //check user session every  minute
     var interval = 60*1000;
-    var intervalId = intervalId = setInterval(getUserSession, interval);
+    var intervalId = setInterval(getUserSession, interval);
     getUserSession();
     $scope.$on('windowActive', function(event, data){
       if(data==false) {

@@ -101,8 +101,8 @@
             <span class="label" data-i18n="_All_">All</span>
             <span class="nb">{{(papers| filter:search | filter:dateFilter | filter:roleFilter ).length }}</span>
         </label>
-        <label ng-repeat="tag in tags">
-            <input type="radio" name="tag" ng-model="tag_filter" value="{{tag}}">
+        <label ng-repeat="tag in tags | orderBy:'label':false">
+            <input type="radio" name="tag" ng-model="tag_filter" value="tag">
             <div class="label"><span class="diskColor" style="background: {{tag.color}}"></span> {{tag.label}}</div>
             <span class="nb">{{(papers| filter:search | filter:dateFilter | filter:roleFilter ).length }}</span>
         </label>

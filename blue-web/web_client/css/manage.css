@@ -61,8 +61,7 @@
     padding: 8px;
     float: left;
 }
-#manage .authors .author button, #manage .reviewers .reviewer button {
-    display: inline;
+#manage .authors .author .button, #manage .reviewers .reviewer .button {
     margin: 0;
     background: transparent;
     color: #4D4D4D;

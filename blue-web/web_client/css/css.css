@@ -245,7 +245,6 @@ header .langs .lang .name {
 }
 .menu_user .submenu {
     position: absolute;
-    /* top: 0; */
     background: #373942;
     padding: 7px;
     color: #fff;
@@ -259,7 +258,7 @@ header .langs .lang .name {
     padding: 0;
 }
 .menu_user a {
-    color: #f3f3f3;
+    color: #F3F3F3!important;
     font-size: 14px;
     white-space: nowrap;
     display: block;

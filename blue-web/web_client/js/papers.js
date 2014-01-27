@@ -27,7 +27,7 @@ angular.module('bluelatex.papers',[])
       }
     })
     $scope.papers = [];
-    $scope.tags = [{label:'A tag', color: get_radom_color()},{label:'CV', color: get_radom_color()}];
+    $scope.tags = [{label:'Brouillion', color: get_radom_color()},{label:'A tag', color: get_radom_color()},{label:'CV', color: get_radom_color()}];
     $scope.display_style = 'list';
     $scope.date_filter = 'all';
     $scope.role_filter = 'all';

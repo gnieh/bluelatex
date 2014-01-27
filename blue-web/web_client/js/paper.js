@@ -142,7 +142,7 @@ angular.module('bluelatex.paper',[])
               break;
             }
           }
-          if(reaplce_authors) {
+          if(reaplce_reviewers) {
             path_json.push({
               'op': 'replace',
               "path": "/reviewers",
