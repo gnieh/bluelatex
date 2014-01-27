@@ -4,6 +4,7 @@
 angular.module('bluelatex', [
   'localization',
   'ngRoute',
+  'ngStorage',
   'angular-md5',
   'gdi2290.gravatar-filter',
   'myApp.filters',

@@ -87,7 +87,7 @@
     width: auto;
     padding: 7px;
 }
-#paper_list.list .paper.header .date, #paper_list.list .paper.header .options, #paper_list.list .paper.header .authors, #paper_list.list .paper.header .role {
+#paper_list.list .paper.header .date, #paper_list.list .paper.header .options, #paper_list.list .paper.header .tags, #paper_list.list .paper.header .role {
     text-align: left;
     height: 34px;
     padding: 7px;
@@ -99,7 +99,7 @@
     border-left: 1px solid #ddd;
     text-align: center;
 }
-#paper_list.list .paper .authors {
+#paper_list.list .paper .tags {
     position: relative;
     display: block;
     float: right;
@@ -158,7 +158,7 @@
 #paper_list.vignette .paper img {
     width: 100%;
 }
-#paper_list.vignette .paper .title,#paper_list.vignette .paper .date, #paper_list.vignette .paper .authors, #paper_list.vignette .paper .options {
+#paper_list.vignette .paper .title,#paper_list.vignette .paper .date, #paper_list.vignette .paper .tags, #paper_list.vignette .paper .options {
     position: absolute;
     bottom: 0;
     background: #025097;
@@ -176,10 +176,10 @@
 #paper_list.vignette .paper:hover .title {
     bottom: 102px;
 }
-#paper_list.vignette .paper .authors {
+#paper_list.vignette .paper .tags {
     bottom: -34px;
 }
-#paper_list.vignette .paper:hover .authors {
+#paper_list.vignette .paper:hover .tags {
     bottom: 68px;
 }
 #paper_list.vignette .paper .date {
@@ -273,6 +273,17 @@
     width: 0;
     margin: 0;
     float: right;
+}
+.diskColor {
+    position: relative;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    top: 1px;
+}
+.tags .diskColor {
+    margin-left: 3px;
 }
 #papers .left label .label {
     padding: 2px 6px;

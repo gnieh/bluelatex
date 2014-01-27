@@ -8,7 +8,8 @@ angular.module('bluelatex.papers',[])
       $scope.papers = [];
       for (var i = 0; i < data.length; i++) {
         data[i].date = new Date();
-        data[i].authors = [];
+        data[i].tags = $scope.tags;
+
         $scope.papers.push(data[i]);
       };
     }, function (err) {
@@ -26,7 +27,7 @@ angular.module('bluelatex.papers',[])
       }
     })
     $scope.papers = [];
-    $scope.tags = ['A tag','CV'];
+    $scope.tags = [{label:'A tag', color: get_radom_color()},{label:'CV', color: get_radom_color()}];
     $scope.display_style = 'list';
     $scope.date_filter = 'all';
     $scope.role_filter = 'all';

@@ -65,3 +65,7 @@ function clone(obj) {
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
 }
+function get_radom_color () {
+  return (function(m,s,c){return (c ? arguments.callee(m,s,c-1) : '#') +
+  s[m.floor(m.random() * s.length)]})(Math,'0123456789ABCDEF',5)
+}

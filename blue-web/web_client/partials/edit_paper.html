@@ -53,6 +53,25 @@
               </div>
             </div>
         </div>
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="reviewers" data-i18n="_Tags_"></label>
+            </div>
+            <div class="col c2-3 form-group">
+              <div class="reviewers">
+                <div class="reviewer" ng-repeat="tag in paper.tags">
+                  <input type="hidden" ng-model="tag">
+                  <div class="label">{{tag}}</div>
+                  <button type="link"  ng-click="removeTag(tag)" class="icon-delete"></button>
+                </div>
+                <div class="clear"></div>
+              </div>
+              <div class="new">
+                <input type="text" ng-model="new_tag" placeholder="New tag">
+                <a ng-click="addTag()" class="button icon-add"></a>
+              </div>
+            </div>
+        </div>
         <button type="submit" ng-disabled="!editPaperForm.$valid" data-i18n="_Edit_"></button>
         <a class="button" href="#/papers" data-i18n="_Cancel_"></a>
     </form>

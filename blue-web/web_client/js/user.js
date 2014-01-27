@@ -92,7 +92,7 @@ angular.module("bluelatex.User", ["ngResource"])
             return removeUser.remove({ username: user.username }).$promise
         }
     };
-}).controller('LoginController', ['$rootScope', '$scope','User','localize','$location', function ($rootScope,$scope, User,localize,$location) {
+}).controller('LoginController', ['$rootScope', '$scope','User','localize','$location','$sessionStorage', function ($rootScope,$scope, User,localize,$location,$sessionStorage) {
     var user = {};
     $scope.user = user;
 
@@ -102,6 +102,8 @@ angular.module("bluelatex.User", ["ngResource"])
         User.login(user.username, user.password).then(function(data) {
             if(data.response == 'true') {
               User.getInfo(user).then(function (data) {
+                $sessionStorage.username = user.username;
+                $sessionStorage.password = user.password;
                 $rootScope.loggedUser = {
                   name: data.name,
                   first_name: data.first_name,
@@ -137,11 +139,13 @@ angular.module("bluelatex.User", ["ngResource"])
             console.log(progress);
         });
     };
-}]).controller('LogoutController', ['$rootScope', '$scope','User','localize','$location', function ($rootScope,$scope, User,localize,$location) {
+}]).controller('LogoutController', ['$rootScope', '$scope','User','localize','$location','$sessionStorage', function ($rootScope,$scope, User,localize,$location,$sessionStorage) {
   $scope.errors = [];
   console.log('logout');
   User.logout().then(function(data) {
     $rootScope.loggedUser = {};
+    delete $sessionStorage.username;
+    delete $sessionStorage.password;
     $location.path( "/login" );
   }, function(err) {
     $scope.errors = [];

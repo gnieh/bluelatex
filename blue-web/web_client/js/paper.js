@@ -115,7 +115,7 @@ angular.module('bluelatex.paper',[])
           }
           for (var i = 0; i < initial_paper.authors.length; i++) {
             var author = initial_paper.authors[i];
-            if(paper.authors.indexOf(author)>=0) {
+            if(paper.authors.indexOf(author)<0) {
               reaplce_authors = true;
               break;
             }
@@ -137,7 +137,7 @@ angular.module('bluelatex.paper',[])
           }
           for (var i = 0; i < initial_paper.reviewers.length; i++) {
             var reviewer = initial_paper.reviewers[i];
-            if(paper.reviewers.indexOf(reviewer)>=0) {
+            if(paper.reviewers.indexOf(reviewer)<0) {
               reaplce_reviewers = true;
               break;
             }
@@ -147,6 +147,28 @@ angular.module('bluelatex.paper',[])
               'op': 'replace',
               "path": "/reviewers",
               "value": paper.reviewers
+            });
+          }
+          var reaplce_tags = false;
+          for (var i = 0; i < paper.tags.length; i++) {
+            var tag = paper.tags[i];
+            if(initial_paper.tags.indexOf(tag)<0) {
+              reaplce_tags = true;
+              break;
+            }
+          }
+          for (var i = 0; i < initial_paper.tags.length; i++) {
+            var tag = initial_paper.tags[i];
+            if(paper.tags.indexOf(tag)<0) {
+              reaplce_tags = true;
+              break;
+            }
+          }
+          if(reaplce_tags) {
+            path_json.push({
+              'op': 'replace',
+              "path": "/tags",
+              "value": paper.tags
             });
           }
           if(paper.branch != initial_paper.branch) {
@@ -188,7 +210,7 @@ angular.module('bluelatex.paper',[])
           return apiRoot+"/papers/"+paper_id+".zip";
         }
       };
-    }).factory("ace", function () {
+    }).factory("ace",['$localStorage', function ($localStorage) {
       var content;
       var _session;
       var _editor;
@@ -215,14 +237,14 @@ angular.module('bluelatex.paper',[])
         fadeFoldWidgets: false,
         incrementalSearch: false
       };
-      if(localStorage.aceSettings == null){
-        localStorage.aceSettings = angular.toJson(aceSettings);
+      if($localStorage.aceSettings == null){
+        $localStorage.aceSettings = aceSettings;
       } else {
-        aceSettings = angular.fromJson(localStorage.aceSettings);
+        aceSettings = $localStorage.aceSettings;
       }
 
       var loadSettings = function () {
-        localStorage.aceSettings = angular.toJson(aceSettings);
+        $localStorage.aceSettings = aceSettings;
 
         _editor.setTheme(aceSettings.theme);
         _editor.setFontSize(aceSettings.fontSize);
@@ -329,7 +351,7 @@ angular.module('bluelatex.paper',[])
           getToc: getToc,
           aceSettings: aceSettings
       }
-  }).controller('PaperController', ['$scope','localize','$location','ace','Paper','$routeParams','$upload', function ($scope,localize,$location, ace, Paper,$routeParams,$upload) {
+  }]).controller('PaperController', ['$scope','localize','$location','ace','Paper','$routeParams','$upload', function ($scope,localize,$location, ace, Paper,$routeParams,$upload) {
     var paper_id = $routeParams.id;
     var getPaperInfo = function () {
       Paper.getInfo(paper_id).then(function (data) {
@@ -561,12 +583,16 @@ angular.module('bluelatex.paper',[])
 
     $scope.new_author = '';
     $scope.new_reviewer = '';
+    $scope.new_tag = '';
 
     $scope.removeAuthor = function (author) {
       $scope.paper.authors.splice($scope.paper.authors.indexOf(author), 1);
     };
     $scope.removeReviewer = function (reviewer) {
       $scope.paper.reviewers.splice($scope.paper.reviewers.indexOf(reviewer), 1);
+    };
+    $scope.removeTag = function (tag) {
+      $scope.paper.tags.splice($scope.paper.tags.indexOf(tag), 1);
     };
 
     $scope.addAuthor = function () {
@@ -581,11 +607,17 @@ angular.module('bluelatex.paper',[])
         $scope.paper.reviewers.push(reviewer);
       $scope.new_reviewer = '';
     };
+    $scope.addTag = function () {
+      var tag = $scope.new_tag;
+      if($scope.paper.tags.indexOf(tag) < 0)
+        $scope.paper.tags.push(tag);
+      $scope.new_tag = '';
+    };
 
     $scope.modify = function () {
       Paper.modify($scope.paper, clone_paper).then(function (data) {
         console.log(data);
-
+        $location.path("/papers");
       }, function (error) {
         console.log(error);
       });
