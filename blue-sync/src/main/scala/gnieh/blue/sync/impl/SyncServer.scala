@@ -43,13 +43,14 @@ import scala.util.{Try, Success, Failure}
  */
 class SyncServer(dispatcher: ActorRef, configuration: Config) extends SynchroServer {
 
-  private implicit val formats = DefaultFormats +
-                                 new SyncSessionSerializer +
-                                 new SyncCommandSerializer +
-                                 new SyncActionSerializer +
-                                 new EditSerializer
-
   private implicit val timeout = Timeout(500 millis)
+
+  protected[impl] implicit val formats =
+    DefaultFormats +
+    new SyncSessionSerializer +
+    new SyncCommandSerializer +
+    new SyncActionSerializer +
+    new EditSerializer
 
   def session(data: String): String = {
     val syncSession = Serialization.read[SyncSession](data)
