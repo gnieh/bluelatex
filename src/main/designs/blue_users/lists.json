@@ -5,5 +5,8 @@
     "emails": {
       "map": "function(doc) { if(doc.email) { emit(doc._id, doc.email); } }"
     }
+    "names": {
+      "map": "function(doc) { if(doc.name) { emit(doc.name, null); } }"
+    }
   }
 }

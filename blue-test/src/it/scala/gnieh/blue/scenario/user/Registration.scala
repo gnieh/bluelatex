@@ -28,7 +28,7 @@ import org.scalatest._
  */
 class UserRegistrationSpec extends BlueScenario with SomeUsers {
 
-  val predefinedPeople = List()
+  val predefinedPeople = List(rene)
 
   feature("Any person must be able to register with the \\BlueLaTeX service"){
 
@@ -91,7 +91,7 @@ class UserRegistrationSpec extends BlueScenario with SomeUsers {
     scenario("a user registration for an already existing name") {
 
       Given("a person")
-      val person = gerard
+      val person = rene
 
       When("she sends a registration request with an already existing username")
       val exc = evaluating {

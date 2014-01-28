@@ -66,17 +66,17 @@ class BlueBuild extends Build with Pack with Server with Tests {
     "ch.qos.logback" % "logback-classic" % "1.0.13",
     "org.slf4j" % "jcl-over-slf4j" % "1.7.5",
     "com.jsuereth" %% "scala-arm" % "1.3",
+    "com.typesafe" % "config" % "1.0.2",
     "org.osgi" % "org.osgi.core" % "4.3.0" % "provided",
     "org.osgi" % "org.osgi.compendium" % "4.3.0" % "provided",
-    "com.typesafe" % "config" % "1.0.2",
     "org.scalatest" %% "scalatest" % "2.0.M6" % "test",
-    "com.typesafe.akka" %% "akka-testkit" % "2.2.1" % "test"
+    "com.typesafe.akka" %% "akka-testkit" % "2.2.3" % "test"
   )
 
   lazy val coreDependencies = commonDeps ++ Seq(
     "org.gnieh" %% "tiscaf" % "0.8",
     "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
-    "com.typesafe.akka" %% "akka-osgi" % "2.2.1",
+    "com.typesafe.akka" %% "akka-osgi" % "2.2.3",
     "org.apache.pdfbox" % "pdfbox" % "1.8.2" exclude("commons-logging", "commons-logging"),
     "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
     "commons-collections" % "commons-collections" % "3.2.1",

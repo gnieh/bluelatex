@@ -61,7 +61,7 @@ class ExtensibleApp(config: Config) extends HApp {
 
   // session stuffs
   override def tracking = HTracking.Cookie
-  override def sessionTimeoutMinutes = config.getInt("blue.session-timeout")
+  override def sessionTimeoutMinutes = (config.getMilliseconds("blue.session-timeout") / 60000).toInt
   override def cookieKey = "BLUE_SESSIONID"
 
   override def onSessionInvalidate(sid: String, data: Map[Any, Any]) {

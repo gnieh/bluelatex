@@ -40,6 +40,7 @@ class DbManager(configuration: CouchConfiguration, val logger: Logger) extends L
           dm.reload
         } catch {
           case e: Exception => // ignore exception
+            logError("Cannot save design documents", e)
         }
       }
     }

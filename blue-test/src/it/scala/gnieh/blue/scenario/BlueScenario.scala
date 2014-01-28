@@ -71,7 +71,9 @@ abstract class BlueScenario extends FeatureSpec
 
   object mailbox extends Mailbox
 
-  override def beforeAll(config: ConfigMap) {
+  override def beforeAll(config: ConfigMap): Unit =  try {
+    super.beforeAll(config)
+  } finally {
     assume(config.isDefinedAt("couchPort"), "couchPort must be provided")
     assume(config.isDefinedAt("admin"), "admin must be provided")
     assume(config.isDefinedAt("password"), "password must be provided")
@@ -89,18 +91,22 @@ abstract class BlueScenario extends FeatureSpec
     couch.database("blue_papers").create
   }
 
-  override def afterAll(config: ConfigMap) {
+  override def afterAll(config: ConfigMap): Unit = try {
+    super.afterAll(config)
+  } finally {
     mailbox.stop()
     // cleanup databases from all non design documents
     val usersDb = couch.database("blue_users")
     // filter out design documents
-    val userDocs = usersDb._all_docs.filter(!_.startsWith("_design/"))
+    val userDocs = usersDb._all_docs().filter(!_.startsWith("_design/"))
     // and delete them
-    usersDb.deleteDocs(userDocs)
+    if(userDocs.nonEmpty)
+      usersDb.deleteDocs(userDocs)
     val papersDb = couch.database("blue_papers")
     // filter out design documents
-    val paperDocs = papersDb._all_docs.filter(!_.startsWith("_design/"))
-    papersDb.deleteDocs(paperDocs)
+    val paperDocs = papersDb._all_docs().filter(!_.startsWith("_design/"))
+    if(paperDocs.nonEmpty)
+      papersDb.deleteDocs(paperDocs)
   }
 
   type AsyncResult[T] = Future[Result[T]]

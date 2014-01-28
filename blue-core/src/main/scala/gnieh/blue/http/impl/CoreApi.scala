@@ -61,7 +61,12 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
       new ModifyPaperLet(paperid, config, logger)
   }
 
+  private val GetUsersLet = new GetUsersLet(config, logger)
+
   GET {
+    // gets the list of users matching the given pattern
+    case p"users" =>
+      GetUsersLet
     // gets the data of the given user
     case p"users/$username/info" =>
       new GetUserInfoLet(username, config, logger)
