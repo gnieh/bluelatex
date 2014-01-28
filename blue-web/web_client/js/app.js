@@ -4,6 +4,7 @@ angular.module('bluelatex', [
   'localization',
   'ngRoute',
   'bluelatex.Shared.Services.Configuration',
+  'bluelatex.Shared.Services.WindowActive',
   'bluelatex.Paper.Controllers.EditPaper',
   'bluelatex.Paper.Controllers.NewPaper',
   'bluelatex.Paper.Controllers.Paper',
@@ -139,8 +140,8 @@ angular.module('bluelatex', [
       options: {}
     });
   }
-]).run(['$rootScope', '$location', '$route', '$window','$log',
-  function ($rootScope, $location, $route, $window,$log) {
+]).run(['$rootScope', '$location', '$route', '$window','$log','WindowActiveService',
+  function ($rootScope, $location, $route, $window,$log,WindowActiveService) {
     $rootScope.loggedUser = {};
     var prev_page = null;
     $rootScope.$watch('loggedUser', function (value) {

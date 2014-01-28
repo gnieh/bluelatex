@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('bluelatex.Shared.Controllers.Main', ['bluelatex.User.Services.User','bluelatex.User.Services.Session','bluelatex.Shared.Services.WindowActive','ngStorage','bluelatex.Paper.Services.Ace'])
-  .controller('MainController', ['$rootScope', '$scope', 'UserService','SessionService', '$route', '$location', '$routeParams', 'AceService', '$sessionStorage', '$log',
-    function ($rootScope, $scope, UserService,SessionService, $route, $location, $routeParams, AceService, $sessionStorage, $log) {
+angular.module('bluelatex.Shared.Controllers.Main', ['bluelatex.User.Services.User','bluelatex.User.Services.Session','ngStorage','bluelatex.Paper.Services.Ace'])
+  .controller('MainController', ['$rootScope', '$scope', 'UserService','SessionService', '$route', '$location', '$routeParams', 'AceService', '$sessionStorage', '$log','WindowActiveService',
+    function ($rootScope, $scope, UserService,SessionService, $route, $location, $routeParams, AceService, $sessionStorage, $log,WindowActiveService) {
       $scope.$route = $route;
       $scope.$location = $location;
       $scope.$routeParams = $routeParams;
@@ -41,7 +41,8 @@ angular.module('bluelatex.Shared.Controllers.Main', ['bluelatex.User.Services.Us
       var interval = 60 * 1000;
       var intervalId = setInterval(getUserSession, interval);
       getUserSession();
-      $scope.$on('windowActive', function (event, data) {
+      WindowActiveService.registerObserverCallback(function () {
+        var data = WindowActiveService.isActiveWindow();
         if (data == false) {
           clearInterval(intervalId);
           intervalId = null;

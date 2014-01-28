@@ -1,16 +1,31 @@
 'use strict';
 
 angular.module('bluelatex.Shared.Services.WindowActive', [])
-  .factory("WindowActiveService", ['$scope', '$document', '$window',
-    function ($scope, $document, $window) {
-      var windowActive = false;
+  .factory("WindowActiveService", ['$document', '$window',
+    function ($document, $window) {
+
+      var observerCallbacks = [];
+
+      //register an observer
+      var registerObserverCallback = function(callback){
+        observerCallbacks.push(callback);
+      };
+
+      //call this when you know 'foo' has been changed
+      var notifyObservers = function(){
+        angular.forEach(observerCallbacks, function(callback){
+          callback();
+        });
+      };
+
+      var windowActive = true;
       var hidden = "hidden";
       // Standards:
       if (hidden in $document)
         $document.addEventListener("visibilitychange", onchange);
-      else if ((hidden = "mozHidden") in $$document)
-        $$document.addEventListener("mozvisibilitychange", onchange);
-      else if ((hidden = "webkitHidden") in $$document)
+      else if ((hidden = "mozHidden") in $document)
+        $document.addEventListener("mozvisibilitychange", onchange);
+      else if ((hidden = "webkitHidden") in $document)
         $document.addEventListener("webkitvisibilitychange", onchange);
       else if ((hidden = "msHidden") in $document)
         $document.addEventListener("msvisibilitychange", onchange);
@@ -22,7 +37,6 @@ angular.module('bluelatex.Shared.Services.WindowActive', [])
         $window.onpageshow = $window.onpagehide = $window.onfocus = $window.onblur = onchange;
 
       function onchange(evt) {
-        console.log("window",evt);
         var v = 'visible',
           h = 'hidden',
           evtMap = {
@@ -33,21 +47,20 @@ angular.module('bluelatex.Shared.Services.WindowActive', [])
             focusout: h,
             pagehide: h
           };
-          console.log(evt);
 
         evt = evt || $window.event;
         if (evt.type in evtMap) {
-          var windowActive = evtMap[evt.type] == v;
-          $scope.$broadcast('windowActive', windowActive);
+          windowActive = evtMap[evt.type] == v;
         } else {
-          var windowActive = this[hidden];
-          $scope.$broadcast('windowActive', windowActive);
+          windowActive = this[hidden];
         }
+        notifyObservers();
       }
       return {
         isActiveWindow: function () {
           return windowActive;
-        }
+        },
+        registerObserverCallback: registerObserverCallback
       };
     }
   ]);

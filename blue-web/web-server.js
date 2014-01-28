@@ -16,13 +16,13 @@ var app = express();
 app.configure(function() {
     app.set('port', process.env.PORT || DEFAULT_PORT);
     app.set('env', 'development');
-
+    app.use(express.compress());
     app.use(express.static(path.join(__dirname, 'web_client')));
     app.use(express.cookieParser('myGoodPasswordNeverKnowIt'));
     app.use(express.bodyParser());
     app.use(express.session({ secret: 'myGoodPasswordNeverKnowIt' }));
 
-    app.use(express.favicon());
+    app.use(express.favicon(path.join(__dirname, 'web_client') + '/favicon.ico'));
     app.use(express.json());
     app.use(express.urlencoded());
     app.use(express.methodOverride());
