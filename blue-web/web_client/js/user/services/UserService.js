@@ -9,29 +9,6 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
           verifyIntegrity: true
         });
 
-        var session = $resource(apiRootUrl + "/session", null, {
-          "login": {
-            method: "POST",
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            transformResponse: [
-
-              function (data, headersGetter) {
-                if (data == 'true') return {
-                  response: JSON.parse(data)
-                };
-                return data;
-              }
-            ].concat($http.defaults.transformResponse)
-          },
-          "get": {
-            method: "GET"
-          },
-          "logout": {
-            'method': 'DELETE'
-          }
-        });
         var password = $resource(apiRootUrl + "/users/:username/reset", {
           username: "@username"
         }, {
@@ -43,6 +20,26 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded'
             }
+          }
+        });
+        var users = $resource(apiRootUrl + "/users", {}, {
+          "get": {
+            method: "get",
+            format: 'json',
+            isArray: true,
+            transformResponse: [
+              function (data, headersGetter) {
+                var users = [];
+                data = JSON.parse(data);
+                for (var i = 0; i < data.length; i++) {
+                  var user = data[i];
+                  users.push({
+                    name: user
+                  });
+                };
+                return users;
+              }
+            ].concat($http.defaults.transformResponse)
           }
         });
         var info = $resource(apiRootUrl + "/users/:username/info", {
@@ -87,18 +84,6 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
           }
         });
         return {
-          login: function (username, password) {
-            return session.login({}, jsonToPostParameters({
-              "username": username,
-              'password': password
-            })).$promise;
-          },
-          logout: function () {
-            return session.logout().$promise;
-          },
-          getSession: function () {
-            return session.get().$promise;
-          },
           getPasswordToken: function (username) {
             return password.getToken({
               username: username
@@ -122,6 +107,24 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
                 username: user.username
               }).$promise.then(function (data) {
                 _dataCache.put('/users/' + user.username, data);
+                deferred.resolve(data);
+              }, function (error) {
+                $log.error(error);
+                deferred.reject(error);
+              }, function (progress) {
+                deferred.notify(progress);
+              });
+            }
+            return promise;
+          },
+          getUsers: function (search) {
+            var deferred = $q.defer();
+            var promise = deferred.promise;
+            if (_dataCache.get('/users')) deferred.resolve(_dataCache.get('/users'));
+            else {
+              users.get({},{name: search}).$promise.then(function (data) {
+                if(search==null)
+                  _dataCache.put('/users', data);
                 deferred.resolve(data);
               }, function (error) {
                 $log.error(error);

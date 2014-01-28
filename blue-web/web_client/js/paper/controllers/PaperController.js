@@ -127,8 +127,11 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
 
       $scope.uploadResource = function () {
         PaperService.uploadResource(paper_id, $scope.new_file.title, $scope.new_file.file).then(function (data) {
-          getResources();
-          $scope.new_file = {};
+          if(data.response == true) {
+            getResources();
+            $scope.new_file = {};
+          } else
+            MessagesService.error('_Upload_resource_Some_parameters_are_missing_');
         }, function (err) {
           MessagesService.clear();
           switch (err.status) {
@@ -157,7 +160,11 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       };
       $scope.removeResource = function (resource) {
         PaperService.removeResource(paper_id, resource.title).then(function (data) {
-          getResources();
+          if(data.response == true) {
+            getResources();
+            $scope.new_file = {};
+          } else
+            MessagesService.error('_Delete_resource_Some_parameters_are_missing_');
         }, function (err) {
           MessagesService.clear();
           switch (err.status) {

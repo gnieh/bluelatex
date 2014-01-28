@@ -1,6 +1,6 @@
-angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Services.Paper'])
-  .controller('EditPaperController', ['$scope', 'localize', '$location', 'PaperService', '$routeParams', '$log','MessagesService',
-    function ($scope, localize, $location, PaperService, $routeParams, $log,MessagesService) {
+angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Services.Paper','bluelatex.User.Services.User','angucomplete'])
+  .controller('EditPaperController', ['$scope', 'localize', '$location', 'PaperService','UserService', '$routeParams', '$log','MessagesService',
+    function ($scope, localize, $location, PaperService,UserService, $routeParams, $log,MessagesService) {
       var paper_id = $routeParams.id;
       var clone_paper = {};
 
@@ -28,7 +28,29 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
           MessagesService.error('_Edit_paper_Something_wrong_happened_',err);
         }
       });
-
+      UserService.getUsers().then(function (users) {
+        console.log(users);
+        $scope.users = users;
+      }, function (err) {
+        MessagesService.clear();
+        switch (err.status) {
+        case 400:
+          MessagesService.error('_Edit_paper_Some_parameters_are_missing_',err);
+          break;
+        case 401:
+          MessagesService.error('_Edit_paper_Wrong_username_and_or_password_',err);
+          break;
+        case 404:
+          MessagesService.error('_Edit_paper_Paper_not_found_',err);
+          break;
+        case 500:
+          MessagesService.error('_Edit_paper_Something_wrong_happened_',err);
+          break;
+        default:
+          MessagesService.error('_Edit_paper_Something_wrong_happened_',err);
+        }
+      });
+      $scope.users = [];
       $scope.new_author = '';
       $scope.new_reviewer = '';
       $scope.new_tag = '';
@@ -45,14 +67,16 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
 
       $scope.addAuthor = function () {
         var author = $scope.new_author;
-        if ($scope.paper.authors.indexOf(author) < 0)
-          $scope.paper.authors.push(author);
+        if(!author.title) return;
+        if ($scope.paper.authors.indexOf(author.title) < 0)
+          $scope.paper.authors.push(author.title);
         $scope.new_author = '';
       };
       $scope.addReviewer = function () {
         var reviewer = $scope.new_reviewer;
-        if ($scope.paper.reviewers.indexOf(reviewer) < 0)
-          $scope.paper.reviewers.push(reviewer);
+        if(!reviewer.title)return;
+        if ($scope.paper.reviewers.indexOf(reviewer.title) < 0)
+          $scope.paper.reviewers.push(reviewer.title);
         $scope.new_reviewer = '';
       };
       $scope.addTag = function () {

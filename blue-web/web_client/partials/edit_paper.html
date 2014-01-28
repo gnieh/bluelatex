@@ -1,6 +1,6 @@
 <div id="manage">
     <h1 data-i18n="_Edit_paper_"></h1>
-    <form name="editPaperForm" ng-submit="modify()">
+    <form name="editPaperForm">
         <div bl-messages></div>
         <div class="grid">
             <div class="col c1-3">
@@ -27,7 +27,15 @@
                 <div class="clear"></div>
               </div>
               <div class="new">
-                <input type="text" ng-model="new_author" placeholder="New author">
+                <angucomplete id="new_author"
+                  placeholder="New author"
+                  pause="100"
+                  selectedobject="new_author"
+                  localdata="users"
+                  searchfields="name"
+                  titlefield="name"
+                  minlength="1"
+                  inputclass="form-control form-control-small"></angucomplete>
                 <a ng-click="addAuthor()" class="button icon-add"></a>
               </div>
             </div>
@@ -46,7 +54,15 @@
                 <div class="clear"></div>
               </div>
               <div class="new">
-                <input type="text" ng-model="new_reviewer" placeholder="New reviewer">
+                <angucomplete id="new_reviewer"
+                  placeholder="New reviewer"
+                  pause="100"
+                  selectedobject="new_reviewer"
+                  localdata="users"
+                  searchfields="name"
+                  titlefield="name"
+                  minlength="1"
+                  inputclass="form-control form-control-small"></angucomplete>
                 <a ng-click="addReviewer()" class="button icon-add"></a>
               </div>
             </div>
@@ -70,7 +86,7 @@
               </div>
             </div>
         </div>
-        <button type="submit" ng-disabled="!editPaperForm.$valid" data-i18n="_Edit_"></button>
+        <a class="button" ng-disabled="!editPaperForm.$valid" data-i18n="_Edit_" ng-click="modify()"></a>
         <a class="button" href="#/papers" data-i18n="_Cancel_"></a>
     </form>
 </div>

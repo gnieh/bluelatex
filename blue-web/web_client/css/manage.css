@@ -73,3 +73,37 @@
 #manage .new input {
     width: 250px;
 }
+
+.angucomplete-holder {
+    display: inline;
+    position: relative;
+}
+
+.angucomplete-dropdown {
+    width: 250px;
+    padding: 0;
+    cursor: pointer;
+    z-index: 9999;
+    position: absolute;
+    margin-top: -6px;
+    background-color: #68738A;
+
+}
+
+.angucomplete-searching {
+    color: #FAFAFA;
+    font-size: 14px;
+    padding: 5px;
+}
+
+.angucomplete-row {
+    padding: 5px;
+    color: #fff;
+    border-bottom: 1px solid #ddd;
+
+}
+
+.angucomplete-selected-row, .angucomplete-row:hover {
+    background-color: #025097;
+    color: #ffffff;
+}
