@@ -31,10 +31,7 @@ import couch.Paper
  *   - non author trying to retrieve settings for a compiler,
  *   - non author trying to save settings for a compiler
  */
-class CompilerSettingsSpec extends BlueScenario with SomeUsers with SomePapers {
-
-  val predefinedPapers: List[Paper] =
-    List(Paper("paper1", "Some Test Paper", Set("glambert"), Set("pprince"), "article"))
+class CompilerSettingsSpec extends BlueScenario with SomeUsers {
 
   val predefinedPeople: List[Person] =
     List(gerard, prince)
@@ -48,26 +45,38 @@ class CompilerSettingsSpec extends BlueScenario with SomeUsers with SomePapers {
 
       loggedin should be(true)
 
-      When("he saves the settings for a paper on which he is an author")
-      val p =
-        JsonPatch.parse("""[
-                          |  {
-                          |    "op":"add",
-                          |    "path":"/compiler",
-                          |    "value":"pdflatex"
-                          |  },{
-                          |    "op":"add",
-                          |    "path":"/interval",
-                          |    "value":15
-                          |  },{
-                          |    "op":"add",
-                          |    "path":"/timeout",
-                          |    "value":30
-                          |  }
-                          |]""".stripMargin)
-      val (saved, _) = patch[Boolean](List("papers", "paper1", "compiler", "settings"), p, "")
+      When("he creates a new paper")
+      val title = "Some Test Paper"
+      val (paperId, _) = post[String](List("papers"), Map("paper_title" -> title))
+
+      Then("settings are created for the newly created paper")
+      val (compilerSettings, headers) = get[CompilerSettings](List("papers", paperId, "compiler", "settings"))
+
+      compilerSettings.compiler should be("pdflatex")
+      compilerSettings.timeout should be(30)
+      compilerSettings.interval should be(15)
+      headers.get("ETag") should be('defined)
+
+      val revision = headers("ETag").head
+
+      And("he can modify and save these settings")
+      val newSettings = compilerSettings.copy(compiler = "xelatex")
+
+      val p = JsonDiff.diff(compilerSettings, newSettings)
+
+      val (saved, _) = patch[Boolean](List("papers", paperId, "compiler", "settings"), p, revision)
 
       saved should be(true)
+
+      Then("the new settings are the one taken into account")
+      val (newCompilerSettings, newHeaders) = get[CompilerSettings](List("papers", paperId, "compiler", "settings"))
+
+      newCompilerSettings.compiler should be("xelatex")
+      newCompilerSettings.timeout should be(30)
+      newCompilerSettings.interval should be(15)
+      newHeaders.get("ETag") should be('defined)
+
+      newHeaders("ETag") should not be(revision)
 
     }
 

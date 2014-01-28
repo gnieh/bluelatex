@@ -24,6 +24,8 @@ import paper._
 
 import com.typesafe.config.Config
 
+import org.osgi.framework.BundleContext
+
 /** The core Api providing features to:
  *   - manage users
  *   - manage sessions
@@ -32,18 +34,18 @@ import com.typesafe.config.Config
  *
  *  @author Lucas Satabin
  */
-class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha, logger: Logger) extends RestApi {
+class CoreApi(config: Config, context: BundleContext, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha, logger: Logger) extends RestApi {
 
   POST {
     // registers a new user
     case p"users" =>
-      new RegisterUserLet(config, templates, mailAgent, recaptcha, logger)
+      new RegisterUserLet(config, context, templates, mailAgent, recaptcha, logger)
     // performs password reset
     case p"users/$username/reset" =>
       new ResetUserPassword(username, config, logger)
     // creates a new paper
     case p"papers" =>
-      new CreatePaperLet(config, templates, logger)
+      new CreatePaperLet(config, context, templates, logger)
     // log a user in
     case p"session" =>
       new LoginLet(config, logger)
@@ -100,13 +102,13 @@ class CoreApi(config: Config, templates: Templates, mailAgent: MailAgent, recapt
   DELETE {
     // unregisters the authenticated user
     case p"users/$username" =>
-      new DeleteUserLet(username, config,recaptcha, logger)
+      new DeleteUserLet(username, context, config, recaptcha, logger)
     // log a user out
     case p"session" =>
       new LogoutLet(config, logger)
     // deletes a paper
     case p"papers/$paperid" =>
-      new DeletePaperLet(paperid, config, recaptcha, logger)
+      new DeletePaperLet(paperid, context, config, recaptcha, logger)
     // deletes a non synchronized resource
     case p"papers/$paperid/files/resources/$resourcename" =>
       new DeleteResourceLet(paperid, resourcename, config, logger)

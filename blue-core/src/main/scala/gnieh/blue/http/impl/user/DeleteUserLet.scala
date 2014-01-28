@@ -27,6 +27,8 @@ import common._
 
 import com.typesafe.config.Config
 
+import org.osgi.framework.BundleContext
+
 import gnieh.diffson._
 
 import scala.util.{
@@ -40,7 +42,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class DeleteUserLet(username: String, config: Config, recaptcha: ReCaptcha, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class DeleteUserLet(username: String, context: BundleContext, config: Config, recaptcha: ReCaptcha, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   // TODO logging
 
@@ -79,12 +81,17 @@ class DeleteUserLet(username: String, config: Config, recaptcha: ReCaptcha, logg
               val newPapers =
                 for(Row(_, _, _, Some(p)) <- rows)
                   yield p.copy(authors = p.authors - userid, reviewers = p.reviewers - userid).withRev(p._rev)
-              Try(database(blue_papers).saveDocs(newPapers))
+              database(blue_papers).saveDocs(newPapers) map { _ =>
+                import OsgiUtils._
+                // notifiy deletion hooks
+                for(hook <- context.getAll[UserUnregistered])
+                  Try(hook.afterUnregister(userid, couchSession))
+              }
             case false =>
-              // TODO log it
+              logError(s"Cannot deleted \\BlueLaTeX user $userid")
               Success(talk
                 .setStatus(HStatus.InternalServerError)
-                .writeJson(ErrorResponse("cannot_unregister", "Unable to delete user data from database")))
+                .writeJson(ErrorResponse("cannot_unregister", "Unable to delete user data")))
           }
 
         } else {

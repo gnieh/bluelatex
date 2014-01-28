@@ -32,6 +32,8 @@ import tiscaf._
 
 import com.typesafe.config.Config
 
+import org.osgi.framework.BundleContext
+
 import resource._
 
 import scala.sys.process._
@@ -45,7 +47,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class DeletePaperLet(paperId: String, config: Config, recaptcha: ReCaptcha, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class DeletePaperLet(paperId: String, context: BundleContext, config: Config, recaptcha: ReCaptcha, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>
@@ -54,14 +56,20 @@ class DeletePaperLet(paperId: String, config: Config, recaptcha: ReCaptcha, logg
       import FileProcessing._
       val dirDeleted = configuration.paperDir(paperId).deleteRecursive()
       if(dirDeleted) {
+        import OsgiUtils._
+
         database("blue_papers").deleteDoc(paperId) map {
           case true =>
+            // notifiy deletion hooks
+            for(hook <- context.getAll[PaperDeleted])
+              Try(hook.afterDelete(paperId, couchSession))
             talk.writeJson(true)
           case false =>
             talk
               .setStatus(HStatus.InternalServerError)
               .writeJson(ErrorResponse("cannot_delete_paper", "Unable to delete the paper database"))
         }
+
       } else {
         Success(talk
           .setStatus(HStatus.InternalServerError)

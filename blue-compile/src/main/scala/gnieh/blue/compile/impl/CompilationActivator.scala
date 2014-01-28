@@ -20,6 +20,8 @@ package impl
 import org.osgi.framework._
 import org.osgi.service.log.LogService
 
+import scala.collection.mutable.ListBuffer
+
 import akka.actor._
 import akka.routing.{
   DefaultResizer,
@@ -38,17 +40,16 @@ class CompilationActivator extends BundleActivator {
 
   private var dispatcher: Option[ActorRef] = None
   private var commands: Option[ActorRef] = None
+  private val hooks = ListBuffer.empty[ServiceRegistration[_]]
 
-  def start(context: BundleContext): Unit = {
+  def start(context: BundleContext): Unit =
     context.trackOne[SynchroServer] {
       case ServiceAdded(synchro) => deploy(context, synchro)
       case ServiceRemoved(_)     => undeploy(context)
     }
-  }
 
-  def stop(context: BundleContext): Unit = {
+  def stop(context: BundleContext): Unit =
     undeploy(context)
-  }
 
   def deploy(context: BundleContext, synchro: SynchroServer): Unit =
     for {
@@ -66,31 +67,40 @@ class CompilationActivator extends BundleActivator {
         )
       dispatcher = Option(disp)
       // create the system command actor
-      commands =
-        Option(
-          system.actorOf(
-            Props(new SystemCommandActor(logger)).withRouter(
-              new RoundRobinRouter(
-                DefaultResizer(
-                  config.getInt("tex.min-process"),
-                  config.getInt("tex.max-process")
-                )
+      val comm =
+        system.actorOf(
+          Props(new SystemCommandActor(logger)).withRouter(
+            new RoundRobinRouter(
+              DefaultResizer(
+                config.getInt("tex.min-process"),
+                config.getInt("tex.max-process")
               )
-            ),
-            name = "system-commands"
-          )
+            )
+          ),
+          name = "system-commands"
         )
+      commands = Option(comm)
 
       // register the compilation Api
       context.registerService(classOf[RestApi], new CompilationApi(context, disp, config, logger), null)
+
+      // register the paper hooks
+      val reg1 = context.registerService(classOf[PaperCreated], new CreateSettingsHook(config, logger), null)
+      val reg2 = context.registerService(classOf[PaperDeleted], new DeleteSettingsHook(config, logger), null)
+      hooks += reg1
+      hooks += reg2
 
     }
 
   def undeploy(context: BundleContext): Unit = {
     dispatcher.foreach(_ ! PoisonPill)
     commands.foreach(_ ! PoisonPill)
+    // unregister hooks
+    hooks.foreach(_.unregister())
+
     dispatcher = None
     commands = None
+    hooks.clear
   }
 
 }

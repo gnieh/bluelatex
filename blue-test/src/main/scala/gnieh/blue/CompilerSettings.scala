@@ -14,23 +14,6 @@
  * limitations under the License.
  */
 package gnieh.blue
-package common
 
-import gnieh.sohva.control.CouchSession
-
-trait PaperCreated {
-  def afterCreate(paperId: String, session: CouchSession): Unit
-}
-
-trait PaperDeleted {
-  def afterDelete(paperId: String, session: CouchSession): Unit
-}
-
-trait UserRegistered {
-  def afterRegister(username: String, session: CouchSession): Unit
-}
-
-trait UserUnregistered {
-  def afterUnregister(username: String, session: CouchSession): Unit
-}
+case class CompilerSettings(compiler: String, timeout: Int, interval: Int)
 

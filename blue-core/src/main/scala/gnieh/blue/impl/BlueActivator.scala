@@ -92,7 +92,7 @@ class BlueActivator extends BundleActivator {
     dbManager.foreach(_.start())
 
     // register the core Rest API
-    context.registerService(classOf[RestApi], new CoreApi(config, templates.get, mailAgent, recaptcha, logger), null)
+    context.registerService(classOf[RestApi], new CoreApi(config, context, templates.get, mailAgent, recaptcha, logger), null)
 
   }
 

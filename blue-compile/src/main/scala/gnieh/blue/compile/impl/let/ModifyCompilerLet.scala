@@ -43,7 +43,7 @@ class ModifyCompilerLet(paperId: String, config: Config, logger: Logger) extends
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>
       (talk.req.octets, talk.req.header("if-match")) match {
-        case (Some(octets), Some(knownRev)) =>
+        case (Some(octets), knownRev @ Some(_)) =>
           val db = database(blue_papers)
           // the modification must be sent as a JSON Patch document
           // retrieve the settings object from the database

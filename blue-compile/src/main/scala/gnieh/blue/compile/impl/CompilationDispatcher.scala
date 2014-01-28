@@ -33,6 +33,7 @@ import akka.actor.Props
 import com.typesafe.config.Config
 
 import org.osgi.framework.BundleContext
+import org.osgi.service.log.LogService
 
 /** The compilation system actor is responsible for managing
  *  the compilation actor for each paper
@@ -63,6 +64,7 @@ class CompilationDispatcher(
       case Some(settings) =>
         Success(settings)
       case None =>
+        logger.log(LogService.LOG_WARNING, s"compiler settings do not exist for paper $paperId")
         // create the settings in the database and returns it
         // by default we compile with pdflatex with a timeout of 30 seconds and an interval of 15 seconds
         val settings = CompilerSettings(s"$paperId:compiler", "pdflatex", 30, 15)

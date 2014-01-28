@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package gnieh.blue
-package compile
-package impl
 
 import gnieh.sohva.IdRev
 
