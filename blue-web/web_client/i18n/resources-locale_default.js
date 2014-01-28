@@ -340,6 +340,16 @@
         "description":"Role filter"
     },
     {
+        "key":"_Tags_",
+        "value":"Tags",
+        "description":"Tags"
+    },
+    {
+        "key":"_Tag_filter_",
+        "value":"Tag filter",
+        "description":"Tag filter"
+    },
+    {
         "key":"_All_",
         "value":"All",
         "description":"All"

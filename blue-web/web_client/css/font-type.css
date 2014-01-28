@@ -318,7 +318,7 @@
   content: "~";
 }
 .type-xhtml:before {
-  content: "\";
+  content: "\e03f";
 }
 .type-pdd:before {
   content: "\e000";

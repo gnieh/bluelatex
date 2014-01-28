@@ -1,12 +1,12 @@
 Date.prototype.getWeek = function() {
     var onejan = new Date(this.getFullYear(),0,1);
     return Math.ceil((((this - onejan) / 86400000) + onejan.getDay()+1)/7);
-}
+};
 var jsonToPostParameters = function (json) {
     return Object.keys(json).map(function(k) {
-        return encodeURIComponent(k) + '=' + encodeURIComponent(json[k])
-    }).join('&')
-}
+        return encodeURIComponent(k) + '=' + encodeURIComponent(json[k]);
+    }).join('&');
+};
 function getFileNameExtension(filename) {
     var parts = filename.split('.');
     return parts[parts.length - 1];
@@ -67,5 +67,5 @@ function clone(obj) {
 }
 function get_radom_color () {
   return (function(m,s,c){return (c ? arguments.callee(m,s,c-1) : '#') +
-  s[m.floor(m.random() * s.length)]})(Math,'0123456789ABCDEF',5)
+  s[m.floor(m.random() * s.length)];})(Math,'0123456789ABCDEF',5);
 }

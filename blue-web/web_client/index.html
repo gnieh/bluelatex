@@ -34,38 +34,50 @@
       'lib/angular/angular-route.min.js',
       'lib/angular-md5.js',
       'lib/angular-file-upload.min.js',
-      'lib/angular/angular-animate.js',
       'lib/ngStorage.min.js',
-      'lib/localize.js',
-      'js/app.js',
-      'js/menu.js',
-      'js/paper.js',
-      'js/papers.js',
-      'js/user.js',
-      'js/services.js',
-      'js/controllers.js',
-      'js/filters.js',
-      'js/directives.js',
-      'lib/ui-ace.js',
-      'lib/promise.js',
-      'ace/ace.js',
-      'js/utilities.js'
+      'lib/localize.min.js',
+      'lib/angular-cache.min.js',
+      'js/shared/controllers/MenuController.min.js',
+      'js/shared/controllers/MainController.min.js',
+      'js/shared/directives/MenuDirective.min.js',
+      'js/shared/directives/AutoFocusDirective.min.js',
+      'js/shared/directives/GravatarDirective.min.js',
+      'js/shared/services/configuration.min.js',
+      'js/shared/services/WindowsActiveService.min.js',
+      'js/paper/controllers/EditPaperController.min.js',
+      'js/paper/controllers/NewPaperController.min.js',
+      'js/paper/controllers/PaperController.min.js',
+      'js/paper/controllers/PapersController.min.js',
+      'js/paper/directives/TocDirective.min.js',
+      'js/paper/services/AceService.min.js',
+      'js/paper/services/PaperService.min.js',
+      'js/user/controllers/LoginUserController.min.js',
+      'js/user/controllers/LogoutUserController.min.js',
+      'js/user/controllers/ProfileController.min.js',
+      'js/user/controllers/RegisterController.min.js',
+      'js/user/controllers/RessetPasswordController.min.js',
+      'js/user/services/SessionService.min.js',
+      'js/user/services/UserService.min.js',
+      'js/app.min.js',
+      'lib/ui-ace.min.js',
+      'js/utilities.min.js'
     ], function() {
       // when all is done, execute bootstrap angular application
       angular.bootstrap(document, ['bluelatex']);
     });
   </script>
   <title ng-bind="$route.current.$$route.options.title">\BlueLatex</title>
-  <link rel="stylesheet" href="css/css.css">
+  <!--<link rel="stylesheet" href="css/css.css">
   <link rel="stylesheet" href="css/mobile.css">
   <link rel="stylesheet" href="css/register.css">
   <link rel="stylesheet" href="css/login.css">
   <link rel="stylesheet" href="css/paper.css">
   <link rel="stylesheet" href="css/papers.css">
-  <link rel="stylesheet" href="css/manage.css">
+  <link rel="stylesheet" href="css/manage.css">-->
+  <link rel="stylesheet" href="css/css.min.css">
 </head>
-<body>
-  <header ng-controller="menuController">
+<body >
+  <header ng-controller="MenuController">
     <div class="logo">
       <a href="#/"><img src="/img/logo.png" alt="\BlueLatex"></a>
     </div>
@@ -78,14 +90,15 @@
       </label>
       <div class="submenu" ng-show="openUserMenu">
         <ul>
-          <li><a href="#/profile" data-i18n="_Profile_"></a></li>
-          <li><a href="#/logout" ng-click="logout" data-i18n="_Logout_"></a></li>
+          <li><a ng-href="#/profile" data-i18n="_Profile_"></a></li>
+          <li><a ng-href="#/logout" ng-click="logout" data-i18n="_Logout_"></a></li>
         </ul>
       </div>
     </div>
     <nav bl-menu ng-class="{'show': isMenuOpen, 'hide': !isMenuOpen}"></nav>
   </header>
-  <div ng-view ng-animate="'view'"></div>
-  <link rel="stylesheet" href="css/font-type.css">
+  <div ng-view></div>
+  <script type="text/javascript" src="ace/ace.js"></script>
+  <script type="text/javascript" src="lib/latex-log-parser.min.js"></script>
 </body>
 </html>
