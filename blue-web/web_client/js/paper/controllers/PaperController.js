@@ -1,13 +1,26 @@
 angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluelatex.Paper.Directives.Toc','bluelatex.Paper.Services.Ace','bluelatex.Paper.Services.Paper','bluelatex.Paper.Services.Ace'])
-  .controller('PaperController', ['$scope', 'localize', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log',
-    function ($scope, localize, $location, AceService, PaperService, $routeParams, $upload, $log) {
+  .controller('PaperController', ['$scope', 'localize', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService',
+    function ($scope, localize, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService) {
       var paper_id = $routeParams.id;
       var getPaperInfo = function () {
         PaperService.getInfo(paper_id).then(function (data) {
           $scope.paper = data;
           $scope.paper.etag = data.header.etag;
         }, function (error) {
-          $log.error(error);
+          MessagesService.clear();
+          switch (err.status) {
+          case 400:
+            MessagesService.error('_Delete_resource_Some_parameters_are_missing_',err);
+            break;
+          case 401:
+            MessagesService.error('_Delete_resource_Wrong_username_and_or_password_',err);
+            break;
+          case 500:
+            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
+            break;
+          default:
+            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
+          }
         });
       };
       getPaperInfo();
@@ -16,7 +29,20 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         PaperService.getSynchronized(paper_id).then(function (data) {
           $scope.synchronizedFiles = data;
         }, function (error) {
-          $log.error(error);
+          MessagesService.clear();
+          switch (err.status) {
+          case 400:
+            MessagesService.error('_Delete_resource_Some_parameters_are_missing_',err);
+            break;
+          case 401:
+            MessagesService.error('_Delete_resource_Wrong_username_and_or_password_',err);
+            break;
+          case 500:
+            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
+            break;
+          default:
+            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
+          }
         });
       };
       getSynchronizedFiles();
@@ -25,7 +51,20 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         PaperService.getResources(paper_id).then(function (data) {
           $scope.resources = data;
         }, function (error) {
-          $log.error(error);
+          MessagesService.clear();
+          switch (err.status) {
+          case 400:
+            MessagesService.error('_Delete_resource_Some_parameters_are_missing_',err);
+            break;
+          case 401:
+            MessagesService.error('_Delete_resource_Wrong_username_and_or_password_',err);
+            break;
+          case 500:
+            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
+            break;
+          default:
+            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
+          }
         });
       };
       getResources();
@@ -90,23 +129,23 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         PaperService.uploadResource(paper_id, $scope.new_file.title, $scope.new_file.file).then(function (data) {
           getResources();
           $scope.new_file = {};
-        }, function (error) {
+        }, function (err) {
+          MessagesService.clear();
           switch (err.status) {
           case 400:
-            $scope.errors.push(localize.getLocalizedString('_Upload_resource_Some_parameters_are_missing_'));
+            MessagesService.error('_Upload_resource_Some_parameters_are_missing_',err);
             break;
           case 401:
-            $scope.errors.push(localize.getLocalizedString('_Upload_resource_Wrong_username_and_or_password_'));
+            MessagesService.error('_Upload_resource_Wrong_username_and_or_password_',err);
             break;
           case 500:
-            $scope.errors.push(localize.getLocalizedString('_Upload_resource_Something_wrong_happened_'));
+            MessagesService.error('_Upload_resource_Something_wrong_happened_',err);
             break;
           default:
-            $scope.errors.push(localize.getLocalizedString('_Upload_resource_Something_wrong_happened_'));
-            $log.error(err);
+            MessagesService.error('_Upload_resource_Something_wrong_happened_',err);
           }
         }, function (progress) {
-          $log.log(progress);
+          $log.debug(progress);
         });
       };
 
@@ -119,21 +158,20 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       $scope.removeResource = function (resource) {
         PaperService.removeResource(paper_id, resource.title).then(function (data) {
           getResources();
-        }, function (error) {
-          $scope.errors = [];
+        }, function (err) {
+          MessagesService.clear();
           switch (err.status) {
           case 400:
-            $scope.errors.push(localize.getLocalizedString('_Delete_resource_Some_parameters_are_missing_'));
+            MessagesService.error('_Delete_resource_Some_parameters_are_missing_',err);
             break;
           case 401:
-            $scope.errors.push(localize.getLocalizedString('_Delete_resource_Wrong_username_and_or_password_'));
+            MessagesService.error('_Delete_resource_Wrong_username_and_or_password_',err);
             break;
           case 500:
-            $scope.errors.push(localize.getLocalizedString('_Delete_resource_Something_wrong_happened_'));
+            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
             break;
           default:
-            $scope.errors.push(localize.getLocalizedString('_Delete_resource_Something_wrong_happened_'));
-            $log.log(err);
+            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
           }
         });
       };

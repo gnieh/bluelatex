@@ -32,17 +32,6 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
             'method': 'DELETE'
           }
         });
-        var papers = $resource(apiRootUrl + "/users/:username/papers", {
-          username: "@username"
-        }, {
-          "get": {
-            method: "GET",
-            isArray: true,
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            }
-          }
-        });
         var password = $resource(apiRootUrl + "/users/:username/reset", {
           username: "@username"
         }, {
@@ -109,25 +98,6 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
           },
           getSession: function () {
             return session.get().$promise;
-          },
-          getPapers: function (user) {
-            var deferred = $q.defer();
-            var promise = deferred.promise;
-            if (_dataCache.get('/papers/' + user.name)) deferred.resolve(_dataCache.get('/papers/' + user.name));
-            else {
-              papers.get({
-                username: user.name
-              }).$promise.then(function (data) {
-                _dataCache.put('/papers/' + user.name, data);
-                deferred.resolve(data);
-              }, function (error) {
-                $log.error(error);
-                deferred.reject(error);
-              }, function (progress) {
-                deferred.notify(progress);
-              });
-            }
-            return promise;
           },
           getPasswordToken: function (username) {
             return password.getToken({

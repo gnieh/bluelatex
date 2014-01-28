@@ -39,11 +39,14 @@
       'lib/angular-cache.min.js',
       'js/shared/controllers/MenuController.min.js',
       'js/shared/controllers/MainController.min.js',
+      'js/shared/controllers/MessagesController.min.js',
       'js/shared/directives/MenuDirective.min.js',
       'js/shared/directives/AutoFocusDirective.min.js',
       'js/shared/directives/GravatarDirective.min.js',
+      'js/shared/directives/MessagesDirective.min.js',
       'js/shared/services/configuration.min.js',
       'js/shared/services/WindowsActiveService.min.js',
+      'js/shared/services/MessagesService.min.js',
       'js/paper/controllers/EditPaperController.min.js',
       'js/paper/controllers/NewPaperController.min.js',
       'js/paper/controllers/PaperController.min.js',
@@ -78,6 +81,7 @@
 </head>
 <body >
   <header ng-controller="MenuController">
+    <div blMessages></div>
     <div class="logo">
       <a href="#/"><img src="/img/logo.png" alt="\BlueLatex"></a>
     </div>

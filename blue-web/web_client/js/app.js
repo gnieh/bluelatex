@@ -11,6 +11,8 @@ angular.module('bluelatex', [
   'bluelatex.Shared.Controllers.Main',
   'bluelatex.Shared.Controllers.Menu',
   'bluelatex.Shared.Directives.Menu',
+  'bluelatex.Shared.Directives.Messages',
+  'bluelatex.Shared.Controllers.Messages',
   'bluelatex.User.Controllers.Login',
   'bluelatex.User.Controllers.Logout',
   'bluelatex.User.Controllers.Profile',

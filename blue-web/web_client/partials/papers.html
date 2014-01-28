@@ -98,39 +98,34 @@
     </div>
     <div class="center">
         <div id="paper_list" ng-class="display_style">
-            <div ng-show="errors.length > 0" class="errors">
-              <div ng-repeat="error in errors" class="error">{{error}}</div>
-            </div>
+            <div bl-messages></div>
             <div class="paper header" ng-if="display_style=='list'">
                 <div class="title" data-i18n="_Title_"></div>
-                <div class="options" data-i18n="_Options_"></div>
-                <div class="tags" data-i18n="_Tags_"></div>
-                <div class="role" data-i18n="_Role_"></div>
                 <div class="date" data-i18n="_Date_"></div>
-                <div class="clear"></div>
+                <div class="role" data-i18n="_Role_"></div>
+                <div class="tags" data-i18n="_Tags_"></div>
+                <div class="options" data-i18n="_Options_"></div>
             </div>
             <div class="paper" ng-repeat="paper in papers | filter:search | filter:dateFilter | filter:roleFilter | orderBy:predicate:reverse" ng-animate=" 'animate' ">
                 <div class="icon">
-                    <a href="#/paper/{{paper.id}}" ng-if="paper.icon"><img src="{{paper.icon}}" alt="{{paper.title}}" title="{{paper.title}}" ></a>
+                    <a href="#/paper/{{paper.id}}"><img alt="{{paper.title}}" title="{{paper.title}}" ></a>
                 </div>
                 <div class="title">
                     <a href="#/paper/{{paper.id}}">{{paper.title}}</a>
                 </div>
-                <div class="options">
-                    <a class="option rename" href="#/paper/{{paper.id}}/edit" data-i18n="_Options_" ng-if="paper.role == 'author'"></a>
-                    <button class="option detele" ng-click="delete(paper)" data-i18n="_Delete_" ng-if="paper.role == 'author'"></button>
-                    <div class="clear"></div>
-                </div>
-                <div class="tags">
-                    <a href="#/paper/{{paper.id}}"><span ng-repeat="tag in paper.tags"><span class="diskColor" ng-style="{ backgroundColor: tag.color }"></span></span></a>
+                <div class="date">
+                    <a href="#/paper/{{paper.id}}">{{paper.date | date:'MM/dd/yyyy'}}</a>
                 </div>
                 <div class="role">
                     <a href="#/paper/{{paper.id}}">{{paper.role}}</a>
                 </div>
-                <div class="date">
-                    <a href="#/paper/{{paper.id}}">{{paper.date | date:'MM/dd/yyyy'}}</a>
+                <div class="tags">
+                    <a href="#/paper/{{paper.id}}"><span ng-repeat="tag in paper.tags | orderBy:'label':false"><span class="diskColor" ng-style="{ backgroundColor: tag.color }"></span></span></a>
                 </div>
-                <div class="clear"></div>
+                <div class="options">
+                    <a class="option rename" href="#/paper/{{paper.id}}/edit" data-i18n="_Options_" ng-if="paper.role == 'author'"></a>
+                    <a class="option detele" ng-click="delete(paper)" data-i18n="_Delete_" ng-if="paper.role == 'author'"></a>
+                </div>
             </div>
             <div class="no-paper" ng-if="(papers | filter:search | filter:dateFilter | filter:roleFilter).length == 0" data-i18n="_No_paper_found_">No paper found</div>
         </div>

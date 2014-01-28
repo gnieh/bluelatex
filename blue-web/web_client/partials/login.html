@@ -3,9 +3,7 @@
     <img src="/img/login-logo.png" alt="bluelatex">
   </div>
   <form name="loginForm" novalidate ng-submit="login()">
-    <div ng-show="errors.length > 0" class="errors">
-      <div ng-repeat="error in errors" class="error">{{error}}</div>
-    </div>
+    <div bl-messages></div>
     <div class="form-group"
       ng-class="{'has-error': loginForm.username.$invalid}">
       <input class="form-control" name="username" type="text"

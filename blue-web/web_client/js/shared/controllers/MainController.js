@@ -3,10 +3,6 @@
 angular.module('bluelatex.Shared.Controllers.Main', ['bluelatex.User.Services.User','bluelatex.User.Services.Session','bluelatex.Shared.Services.WindowActive','ngStorage','bluelatex.Paper.Services.Ace'])
   .controller('MainController', ['$rootScope', '$scope', 'UserService','SessionService', '$route', '$location', '$routeParams', 'AceService', '$sessionStorage', '$log',
     function ($rootScope, $scope, UserService,SessionService, $route, $location, $routeParams, AceService, $sessionStorage, $log) {
-
-      $scope.$errors = [];
-      $scope.$messages = [];
-
       $scope.$route = $route;
       $scope.$location = $location;
       $scope.$routeParams = $routeParams;

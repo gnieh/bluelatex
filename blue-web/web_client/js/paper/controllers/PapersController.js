@@ -1,12 +1,11 @@
-angular.module('bluelatex.Paper.Controllers.Papers', ['bluelatex.Paper.Services.Paper','bluelatex.User.Services.User'])
-  .controller('PapersController', ['$rootScope', '$scope', 'localize', 'UserService', 'PaperService','$log',
-    function ($rootScope, $scope, localize, UserService, PaperService,$log) {
+angular.module('bluelatex.Paper.Controllers.Papers', ['bluelatex.Paper.Services.Paper'])
+  .controller('PapersController', ['$rootScope', '$scope', 'PaperService','$log','MessagesService',
+    function ($rootScope, $scope, PaperService,$log,MessagesService) {
 
       $scope.reverse = false;
       $scope.predicate = 'title';
 
-
-      UserService.getPapers($rootScope.loggedUser).then(function (data) {
+      PaperService.getUserPapers($rootScope.loggedUser).then(function (data) {
         $scope.papers = [];
         for (var i = 0; i < data.length; i++) {
           data[i].date = new Date();
@@ -15,17 +14,16 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['bluelatex.Paper.Services.
           $scope.papers.push(data[i]);
         }
       }, function (err) {
-        $scope.errors = [];
+        MessagesService.clear();
         switch (err.status) {
         case 401:
-          $scope.errors.push(localize.getLocalizedString('_List_Papers_User_must_be_authentified_'));
+          MessagesService.error('_List_Papers_User_must_be_authentified_',err);
           break;
         case 500:
-          $scope.errors.push(localize.getLocalizedString('_List_Papers_Something_wrong_happened_'));
+          MessagesService.error('_List_Papers_Something_wrong_happened_',err);
           break;
         default:
-          $scope.errors.push(localize.getLocalizedString('_List_Papers_Something_wrong_happened_'));
-          $log.error(err);
+          MessagesService.error('_List_Papers_Something_wrong_happened_',err);
         }
       });
       $scope.papers = [];
@@ -39,6 +37,7 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['bluelatex.Paper.Services.
         label: 'CV',
         color: get_radom_color()
       }];
+
       $scope.display_style = 'list';
       $scope.date_filter = 'all';
       $scope.role_filter = 'all';
@@ -100,6 +99,7 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['bluelatex.Paper.Services.
           return dateFilterYear(paper);
         }
       };
+
       var roleFilterAuthor = function (paper) {
         return paper.role == 'author';
       };
@@ -127,21 +127,20 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['bluelatex.Paper.Services.
             $scope.papers.splice($scope.papers.indexOf(paper), 1);
           }
         }, function (err) {
-          $scope.errors = [];
+          MessagesService.clear();
           switch (err.status) {
           case 401:
-            $scope.errors.push(localize.getLocalizedString('_Delete_paper_User_must_be_authentified_'));
+            MessagesService.error('_Delete_paper_User_must_be_authentified_',err);
             $rootScope.loggedUser = {};
             break;
           case 403:
-            $scope.errors.push(localize.getLocalizedString('_Delete_paper_Authenticated_user_has_no_sufficient_rights_to_delete_the_paper_'));
+            MessagesService.error('_Delete_paper_Authenticated_user_has_no_sufficient_rights_to_delete_the_paper_',err);
             break;
           case 500:
-            $scope.errors.push(localize.getLocalizedString('_Delete_paper_Something_wrong_happened_'));
+            MessagesService.error('_Delete_paper_Something_wrong_happened_',err);
             break;
           default:
-            $scope.errors.push(localize.getLocalizedString('_Delete_paper_Something_wrong_happened_'));
-            $log.error(err);
+            MessagesService.error('_Delete_paper_Something_wrong_happened_',err);
           }
         });
       };

@@ -99,6 +99,17 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           ].concat($http.defaults.transformResponse)
         }
       });
+      var userPapers = $resource(apiRootUrl + "/users/:username/papers", {
+          username: "@username"
+        }, {
+          "get": {
+            method: "GET",
+            isArray: true,
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            }
+          }
+        });
       var upload = function (paper_id, file, resource) {
         var deferred = $q.defer();
         var promise = deferred.promise;
@@ -137,6 +148,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           var promise = deferred.promise;
           paper.new({}, jsonToPostParameters(p)).$promise.then(function (data) {
             p.id = data.response;
+            _dataCache.remove('/userPapers');
             _dataCache.put('/papers/' + p.id, p);
             deferred.resolve(p);
           }, function (error) {
@@ -153,6 +165,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           paper.delete({
             paper_id: paper_id
           }).$promise.then(function (data) {
+            _dataCache.remove('/userPapers');
             _dataCache.remove('/papers/' + paper_id);
             deferred.resolve(data);
           }, function (error) {
@@ -329,6 +342,25 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         },
         getZipUrl: function (paper_id) {
           return apiRootUrl + "/papers/" + paper_id + ".zip";
+        },
+        getUserPapers: function (user) {
+          var deferred = $q.defer();
+          var promise = deferred.promise;
+          if (_dataCache.get('/userPapers')) deferred.resolve(_dataCache.get('/userPapers'));
+          else {
+            userPapers.get({
+              username: user.name
+            }).$promise.then(function (data) {
+              _dataCache.put('/userPapers', data);
+              deferred.resolve(data);
+            }, function (error) {
+              $log.error(error);
+              deferred.reject(error);
+            }, function (progress) {
+              deferred.notify(progress);
+            });
+          }
+          return promise;
         }
       };
     }

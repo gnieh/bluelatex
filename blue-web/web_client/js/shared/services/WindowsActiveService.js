@@ -22,6 +22,7 @@ angular.module('bluelatex.Shared.Services.WindowActive', [])
         $window.onpageshow = $window.onpagehide = $window.onfocus = $window.onblur = onchange;
 
       function onchange(evt) {
+        console.log("window",evt);
         var v = 'visible',
           h = 'hidden',
           evtMap = {
@@ -32,6 +33,7 @@ angular.module('bluelatex.Shared.Services.WindowActive', [])
             focusout: h,
             pagehide: h
           };
+          console.log(evt);
 
         evt = evt || $window.event;
         if (evt.type in evtMap) {

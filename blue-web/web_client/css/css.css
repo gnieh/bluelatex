@@ -1,5 +1,7 @@
 @charset "UTF-8";
-
+@media screen {
+    @-ms-viewport { width: device-width; }
+}
 @font-face {
   font-family: "bluelatexicon";
   src:url("fonts/bluelatexicon.eot");
@@ -9,6 +11,7 @@
     url("fonts/bluelatexicon.svg#bluelatexicon") format("svg");
   font-weight: normal;
   font-style: normal;
+
 }
 
 [data-icon]:before {
@@ -76,10 +79,10 @@
 .icon-download:before {
   content: "m";
 }
-
-@media screen {
-    @-ms-viewport { width: device-width; }
+.icon-close:before {
+  content: "n";
 }
+
 * {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -715,29 +718,24 @@ table textarea {
     display: block;
     clear: both;
 }
-.messages.bloc {
-    background: #6E99F5;
-    border: 1px solid #467DF1;
-}
 
-.messages.bloc .message {
-    color: #FFF;
-    padding: 4px 0;
-    line-height: 16px;
-}
-
-
-.errors.bloc {
-    margin: 0;
-}
-
-.error {
+.error,.warning,.message {
     background: #BB4545;
     color: #fff;
     padding: 4px 0;
     line-height: 16px;
     padding: 10px;
     font-size: 15px;
+}
+.warning {
+    background: #D68100;
+}
+.message {
+    background: #6E99F5;
+}
+.error .close,.warning .close,.message .close {
+    float: right;
+    cursor: pointer;
 }
 
 /*cols*/

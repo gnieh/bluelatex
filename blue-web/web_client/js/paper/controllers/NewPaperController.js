@@ -1,28 +1,27 @@
 angular.module('bluelatex.Paper.Controllers.NewPaper', ['bluelatex.Shared.Services.Configuration'])
-  .controller('NewPaperController', ['$scope', 'localize', '$location', 'PaperService', '$log',
-    function ($scope, localize, $location, PaperService, $log) {
+  .controller('NewPaperController', ['$scope', 'localize', '$location', 'PaperService', '$log','MessagesService',
+    function ($scope, localize, $location, PaperService, $log,MessagesService) {
       var paper = {};
 
       $scope.paper = paper;
 
       $scope.create = function () {
         PaperService.create(paper).then(function (data) {
-          $location.path("/paper/" + data.response);
+          $location.path("/paper/" + data.id);
         }, function (err) {
-          $scope.errors = [];
+          MessagesService.clear();
           switch (err.status) {
           case 400:
-            $scope.errors.push(localize.getLocalizedString('_New_paper_Some_parameters_are_missing_'));
+            MessagesService.error('_New_paper_Some_parameters_are_missing_',err);
             break;
           case 401:
-            $scope.errors.push(localize.getLocalizedString('_New_paper_Wrong_username_and_or_password_'));
+            MessagesService.error('_New_paper_Wrong_username_and_or_password_',err);
             break;
           case 500:
-            $scope.errors.push(localize.getLocalizedString('_New_paper_Something_wrong_happened_'));
+            MessagesService.error('_New_paper_Something_wrong_happened_',err);
             break;
           default:
-            $scope.errors.push(localize.getLocalizedString('_New_paper_Something_wrong_happened_'));
-            $log.error(err);
+            MessagesService.error('_New_paper_Something_wrong_happened_',err);
           }
         });
       };

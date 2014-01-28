@@ -1,9 +1,7 @@
 <div id="manage">
     <h1 data-i18n="_Edit_paper_"></h1>
     <form name="editPaperForm" ng-submit="modify()">
-        <div ng-show="errors.length > 0" class="errors">
-          <div ng-repeat="error in errors" class="error">{{error}}</div>
-        </div>
+        <div bl-messages></div>
         <div class="grid">
             <div class="col c1-3">
                 <label for="title" data-i18n="_Title_">Title</label>

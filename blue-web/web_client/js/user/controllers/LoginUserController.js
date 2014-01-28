@@ -1,10 +1,11 @@
 angular.module("bluelatex.User.Controllers.Login",['bluelatex.User.Services.Session','bluelatex.User.Services.User','ngStorage'])
-  .controller('LoginController', ['$rootScope', '$scope', 'UserService','SessionService', 'localize', '$location', '$sessionStorage', '$log',
-    function ($rootScope, $scope, UserService,SessionService, localize, $location, $sessionStorage, $log) {
+  .controller('LoginController', ['$rootScope', '$scope', 'UserService','SessionService', '$location', '$sessionStorage', '$log','MessagesService',
+    function ($rootScope, $scope, UserService,SessionService, $location, $sessionStorage, $log,MessagesService) {
       var user = {};
       $scope.user = user;
 
       $scope.login = function () {
+        MessagesService.clear();
         SessionService.login(user.username, user.password).then(function (data) {
           if (data.response == true) {
             UserService.getInfo(user).then(function (data) {
@@ -25,20 +26,18 @@ angular.module("bluelatex.User.Controllers.Login",['bluelatex.User.Services.Sess
 
           }
         }, function (err) {
-          $scope.errors = [];
           switch (err.status) {
           case 400:
-            $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
+            MessagesService.error('_Login_Some_parameters_are_missing_',err);
             break;
           case 401:
-            $scope.errors.push(localize.getLocalizedString('_Login_Wrong_username_and_or_password_'));
+            MessagesService.error('_Login_Wrong_username_and_or_password_',err);
             break;
           case 500:
-            $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
+            MessagesService.error('_Login_Something_wrong_happened_',err);
             break;
           default:
-            $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
-            $log.log(err);
+            MessagesService.error('_Login_Something_wrong_happened_',err);
           }
         });
       };

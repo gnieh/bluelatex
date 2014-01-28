@@ -73,59 +73,47 @@
     box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
 }
 #paper_list.list .paper {
+    width: 100%;
     position: relative;
-    border-bottom: 1px solid #ddd;
-    /* height: 34px; */
+    border-bottom: 1px solid #DDD;
+    display: table;
 }
 #paper_list.list .paper a {
     display: block;
-}
-#paper_list.list .paper .title{
-    position: relative;
-    display: block;
-    float: left;
-    width: auto;
-    padding: 7px;
 }
 #paper_list.list .paper.header .date, #paper_list.list .paper.header .options, #paper_list.list .paper.header .tags, #paper_list.list .paper.header .role {
     text-align: left;
     height: 34px;
     padding: 7px;
 }
-#paper_list.list .paper .date {
-    float: right;
-    width: 110px;
+#paper_list.list .paper .title, #paper_list.list .paper .date, #paper_list.list .paper .options, #paper_list.list .paper .tags, #paper_list.list .paper .role {
+    position: relative;
+    display: table-cell;
+    vertical-align: middle;
     padding: 7px;
     border-left: 1px solid #ddd;
+    min-height: 34px;
+}
+#paper_list.list .paper .title{
+    border-left: 0;
+}
+#paper_list.list .paper .date {
+    width: 110px;
     text-align: center;
 }
 #paper_list.list .paper .tags {
-    position: relative;
-    display: block;
-    float: right;
     width: 170px;
-    min-height: 1px;
-    padding: 7px;
-    border-left: 1px solid #DDD;
 }
 #paper_list.list .paper .role{
-    position: relative;
-    display: block;
-    float: right;
     width: 100px;
-    padding: 7px;
-    border-left: 1px solid #ddd;
     text-align: center;
 }
 #paper_list.list .paper .options{
-    float: right;
     width: 170px;
-    border-left: 1px solid #ddd;
     padding: 1px 0 1px 12px;
 }
 #paper_list.list .paper .options .option {
     display: inline;
-    float: left!important;
     color: #fff;
     background: #025097;
     padding: 4px 7px;
@@ -136,6 +124,7 @@
     outline: none;
     font-size: 17px;
     overflow: hidden;
+    height: 27px;
 }
 #paper_list.list .icon {
     position: relative;
@@ -250,6 +239,7 @@
 }
 #sort {
     float: right;
+    line-height: 44px;
 }
 #sort select {
     background: #fff;

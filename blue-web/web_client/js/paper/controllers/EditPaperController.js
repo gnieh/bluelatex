@@ -1,6 +1,6 @@
 angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Services.Paper'])
-  .controller('EditPaperController', ['$scope', 'localize', '$location', 'PaperService', '$routeParams', '$log',
-    function ($scope, localize, $location, PaperService, $routeParams, $log) {
+  .controller('EditPaperController', ['$scope', 'localize', '$location', 'PaperService', '$routeParams', '$log','MessagesService',
+    function ($scope, localize, $location, PaperService, $routeParams, $log,MessagesService) {
       var paper_id = $routeParams.id;
       var clone_paper = {};
 
@@ -10,20 +10,22 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
         $scope.paper.id = paper_id;
         clone_paper = clone($scope.paper);
       }, function (err) {
-        $scope.errors = [];
+        MessagesService.clear();
         switch (err.status) {
         case 400:
-          $scope.errors.push(localize.getLocalizedString('_Edit_paper_Some_parameters_are_missing_'));
+          MessagesService.error('_Edit_paper_Some_parameters_are_missing_',err);
           break;
         case 401:
-          $scope.errors.push(localize.getLocalizedString('_Edit_paper_Wrong_username_and_or_password_'));
+          MessagesService.error('_Edit_paper_Wrong_username_and_or_password_',err);
+          break;
+        case 404:
+          MessagesService.error('_Edit_paper_Paper_not_found_',err);
           break;
         case 500:
-          $scope.errors.push(localize.getLocalizedString('_Edit_paper_Something_wrong_happened_'));
+          MessagesService.error('_Edit_paper_Something_wrong_happened_',err);
           break;
         default:
-          $scope.errors.push(localize.getLocalizedString('_Edit_paper_Something_wrong_happened_'));
-          $log.error(err);
+          MessagesService.error('_Edit_paper_Something_wrong_happened_',err);
         }
       });
 
@@ -62,10 +64,25 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
 
       $scope.modify = function () {
         PaperService.modify($scope.paper, clone_paper).then(function (data) {
-          $log.log(data);
           $location.path("/papers");
-        }, function (error) {
-          $log.error(error);
+        }, function (err) {
+          MessagesService.clear();
+          switch (err.status) {
+          case 400:
+            MessagesService.error('_Edit_paper_Some_parameters_are_missing_',err);
+            break;
+          case 401:
+            MessagesService.error('_Edit_paper_Wrong_username_and_or_password_',err);
+            break;
+          case 404:
+            MessagesService.error('_Edit_paper_Paper_not_found_',err);
+            break;
+          case 500:
+            MessagesService.error('_Edit_paper_Something_wrong_happened_',err);
+            break;
+          default:
+            MessagesService.error('_Edit_paper_Something_wrong_happened_',err);
+          }
         });
       };
     }
