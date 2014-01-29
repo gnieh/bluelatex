@@ -23,6 +23,8 @@ import org.osgi.util.tracker.ServiceTracker
 
 import com.typesafe.config._
 
+import akka.actor.ActorSystem
+
 import http.RestApi
 import http.impl.{
   BlueServer,
@@ -53,13 +55,14 @@ class BlueActivator extends BundleActivator {
     for {
       loader <- context.get[ConfigurationLoader]
       logger <- context.get[Logger]
+      system <- context.get[ActorSystem]
     } {
     // load the \BlueLaTeX common configuration
     val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
     val configuration = new BlueConfiguration(config)
 
     // create and start the http server
-    server = Some(new BlueServer(context, config, logger))
+    server = Some(new BlueServer(context, system, config, logger))
     server.foreach(_.start)
 
     // register the template engine
@@ -92,7 +95,7 @@ class BlueActivator extends BundleActivator {
     dbManager.foreach(_.start())
 
     // register the core Rest API
-    context.registerService(classOf[RestApi], new CoreApi(config, context, templates.get, mailAgent, recaptcha, logger), null)
+    context.registerService(classOf[RestApi], new CoreApi(config, system, context, templates.get, mailAgent, recaptcha, logger), null)
 
   }
 

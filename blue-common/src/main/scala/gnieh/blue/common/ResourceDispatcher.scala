@@ -4,14 +4,15 @@ package common
 import akka.actor._
 
 import scala.collection.mutable.{
-  Map,
+  HashMap,
+  MultiMap,
   Set
 }
 
 import scala.util.Try
 
 final case class Join(username: String, resourceid: String)
-final case class Part(username: String, resourceid: String)
+final case class Part(username: String, resourceid: Option[String])
 final case class Forward(resourceid: String, msg: Any)
 
 /** A dispacther that instantiates an actor per resource name.
@@ -24,7 +25,9 @@ final case class Forward(resourceid: String, msg: Any)
 abstract class ResourceDispatcher extends Actor {
 
   // count the number of users using a given resource by name
-  private val users = Map.empty[String, Set[String]].withDefaultValue(Set())
+  private val users = new HashMap[String, Set[String]] with MultiMap[String, String]
+  // the set of resources a user is connected to
+  private val resources = new HashMap[String, Set[String]] with MultiMap[String, String]
 
   override def preStart(): Unit = {
     // subscribe to the dispatcher events
@@ -33,7 +36,7 @@ abstract class ResourceDispatcher extends Actor {
   }
 
   override def postStop(): Unit = {
-    // unsubscribe to the dispatcher events
+    // unsubscribe from the dispatcher events
     context.system.eventStream.unsubscribe(self, classOf[Join])
     context.system.eventStream.unsubscribe(self, classOf[Part])
   }
@@ -41,32 +44,50 @@ abstract class ResourceDispatcher extends Actor {
   final def receive = {
     case join @ Join(username, resourceid) =>
       // create the actor if nobody uses this resource
-      if(users(resourceid).size == 0) {
+      if(!users.contains(resourceid) || users(resourceid).size == 0) {
         for(props <- props(username, resourceid))
           context.actorOf(props, name = resourceid)
-        users(resourceid) = Set(username)
       } else if(!users(resourceid).contains(username)) {
-        users(resourceid) += username
         // resent the Join message to the resource
         context.actorSelection(resourceid) ! join
       }
+      users.addBinding(resourceid, username)
+      resources.addBinding(username, resourceid)
 
-    case part @ Part(username, resourceid) =>
-      val actor = context.actorSelection(resourceid)
-      if(users(resourceid).size == 1) {
-        // this was the last user on this resource, kill it
-        actor ! PoisonPill
-        users -= resourceid
-      } else if(users(resourceid).contains(username)) {
-        // just tell the user left
-        actor ! part
-        users(resourceid) -= username
+    case msg @ Part(username, None) =>
+      // for all resources the user is connected to, leave it
+      for(resourceid <- resources.get(username).getOrElse(Set())) {
+        part(username, resourceid, msg)
       }
+
+    case msg @ Part(username, Some(resourceid)) =>
+      // notify only the corresponding resource
+      part(username, resourceid, msg)
+
     case Forward(resourceid, msg) if users.contains(resourceid) =>
       // forward the actual message to the resource instance
       context.actorSelection(resourceid).tell(msg, sender)
   }
 
   def props(username: String, resourceid: String): Try[Props]
+
+  private def part(username: String, resourceid: String, msg: Part): Unit = {
+    val actor = context.actorSelection(resourceid)
+    if(users.contains(resourceid) && users(resourceid).size == 1) {
+      // this was the last user on this resource, kill it
+      actor ! PoisonPill
+      users -= resourceid
+    } else if(users.contains(resourceid) && users(resourceid).contains(username)) {
+      // just tell the user left
+      actor ! msg
+      users(resourceid) -= username
+    }
+    if(resources.contains(username) && resources(username).size == 1) {
+      // this was the last resource the user is connected to
+      resources -= username
+    } else if(resources.contains(username)) {
+      resources(username) -= resourceid
+    }
+  }
 
 }

@@ -24,17 +24,18 @@ import paper._
 
 import com.typesafe.config.Config
 
+import akka.actor.ActorSystem
+
 import org.osgi.framework.BundleContext
 
 /** The core Api providing features to:
  *   - manage users
  *   - manage sessions
  *   - manage papers
- *   - synchronize papers
  *
  *  @author Lucas Satabin
  */
-class CoreApi(config: Config, context: BundleContext, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha, logger: Logger) extends RestApi {
+class CoreApi(config: Config, system: ActorSystem, context: BundleContext, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha, logger: Logger) extends RestApi {
 
   POST {
     // registers a new user
@@ -46,6 +47,12 @@ class CoreApi(config: Config, context: BundleContext, templates: Templates, mail
     // creates a new paper
     case p"papers" =>
       new CreatePaperLet(config, context, templates, logger)
+    // join a paper
+    case p"papers/$paperid/join" =>
+      new JoinPaperLet(paperid, system, config, logger)
+    // leave a paper
+    case p"papers/$paperid/part" =>
+      new PartPaperLet(paperid, system, config, logger)
     // log a user in
     case p"session" =>
       new LoginLet(config, logger)

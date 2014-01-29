@@ -18,30 +18,32 @@ package http
 package impl
 package paper
 
-import couch.Paper
 import common._
 
 import com.typesafe.config.Config
 
-import tiscaf._
+import akka.actor.ActorSystem
 
-import scala.io.Source
+import tiscaf._
 
 import scala.util.Try
 
-/** Returns the paper data
+/** Notify the system that the user joined a given paper
  *
  *  @author Lucas Satabin
  */
-class GetPaperInfoLet(paperid: String, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class JoinPaperLet(paperId: String, system: ActorSystem, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] = {
-    // only authenticated users may see other people information
-    database(blue_papers).getDocById[Paper](paperid) map {
-      // we are sure that the paper has a revision because it comes from the database
-      case Some(paper) => talk.writeJson(paper, paper._rev.get)
-      case None       => talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"Paper $paperid not found"))
-    }
+  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
+    case Author | Reviewer =>
+      Try(system.eventStream.publish(Join(user.name, paperId)))
+    case _ =>
+      Try(
+        talk
+          .setStatus(HStatus.Unauthorized)
+          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors and reviewers may join a paper"))
+      )
   }
 
 }
+

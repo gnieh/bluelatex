@@ -19,6 +19,8 @@ package impl
 
 import common._
 
+import akka.actor.ActorSystem
+
 import tiscaf.{
   HApp,
   HLet,
@@ -42,7 +44,7 @@ import gnieh.sohva.control.CouchSession
  *
  *  @author Lucas Satabin
  */
-class ExtensibleApp(config: Config) extends HApp {
+class ExtensibleApp(config: Config, system: ActorSystem) extends HApp {
 
   private[impl] val apps = mu.Map.empty[Long, RestApi]
   private def gets =
@@ -70,6 +72,10 @@ class ExtensibleApp(config: Config) extends HApp {
     // logout the couchdb session if any
     for(session <- data.get(SessionKeys.Couch).collect { case s: CouchSession => s}) {
       session.logout
+    }
+    // notify dispatchers that the user left
+    for(username <- data.get(SessionKeys.Username).collect { case s: String => s }) {
+      system.eventStream.publish(Part(username, None))
     }
   }
 

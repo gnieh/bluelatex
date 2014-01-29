@@ -42,6 +42,8 @@ class LoginLet(config: Config, logger: Logger) extends SyncBlueLet(config, logge
       case (Some(username), Some(password)) =>
         couchSession.login(username, password) map {
           case true  =>
+            // save the current user name in the session
+            talk.ses(SessionKeys.Username) = username
             talk.writeJson(true)
           case false =>
             talk

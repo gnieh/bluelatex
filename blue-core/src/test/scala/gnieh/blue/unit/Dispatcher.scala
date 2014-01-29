@@ -138,12 +138,13 @@ class DispatcherSpec extends TestKit(ActorSystem("DispatcherSpec"))
       dispatcher ! Join(user2, paper)
 
       When("they both leave the paper")
-      dispatcher ! Part(user1, paper)
-      dispatcher ! Part(user2, paper)
+      dispatcher ! Part(user1, Some(paper))
+      dispatcher ! Part(user2, None)
 
       Then("the dispatcher should kill the actor")
       // TODO: replace `actorFor` by `actorSelection`:
       // val deadActor = system.actorSelection(s"/user/${dispatcherName}/${paper}").resolveOne.value
+      Thread.sleep(500)
       val deadActor = system.actorFor(s"/user/${dispatcherName}/${paper}")
       deadActor should be ('terminated)
 

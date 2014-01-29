@@ -19,6 +19,8 @@ package impl
 
 import tiscaf._
 
+import akka.actor.ActorSystem
+
 import org.osgi.framework.BundleContext
 
 import com.typesafe.config._
@@ -30,13 +32,13 @@ import scala.collection.mutable.{
 
 import common._
 
-class BlueServer(context: BundleContext, configuration: Config, val logger: Logger) extends HServer with Logging {
+class BlueServer(context: BundleContext, system: ActorSystem, configuration: Config, val logger: Logger) extends HServer with Logging {
 
   protected val ports =
     Set(configuration.getInt("http.port"))
 
   private val extApp =
-    new ExtensibleApp(configuration)
+    new ExtensibleApp(configuration, system)
 
   protected def apps =
     Seq(extApp)
