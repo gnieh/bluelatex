@@ -26,7 +26,6 @@ import java.io.FileInputStream
 
 import tiscaf._
 
-import gnieh.sohva.UserInfo
 
 import resource._
 
@@ -36,7 +35,7 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class DeleteResourceLet(paperId: String, resourceName: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
+class DeleteResourceLet(paperId: String, resourceName: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>

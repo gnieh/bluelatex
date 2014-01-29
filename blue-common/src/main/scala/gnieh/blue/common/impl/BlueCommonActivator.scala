@@ -20,6 +20,9 @@ package impl
 import org.osgi.framework._
 import org.osgi.service.log.LogService
 
+import akka.actor.ActorSystem
+import akka.osgi.ActorSystemActivator
+
 import org.slf4j.LoggerFactory
 import ch.qos.logback.classic.LoggerContext
 import ch.qos.logback.classic.joran.JoranConfigurator
@@ -30,11 +33,11 @@ import java.io.File
  *
  *  @author Lucas Satabin
  */
-class BlueCommonActivator extends BundleActivator {
+class BlueCommonActivator extends ActorSystemActivator {
 
   import FileProcessing._
 
-  def start(context: BundleContext): Unit = {
+  def configure(context: BundleContext, system: ActorSystem): Unit = {
     val configBase = new File(context.getProperty("blue.configuration.base"))
     // the bundle configuration loader server
     val loader = new ConfigurationLoaderImpl(configBase)
@@ -53,9 +56,11 @@ class BlueCommonActivator extends BundleActivator {
         e.printStackTrace
     }
     context.registerService(classOf[LogService].getName, new LogServiceFactory, null)
-  }
 
-  def stop(context: BundleContext): Unit = {
+    // register the actor system as service so that other bundle can use it
+    registerService(context, system)
+
   }
 
 }
+

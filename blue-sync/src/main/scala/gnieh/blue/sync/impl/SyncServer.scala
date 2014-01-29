@@ -17,7 +17,7 @@ package gnieh.blue
 package sync
 package impl
 
-import common.SynchroServer
+import common._
 
 import com.typesafe.config.Config
 

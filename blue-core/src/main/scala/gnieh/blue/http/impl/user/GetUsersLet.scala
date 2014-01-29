@@ -35,7 +35,7 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class GetUsersLet(config: Config, logger: Logger) extends AuthenticatedLet(config, logger) {
+class GetUsersLet(config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] = {
     val userNames = view[String, String, Any](blue_users, "lists", "names")

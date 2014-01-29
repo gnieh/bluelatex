@@ -29,23 +29,23 @@ import java.io.{
   FileNotFoundException
 }
 
-class BlueConfiguration(conf: Config) extends PaperConfiguration(conf) {
+class BlueConfiguration(config: Config) extends PaperConfiguration(config) {
 
   // ===== blue core settings =====
 
-  val blue = conf.getConfig("blue")
+  val blue = config.getConfig("blue")
 
   val recaptchaPrivateKey = optionalString("recaptcha.private-key")
 
   // ===== couchdb settings =====
 
-  val couch = new CouchConfiguration(conf)
+  val couch = new CouchConfiguration(config)
 
   // ===== email settings =====
 
   val emailConf = {
     val props = new Properties
-    for(entry <- conf.getConfig("mail").entrySet.asScala) {
+    for(entry <- config.getConfig("mail").entrySet.asScala) {
       props.setProperty("mail." + entry.getKey, entry.getValue.unwrapped.toString)
     }
     props
@@ -54,13 +54,13 @@ class BlueConfiguration(conf: Config) extends PaperConfiguration(conf) {
   // ===== templates =====
 
   val templateDir =
-    new File(conf.getString("blue.template.directory"))
+    new File(config.getString("blue.template.directory"))
 
   // ===== internals =====
 
   private def optionalString(path: String): Option[String] =
-    if(conf.hasPath(path))
-      Some(conf.getString(path))
+    if(config.hasPath(path))
+      Some(config.getString(path))
     else
       None
 

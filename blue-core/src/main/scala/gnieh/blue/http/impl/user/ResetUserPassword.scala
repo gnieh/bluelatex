@@ -33,7 +33,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class ResetUserPassword(username: String, config: Config, logger: Logger) extends BlueLet(config, logger) {
+class ResetUserPassword(username: String, config: Config, logger: Logger) extends SyncBlueLet(config, logger) {
 
   def act(talk: HTalk): Try[Unit] = {
     val token = talk.req.param("reset_token")

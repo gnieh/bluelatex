@@ -22,7 +22,9 @@ package http
  *
  */
 object SessionKeys {
-  /** The couch session instance */
+
+  val Username = "username"
+
   val Couch = "couch"
 
   val Git = "git"

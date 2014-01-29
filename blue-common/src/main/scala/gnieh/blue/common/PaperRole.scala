@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 package gnieh.blue
-package compile
-package impl
+package common
 
-import common._
-
-import com.typesafe.config.Config
-
-import java.io.File
-
-class CompileConfiguration(config: Config) extends PaperConfiguration(config) {
-
-  def buildDir(paperId: String) =
-    new File(paperDir(paperId), "build")
-
-}
+/** The authorization level for a paper
+ *
+ *  @author Lucas Satabin
+ *
+ */
+sealed trait PaperRole
+case object Author extends PaperRole
+case object Reviewer extends PaperRole
+case object Other extends PaperRole

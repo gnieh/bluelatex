@@ -44,12 +44,13 @@ class MailAgentImpl(configuration: BlueConfiguration) extends MailAgent {
     couchConf.couch.database(couchConf.database("blue_users"))
       .design("lists")
       .view[String, String, Nothing]("emails")
-      .query(key = Some("org.couchdb.user:" + username)) match {
+      .query(key = Some(s"org.couchdb.user:$username")) match {
         case Success(result) =>
           result.rows
             .headOption
             .map(_.value)
         case Failure(e) =>
+          e.printStackTrace
           // TODO log
           None
       }

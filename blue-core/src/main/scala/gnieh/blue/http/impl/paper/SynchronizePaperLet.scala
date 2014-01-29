@@ -24,9 +24,6 @@ import tiscaf._
 
 import common._
 
-import gnieh.sohva.UserInfo
-
-import common.SynchroServer
 
 import scala.io.Source
 
@@ -37,7 +34,7 @@ import scala.util.Try
  *  @author Lucas Satabin
  */
 class SynchronizePaperLet(paperId: String, config: Config, synchroServer: SynchroServer, logger: Logger)
-    extends RoleLet(paperId, config, logger) {
+    extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>

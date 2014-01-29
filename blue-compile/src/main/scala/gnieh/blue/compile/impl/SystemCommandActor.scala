@@ -25,14 +25,12 @@ import scala.sys.process._
 
 import java.io.File
 
-import org.osgi.service.log.LogService
-
 /** An actor that executes a system command with the configured timeout
  *
  *  @author Lucas Satabin
  *
  */
-class SystemCommandActor(val logger: LogService) extends Actor with Logging {
+class SystemCommandActor(val logger: Logger) extends Actor with Logging {
 
   private def timeoutPrefix(timeout: Timeout) =
     "timeout -s 9 " + timeout.duration.toSeconds + "s "

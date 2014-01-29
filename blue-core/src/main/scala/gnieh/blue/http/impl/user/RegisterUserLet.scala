@@ -24,6 +24,8 @@ import common._
 
 import com.typesafe.config.Config
 
+import org.osgi.framework.BundleContext
+
 import java.util.Calendar
 
 import scala.util.{
@@ -40,8 +42,8 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class RegisterUserLet(config: Config, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha, logger: Logger)
-    extends BlueLet(config, logger) {
+class RegisterUserLet(config: Config, context: BundleContext, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha, logger: Logger)
+    extends SyncBlueLet(config, logger) {
 
   // TODO logging
 
@@ -80,6 +82,14 @@ class RegisterUserLet(config: Config, templates: Templates, mailAgent: MailAgent
                         "token" -> token,
                         "validity" -> (couchConfig.tokenValidity / 24 / 3600 / 1000))
                       mailAgent.send(username, "Welcome to \\BlueLaTeX", email)
+
+                      import OsgiUtils._
+                      // notifiy creation hooks
+                      couchConfig.asAdmin { session =>
+                        for(hook <- context.getAll[UserRegistered])
+                          Try(hook.afterRegister(username, session))
+                      }
+
                       (HStatus.Created, true)
                     case None =>
                       // TODO log it

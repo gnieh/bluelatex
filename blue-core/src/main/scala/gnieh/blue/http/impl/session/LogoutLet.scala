@@ -31,7 +31,7 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class LogoutLet(config: Config, logger: Logger) extends BlueLet(config, logger) {
+class LogoutLet(config: Config, logger: Logger) extends SyncBlueLet(config, logger) {
 
   def act(talk: HTalk): Try[Unit] =
     couchSession(talk).logout map {

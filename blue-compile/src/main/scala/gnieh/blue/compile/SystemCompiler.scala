@@ -17,26 +17,31 @@ package gnieh.blue
 package compile
 package impl
 
+import akka.actor.ActorSystem
 import akka.util.Timeout
+import akka.pattern.ask
 
-import couch.User
+import scala.concurrent.Await
 
-/** @author Lucas Satabin
+import scala.util.Try
+
+import java.io.File
+
+/** A LaTeX compiler that calls a compiler installed on the host system.
  *
+ *  @author Lucas Satabin
  */
-sealed trait CompileCommand {
-  val paperId: String
-  val density: Int
-  val timeout: Timeout
-  val user: User
-}
-case class PdfLatex(paperId: String, density: Int, timeout: Timeout, user: User) extends CompileCommand
-case class Latex(paperId: String, density: Int, timeout: Timeout, user: User) extends CompileCommand
-object CompileCommand {
+abstract class SystemCompiler(system: ActorSystem) extends Compiler {
 
-  def apply(str: String, paperId: String, density: Int, timeout: Timeout, user: User) = str match {
-    case "latex" => Latex(paperId, density, timeout, user)
-    case "pdflatex" => PdfLatex(paperId, density, timeout, user)
-  }
+  private val systemCommand = system.actorSelection("/user/system-commands")
+
+  protected def exec(command: String, workingDir: File, env: List[(String, String)] = List())(implicit timeout: Timeout) =
+    Try {
+      Await.result(
+        systemCommand ? SystemCommand(command, workingDir, env, timeout) mapTo manifest[Int],
+        timeout.duration
+      ) == 0
+    }
 
 }
+

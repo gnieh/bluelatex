@@ -21,10 +21,9 @@ import java.io.File
 import org.osgi.framework._
 import org.osgi.util.tracker.ServiceTracker
 
-import akka.actor.ActorSystem
-import akka.osgi.ActorSystemActivator
-
 import com.typesafe.config._
+
+import akka.actor.ActorSystem
 
 import http.RestApi
 import http.impl.{
@@ -43,26 +42,27 @@ import gnieh.sohva.control._
  *
  *  @author Lucas Satabin
  */
-class BlueActivator extends ActorSystemActivator {
+class BlueActivator extends BundleActivator {
 
   private var templates: Option[Templates] = None
   private var couch: Option[CouchClient] = None
   private var server: Option[BlueServer] = None
   private var dbManager: Option[DbManager] = None
 
-  import common.OsgiUtils._
+  import OsgiUtils._
 
-  def configure(context: BundleContext, system: ActorSystem): Unit =
+  def start(context: BundleContext): Unit =
     for {
       loader <- context.get[ConfigurationLoader]
       logger <- context.get[Logger]
+      system <- context.get[ActorSystem]
     } {
     // load the \BlueLaTeX common configuration
     val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
     val configuration = new BlueConfiguration(config)
 
     // create and start the http server
-    server = Some(new BlueServer(context, config, logger))
+    server = Some(new BlueServer(context, system, config, logger))
     server.foreach(_.start)
 
     // register the template engine
@@ -94,11 +94,8 @@ class BlueActivator extends ActorSystemActivator {
     dbManager = Some(new DbManager(new CouchConfiguration(config), logger))
     dbManager.foreach(_.start())
 
-    // register the actor system as service so that other bundle can use it
-    registerService(context, system)
-
     // register the core Rest API
-    context.registerService(classOf[RestApi], new CoreApi(config, templates.get, mailAgent, recaptcha, logger), null)
+    context.registerService(classOf[RestApi], new CoreApi(config, system, context, templates.get, mailAgent, recaptcha, logger), null)
 
   }
 
@@ -115,8 +112,6 @@ class BlueActivator extends ActorSystemActivator {
 
     // stop the server
     server.foreach(_.stop)
-    // stop the actor system, etc...
-    super.stop(context)
     // stop the couch client
     couch.foreach(_.shutdown)
     // stop the template engine

@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 package gnieh.blue
+package compile
 
-/** The authorization level for a paper
- *
- *  @author Lucas Satabin
- *
- */
-sealed trait PaperRole
-case object Author extends PaperRole
-case object Reviewer extends PaperRole
-case object Other extends PaperRole
+import common._
+
+import java.io.File
+
+package object impl {
+  implicit class CompileConfiguration(val config: PaperConfiguration) extends AnyVal {
+
+    def buildDir(paperId: String) =
+      new File(config.paperDir(paperId), "build")
+
+  }
+}
+

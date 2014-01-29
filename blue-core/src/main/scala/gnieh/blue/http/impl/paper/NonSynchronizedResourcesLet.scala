@@ -24,7 +24,6 @@ import tiscaf._
 
 import common._
 
-import gnieh.sohva.UserInfo
 
 import scala.io.Source
 
@@ -34,12 +33,12 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class NonSynchronizedResourcesLet(paperId: String, config: Config, logger: Logger) extends RoleLet(paperId, config, logger) {
+class NonSynchronizedResourcesLet(paperId: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
       // only authors may get the list of synchronized resources
-      import common.FileProcessing._
+      import FileProcessing._
       val files =
         configuration
           .paperDir(paperId)

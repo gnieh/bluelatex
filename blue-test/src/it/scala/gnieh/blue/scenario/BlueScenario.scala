@@ -220,7 +220,7 @@ abstract class BlueScenario extends FeatureSpec
                          revision: String,
                          parameters: Map[String, String] = Map(),
                          headers: Map[String, String] = Map()) =
-                           synced(http[T]((request(path) <<? parameters <:< Map("Content-Type" -> "application/json", "If-Match" -> revision) <:< headers << serialize(patch)).PATCH))
+    synced(http[T]((request(path) <<? parameters <:< Map("Content-Type" -> "application/json", "If-Match" -> revision) <:< headers).PATCH << serialize(patch)))
 
   /** Deletes some resource */
   def delete[T: Manifest](path: List[String], parameters: Map[String, String] = Map(), headers: Map[String, String] = Map()) =

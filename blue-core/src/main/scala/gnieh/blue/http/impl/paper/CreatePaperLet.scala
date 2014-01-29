@@ -21,7 +21,6 @@ package paper
 import couch._
 import common._
 
-import gnieh.sohva.UserInfo
 
 import java.util.UUID
 import java.io.{
@@ -32,6 +31,8 @@ import java.io.{
 import tiscaf._
 
 import com.typesafe.config.Config
+
+import org.osgi.framework.BundleContext
 
 import resource._
 
@@ -46,7 +47,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class CreatePaperLet(config: Config, templates: Templates, logger: Logger) extends AuthenticatedLet(config, logger) {
+class CreatePaperLet(config: Config, context: BundleContext, templates: Templates, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
     talk.req.param("paper_title") match {
@@ -82,9 +83,16 @@ class CreatePaperLet(config: Config, templates: Templates, logger: Logger) exten
         // create empty bibfile
         configuration.bibFile(newId).createNewFile
 
+        import OsgiUtils._
+
         // create the paper database
         for(_ <- database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template)))
-          yield talk.setStatus(HStatus.Created).writeJson(newId)
+          yield {
+            // notifiy creation hooks
+            for(hook <- context.getAll[PaperCreated])
+              Try(hook.afterCreate(newId, couchSession))
+            talk.setStatus(HStatus.Created).writeJson(newId)
+          }
 
       case None =>
         // missing parameter
