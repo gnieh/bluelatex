@@ -137,7 +137,11 @@ sealed abstract class BlueLet[Ret[_]](val config: Config, val logger: Logger) ex
 abstract class SyncBlueLet(config: Config, logger: Logger) extends BlueLet[Try](config, logger) {
 
   final override def aact(talk: HTalk) =
-    try2future(act(talk))
+    try2future(act(talk) recoverWith {
+      case t =>
+        logError("Something went wrong", t)
+        Failure(t)
+    })
 
 }
 
@@ -152,7 +156,11 @@ abstract class AsyncBlueLet(config: Config, logger: Logger) extends BlueLet[Futu
 
   @inline
   final override def aact(talk: HTalk) =
-    act(talk)
+    act(talk) recoverWith {
+      case t =>
+        logError("Something went wrong", t)
+        Future.failed(t)
+    }
 
 }
 
@@ -229,7 +237,7 @@ abstract class SyncRoleLet(val paperId: String, config: Config, logger: Logger) 
     }
 
   final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
-    roles(talk) map { m =>
+    roles(talk) flatMap { m =>
       roleAct(user, m(user.name))
     }
 

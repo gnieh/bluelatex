@@ -52,7 +52,7 @@ class ModifyCompilerLet(paperId: String, config: Config, logger: Logger) extends
               talk.readJson[JsonPatch] match {
                 case Some(patch) =>
                   // the revision matches, we can apply the patch
-                  val settings1 = patch(settings)
+                  val settings1 = patch(settings).withRev(knownRev)
                   // and save the new compiler data
                   db.saveDoc(settings1) map {
                     case Some(s) =>
