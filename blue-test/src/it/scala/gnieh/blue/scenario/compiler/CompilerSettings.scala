@@ -50,7 +50,7 @@ class CompilerSettingsSpec extends BlueScenario with SomeUsers {
       val (paperId, _) = post[String](List("papers"), Map("paper_title" -> title))
 
       Then("settings are created for the newly created paper")
-      val (compilerSettings, headers) = get[CompilerSettings](List("papers", paperId, "compiler", "settings"))
+      val (compilerSettings, headers) = get[CompilerSettings](List("papers", paperId, "compiler"))
 
       compilerSettings.compiler should be("pdflatex")
       compilerSettings.timeout should be(30)
@@ -64,12 +64,12 @@ class CompilerSettingsSpec extends BlueScenario with SomeUsers {
 
       val p = JsonDiff.diff(compilerSettings, newSettings)
 
-      val (saved, _) = patch[Boolean](List("papers", paperId, "compiler", "settings"), p, revision)
+      val (saved, _) = patch[Boolean](List("papers", paperId, "compiler"), p, revision)
 
       saved should be(true)
 
       Then("the new settings are the one taken into account")
-      val (newCompilerSettings, newHeaders) = get[CompilerSettings](List("papers", paperId, "compiler", "settings"))
+      val (newCompilerSettings, newHeaders) = get[CompilerSettings](List("papers", paperId, "compiler"))
 
       newCompilerSettings.compiler should be("xelatex")
       newCompilerSettings.timeout should be(30)

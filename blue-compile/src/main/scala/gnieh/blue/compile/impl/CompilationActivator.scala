@@ -29,6 +29,7 @@ import akka.routing.{
 }
 
 import common._
+import compiler._
 
 import http.RestApi
 
@@ -40,7 +41,7 @@ class CompilationActivator extends BundleActivator {
 
   private var dispatcher: Option[ActorRef] = None
   private var commands: Option[ActorRef] = None
-  private val hooks = ListBuffer.empty[ServiceRegistration[_]]
+  private val services = ListBuffer.empty[ServiceRegistration[_]]
 
   def start(context: BundleContext): Unit =
     context.trackOne[SynchroServer] {
@@ -82,25 +83,30 @@ class CompilationActivator extends BundleActivator {
       commands = Option(comm)
 
       // register the compilation Api
-      context.registerService(classOf[RestApi], new CompilationApi(context, disp, config, logger), null)
+      services +=
+        context.registerService(classOf[RestApi], new CompilationApi(context, disp, config, logger), null)
 
-      // register the paper hooks
-      val reg1 = context.registerService(classOf[PaperCreated], new CreateSettingsHook(config, logger), null)
-      val reg2 = context.registerService(classOf[PaperDeleted], new DeleteSettingsHook(config, logger), null)
-      hooks += reg1
-      hooks += reg2
+      // register the paper services
+      services +=
+        context.registerService(classOf[PaperCreated], new CreateSettingsHook(config, logger), null)
+      services +=
+        context.registerService(classOf[PaperDeleted], new DeleteSettingsHook(config, logger), null)
+
+      // register the compiler services
+      services +=
+        context.registerService(classOf[Compiler], new PdflatexCompiler(system, config), null)
 
     }
 
   def undeploy(context: BundleContext): Unit = {
     dispatcher.foreach(_ ! PoisonPill)
     commands.foreach(_ ! PoisonPill)
-    // unregister hooks
-    hooks.foreach(_.unregister())
+    // unregister services
+    services.foreach(_.unregister())
 
     dispatcher = None
     commands = None
-    hooks.clear
+    services.clear
   }
 
 }

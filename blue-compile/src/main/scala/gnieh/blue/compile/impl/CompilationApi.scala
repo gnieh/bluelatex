@@ -42,7 +42,7 @@ class CompilationApi(context: BundleContext, dispatcher: ActorRef, config: Confi
 
   PATCH {
     // saves the compilation settings
-    case p"papers/$paperid/compiler/settings" =>
+    case p"papers/$paperid/compiler" =>
       new ModifyCompilerLet(paperid, config, logger)
   }
 
@@ -62,7 +62,7 @@ class CompilationApi(context: BundleContext, dispatcher: ActorRef, config: Confi
       val density = req.asInt("density").getOrElse(100)
       new GetPngLet(paperid, page, density, config, logger)
     // return the compilation settings
-    case p"papers/$paperid/compiler/settings" =>
+    case p"papers/$paperid/compiler" =>
       new GetCompilerSettingsLet(paperid, config, logger)
   }
 

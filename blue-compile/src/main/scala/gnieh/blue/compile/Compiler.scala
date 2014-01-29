@@ -16,6 +16,8 @@
 package gnieh.blue
 package compile
 
+import common._
+
 import akka.util.Timeout
 
 import scala.util.Try
@@ -35,19 +37,21 @@ trait Compiler {
    */
   val name: String
 
-  /** Do the actual compilation of a paper, given the base directory
+  val configuration: PaperConfiguration
+
+  /** Do the actual compilation of a paper, given the paper identifier
    *  containing the paper files.
    *  It returns the result of the compilation:
    *   - `true` is returned if the compilation was actually successfully performed,
    *   - `false` is returned if it was not performed
    *   - an error is returned if something went wrong
    */
-  def compile(basedir: File)(implicit timeout: Timeout): Try[Boolean]
+  def compile(paperId: String, settings: CompilerSettings)(implicit timeout: Timeout): Try[Boolean]
 
   /** Do the bibtex task for a paper, given the base directory
    *  containing the paper files.
    */
-  def bibtex(basedir: File)(implicit timeout: Timeout): Try[Boolean]
+  def bibtex(paperId: String, settings: CompilerSettings)(implicit timeout: Timeout): Try[Boolean]
 
 }
 

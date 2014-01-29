@@ -53,8 +53,6 @@ class CompilationActor(
   @inline
   implicit def ec = context.system.dispatcher
 
-  val basedir = configuration.paperDir(paperId)
-
   override def preStart(): Unit = {
     context.system.scheduler.scheduleOnce(Duration.Zero, self, Compile)
   }
@@ -80,10 +78,10 @@ class CompilationActor(
         // the settings should be able to handle this properly
         val res = for {
           // if the compiler is defined, we first compile the paper
-          true <- compiler.compile(basedir)
+          res <- compiler.compile(paperId, settings)
           // we run bibtex on it if the compilation succeeded
-          true <- compiler.bibtex(basedir)
-        } yield true
+          _ <- compiler.bibtex(paperId, settings)
+        } yield res
 
         // and we send back the answer to the clients
         for(client <- clients)
