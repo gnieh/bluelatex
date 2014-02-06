@@ -33,6 +33,7 @@ import org.osgi.service.log.LogService
 import name.fraser.neil.plaintext.DiffMatchPatch
 
 import gnieh.blue.common.PaperConfiguration
+import gnieh.blue.common.{Join, Part}
 
 import gnieh.blue.sync.impl.store.Store
 

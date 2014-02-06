@@ -32,7 +32,9 @@ class SyncSessionSerializer extends Serializer[SyncSession] {
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case x: SyncSession => Extraction.decompose(x)
+    case x: SyncSession => JObject(List(JField("peerId", JString(x.peerId)),
+                                        JField("paperId", JString(x.paperId)),
+                                        JField("commands", Extraction.decompose(x.commands))))
   }
 }
 
@@ -55,8 +57,13 @@ class MessageSerializer extends Serializer[Message] {
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
     case x: Message => {
-      val tail = x.filename.map(f => List(JField("filename", JString(f)))).getOrElse(Nil)
-      JObject(JField("json", x.json) :: JField("retrieve", JBool(x.retrieve)) :: tail)
+      val tail = x.filename.map(
+        f => List(JField("filename", JString(f)))
+      ).getOrElse(Nil)
+      JObject(JField("from", JString(x.from)) ::
+              JField("json", x.json) ::
+              JField("retrieve", JBool(x.retrieve)) ::
+              tail)
     }
   }
 }
@@ -80,7 +87,9 @@ class SyncCommandSerializer extends Serializer[SyncCommand] {
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case x: SyncCommand => JObject(List(JField("filename", JString(x.filename)), JField("rev", JInt(x.revision)), JField("action", Extraction.decompose(x.action))))
+    case x: SyncCommand => JObject(List(JField("filename", JString(x.filename)),
+                                        JField("revision", JInt(x.revision)),
+                                        JField("action", Extraction.decompose(x.action))))
   }
 }
 
@@ -120,7 +129,15 @@ class SyncActionSerializer extends Serializer[SyncAction] {
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case x: SyncAction => Extraction.decompose(x)
+    case Nullify => JObject(List(JField("name", JString("nullify"))))
+    case x: Raw => JObject(List(JField("name", JString("raw")),
+                                JField("revision", JInt(x.revision)),
+                                JField("data", JString(x.data)),
+                                JField("overwrite", JBool(x.overwrite))))
+    case x: Delta => JObject(List(JField("name", JString("delta")),
+                                  JField("revision", JInt(x.revision)),
+                                  JField("data", Extraction.decompose(x.data)),
+                                  JField("overwrite", JBool(x.overwrite))))
   }
 }
 

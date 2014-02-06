@@ -35,6 +35,8 @@ class SyncSerializerParsersSpec extends FeatureSpec
                                  new SyncActionSerializer +
                                  new EditSerializer
 
+  def formatJson(json: String): String = compact(render(parse(json)))
+
   feature("Edit commands parser should correctly parse commands") {
 
     scenario("Add parsing") {
@@ -83,7 +85,7 @@ class SyncSerializerParsersSpec extends FeatureSpec
 
   }
 
-  feature("SyncSerializer should correctly parse a JSon message to a SyncSession object") {
+  feature("SyncSerializer should correctly parse a JSON message to a SyncSession object") {
 
     scenario("Wiki example") {
       Given("a JSON message")
@@ -114,20 +116,19 @@ class SyncSerializerParsersSpec extends FeatureSpec
                     |  ]
                     |}""".stripMargin
 
-        When("serialized to a scala object")
-        val syncSession = Serialization.read[SyncSession](json)
+      When("serialized to a scala object")
+      val syncSession = Serialization.read[SyncSession](json)
 
-        Then("a correct SyncSession object shall be produced")
-        syncSession should be (SyncSession("toto", "v987fed987da70987f",
-                                           List(SyncCommand("file1.tex", 432767,
-                                                            Delta(4324523,
-                                                                          List(Equality(100),
-                                                                               Delete(2),
-                                                                               Add("test"),
-                                                                               Equality(34)),
-                                                                  false)),
-                                                  SyncCommand("file2.tex", 87432,
-                                                              Raw(4324523, "Complete raw text", false)))))
+      Then("a correct SyncSession object shall be produced")
+      syncSession should be (SyncSession("toto", "v987fed987da70987f",
+                                         List(SyncCommand("file1.tex", 432767,
+                                                          Delta(4324523, List(Equality(100),
+                                                                              Delete(2),
+                                                                              Add("test"),
+                                                                              Equality(34)),
+                                                                false)),
+                                              SyncCommand("file2.tex", 87432,
+                                                          Raw(4324523, "Complete raw text", false)))))
     }
 
     scenario("Broadcast messages") {
@@ -153,19 +154,19 @@ class SyncSerializerParsersSpec extends FeatureSpec
                     |  ]
                     |}""".stripMargin
 
-        When("serialized to a scala object")
-        val syncSession = Serialization.read[SyncSession](json)
+      When("serialized to a scala object")
+      val syncSession = Serialization.read[SyncSession](json)
 
-        Then("a correct SyncSession object shall be produced")
-        syncSession should be (SyncSession("toto", "v987fed987da70987f",
-                                           List(Message("someone",
-                                                        JObject(List(JField("content",
-                                                                            JString("Hello all")))),
-                                                        false, None),
-                                                Message("whale",
-                                                        JObject(List(JField("content",
-                                                                            JString("Thanks for the fish")))),
-                                                        true, None))))
+      Then("a correct SyncSession object shall be produced")
+      syncSession should be (SyncSession("toto", "v987fed987da70987f",
+                                         List(Message("someone",
+                                                      JObject(List(JField("content",
+                                                                          JString("Hello all")))),
+                                                      false, None),
+                                              Message("whale",
+                                                      JObject(List(JField("content",
+                                                                          JString("Thanks for the fish")))),
+                                                      true, None))))
     }
 
     scenario("Broadcast messages with filename") {
@@ -185,15 +186,133 @@ class SyncSerializerParsersSpec extends FeatureSpec
                     |  ]
                     |}""".stripMargin
 
-        When("serialized to a scala object")
-        val syncSession = Serialization.read[SyncSession](json)
+      When("serialized to a scala object")
+      val syncSession = Serialization.read[SyncSession](json)
 
-        Then("a correct SyncSession object shall be produced")
-        syncSession should be (SyncSession("toto", "v987fed987da70987f",
-                                           List(Message("Sherlock",
-                                                        JObject(List(JField("content",
-                                                                            JString("I'm not a psychopath, I'm a high-functioning sociopath")))),
-                                                        false, Some("quote.tex")))))
+      Then("a correct SyncSession object shall be produced")
+      syncSession should be (SyncSession("toto", "v987fed987da70987f",
+                                         List(Message("Sherlock",
+                                                      JObject(List(JField("content",
+                                                                          JString("I'm not a psychopath, I'm a high-functioning sociopath")))),
+                                                      false, Some("quote.tex")))))
+    }
+  }
+
+  feature("SyncSerializer should correctly serialize a SyncSession object to a JSON message") {
+
+    scenario("Wiki example") {
+      Given("a SyncSession Object")
+      val syncSession = SyncSession("toto", "v987fed987da70987f",
+                                    List(SyncCommand("file1.tex", 432767,
+                                                     Delta(4324523, List(Equality(100),
+                                                                         Delete(2),
+                                                                         Add("test"),
+                                                                         Equality(34)),
+                                                           false)),
+                                          SyncCommand("file2.tex", 87432,
+                                                      Raw(4324523, "Complete raw text", false))))
+
+      When("serialized to JSON")
+      val serializedSyncSession = Serialization.write(syncSession)
+
+      Then("a correct SyncSession object shall be produced")
+      val json = """|{
+                    |  "peerId": "toto",
+                    |  "paperId": "v987fed987da70987f",
+                    |  "commands": [
+                    |    {
+                    |      "filename": "file1.tex",
+                    |      "revision": 432767,
+                    |      "action": {
+                    |        "name": "delta",
+                    |        "revision": 4324523,
+                    |        "data": [ "=100", "-2", "+test", "=34" ],
+                    |        "overwrite": false
+                    |      }
+                    |    },
+                    |    {
+                    |      "filename": "file2.tex",
+                    |      "revision": 87432,
+                    |      "action": {
+                    |       "name": "raw",
+                    |       "revision": 4324523,
+                    |       "data": "Complete raw text",
+                    |       "overwrite": false
+                    |      }
+                    |    }
+                    |  ]
+                    |}""".stripMargin
+        formatJson(json) should be (formatJson(serializedSyncSession))
+    }
+
+    scenario("Broadcast messages") {
+      Given("a SyncSession Object")
+      val syncSession = SyncSession("toto", "v987fed987da70987f",
+                                    List(Message("someone",
+                                                 JObject(List(JField("content",
+                                                                     JString("Hello all")))),
+                                                 false, None),
+                                         Message("whale",
+                                                 JObject(List(JField("content",
+                                                                     JString("Thanks for the fish")))),
+                                                 true, None)))
+
+      When("serialized to a JSON message")
+      val serializedSyncSession = Serialization.write(syncSession)
+
+      Then("a correct JSON message shall be produced")
+      val json = """|{
+                    |  "peerId": "toto",
+                    |  "paperId": "v987fed987da70987f",
+                    |  "commands": [
+                    |    {
+                    |      "from": "someone",
+                    |      "json": {
+                    |        "content": "Hello all"
+                    |      },
+                    |      "retrieve": false
+                    |    },
+                    |    {
+                    |      "from": "whale",
+                    |      "json": {
+                    |        "content": "Thanks for the fish"
+                    |      },
+                    |      "retrieve": true
+                    |    }
+                    |  ]
+                    |}""".stripMargin
+      formatJson(json) should be (formatJson(serializedSyncSession))
+    }
+
+    scenario("Broadcast messages with filename") {
+
+      Given("a SyncSession object")
+      val syncSession = SyncSession("toto", "v987fed987da70987f",
+                                    List(Message("Sherlock",
+                                                 JObject(List(JField("content",
+                                                                     JString("I'm not a psychopath, I'm a high-functioning sociopath")))),
+                                                 false, Some("quote.tex"))))
+
+      When("serialized to a JSON message")
+      val serializedSyncSession = Serialization.write(syncSession)
+
+      Then("a valid JSON message should be produced")
+      val json = """|{
+                    |  "peerId": "toto",
+                    |  "paperId": "v987fed987da70987f",
+                    |  "commands": [
+                    |    {
+                    |      "from": "Sherlock",
+                    |      "json": {
+                    |        "content": "I'm not a psychopath, I'm a high-functioning sociopath"
+                    |      },
+                    |      "retrieve": false,
+                    |      "filename": "quote.tex"
+                    |    }
+                    |  ]
+                    |}""".stripMargin
+      formatJson(json) should be (formatJson(serializedSyncSession))
+
     }
   }
 }
