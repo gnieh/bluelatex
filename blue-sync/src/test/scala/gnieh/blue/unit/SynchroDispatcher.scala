@@ -33,6 +33,7 @@ import org.osgi.service.log.LogService
 import name.fraser.neil.plaintext.DiffMatchPatch
 
 import gnieh.blue.common.PaperConfiguration
+import gnieh.blue.common.{Join, Part}
 
 import gnieh.blue.sync.impl.store.Store
 
@@ -83,6 +84,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
   private implicit val formats = DefaultFormats +
                                  new SyncSessionSerializer +
                                  new SyncCommandSerializer +
+                                 new MessageSerializer +
                                  new SyncActionSerializer +
                                  new EditSerializer
 
@@ -195,10 +197,258 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       syncActor ! PersistPaper
 
       Then("the actor should write the file to the disk")
+      expectMsg(true)
       store.documents.size should be(1)
       store.documents(config.resource("paperId","testPaper").getCanonicalPath) should be("Hello")
 
     }
   }
+
+  feature("A synchronization actor should handle broadcast messages between clients") {
+
+    scenario("simple broadcast message") {
+
+      Given("a synchronization actor")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+
+      And("a list of connected users")
+      val connectedUsers = List("user1", "user2")
+      connectedUsers foreach ( syncActor ! Join(_, "paperId") )
+
+      When("a user sends a message")
+      val user1 = """|{
+                     |  "peerId": "user1",
+                     |  "paperId": "paperId",
+                     |  "commands": [
+                     |    {
+                     |      "from": "11th",
+                     |      "json": {
+                     |        "content": "Fezzes are cool"
+                     |      },
+                     |      "retrieve": false
+                     |    }
+                     |  ]
+                     |}""".stripMargin
+      syncActor ! Serialization.read[SyncSession](user1)
+      expectMsg(SyncSession("user1", "paperId", List()))
+
+      And("an other user retrieves its messages")
+      val user2 = """|{
+                     |  "peerId": "user2",
+                     |  "paperId": "paperId",
+                     |  "commands": [
+                     |    {
+                     |      "from": "noone",
+                     |      "json": {}
+                     |      "retrieve": true
+                     |    }
+                     |  ]
+                     |}""".stripMargin
+      syncActor ! Serialization.read[SyncSession](user2)
+
+      Then("the actor should send all queued messages to the second user")
+      expectMsg(SyncSession("user2", "paperId", List(Message("11th",
+                                                             JObject(List(JField("content",
+                                                                                 JString("Fezzes are cool")))),
+                                                              false,
+                                                              None))))
+
+    }
+
+    scenario("multiple broadcast messages") {
+
+      Given("a synchronization actor")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+
+      And("a list of connected users")
+      val connectedUsers = List("user1", "user2")
+      connectedUsers foreach ( syncActor ! Join(_, "paperId") )
+
+      When("a user sends multiple messages")
+      val user1 = """|{
+                     |  "peerId": "user1",
+                     |  "paperId": "paperId",
+                     |  "commands": [
+                     |    {
+                     |      "from": "11th",
+                     |      "json": {
+                     |        "content": "Fish fingers and custard"
+                     |      },
+                     |      "retrieve": false
+                     |    },
+                     |    {
+                     |      "from": "10th",
+                     |      "json": {
+                     |        "content": "Always bring a banana to a party"
+                     |      },
+                     |      "retrieve": false
+                     |    }
+                     |  ]
+                     |}""".stripMargin
+      syncActor ! Serialization.read[SyncSession](user1)
+      expectMsg(SyncSession("user1", "paperId", List()))
+
+      And("an other user retrieves its messages")
+      val user2 = """|{
+                     |  "peerId": "user2",
+                     |  "paperId": "paperId",
+                     |  "commands": [
+                     |    {
+                     |      "from": "noone",
+                     |      "json": {},
+                     |      "retrieve": true
+                     |    }
+                     |  ]
+                     |}""".stripMargin
+      syncActor ! Serialization.read[SyncSession](user2)
+
+      Then("the actor should send all queued messages to the second user")
+      expectMsg(SyncSession("user2", "paperId", List(Message("11th",
+                                                             JObject(List(JField("content",
+                                                                                JString("Fish fingers and custard")))),
+                                                              false,
+                                                              None),
+                                                      Message("10th",
+                                                              JObject(List(JField("content",
+                                                                                  JString("Always bring a banana to a party")))),
+                                                              false,
+                                                              None))))
+
+    }
+
+    scenario("broadcast messages and synchronization commands interlaced") {
+
+      Given("a synchronization actor")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+
+      And("a list of connected users")
+      val connectedUsers = List("user1", "user2")
+      connectedUsers foreach ( syncActor ! Join(_, "paperId") )
+
+      When("a user sends a sychronization command and a message")
+      val user1 = """|{
+                     |  "peerId": "user1",
+                     |  "paperId": "paperId",
+                     |  "commands": [
+                     |    {
+                     |      "filename": "file1.tex",
+                     |      "revision": 0,
+                     |      "action": {
+                     |        "name": "raw",
+                     |        "revision": 1,
+                     |        "data": "Fish fingers and custard",
+                     |        "overwrite": false,
+                     |      }
+                     |    },
+                     |    {
+                     |      "from": "11th",
+                     |      "json": {
+                     |        "content": "Hold tight and pretend it's a plan"
+                     |      },
+                     |      "retrieve": false
+                     |    }
+                     |  ]
+                     |}""".stripMargin
+      syncActor ! Serialization.read[SyncSession](user1)
+      expectMsg(SyncSession("user1", "paperId", List(SyncCommand("file1.tex", 1,
+                                                                 Delta(0, List(Equality(24)),false)))))
+
+      And("an other user retrieves its messages")
+      val user2 = """|{
+                     |  "peerId": "user2",
+                     |  "paperId": "paperId",
+                     |  "commands": [
+                     |    {
+                     |      "from": "noone",
+                     |      "json": {},
+                     |      "retrieve": true
+                     |    }
+                     |  ]
+                     |}""".stripMargin
+      syncActor ! Serialization.read[SyncSession](user2)
+
+      Then("the actor should send all queued messages to the second user")
+      expectMsg(SyncSession("user2", "paperId", List(Message("11th",
+                                                              JObject(List(JField("content",
+                                                                                  JString("Hold tight and pretend it's a plan")))),
+                                                              false,
+                                                              None))))
+
+      And("he should also be able to get the modified text")
+      val synchro2 = """|{
+                        |  "peerId": "user2",
+                        |  "paperId": "paperId",
+                        |  "commands": [
+                        |    {
+                        |      "filename": "file1.tex",
+                        |      "revision": 0,
+                        |      "action": {
+                        |        "name": "raw",
+                        |        "revision": 1,
+                        |        "data": "",
+                        |        "overwrite": false,
+                        |      }
+                        |    }
+                        |  ]
+                        |}""".stripMargin
+      syncActor ! Serialization.read[SyncSession](synchro2)
+
+      expectMsg(SyncSession("user2", "paperId", List(SyncCommand("file1.tex", 1,
+                                                                 Delta(0, List(Add("Fish fingers and custard")),false)))))
+
+    }
+
+    scenario("clean-up when client leaves") {
+
+      Given("a synchronization actor")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+
+      And("a list of connected users")
+      val connectedUsers = List("user1", "user2")
+      connectedUsers foreach ( syncActor ! Join(_, "paperId") )
+
+      When("a user sends a message")
+      val user1 = """|{
+                     |  "peerId": "user1",
+                     |  "paperId": "paperId",
+                     |  "commands": [
+                     |    {
+                     |      "from": "11th",
+                     |      "json": {
+                     |        "content": "Fezzes are cool"
+                     |      },
+                     |      "retrieve": false
+                     |    }
+                     |  ]
+                     |}""".stripMargin
+      syncActor ! Serialization.read[SyncSession](user1)
+      expectMsg(SyncSession("user1", "paperId", List()))
+
+      And("an other user leaves the server")
+      syncActor ! Part("user2", Some("paperId"))
+
+      When("he rejoins the server later")
+      syncActor ! Join("user2", "paperId")
+
+      And("he retrieves its messages")
+      val user2 = """|{
+                     |  "peerId": "user2",
+                     |  "paperId": "paperId",
+                     |  "commands": [
+                     |    {
+                     |      "from": "noone",
+                     |      "json": {}
+                     |      "retrieve": true
+                     |    }
+                     |  ]
+                     |}""".stripMargin
+      syncActor ! Serialization.read[SyncSession](user2)
+
+      Then("he should have no message")
+      expectMsg(SyncSession("user2", "paperId", List()))
+    }
+
+  }
+
 }
 

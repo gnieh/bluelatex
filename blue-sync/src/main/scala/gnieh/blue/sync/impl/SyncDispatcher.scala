@@ -66,20 +66,38 @@ class SyncActor(
   extends Actor
   with Logging {
 
+  import FileProcessing._
+  import scala.collection.mutable.ListBuffer
+  import net.liftweb.json.JObject
+
 
   private val paperDir = config.paperDir(paperId)
-  private var views = Map.empty[(String, String), DocumentView]
-  private var documents = Map.empty[String, Document]
 
-  import FileProcessing._
+  /** Map (peer, filepath) -> DocumentView instance */
+  private val views = Map.empty[(String, String), DocumentView]
+  /** Map filepath -> Document instance */
+  private val documents = Map.empty[String, Document]
+  /** Map destPeer -> List(message) */
+  private val messages = Map.empty[String, ListBuffer[Message]]
 
   override def postStop() {
     persistPapers()
   }
 
   def receive = {
+    case Join(peerId, _) => messages += (peerId -> ListBuffer.empty[Message])
+    case Part(peerId, _) => {
+      for {
+        (peer, filepath) <- views.keys
+        if peer == peerId
+      } views.remove((peerId, filepath))
+      messages.remove(peerId)
+    }
     case SyncSession(peerId, paperId, commands) => {
       val commandResponse = commands flatMap {
+        case message: Message => {
+          processMessage(peerId, message)
+        }
         case SyncCommand(filename, revision, action) => {
           applyAction(peerId, filename, revision, action)
         }
@@ -150,9 +168,8 @@ class SyncActor(
       case x: Delta => processDelta(view, x, revision)
       case x: Raw => processRaw(view, x, revision)
       case Nullify => nullify(view)
-      case x: Message => processMessage(view, x)
     }
-    val response = flushStack(view)
+    var response = flushStack(view)
     response map ( SyncCommand(filename, view.serverShadowRevision, _) )
   }
 
@@ -169,7 +186,7 @@ class SyncActor(
     }
     if (serverRevision < view.serverShadowRevision) {
       // Ignore delta on mismatched server shadow
-    logDebug("Mismatched server shadow, ignore")
+      logDebug("Mismatched server shadow, ignore")
     } else if (delta.revision > view.clientShadowRevision) {
       // System should be re-initialised with Raw command
       view.deltaOk = false
@@ -189,7 +206,23 @@ class SyncActor(
     view.setShadow(raw.data, raw.revision, serverRevision, raw.overwrite)
   }
 
-  def processMessage(view: DocumentView, msg: Message): Unit = ???
+  def processMessage(peer: String, message: Message): List[Message] = {
+    logDebug(s"Process message: $message")
+
+    for {
+      p <- messages.keys
+      if (p != peer)
+    } messages(p).append(message)
+
+    if (message.retrieve)
+      messages.remove(peer) match {
+        case None => Nil
+        case Some(m) => m.result()
+      }
+
+    else
+      Nil
+  }
 
 
   def applyPatches(view: DocumentView, delta: Delta): Unit = {
@@ -252,26 +285,28 @@ class SyncActor(
 
       logDebug(s"Computed deltas: $edits")
 
-      if (view.overwrite) {
-        // Client sending 'D' means number, no error.
-        // Client sending 'R' means number, client error.
-        // Both cases involve numbers, so send back an overwrite delta.
-        view.edits.append(SyncCommand(filename,
-                                      view.serverShadowRevision,
-                                      Delta(view.serverShadowRevision,
-                                            edits,
-                                            true)))
-      } else {
-        // Client sending 'D' means number, no error.
-        // Client sending 'R' means number, client error.
-        // Both cases involve numbers, so send back a merge delta.
-        view.edits.append(SyncCommand(filename,
-                                      view.serverShadowRevision,
-                                      Delta(view.serverShadowRevision,
-                                            edits,
-                                            false)))
+      if (!edits.isEmpty) {
+        if (view.overwrite) {
+          // Client sending 'D' means number, no error.
+          // Client sending 'R' means number, client error.
+          // Both cases involve numbers, so send back an overwrite delta.
+          view.edits.append(SyncCommand(filename,
+                                        view.serverShadowRevision,
+                                        Delta(view.serverShadowRevision,
+                                              edits,
+                                              true)))
+        } else {
+          // Client sending 'D' means number, no error.
+          // Client sending 'R' means number, client error.
+          // Both cases involve numbers, so send back a merge delta.
+          view.edits.append(SyncCommand(filename,
+                                        view.serverShadowRevision,
+                                        Delta(view.serverShadowRevision,
+                                              edits,
+                                              false)))
+        }
+        view.serverShadowRevision += 1
       }
-      view.serverShadowRevision += 1
     } else {
       // Error server could not parse client's delta.
       logDebug("Invalid delta(s)")
@@ -298,7 +333,7 @@ class SyncActor(
     view.shadow = mastertext
     view.changed = true
 
-    view.edits.toList.map{
+    view.edits.toList.map {
       case SyncCommand(_, _, command)  => command
     }
   }

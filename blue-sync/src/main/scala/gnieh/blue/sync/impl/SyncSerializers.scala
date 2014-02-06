@@ -27,12 +27,44 @@ class SyncSessionSerializer extends Serializer[SyncSession] {
       (for {
         JString(peerId) <- (json \ "peerId").toOpt
         JString(paperId) <- (json \ "paperId").toOpt
-        commands @ JArray(_) <- (json \ "commands").toOpt
-      } yield SyncSession(peerId, paperId, commands.extract[List[SyncCommand]])).getOrElse(throw new MappingException(s"Can't convert $json to SyncSession"))
+        JArray(commands) <- (json \ "commands").toOpt
+      } yield SyncSession(peerId, paperId, commands map { x => (x.extractOpt[Message]).getOrElse(x.extract[SyncCommand]) })).getOrElse(throw new MappingException(s"Can't convert $json to SyncSession"))
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case x: SyncCommand => Extraction.decompose(x)
+    case x: SyncSession => JObject(List(JField("peerId", JString(x.peerId)),
+                                        JField("paperId", JString(x.paperId)),
+                                        JField("commands", Extraction.decompose(x.commands))))
+  }
+}
+
+/** Serialize/deserialize JSON message to Message.
+ *
+ *  @author Audric Schiltknecht
+ *
+ */
+class MessageSerializer extends Serializer[Message] {
+  private val _commandClass = classOf[Message]
+
+  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), Message] = {
+    case (TypeInfo(clazz, _), json @ JObject(_)) if clazz == _commandClass =>
+      (for {
+        JString(from) <- (json \ "from").toOpt
+        obj @ JObject(_) <- (json \ "json").toOpt
+        JBool(retrieve) <- (json \ "retrieve").toOpt
+      } yield Message(from, obj, retrieve, (json \ "filename").extractOpt[String])).getOrElse(throw new MappingException(s"Can't convert $json to Message"))
+  }
+
+  def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
+    case x: Message => {
+      val tail = x.filename.map(
+        f => List(JField("filename", JString(f)))
+      ).getOrElse(Nil)
+      JObject(JField("from", JString(x.from)) ::
+              JField("json", x.json) ::
+              JField("retrieve", JBool(x.retrieve)) ::
+              tail)
+    }
   }
 }
 
@@ -55,7 +87,9 @@ class SyncCommandSerializer extends Serializer[SyncCommand] {
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case x: SyncAction => Extraction.decompose(x)
+    case x: SyncCommand => JObject(List(JField("filename", JString(x.filename)),
+                                        JField("revision", JInt(x.revision)),
+                                        JField("action", Extraction.decompose(x.action))))
   }
 }
 
@@ -90,16 +124,20 @@ class SyncActionSerializer extends Serializer[SyncAction] {
         JBool(overwrite) <- (json \ "overwrite").toOpt
       } yield Raw(rev.longValue, data, overwrite)).orElse(
       for {
-        JString("message") <- (json \ "name").toOpt
-        obj @ JObject(_) <- (json \ "json").toOpt
-      } yield Message(obj)).orElse(
-      for {
         JString("nullify") <- (json \ "name").toOpt
       } yield Nullify).getOrElse(throw new MappingException(s"Can't convert $json to SyncAction"))}
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-    case x: SyncCommand => Extraction.decompose(x)
+    case Nullify => JObject(List(JField("name", JString("nullify"))))
+    case x: Raw => JObject(List(JField("name", JString("raw")),
+                                JField("revision", JInt(x.revision)),
+                                JField("data", JString(x.data)),
+                                JField("overwrite", JBool(x.overwrite))))
+    case x: Delta => JObject(List(JField("name", JString("delta")),
+                                  JField("revision", JInt(x.revision)),
+                                  JField("data", Extraction.decompose(x.data)),
+                                  JField("overwrite", JBool(x.overwrite))))
   }
 }
 

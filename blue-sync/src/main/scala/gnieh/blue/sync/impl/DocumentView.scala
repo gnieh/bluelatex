@@ -19,6 +19,8 @@ package impl
 
 import scala.collection.mutable._
 
+import net.liftweb.json._
+
 /** User view of one Document
  *
  * @author Lucas Satabin
@@ -48,6 +50,9 @@ class DocumentView(val document: Document) {
 
   /** Does the client set the overwrite flag ? */
   var overwrite = false
+
+  /** Flag if messages are to be retrieved or not */
+  var retrieveMessages = false
 
   def restoreBackupShadow(): Unit = {
     edits.clear()
