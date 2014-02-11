@@ -33,7 +33,7 @@ import scala.collection.{ mutable => mu }
 
 import com.typesafe.config.Config
 
-import gnieh.sohva.control.CouchSession
+import gnieh.sohva.control.CookieSession
 
 /** The rest interface may be extended by \BlueLaTeX modules.
  *  Theses module simply need to register services implementing this trait
@@ -70,7 +70,7 @@ class ExtensibleApp(config: Config, system: ActorSystem) extends HApp {
 
   override def onSessionInvalidate(sid: String, data: Map[Any, Any]) {
     // logout the couchdb session if any
-    for(session <- data.get(SessionKeys.Couch).collect { case s: CouchSession => s}) {
+    for(session <- data.get(SessionKeys.Couch).collect { case s: CookieSession => s}) {
       session.logout
     }
     // notify dispatchers that the user left

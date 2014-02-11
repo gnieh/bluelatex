@@ -19,7 +19,7 @@ package impl
 
 import common._
 
-import gnieh.sohva.control.CouchSession
+import gnieh.sohva.control.CookieSession
 
 import org.osgi.service.log.LogService
 
@@ -41,7 +41,7 @@ class CreateSettingsHook(config: Config, logger: Logger) extends PaperCreated {
       config.getSeconds("compiler.interval")
     )
 
-  def afterCreate(paperId: String, session: CouchSession): Unit = {
+  def afterCreate(paperId: String, session: CookieSession): Unit = {
     // after creation of a paper, save default settings
     val db = session.database(couchConfig.database("blue_papers"))
     db.saveDoc(defaultSettings(paperId)) recover {
@@ -60,7 +60,7 @@ class DeleteSettingsHook(config: Config, logger: Logger) extends PaperDeleted {
 
   val couchConfig = new CouchConfiguration(config)
 
-  def afterDelete(paperId: String, session: CouchSession): Unit = {
+  def afterDelete(paperId: String, session: CookieSession): Unit = {
     // after creation of a paper, save default settings
     val db = session.database(couchConfig.database("blue_papers"))
     db.deleteDoc(s"$paperId:compiler") recover {

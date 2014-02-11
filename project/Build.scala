@@ -61,8 +61,8 @@ class BlueBuild extends Build with Pack with Server with Tests {
 
   lazy val commonDeps = Seq(
     "com.typesafe.akka" %% "akka-osgi" % "2.2.3",
-    "org.gnieh" %% "sohva-client" % "0.5-SNAPSHOT",
-    "org.gnieh" %% "diffson" % "0.2-SNAPSHOT",
+    "org.gnieh" %% "sohva-client" % "0.6-SNAPSHOT",
+    "org.gnieh" %% "diffson" % "0.2",
     "javax.mail" % "mail" % "1.4.7",
     "ch.qos.logback" % "logback-classic" % "1.0.13",
     "org.slf4j" % "jcl-over-slf4j" % "1.7.5",

@@ -41,12 +41,12 @@ class CouchConfiguration(val config: Config) {
   val couchDesigns = new File(config.getString("couch.design.dir"))
 
   def adminSession = {
-    val sess = couch.startSession
+    val sess = couch.startCookieSession
     sess.login(couchAdminName, couchAdminPassword)
     sess
   }
 
-  def asAdmin[T](code: CouchSession => T) = {
+  def asAdmin[T](code: CookieSession => T) = {
     val sess = adminSession
     try {
       code(sess)
