@@ -17,29 +17,23 @@ package gnieh.blue
 package sync
 package impl
 
-import scala.util.parsing.combinator._
+import http._
+import common._
+import let._
 
-/** A simple parser for Edit commands.
- * @author Lucas Satabin
+import com.typesafe.config.Config
+
+/** The synchronization service API exposes an interface for clients
+ *  to synchronize their paper
  *
+ *  @author Lucas Satabin
  */
-object EditCommandParsers extends RegexParsers {
+class SyncApi(config: Config, synchroServer: SynchroServer, logger: Logger) extends RestApi {
 
-  def parseEdits(input: String): List[Edit] =
-    parseAll(repsep(edit, '\t'), input) match {
-      case Success(res, _) => res
-      case f               => Nil
-    }
-
-  lazy val edit: Parser[Edit] =
-    ("+" ~> data ^^ Add
-      | "-" ~> number ^^ Delete
-      | "=" ~> number ^^ Equality)
-
-  private lazy val number: Parser[Int] =
-    "[0-9]+".r ^^ (_.toInt)
-
-  private lazy val data: Parser[String] =
-    "([-A-Za-z0-9_.!~*'();/?:@&=+$,# ]|%[A-Fa-f0-9]{2})+".r
+  POST {
+    case p"papers/$paperid/q" =>
+      new QLet(paperid, synchroServer, config, logger)
+  }
 
 }
+

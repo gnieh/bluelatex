@@ -40,21 +40,21 @@ trait CouchSupport {
     new CouchConfiguration(config)
 
   /** Returns the current couch session object to issue queries to the database */
-  def couchSession(implicit talk: HTalk): CouchSession =
+  def couchSession(implicit talk: HTalk): CookieSession =
     talk.ses.get(SessionKeys.Couch).collect {
-      case sess: CouchSession => sess
+      case sess: CookieSession => sess
     } match {
       case Some(sess) => sess
       case None =>
         // start and register a new couch session
-        val sess = couchConfig.couch.startSession
+        val sess = couchConfig.couch.startCookieSession
         talk.ses(SessionKeys.Couch) = sess
         sess
     }
 
   /** Indicates whether the current session is a logged in user */
   def loggedIn(implicit talk: HTalk): Try[Boolean] =
-    couchSession.isLoggedIn
+    couchSession.isAuthenticated
 
   /** Indicates whether the current session complies with role name */
   def hasRole(role: String)(implicit talk: HTalk): Try[Boolean] =
