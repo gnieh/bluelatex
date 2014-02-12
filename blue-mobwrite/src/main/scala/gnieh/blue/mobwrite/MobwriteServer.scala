@@ -17,13 +17,13 @@ package gnieh.blue
 package mobwrite
 
 import resource._
-
-import common.SynchroServer
+import common.{SynchroServer, SynchroFailureException}
 
 import java.net.Socket
 import java.io.BufferedInputStream
 
 import scala.io.Source
+import scala.util.{Try, Failure, Success}
 
 import com.typesafe.config.Config
 
@@ -37,7 +37,7 @@ class MobwriteServer(configuration: Config) extends SynchroServer {
   val url = configuration.getString("mobwrite.url")
   val port = configuration.getInt("mobwrite.port")
 
-  def session(data: String): String = {
+  def session(data: String): Try[String] = {
     (for(socket <- managed(new Socket(url, port))) yield {
       // Write data to daemon
       val outputStream = socket.getOutputStream
@@ -49,7 +49,7 @@ class MobwriteServer(configuration: Config) extends SynchroServer {
       source.foldLeft(new StringBuilder) { (res, current) =>
         res += current
       }.toString
-    }).opt.getOrElse("")
+    }).opt.fold[Try[String]](Failure(new SynchroFailureException("Error with legacy mobwrite server")))(Success(_))
   }
 
   def persist(paperId: String): Unit = {

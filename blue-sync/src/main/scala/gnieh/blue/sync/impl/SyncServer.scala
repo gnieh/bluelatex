@@ -52,13 +52,14 @@ class SyncServer(dispatcher: ActorRef, configuration: Config) extends SynchroSer
     new SyncActionSerializer +
     new EditSerializer
 
-  def session(data: String): String = {
+  def session(data: String): Try[String] = {
     val syncSession = Serialization.read[SyncSession](data)
     val response = Try(Await.result(dispatcher ? Forward(syncSession.paperId, syncSession),
                                     timeout.duration).asInstanceOf[SyncSession])
     response match {
-      case Success(resp) => Serialization.write[SyncSession](resp)
-      case Failure(e) => e.getMessage //TODO: Return specific HTTP error ?
+      case Success(resp) => Success(Serialization.write[SyncSession](resp))
+      case Failure(e) =>
+        Failure(new SynchroFailureException("Unable to get reponse from synchro dispatcher", e))
     }
   }
 
