@@ -43,20 +43,21 @@ import com.typesafe.config.Config
 
 class CompilerLet(paperId: String, dispatcher: ActorRef, config: Config, logger: Logger) extends AsyncRoleLet(paperId, config, logger) {
 
-  // TODO make it configurable with connection keep-alive timeout
-  implicit val timeout = Timeout(20.seconds)
+  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Future[Any] = {
+    val promise = Promise[Boolean]()
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Future[Any] =
-    for(result <- dispatcher.ask(Forward(paperId, Register)).mapTo[Try[Boolean]])
-      yield result match {
-        case Success(ok) =>
-          talk.writeJson(ok)
-        case Failure(t) =>
-          logError(s"Could not compile paper $paperId", t)
-          talk
-            .setStatus(HStatus.InternalServerError)
-            .writeJson(ErrorResponse("unable_to_compile", s"Something went wrong when compiling paper $paperId"))
-      }
+    // register the client with the paper compiler
+    dispatcher ! Forward(paperId, Register(promise))
+
+    promise.future.map(talk.writeJson) recoverWith {
+      case e =>
+        logError(s"Unable to compile paper $paperId", e)
+        Future(talk
+          .setStatus(HStatus.InternalServerError)
+          .writeJson(ErrorResponse("unable_to_compile", "Compilation failed, more details in the compilation log file.")))
+    }
+
+  }
 
 }
 

@@ -23,6 +23,7 @@ import akka.actor.{
 }
 import akka.util.Timeout
 
+import scala.concurrent.Promise
 import scala.concurrent.duration._
 
 import scala.util.Try
@@ -59,7 +60,7 @@ class CompilationActor(
 
   def receive = receiving(Set(), defaultSettings)
 
-  def receiving(clients: Set[ActorRef], settings: CompilerSettings): Receive = {
+  def receiving(clients: Set[Promise[Boolean]], settings: CompilerSettings): Receive = {
     case Compile =>
 
       implicit val timeout = Timeout(settings.timeout.seconds)
@@ -85,7 +86,7 @@ class CompilationActor(
 
         // and we send back the answer to the clients
         for(client <- clients)
-          client ! res
+          client.complete(res)
 
         // and listen again with an empty list of clients
         context.become(receiving(Set(), settings))
@@ -108,5 +109,5 @@ class CompilationActor(
 }
 
 case object Compile
-case class Register(client: ActorRef)
+case class Register(response: Promise[Boolean])
 
