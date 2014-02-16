@@ -20,12 +20,11 @@
 }
 #paper .listType {
     position: relative;
-    background: #F8F8F8;
-    width: 100%;
-    z-index: 4;
     text-align: center;
     height: 37px;
     z-index: 4;
+    width: 215px;
+    float: left;
 }
 #paper .leftCol .list {
     position: absolute;
@@ -35,7 +34,7 @@
     bottom: 0;
     right: 0;
     left: 0;
-    padding-top: 37px;
+    padding-top: 0px;
     padding-left: 7px;
 }
 #paper .toc {
@@ -51,6 +50,9 @@
 #paper .leftCol .toc ul,#paper .leftCol .list ol {
     margin-left: 0;
     padding-left: 10px;
+}
+#paper .toc .current {
+  font-weight: bold;
 }
 #paper .leftCol div.preview_page_container {
     background: #FFF;
@@ -68,8 +70,7 @@
     position: absolute;
     width: 215px;
     float: left;
-    top: 0;
-    margin-top: 42px;
+    top: 82px;
     margin-right: 3px;
     bottom: 0;
     background: #fff;
@@ -81,9 +82,8 @@
     left: 0;
     padding-left: 215px;
     right:0;
-    top: 0;
     bottom:0;
-    padding-top: 42px;
+    top: 82px;
 }
 #paper .centerCol {
     position:relative;
@@ -118,15 +118,151 @@
 }
 
 #preview {
+    position: relative;
     width: 100%;
     height: 100%;
     overflow: auto;
 }
 #preview div.preview_page_container {
+    position: relative;
     background: #FFF;
-    overflow-x: hidden;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     margin: 10px;
+}
+.textLayer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    color: #000;
+    font-family: sans-serif;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.textLayer > div {
+    color: transparent;
+    position: absolute;
+    line-height: 1;
+    white-space: pre;
+    cursor: text;
+}
+
+.textLayer .highlight {
+    margin: -1px;
+    padding: 1px;
+
+    background-color: rgba(180, 0, 170, 0.2);
+    border-radius: 4px;
+}
+
+.textLayer .highlight.begin {
+    border-radius: 4px 0px 0px 4px;
+}
+
+.textLayer .highlight.end {
+    border-radius: 0px 4px 4px 0px;
+}
+
+.textLayer .highlight.middle {
+    border-radius: 0px;
+}
+
+.textLayer .highlight.selected {
+    background-color: rgba(0, 100, 0, 0.2);
+}
+.hightlight_line {
+  position: absolute;
+  background: rgba(255, 0, 0, 0.13);
+  z-index: 0;
+}
+#paper .options {
+    position: absolute;
+    top: 42px;
+    height: 40px;
+    width: 100%;
+    background: #FAFAFA;
+    z-index: 99;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+#paper .options > .left {
+    width: 215px;
+    float: left;
+}
+#paper .options .center {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 215px;
+    right: 0;
+}
+#paper .options .center .left,#paper .options .center .right  {
+    position: relative;
+    width: 50%;
+    float: left;
+    height: 100%;
+}
+.subOption {
+    position: relative;
+    height: 100%;
+    float: left;
+    margin-right: 6px;
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    -o-user-select: none;
+    user-select: none;
+}
+.subOption .subOptions {
+    background: #FAFAFA;
+}
+.subOption .label {
+    display: inline-block;
+    line-height: 40px;
+}
+
+.subOption > label {
+    cursor: pointer;
+    padding: 11px 0px;
+}
+.subOption > label:hover {
+    background: rgba(0,0,0,0.2);
+}
+.subOption > label span {
+    position: relative;
+    font-size: 25px;
+    top: 7px;
+}
+.subOption > label input {
+    display: none;
+}
+
+.pdf_action {
+    padding: 6px;
+}
+
+.pdf_action .navigation {
+    float: right;
+}
+.pdf_action .navigation .prevPage,.pdf_action .navigation .nextPage,.pdf_action .navigation .prevPage,.pdf_action .navigation span,.pdf_action .navigation .totalPage {
+    float: left;
+    line-height: 30px;
+}
+.pdf_action .navigation input {
+    float: left;
+    width: 25px;
+    min-width: 35px;
+    padding: 3px;
+    text-align: center;
+}
+.pdf_action .scale {
+    float: right;
+}
+.pdf_action .scale select {
+    width: 100px;
+    min-width: 100px;
 }
 #preview img.preview_page {
     width: 100%;
@@ -225,7 +361,6 @@
 }
 #file_list .file button {
     float: right;
-
     background: transparent;
     color: #333;
     padding: 0;

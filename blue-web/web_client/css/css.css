@@ -82,6 +82,13 @@
 .icon-close:before {
   content: "n";
 }
+.icon-prev-page:before {
+  content: "o";
+}
+.icon-next-page:before {
+  content: "p";
+}
+
 
 * {
     -moz-box-sizing: border-box;
@@ -438,6 +445,11 @@ a:hover {
     line-height: normal;
     border-radius: 1px;
     outline: none;
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    -o-user-select: none;
+    user-select: none;
 }
 .button.start{
     background: #5F7C3A!important;
