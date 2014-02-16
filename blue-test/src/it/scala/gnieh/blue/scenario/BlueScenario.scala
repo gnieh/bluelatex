@@ -64,7 +64,7 @@ abstract class BlueScenario extends FeatureSpec
   private var cookie: Option[Cookie] = None
 
   lazy val couch = {
-    val sess = new CouchClient(port = couchPort).startSession
+    val sess = new CouchClient(port = couchPort).startCookieSession
     sess.login(admin, password)
     sess
   }

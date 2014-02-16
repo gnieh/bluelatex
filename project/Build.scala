@@ -55,11 +55,17 @@ class BlueBuild extends Build with Pack with Server with Tests {
   lazy val blueCore =
     (Project(id = "blue-core", base = file("blue-core"))
       settings(
-        libraryDependencies ++= coreDependencies
+        libraryDependencies ++= commonDeps
       )
     ) dependsOn(blueCommon)
 
   lazy val commonDeps = Seq(
+    "org.gnieh" %% "tiscaf" % "0.9-SNAPSHOT",
+    "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
+    "org.apache.pdfbox" % "pdfbox" % "1.8.2" exclude("commons-logging", "commons-logging"),
+    "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
+    "commons-collections" % "commons-collections" % "3.2.1",
+    "org.fusesource.scalate" %% "scalate-core" % "1.6.1",
     "com.typesafe.akka" %% "akka-osgi" % "2.2.3",
     "org.gnieh" %% "sohva-client" % "0.6-SNAPSHOT",
     "org.gnieh" %% "diffson" % "0.2",
@@ -74,22 +80,13 @@ class BlueBuild extends Build with Pack with Server with Tests {
     "com.typesafe.akka" %% "akka-testkit" % "2.2.3" % "test"
   )
 
-  lazy val coreDependencies = commonDeps ++ Seq(
-    "org.gnieh" %% "tiscaf" % "0.9-SNAPSHOT",
-    "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
-    "org.apache.pdfbox" % "pdfbox" % "1.8.2" exclude("commons-logging", "commons-logging"),
-    "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
-    "commons-collections" % "commons-collections" % "3.2.1",
-    "org.fusesource.scalate" %% "scalate-core" % "1.6.1"
-  )
-
   lazy val blueMobwrite =
     (Project(id = "blue-mobwrite",
       base = file("blue-mobwrite"))
       settings (
         libraryDependencies ++= commonDeps
       )
-    ) dependsOn(blueCore)
+    ) dependsOn(blueCompile)
 
   lazy val blueCompile =
     (Project(id = "blue-compile",
@@ -97,7 +94,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
       settings (
         libraryDependencies ++= commonDeps
       )
-    ) dependsOn(blueCore)
+    ) dependsOn(blueCommon)
 
   lazy val blueSync =
     (Project(id = "blue-sync",
@@ -105,6 +102,6 @@ class BlueBuild extends Build with Pack with Server with Tests {
       settings (
         libraryDependencies ++= commonDeps
       )
-    ) dependsOn(blueCore)
+    ) dependsOn(blueCommon)
 
 }

@@ -1,9 +1,7 @@
-Bundle-Activator: gnieh.blue.impl.BlueActivator
+Bundle-Activator: gnieh.blue.core.impl.BlueCoreActivator
 Bundle-SymbolicName: org.gnieh.blue.core
-Bundle-Name: \\BlueLaTeX Server Core (Http, synchro, ...)
+Bundle-Name: \\BlueLaTeX Server Core Features (user management, paper management, ...)
 
-Private-Package=gnieh.blue.impl, gnieh.blue.http.impl
-Import-Package=*,org.slf4j
-
-Export-Package=gnieh.blue, gnieh.blue.couch, gnieh.blue.http
+Private-Package=gnieh.blue.core.impl
+Import-Package=*
 

@@ -27,7 +27,7 @@ trait Tests {
         },
         test in Scenario <<= (blueStop in bluelatex) dependsOn ((test in IntegrationTest) dependsOn (blueStart in bluelatex))
       )
-    ) dependsOn(blueCore)
+    ) dependsOn(blueCommon)
 
   lazy val testDeps = Seq(
     "org.subethamail" % "subethasmtp" % "3.1.7",

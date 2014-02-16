@@ -171,9 +171,9 @@ trait Pack {
         val couchport = couchconf._1
         val couchadmin = couchconf._2
         val couchpassword = couchconf._3
-        sed.replaceAll(packDir / "conf" / "org.gnieh.blue.core" / "application.conf", "\\$couchPort", couchport.toString)
-        sed.replaceAll(packDir / "conf" / "org.gnieh.blue.core" / "application.conf", "\\$couchAdmin", couchadmin)
-        sed.replaceAll(packDir / "conf" / "org.gnieh.blue.core" / "application.conf", "\\$couchPassword", couchpassword)
+        sed.replaceAll(packDir / "conf" / "org.gnieh.blue.common" / "application.conf", "\\$couchPort", couchport.toString)
+        sed.replaceAll(packDir / "conf" / "org.gnieh.blue.common" / "application.conf", "\\$couchAdmin", couchadmin)
+        sed.replaceAll(packDir / "conf" / "org.gnieh.blue.common" / "application.conf", "\\$couchPassword", couchpassword)
 
         out.log.info("copy templates")
         IO.copyDirectory(templatedir, packDir / "conf" / "templates")

@@ -25,9 +25,9 @@ import java.io.File
 
 import com.typesafe.config._
 
-class ConfigurationLoaderImpl(base: File) extends ConfigurationLoader {
+class ConfigurationLoaderImpl(bundleName: String, base: File) extends ConfigurationLoader {
 
-  val globalConf = ConfigFactory.load(new URLClassLoader(optionalURL(base).toArray, getClass.getClassLoader))
+  val globalConf = ConfigFactory.load(new URLClassLoader(List(optionalURL(new File(base, bundleName)), optionalURL(base)).flatten.toArray, getClass.getClassLoader))
 
   private def optionalURL(f: File) =
     if(f.exists)
