@@ -106,9 +106,9 @@
                 <div class="tags" data-i18n="_Tags_"></div>
                 <div class="options" data-i18n="_Options_"></div>
             </div>
-            <div class="paper" ng-repeat="paper in papers | filter:search | filter:dateFilter | filter:roleFilter | orderBy:predicate:reverse" ng-animate=" 'animate' ">
+            <div class="paper" ng-repeat="paper in papers | filter:search | filter:dateFilter | filter:roleFilter | orderBy:predicate:reverse">
                 <div class="icon">
-                    <a href="#/paper/{{paper.id}}"><img alt="{{paper.title}}" title="{{paper.title}}" ></a>
+                    <a href="#/paper/{{paper.id}}"><img src="/api/papers/{{paper.id}}.png?page=1" alt="{{paper.title}}" title="{{paper.title}}" ></a>
                 </div>
                 <div class="title">
                     <a href="#/paper/{{paper.id}}">{{paper.title}}</a>

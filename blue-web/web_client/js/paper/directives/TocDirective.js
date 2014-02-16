@@ -6,6 +6,8 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
         var top = null;
         var current = null;
         var currentlevel = -1;
+        var lastLi;
+        var lastLine = 0;
         elm.text('');
         for (var i = 0; i < toc.length; i++) {
           var line = toc[i];
@@ -35,7 +37,9 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
               current = current.parentElement;
             }
           }
+
           currentlevel = line.level;
+
           //create li
           var li = $document[0].createElement('li');
           var a = $document[0].createElement('a');
@@ -43,6 +47,15 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
           a.innerHTML = line.title;
           li.appendChild(a);
           current.appendChild(li);
+
+          if(!lastLi) lastLi = li;
+          if(lastLine <=$scope.current.line  &&  line.line > $scope.current.line) {
+            lastLi.setAttribute('class', 'current');
+          } else if(i==toc.length-1 && line.line <= $scope.current.line) {
+            li.setAttribute('class', 'current');
+          }
+          lastLine = line.line;
+          lastLi = li;
         }
         if (toc.length == 0) {
           elm.html("No table of contents");
@@ -53,6 +66,10 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
       return function (scope, elm, attrs) {
         scope.$watch('toc', function (value) {
           updateTOC(elm, value, scope);
+        });
+        scope.$watch('current.line', function (value) {
+          console.log(value);
+          updateTOC(elm, scope.toc, scope);
         });
         updateTOC(elm, scope.toc, scope);
       };

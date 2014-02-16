@@ -8,6 +8,36 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         verifyIntegrity: true
       });
 
+      var synctex = $resource(apiRootUrl + "/papers/:paper_id/synctex", null, {
+        "get": {
+          method: "get"
+        }
+      });
+
+      var log = $resource(apiRootUrl + "/papers/:paper_id.log", null, {
+        "get": {
+          method: "get"
+        }
+      });
+
+      var compiler = $resource(apiRootUrl + "/papers/:paper_id/compiler", null, {
+        "get": {
+          method: "get"
+        },
+        "subscribe": {
+          method: "post"
+        },
+        "modify": {
+          method: "PATCH"
+        }
+      });
+
+      var compilers = $resource(apiRootUrl + "/compilers", null, {
+        "get": {
+          method: "get"
+        }
+      });
+
       var paper = $resource(apiRootUrl + "/papers/:paper_id", null, {
         "new": {
           method: "POST",
@@ -342,6 +372,93 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         },
         getZipUrl: function (paper_id) {
           return apiRootUrl + "/papers/" + paper_id + ".zip";
+        },
+        getPDFUrl: function (paper_id) {
+          return apiRootUrl + "/papers/" + paper_id + ".pdf";
+        },
+        getPNGUrl: function (paper_id,page) {
+          return apiRootUrl + "/papers/" + paper_id + ".png?page="+page;
+        },
+        getTexfile: function (file_name) {
+          var deferred = $q.defer();
+          $http({method: 'GET', url: file_name}).then(function(returnData){
+            deferred.resolve(returnData.data);
+          }, function (error) {
+            $log.error(error);
+            deferred.reject(error);
+          });
+          return deferred.promise;
+        },
+        getCompilers: function () {
+          var deferred = $q.defer();
+          var promise = deferred.promise;
+          if (_dataCache.get('/compilers')) deferred.resolve(_dataCache.get('/compilers'));
+          else {
+            compilers.get({}).$promise.then(function (data) {
+              _dataCache.put('/compilers', data);
+              deferred.resolve(data);
+            }, function (error) {
+              deferred.reject(error);
+            }, function (progress) {
+              deferred.notify(progress);
+            });
+          }
+          return promise;
+        },
+        getPaperCompiler: function (paper_id) {
+          var deferred = $q.defer();
+          var promise = deferred.promise;
+          if (_dataCache.get('/compiler/'+paper_id)) deferred.resolve(_dataCache.get('/compiler/'+paper_id));
+          else {
+            compiler.get({paper_id: paper_id}).$promise.then(function (data) {
+              _dataCache.put('/compiler/'+paper_id, data);
+              deferred.resolve(data);
+            }, function (error) {
+              deferred.reject(error);
+            }, function (progress) {
+              deferred.notify(progress);
+            });
+          }
+          return promise;
+        },
+        subscribePaperCompiler: function (paper_id) {
+          var deferred = $q.defer();
+          var promise = deferred.promise;
+          if (_dataCache.get('/compiler/'+paper_id)) deferred.resolve(_dataCache.get('/compiler/'+paper_id));
+          else {
+            compiler.subscribe({paper_id: paper_id}).$promise.then(function (data) {
+              deferred.resolve(data);
+            }, function (error) {
+              deferred.reject(error);
+            }, function (progress) {
+              deferred.notify(progress);
+            });
+          }
+          return promise;
+        },
+        editPaperCompiler: function (paper_id) {
+          var deferred = $q.defer();
+          var promise = deferred.promise;
+          _dataCache.remove('/compiler/'+paper_id);
+          compiler.modify({paper_id: paper_id}).$promise.then(function (data) {
+            deferred.resolve(data);
+          }, function (error) {
+            deferred.reject(error);
+          }, function (progress) {
+            deferred.notify(progress);
+          });
+          return promise;
+        },
+        getSynctex: function (paper_id) {
+          var deferred = $q.defer();
+          synctex.get({paper_id: paper_id}).$promise.then(function (data) {
+            deferred.resolve(data);
+          }, function (error) {
+            deferred.reject(error);
+          }, function (progress) {
+            deferred.notify(progress);
+          });
+          return deferred.promise;
         },
         getUserPapers: function (user) {
           var deferred = $q.defer();

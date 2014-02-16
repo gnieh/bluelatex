@@ -1,6 +1,25 @@
-angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluelatex.Paper.Directives.Toc','bluelatex.Paper.Services.Ace','bluelatex.Paper.Services.Paper','bluelatex.Paper.Services.Ace'])
-  .controller('PaperController', ['$scope', 'localize', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService',
-    function ($scope, localize, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService) {
+angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluelatex.Paper.Directives.Toc','bluelatex.Paper.Services.Ace','bluelatex.Paper.Services.Paper','bluelatex.Paper.Services.Ace','bluelatex.Latex.Services.SyncTexParser'])
+  .controller('PaperController', ['$scope', 'localize', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService','SyncTexParserService',
+    function ($scope, localize, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService,SyncTexParserService) {
+      $scope.pageViewport = {};
+      $scope.currentElem = {};
+      $scope.resources = [];
+      $scope.paper = {};
+      $scope.listType = 'debug';
+      $scope.mode = 'ace';
+      $scope.logs = [];
+      $scope.toc = [];
+      $scope.content = '';
+      $scope.new_file = {};
+      $scope.synctex = null;
+      $scope.current = {line: 0};
+
+      $scope.vignetteType = "pdf";
+      $scope.urlPaper = "/ressources/latex_example";
+      $scope.scale = "auto";
+      $scope.currentPage = 1;
+      $scope.totalPage = 1;
+
       var paper_id = $routeParams.id;
       var getPaperInfo = function () {
         PaperService.getInfo(paper_id).then(function (data) {
@@ -69,13 +88,99 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       };
       getResources();
 
-      $scope.resources = [];
-      $scope.paper = {};
-      $scope.listType = 'files';
-      $scope.mode = 'ace';
-      $scope.logs = [];
-      $scope.toc = [];
-      $scope.content = '';
+      var getTexfile = function (file_name) {
+        PaperService.getTexfile(file_name).then(function (data) {
+          $scope.content = data;
+        }, function (error) {
+          // body...
+        })
+      };
+      getTexfile('ressources/latex_example.tex');
+
+
+
+      var createBlock = function (b, page){
+        var previews = preview.getElementsByClassName('preview_page_container');
+        var block = document.createElement('div');
+
+        block.style.bottom = b.bottom + 'px';
+        block.style.left = b.left + 'px';
+        block.style.width = b.width + 'px';
+        block.style.height = b.height + 'px';
+        block.classList.add(b.type);
+        block.classList.add('debug_block');
+
+        var info = document.createElement('div');
+        info.classList.add('info');
+        info.innerHTML = '<span class="file">'+b.fileNumber+'</span><span class="line">'+b.line+'</span>';
+        block.appendChild(info);
+
+        previews[page-1].appendChild(block);
+      };
+
+      var createElem = function (elm ,page){
+        //if(elm.type!='x') return;
+        var previews = preview.getElementsByClassName('preview_page_container');
+        var block = document.createElement('div');
+        block.style.bottom = elm.bottom + 'px';
+        block.style.left = elm.left+ 'px';
+        block.style.width =  '1px';
+        block.style.height = elm.height+'px';
+        block.classList.add('debug_block');
+        block.classList.add(elm.type);
+
+        var info = document.createElement('div');
+        info.classList.add('info');
+        info.innerHTML = '<span class="file">'+elm.fileNumber+'</span><span class="line">'+elm.line+'</span>';
+        block.appendChild(info);
+        previews[page-1].appendChild(block);
+      };
+
+      var removeBlocks = function () {
+        var blocks = preview.getElementsByClassName('debug_block');
+        for (var i = blocks.length - 1; i >= 0; i--) {
+          var block = blocks[i];
+          block.parentNode.removeChild(block);
+        };
+      };
+
+      var displayBlocks = function (blocks, page) {
+        if(!isArray(blocks)) return;
+        for (var j = blocks.length - 1; j >= 0; j--) {
+          var block = blocks[j];
+          //if(block.type!='v block')continue;
+          createBlock(block,page);
+          displayBlocks(block.blocks,page);
+          for (var i = block.elements.length - 1; i >= 0; i--) {
+            var elm = block.elements[i]
+            createElem(elm,page);
+          };
+        };
+      };
+
+      var displayPages = function (pages) {
+        removeBlocks();
+        for(i in pages) {
+          var page = pages[i];
+          displayBlocks(page.blocks,i);
+        }
+      };
+
+      SyncTexParserService.parseUrl('ressources/latex_example.synctex').then(function (data) {
+        $scope.synctex = data;
+      });
+
+      $scope.$watch('pageViewport', function (value) {
+        if(value.scale == null) return;
+
+      });
+      $scope.$watch('displaySyncTexBox', function (value) {
+        if(value)
+          displayPages($scope.synctex.pages);
+        else
+          removeBlocks();
+      });
+
       //action listener: action in the menu
       $scope.$on('handleAction', function (event, data) {
         if ($scope[data]) {
@@ -94,8 +199,41 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       $scope.compile = function () {
 
       };
+
+      $scope.nextPage = function () {
+        if($scope.currentPage != $scope.totalPage) {
+          $scope.currentPage++;
+        }
+      };
+      $scope.prevPage = function () {
+        if($scope.currentPage != 1) {
+          $scope.currentPage--;
+        }
+      };
       $scope.goToLine = function (line) {
         AceService.goToLine(line);
+        $scope.current.line = line;
+      };
+
+      var removeLineHightlight = function () {
+        var blocks = preview.getElementsByClassName('hightlight_line');
+        for (var i = blocks.length - 1; i >= 0; i--) {
+          var block = blocks[i];
+          block.parentNode.removeChild(block);
+        }
+      };
+      var createCurrrentLineHightlight = function (left, bottom, width,height, page) {
+        var previews = preview.getElementsByClassName('preview_page_container');
+        if(!previews[page-1]) return;
+
+        var block = document.createElement('div');
+
+        block.style.bottom = bottom + 'px';
+        block.style.left = left + 'px';
+        block.style.width = width + 'px';
+        block.style.height = height + 'px';
+        block.classList.add('hightlight_line');
+        previews[page-1].appendChild(block);
       };
 
       $scope.aceLoaded = function (_editor) {
@@ -104,13 +242,16 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           AceService.getSession().on("change", function () {
             $scope.toc = AceService.getToc();
           });
+          _editor.selection.on("changeCursor", function(){
+            $scope.$apply(function() {
+              $scope.current.line = _editor.selection.getCursor().row+1;
+            });
+          });
           _editor.focus();
         });
       };
 
       $scope.aceChanged = function (e) {};
-
-      $scope.new_file = {};
 
       $scope.onFileSelect = function ($files) {
         if ($files.length > 0) {

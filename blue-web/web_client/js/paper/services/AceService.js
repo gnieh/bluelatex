@@ -52,7 +52,6 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace'])
         _editor.setFadeFoldWidgets(aceSettings.fadeFoldWidgets);
 
         _editor.session.setMode(aceSettings.mode);
-        $log.log(aceSettings.mode);
         _editor.session.modeName = aceSettings.modeName;
 
         _renderer.setShowGutter(aceSettings.showGutter);
@@ -77,6 +76,7 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace'])
 
       var goToLine = function (line) {
         _editor.gotoLine(line);
+        _editor.focus();
       };
 
       var aceLoaded = function (_e, callback) {

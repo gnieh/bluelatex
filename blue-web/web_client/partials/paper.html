@@ -1,5 +1,75 @@
 <section id="paper">
-    <div bl-messages></div>
+    <div class="options">
+      <div class="left">
+        <div class="btn-group listType">
+          <label class="btn btn-default" ng-class="{'active': listType=='files'}" for="files">
+              <input type="radio" name="listType" value="files" id="files" ng-model="listType">
+              <span class="icon-file"></span>
+          </label>
+          <label class="btn btn-default" ng-class="{'active': listType=='toc'}" for="toc">
+              <input type="radio" name="listType" value="toc" id="toc" ng-model="listType">
+              <span class="icon-list" ></span>
+          </label>
+          <label class="btn btn-default" ng-class="{'active': listType=='figures'}" for="figure">
+              <input type="radio" name="listType" value="figures" id="figure" checked="true" ng-model="listType">
+              <span class="icon-vignette"></span>
+          </label>
+          <label class="btn btn-default" ng-class="{'active': listType=='debug'}" for="debug">
+              <input type="radio" name="listType" value="debug" id="debug" checked="true" ng-model="listType">
+              <span class="icon-vignette"></span>
+          </label>
+        </div>
+      </div>
+      <div class="center">
+        <div class="left">
+          <div class="subOption">
+            <div class="label">
+              Compile
+            </div>
+            <label><input type="checkbox" ng-model="compilerOptions"><span class="icon-down-empty"></span></label>
+            <div class="subOptions" ng-show="compilerOptions">
+              <label>
+                <input type="radio" name="compiler">
+                PDFLatex
+              </label>
+            </div>
+          </div>
+          <div class="subOption">
+            <div class="label">
+              Download
+            </div>
+            <label><input type="checkbox" ng-model="downloadOptions"><span class="icon-down-empty"></span></label>
+            <div class="subOptions" ng-show="downloadOptions">
+              <div ng-click="downloadPDF">Download PDF</div>
+              <div ng-click="downloadZip">Download Zip</div>
+            </div>
+          </div>
+        </div>
+        <div class="right">
+          <div class="messages" bl-messages></div>
+          <div class="pdf_action">
+            <div class="scale">
+              <select ng-model="scale">
+                <option value="auto">Auto</option>
+                <option value="0.5">50%</option>
+                <option value="0.75">75%</option>
+                <option value="1">100%</option>
+                <option value="1.25">125%</option>
+                <option value="1.50">150%</option>
+                <option value="2">200%</option>
+              </select>
+            </div>
+            <div class="navigation">
+              <div class="prevPage icon-prev-page" ng-click="prevPage"></div>
+              <input type="text" ng-model="currentPage">
+              <span>/</span>
+              <div class="totalPage">{{totalPage}}</div>
+              <div class="nextPage icon-next-page" ng-click="nextPage"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <section class="centerRightCol">
         <section class="centerCol">
             <div ng-show="mode=='ace'" ui-ace="{
@@ -13,38 +83,29 @@
         </section>
         <section class="rightCol">
             <div id="preview">
-              <div class="preview_page_container">
-                <img class="preview_page" src="//writelatex.s3.amazonaws.com/qkmscjgckstd/page/e3ec3f7bcb5c9e01a9e1630ddbabce9ec89edda4.jpeg">
-              </div>
-              <div class="preview_page_container">
-                <img class="preview_page" src="//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg">
-              </div>
+              <div class="preview_page_container" bl-vignette data-synctex="synctex" data-current="current" data-line="{{current.line}}" data-type="vignetteType" data-page="1" data-currentPage="currentPage" data-url="urlPaper" data-scale="scale"></div>
             </div>
         </section>
     </section>
     <section class="leftCol">
-      <div class="btn-group listType">
-        <label class="btn btn-default" ng-class="{'active': listType=='files'}" for="files">
-            <input type="radio" name="listType" value="files" id="files" ng-model="listType">
-            <span class="icon-file"></span>
-        </label>
-        <label class="btn btn-default" ng-class="{'active': listType=='toc'}" for="toc">
-            <input type="radio" name="listType" value="toc" id="toc" ng-model="listType">
-            <span class="icon-list" ></span>
-        </label>
-        <label class="btn btn-default" ng-class="{'active': listType=='figures'}" for="figure">
-            <input type="radio" name="listType" value="figures" id="figure" checked="true" ng-model="listType">
-            <span class="icon-vignette"></span>
-        </label>
-      </div>
       <section class="list">
         <div class="toc" ng-show="listType=='toc'"><div bl-toc="toc"></div></div>
+        <div class="debug" ng-show="listType=='debug'">
+          <h2>Debug</h2>
+          File: {{currentElem.file}}<br>
+          Line: {{currentElem.line}}<br>
+          bottom: {{currentElem.bottom}}<br>
+          left: {{currentElem.left}}<br>
+          currentLine: {{current.line}}<br>
+          <label><input type="checkbox" ng-model="displaySyncTexBox">display SyncTex Box</label>
+          <input type="text" ng-model="scale">
+        </div>
         <div class="figures" ng-show="listType=='figures'">
           <div class="preview_page_container">
-            <img class="preview_page" src="//writelatex.s3.amazonaws.com/qkmscjgckstd/page/e3ec3f7bcb5c9e01a9e1630ddbabce9ec89edda4.jpeg">
+            <img class="preview_page" src="">
           </div>
           <div class="preview_page_container">
-            <img class="preview_page" src="//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg">
+            <img class="preview_page" src="">
           </div>
         </div>
         <div class="files" ng-show="listType=='files'">
