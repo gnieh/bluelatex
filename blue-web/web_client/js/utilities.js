@@ -69,3 +69,49 @@ function get_radom_color () {
   return (function(m,s,c){return (c ? arguments.callee(m,s,c-1) : '#') +
   s[m.floor(m.random() * s.length)];})(Math,'0123456789ABCDEF',5);
 }
+function findPosX(obj) {
+    var curleft = 0;
+    if (obj.offsetParent) {
+        while (1) {
+            curleft+=obj.offsetLeft;
+            if (!obj.offsetParent) {
+                break;
+            }
+            obj=obj.offsetParent;
+        }
+    } else if (obj.x) {
+        curleft+=obj.x;
+    }
+    return curleft;
+};
+
+function findPosY(obj) {
+    var curtop = 0;
+    if (obj.offsetParent) {
+        while (1) {
+            curtop+=obj.offsetTop;
+            if (!obj.offsetParent) {
+                break;
+            }
+            obj=obj.offsetParent;
+        }
+    } else if (obj.y) {
+        curtop+=obj.y;
+    }
+    return curtop;
+};
+
+var convertToViewportPoint  = function (x, y, dimension) {
+    var transform = [
+      dimension.scale,
+      0,
+      0,
+      -dimension.scale,
+      0,
+      dimension.height
+    ];
+
+    var xt = x * transform[0] + y * transform[2] + transform[4];
+    var yt = x * transform[1] + y * transform[3] + transform[5];
+    return [xt, yt];
+};
