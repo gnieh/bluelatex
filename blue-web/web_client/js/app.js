@@ -20,8 +20,7 @@ angular.module('bluelatex', [
   'bluelatex.User.Controllers.Register',
   'bluelatex.User.Controllers.ResetPassword',
   'bluelatex.Latex.Directives.Vignette',
-  'bluelatex.Latex.Services.SyncTexParser',
-  'bluelatex.Latex.Controllers.Vignettes'
+  'bluelatex.Latex.Services.SyncTexParser'
 ]).config(['$routeProvider',
   function ($routeProvider) {
     $routeProvider.when('/login', {

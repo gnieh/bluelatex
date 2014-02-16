@@ -1,25 +1,26 @@
 angular.module('bluelatex.Latex.Directives.Vignette', [])
-  .directive('blVignette', ['$document','$window', function($document,$window) {
+  .directive('blVignette', ['$window', function($window) {
     return {
-      require: 'blVignette',
-      scope: {
-        page: "@",
-        scale: "=scale",
-        type: "=type",
-        url: "=url",
-        synctex: "=synctex",
-        current: "=current"
+      'require': 'blVignette',
+      'scope': {
+        'page': "@",
+        'scale': "=scale",
+        'type': "=type",
+        'url': "=url",
+        'synctex': "=synctex",
+        'current': "=current"
       },
-      controller: function($scope) {
+      'controller': function($scope) {
         var pdf = null;
         var element;
         var viewport;
         var pdfDimension;
+
         $scope.hightlights = [{
-          height: "10px",
-          width: "200px",
-          left: "150px",
-          bottom: "25px"
+          'height': "10px",
+          'width': "200px",
+          'left': "150px",
+          'bottom': "25px"
         }];
 
         $scope.$watch("currentLine", function (line) {
@@ -47,7 +48,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', [])
             if(e.type!='x') continue;
             if(e.bottom!=currentLine.bottom){
               lines.push(currentLine);
-              var currentLine = {
+              currentLine = {
                 positionFirst: i,
                 minLeft: i,
                 maxLeft: i,
@@ -186,7 +187,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', [])
           loadPdf($scope.url + '_' + $scope.page);
         };
       },
-      link: function($scope, element, attrs, controller) {
+      'link': function($scope, element, attrs, controller) {
         var ratio = 1;
         var page = attrs.page;
         var scale = attrs.scale;
@@ -229,7 +230,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', [])
 
         $scope.loadPDF(element);
       },
-      template: '<canvas></canvas><div class="textLayer"></div><div class="hightlights"><div class="hightlight_line" ng-repeat="hightlight in hightlights" style="height:{{hightlight.height}};width:{{hightlight.width}};left:{{hightlight.left}};bottom:{{hightlight.bottom}}"></div></div>'
+      'template': '<canvas></canvas><div class="textLayer"></div><div class="hightlights"><div class="hightlight_line" ng-repeat="hightlight in hightlights" style="height:{{hightlight.height}};width:{{hightlight.width}};left:{{hightlight.left}};bottom:{{hightlight.bottom}}"></div></div>'
     };
   }])
   .directive('blVignette2',['$document','$window', function($document,$window) {

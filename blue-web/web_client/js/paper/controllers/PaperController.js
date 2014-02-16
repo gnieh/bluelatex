@@ -93,7 +93,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           $scope.content = data;
         }, function (error) {
           // body...
-        })
+        });
       };
       getTexfile('ressources/latex_example.tex');
 
@@ -141,7 +141,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         for (var i = blocks.length - 1; i >= 0; i--) {
           var block = blocks[i];
           block.parentNode.removeChild(block);
-        };
+        }
       };
 
       var displayBlocks = function (blocks, page) {
@@ -152,15 +152,15 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           createBlock(block,page);
           displayBlocks(block.blocks,page);
           for (var i = block.elements.length - 1; i >= 0; i--) {
-            var elm = block.elements[i]
+            var elm = block.elements[i];
             createElem(elm,page);
-          };
-        };
+          }
+        }
       };
 
       var displayPages = function (pages) {
         removeBlocks();
-        for(i in pages) {
+        for(var i in pages) {
           var page = pages[i];
           displayBlocks(page.blocks,i);
         }
