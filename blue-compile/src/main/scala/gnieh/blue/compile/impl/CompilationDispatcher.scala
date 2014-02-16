@@ -67,7 +67,7 @@ class CompilationDispatcher(
         logger.log(LogService.LOG_WARNING, s"compiler settings do not exist for paper $paperId")
         // create the settings in the database and returns it
         // by default we compile with pdflatex with a timeout of 30 seconds and an interval of 15 seconds
-        val settings = CompilerSettings(s"$paperId:compiler", "pdflatex", 30, 15)
+        val settings = CompilerSettings(s"$paperId:compiler", "pdflatex", false, 30, 15)
         for(settings <- db.saveDoc(settings))
           // the get method will throw an exception if `None` is returned,
           // this will be catched and transformed into a `Try` instance.

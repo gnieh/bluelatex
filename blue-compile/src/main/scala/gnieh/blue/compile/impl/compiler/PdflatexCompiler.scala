@@ -44,7 +44,7 @@ class PdflatexCompiler(system: ActorSystem, config: Config) extends SystemCompil
   val configuration = new PaperConfiguration(config)
 
   def compile(paperId: String, settings: CompilerSettings)(implicit timeout: Timeout): Try[Boolean] =
-    exec(s"pdflatex -interaction nonstopmode -output-directory ${buildDir(paperId)} ${paperFile(paperId)}",
+    exec(s"pdflatex -interaction nonstopmode -synctex=${if(settings.synctex) 1 else 0} -output-directory ${buildDir(paperId)} ${paperFile(paperId)}",
       configuration.paperDir(paperId)) //, List("TEXINPUT" -> ".:tex/:resources/:$TEXINPUTS"))
 
   def bibtex(paperId: String, settings: CompilerSettings)(implicit timeout: Timeout): Try[Boolean] = {

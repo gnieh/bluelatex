@@ -37,6 +37,7 @@ class CreateSettingsHook(config: Config, logger: Logger) extends PaperCreated {
     new CompilerSettings(
       s"$paperId:compiler",
       config.getString("compiler.default"),
+      config.getBoolean("compiler.synctex"),
       config.getSeconds("compiler.timeout"),
       config.getSeconds("compiler.interval")
     )
