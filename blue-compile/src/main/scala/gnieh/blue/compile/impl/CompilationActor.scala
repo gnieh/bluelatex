@@ -96,7 +96,7 @@ class CompilationActor(
       // schedule the next compilation after the configured interval
       context.system.scheduler.scheduleOnce(settings.interval.seconds, self, Compile)
 
-    case settings @ CompilerSettings(_, _, _, _) =>
+    case settings @ CompilerSettings(_, _, _, _, _) =>
       // settings were changed, take them immediately into account
       context.become(receiving(clients, settings))
 

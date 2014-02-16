@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 package gnieh.blue
+package compile
 
 import gnieh.sohva.IdRev
 
-case class CompilerSettings(_id: String, compiler: String, timeout: Int, interval: Int) extends IdRev
+case class CompilerSettings(_id: String, compiler: String, synctex: Boolean, timeout: Int, interval: Int) extends IdRev
 

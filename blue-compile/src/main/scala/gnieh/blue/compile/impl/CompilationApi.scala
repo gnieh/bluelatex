@@ -64,6 +64,9 @@ class CompilationApi(context: BundleContext, dispatcher: ActorRef, config: Confi
     // return the compilation settings
     case p"papers/$paperid/compiler" =>
       new GetCompilerSettingsLet(paperid, config, logger)
+    // return the SyncTeX file
+    case p"papers/$paperid/synctex" =>
+      new GetSyncTeXLet(paperid, config, logger)
   }
 
   DELETE {
