@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 package gnieh.blue
-package core
+package sync
 package impl
-package paper
+package let
+
+import common._
+import http._
 
 import com.typesafe.config.Config
 
 import tiscaf._
-
-import common._
-import http._
 
 import scala.io.Source
 
@@ -33,7 +33,7 @@ import scala.util.{Try, Success, Failure}
  *
  *  @author Lucas Satabin
  */
-class SynchronizePaperLet(paperId: String, config: Config, synchroServer: SynchroServer, logger: Logger)
+class SynchronizePaperLet(paperId: String, synchroServer: SynchroServer, config: Config, logger: Logger)
     extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
