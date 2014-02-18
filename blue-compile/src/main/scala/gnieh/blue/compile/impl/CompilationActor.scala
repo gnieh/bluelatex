@@ -50,6 +50,7 @@ class CompilationActor(
 ) extends Actor with Logging {
 
   import OsgiUtils._
+  import FileProcessing._
 
   @inline
   implicit def ec = context.system.dispatcher
@@ -69,6 +70,9 @@ class CompilationActor(
       // dump the files before printing
       synchro.persist(paperId)
 
+      // create the build directory
+      configuration.buildDir(paperId).mkdirs
+
       for(compiler <- bndContext.get[Compiler]) {
 
         // TODO iddeally the number of times we run the latex compiler, and bibtex,
@@ -82,7 +86,12 @@ class CompilationActor(
           res <- compiler.compile(paperId, settings)
           // we run bibtex on it if the compilation succeeded
           _ <- compiler.bibtex(paperId, settings)
-        } yield res
+        } yield {
+          // clean the generated png files when compilation succeeded
+          for(file <- configuration.buildDir(paperId).filter(_.extension == ".png"))
+            file.delete
+          res
+        }
 
         // and we send back the answer to the clients
         for(client <- clients)
