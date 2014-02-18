@@ -28,16 +28,6 @@ import common._
 import tiscaf._
 
 import scala.concurrent._
-import duration._
-
-import scala.util.{
-  Try,
-  Success,
-  Failure
-}
-
-import akka.pattern.ask
-import akka.util.Timeout
 
 import com.typesafe.config.Config
 
@@ -52,7 +42,7 @@ class CompilerLet(paperId: String, dispatcher: ActorRef, config: Config, logger:
     promise.future.map(talk.writeJson) recoverWith {
       case e =>
         logError(s"Unable to compile paper $paperId", e)
-        Future(talk
+        Future.successful(talk
           .setStatus(HStatus.InternalServerError)
           .writeJson(ErrorResponse("unable_to_compile", "Compilation failed, more details in the compilation log file.")))
     }
