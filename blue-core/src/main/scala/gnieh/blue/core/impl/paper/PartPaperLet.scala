@@ -35,15 +35,16 @@ import scala.util.Try
  */
 class PartPaperLet(paperId: String, system: ActorSystem, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
-    case Author | Reviewer =>
-      Try(system.eventStream.publish(Part(user.name, Some(paperId))))
-    case _ =>
-      Try(
+  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try {
+    role match {
+      case Author | Reviewer =>
+        system.eventStream.publish(Part(user.name, Some(paperId)))
+        talk.writeJson(true)
+      case _ =>
         talk
           .setStatus(HStatus.Unauthorized)
           .writeJson(ErrorResponse("no_sufficient_rights", "Only authors and reviewers may leave a paper"))
-      )
+    }
   }
 
 }
