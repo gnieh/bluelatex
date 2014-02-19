@@ -50,7 +50,9 @@ class GetSyncTeXLet(paperId: String, config: Config, logger: Logger) extends Syn
           val array =
             Iterator.continually(is.read).takeWhile(_ != -1). map(_.toByte).toArray
 
-          talk.setContentType("application/gzip")
+          talk
+            .setHeader("Content-Encoding", "gzip")
+            .setContentType(HMime.txt)
             .setContentLength(array.length)
             .write(array)
         })
