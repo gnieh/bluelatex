@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 package gnieh.blue
-package core
+package sync
 package impl
-package paper
+package let
+
+import common._
+import http._
 
 import com.typesafe.config.Config
 
 import tiscaf._
 
-import common._
-import http._
-
 import scala.io.Source
 
-import scala.util.Try
+import scala.util.{Try, Success, Failure}
 
 /** A synchronization request for a paper. Only authors may send this kind of request
  *
  *  @author Lucas Satabin
  */
-class SynchronizePaperLet(paperId: String, config: Config, synchroServer: SynchroServer, logger: Logger)
+class SynchronizePaperLet(paperId: String, synchroServer: SynchroServer, config: Config, logger: Logger)
     extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
@@ -42,10 +42,16 @@ class SynchronizePaperLet(paperId: String, config: Config, synchroServer: Synchr
       talk.req.octets match {
         case Some(octets) =>
           val data = new String(octets, talk.req.contentEncoding)
-          val result = synchroServer.session(data)
-
-          talk.write(result)
-
+          synchroServer.session(data) match {
+            case Success(result) => talk.write(result)
+            case Failure(f) => {
+              logError(s"Could not process synchronization session for paper $paperId", f)
+              talk
+                .setStatus(HStatus.InternalServerError)
+                .writeJson(ErrorResponse("sync_error",
+                                         s"Something went wrong when processing synchronization session for $paperId"))
+            }
+          }
         case None =>
           // nothing to do
           talk

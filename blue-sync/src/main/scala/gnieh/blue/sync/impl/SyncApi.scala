@@ -33,6 +33,8 @@ class SyncApi(config: Config, synchroServer: SynchroServer, logger: Logger) exte
   POST {
     case p"papers/$paperid/q" =>
       new QLet(paperid, synchroServer, config, logger)
+    case p"papers/$paperid/sync" =>
+      new SynchronizePaperLet(paperid, synchroServer, config, logger)
   }
 
 }

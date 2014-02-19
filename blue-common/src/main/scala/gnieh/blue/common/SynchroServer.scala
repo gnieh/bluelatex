@@ -16,6 +16,8 @@
 package gnieh.blue
 package common
 
+import scala.util.Try
+
 /** Synchronization server interface
  *
  *  @author Lucas Satabin
@@ -25,7 +27,7 @@ trait SynchroServer {
   /** Starts a new session with the data and returns
    *  the result data for the client
    */
-  def session(data: String): String
+  def session(data: String): Try[String]
 
   /** Persists the synchronized files for the given paper
    *  This call is synchronous and only returns when all files
@@ -33,4 +35,10 @@ trait SynchroServer {
    */
   def persist(paperId: String): Unit
 
+}
+
+/** Exception used in case of failure of the session() method.
+ */
+class SynchroFailureException(msg: String, inner: Throwable) extends Exception(msg, inner) {
+  def this(msg: String) = this(msg, null)
 }
