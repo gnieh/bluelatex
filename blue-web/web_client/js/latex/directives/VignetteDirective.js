@@ -4,6 +4,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
       'require': 'blVignette',
       'scope': {
         'page': "@",
+        'currentElem': "=currentelem",
         'scale': "=scale",
         'type': "=vignettetype",
         'paperId': "=paperid",
@@ -178,14 +179,18 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         }
 
         $scope.resize = function (e) {
-          element = e;
+          //element = e;
           if(pdf) {
             pdf.getPage($scope.page).then(renderPage);
-          } else if((img = element[0].getElementsByTagName("img")[0])){
-            pdfDimension = {
-              scale: img.width/img.naturalWidth,
-              height: img.naturalHeight
-            };
+          } else {
+            var img = element[0].getElementsByTagName("img")[0];
+            if(img) {
+              element[0] = img.parentElement;
+              pdfDimension = {
+                scale: element[0]/(img.naturalWidth*0.72),
+                height: img.naturalHeight
+              };
+            }
           }
         };
 
@@ -196,11 +201,12 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         };
         $scope.loadImage = function (e) {
           element = e;
+          element.on('click', getCurrentLine);
           setTimeout(function () {
             var img = element[0].getElementsByTagName("img")[0];
             img.onload=function (event) {
               pdfDimension = {
-                scale: img.width/img.naturalWidth,
+                scale: img.width/(img.naturalWidth*0.72),
                 height: img.naturalHeight
               };
             };
@@ -290,11 +296,6 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
 
         attrs.$observe("line",function (value) {
           $scope.currentLine = value;
-        });
-
-        element.on('mousemove', function(event) {
-          // Prevent default dragging of selected content
-          event.preventDefault();
         });
 
         var timeoutIDResize = null;

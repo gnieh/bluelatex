@@ -1,15 +1,15 @@
 /* DEBUG */
+var pdfDimension = null;
 var createBlock = function (b, page){
   var previews = preview.getElementsByClassName('preview_page_container');
   var block = document.createElement('div');
-
-  var img = previews[page-1].getElementsByTagName('img')[0];
-  var pdfDimension = {
-    scale: img.height/img.naturalHeight,
-    height: img.height
-  };
-  console.log(pdfDimension, img.width,img.naturalWidth);
-
+  if(pdfDimension==null) {
+    var img = previews[page-1].getElementsByTagName('img')[0];
+    pdfDimension = {
+      scale: img.height/(img.naturalHeight*0.72),
+      height: img.height
+    };
+  }
   var s1 = convertToViewportPoint(b.left, b.bottom, pdfDimension);
   var s2 = convertToViewportPoint(b.width, b.height, pdfDimension);
 
@@ -33,11 +33,13 @@ var createElem = function (elm ,page){
   var previews = preview.getElementsByClassName('preview_page_container');
   var block = document.createElement('div');
 
-  var img = previews[page-1].getElementsByTagName('img')[0];
-  var pdfDimension = {
-    scale: img.height/img.naturalHeight,
-    height: img.height
-  };
+  if(pdfDimension==null) {
+    var img = previews[page-1].getElementsByTagName('img')[0];
+    pdfDimension = {
+      scale: img.height/(img.naturalHeight*0.72),
+      height: img.height
+    };
+  }
 
   var s1 = convertToViewportPoint(elm.left, elm.bottom, pdfDimension);
   var s2 = convertToViewportPoint(elm.width, elm.height, pdfDimension);

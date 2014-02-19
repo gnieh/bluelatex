@@ -522,15 +522,14 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         getUserPapers: function (user) {
           var deferred = $q.defer();
           var promise = deferred.promise;
-          if (_dataCache.get('/userPapers')) deferred.resolve(_dataCache.get('/userPapers'));
+          if (_dataCache.get('/userPapers/'+user.name)) deferred.resolve(_dataCache.get('/userPapers/'+user.name));
           else {
             userPapers.get({
               username: user.name
             }).$promise.then(function (data) {
-              _dataCache.put('/userPapers', data);
+              _dataCache.put('/userPapers/'+user.name, data);
               deferred.resolve(data);
             }, function (error) {
-              $log.error(error);
               deferred.reject(error);
             }, function (progress) {
               deferred.notify(progress);
