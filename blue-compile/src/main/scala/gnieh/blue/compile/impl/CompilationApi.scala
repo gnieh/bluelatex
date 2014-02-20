@@ -61,6 +61,9 @@ class CompilationApi(context: BundleContext, dispatcher: ActorRef, config: Confi
       val page = req.asInt("page").map(math.max(_, 1)).getOrElse(1)
       val density = req.asInt("density").getOrElse(100)
       new GetPngLet(paperid, page, density, config, logger)
+    // returns the number of pages in the compiled paper
+    case p"papers/$paperid/compiled/pages" =>
+      new GetPagesLet(paperid, config, logger)
     // return the compilation settings
     case p"papers/$paperid/compiler" =>
       new GetCompilerSettingsLet(paperid, config, logger)

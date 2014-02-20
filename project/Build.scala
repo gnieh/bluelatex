@@ -62,7 +62,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
   lazy val commonDeps = Seq(
     "org.gnieh" %% "tiscaf" % "0.9-SNAPSHOT",
     "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
-    "org.apache.pdfbox" % "pdfbox" % "1.8.2" exclude("commons-logging", "commons-logging"),
+    "org.apache.pdfbox" % "pdfbox" % "1.8.4" exclude("commons-logging", "commons-logging"),
     "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
     "commons-collections" % "commons-collections" % "3.2.1",
     "org.fusesource.scalate" %% "scalate-core" % "1.6.1",
