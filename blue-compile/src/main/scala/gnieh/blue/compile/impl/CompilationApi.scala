@@ -51,13 +51,13 @@ class CompilationApi(context: BundleContext, dispatcher: ActorRef, config: Confi
     case p"compilers" =>
       new GetCompilersLet(context, config, logger)
     // return the compiled pdf file for the paper, if any
-    case p"papers/$paperid.pdf" =>
+    case p"papers/$paperid/compiled/pdf" =>
       new GetPdfLet(paperid, config, logger)
     // return the last compilation log of any
-    case p"papers/$paperid.log" =>
+    case p"papers/$paperid/compiled/log" =>
       new GetLogLet(paperid, config, logger)
     // return the page given as parameter converted as a png image
-    case req @ p"papers/$paperid.png" =>
+    case req @ p"papers/$paperid/compiled/png" =>
       val page = req.asInt("page").map(math.max(_, 1)).getOrElse(1)
       val density = req.asInt("density").getOrElse(100)
       new GetPngLet(paperid, page, density, config, logger)

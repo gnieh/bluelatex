@@ -94,7 +94,7 @@ class CoreApi(config: Config, system: ActorSystem, context: BundleContext, templ
     case p"papers/$paperid/info" =>
       new GetPaperInfoLet(paperid, config, logger)
     // downloads a zip archive containing the paper files
-    case p"papers/$paperid.zip" =>
+    case p"papers/$paperid/zip" =>
       new BackupPaperLet("zip", paperid, config, logger)
     // downloads the list of synchronized resources
     case p"papers/$paperid/files/synchronized" =>
