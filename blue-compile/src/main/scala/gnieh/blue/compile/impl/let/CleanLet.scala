@@ -37,7 +37,7 @@ class CleanLet(paperId: String, config: Config, logger: Logger) extends SyncRole
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>
 
-      import FileProcessing._
+      import FileUtils._
 
       Try {
         // delete all temporary files

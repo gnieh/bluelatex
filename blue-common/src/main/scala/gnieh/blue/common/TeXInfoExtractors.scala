@@ -16,7 +16,7 @@
 package gnieh.blue
 package common
 
-import FileProcessing._
+import FileUtils._
 
 /** This class provides some utility functions to extract information from a .tex
  *  document.

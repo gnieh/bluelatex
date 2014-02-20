@@ -50,7 +50,7 @@ class CompilationActor(
 ) extends Actor with Logging {
 
   import OsgiUtils._
-  import FileProcessing._
+  import FileUtils._
 
   @inline
   implicit def ec = context.system.dispatcher

@@ -52,7 +52,7 @@ class PdflatexCompiler(system: ActorSystem, config: Config) extends SystemCompil
     // cannot handle compilation in a different directory correctly
     // technology from the 80's has limitations...
     // http://tex.stackexchange.com/questions/12686/how-do-i-run-bibtex-after-using-the-output-directory-flag-with-pdflatex-when-f
-    import FileProcessing._
+    import FileUtils._
     for(file <- configuration.paperDir(paperId).filter(_.extension == ".bib")) {
       val destfile = configuration.buildDir(paperId) / file.getName
       (file #> destfile).!

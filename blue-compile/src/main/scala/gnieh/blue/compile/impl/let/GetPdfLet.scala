@@ -37,7 +37,7 @@ class GetPdfLet(paperId: String, config: Config, logger: Logger) extends SyncRol
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
     case Author | Reviewer =>
 
-      import FileProcessing._
+      import FileUtils._
 
       val pdfFile = configuration.buildDir(paperId) / s"$paperId.pdf"
 

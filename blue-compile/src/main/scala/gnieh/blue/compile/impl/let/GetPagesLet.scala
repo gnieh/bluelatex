@@ -41,7 +41,7 @@ import resource._
  */
 class GetPagesLet(paperId: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  import FileProcessing._
+  import FileUtils._
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
     case Author | Reviewer =>

@@ -66,7 +66,7 @@ class SyncActor(
   extends Actor
   with Logging {
 
-  import FileProcessing._
+  import FileUtils._
   import scala.collection.mutable.ListBuffer
   import net.liftweb.json.JObject
 

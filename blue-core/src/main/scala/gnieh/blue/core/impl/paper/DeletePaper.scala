@@ -53,7 +53,7 @@ class DeletePaperLet(paperId: String, context: BundleContext, config: Config, re
     case Author =>
       // only authors may delete a paper
       // first delete the paper files
-      import FileProcessing._
+      import FileUtils._
       val dirDeleted = configuration.paperDir(paperId).deleteRecursive()
       if(dirDeleted) {
         import OsgiUtils._

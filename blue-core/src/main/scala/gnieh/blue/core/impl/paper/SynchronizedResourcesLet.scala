@@ -38,7 +38,7 @@ class SynchronizedResourcesLet(paperId: String, config: Config, logger: Logger) 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
       // only authors may get the list of synchronized resources
-      import FileProcessing._
+      import FileUtils._
       val files = configuration.paperDir(paperId).filter(_.extension.matches(synchronizedExt)).map(_.getName)
       talk.writeJson(files)
     case _ =>

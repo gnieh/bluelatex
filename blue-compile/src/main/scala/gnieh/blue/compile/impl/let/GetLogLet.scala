@@ -37,7 +37,7 @@ class GetLogLet(paperId: String, config: Config, logger: Logger) extends SyncRol
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>
 
-      import FileProcessing._
+      import FileUtils._
 
       val logFile = configuration.buildDir(paperId) / s"$paperId.log"
 

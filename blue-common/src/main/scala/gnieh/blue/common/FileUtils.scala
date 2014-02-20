@@ -28,7 +28,7 @@ import resource._
 /** @author Lucas Satabin
  *
  */
-object FileProcessing {
+object FileUtils {
 
   val synchronizedExt = """\.bib|\.tex"""
 

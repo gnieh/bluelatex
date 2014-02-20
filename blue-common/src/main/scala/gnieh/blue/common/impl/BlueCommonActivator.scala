@@ -42,7 +42,7 @@ import gnieh.sohva.control._
  */
 class BlueCommonActivator extends ActorSystemActivator {
 
-  import FileProcessing._
+  import FileUtils._
   import OsgiUtils._
 
   private var dbManager: Option[DbManager] = None

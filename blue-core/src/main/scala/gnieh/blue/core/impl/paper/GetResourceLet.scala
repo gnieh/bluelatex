@@ -49,7 +49,7 @@ class GetResourceLet(paperId: String, resourceName: String, config: Config, logg
           val array = new Array[Byte](length)
           fis.read(array)
 
-          import FileProcessing._
+          import FileUtils._
 
           val mime = HMime.exts.get(file.extension.tail.toLowerCase).getOrElse("application/octet-stream")
 
