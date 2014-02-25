@@ -27,7 +27,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
       fork in run := true)
     settings(packSettings: _*)
     settings(blueServerSettings: _*)
-  ) aggregate(blueCommon, blueCore, blueCompile, blueMobwrite, blueSync)
+  ) aggregate(blueCommon, blueCore, blueCompile, blueSync)
 
   lazy val compileOptions = scalacOptions in ThisBuild ++=
       Seq("-deprecation", "-feature")
