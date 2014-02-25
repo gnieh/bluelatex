@@ -86,7 +86,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
       settings (
         libraryDependencies ++= commonDeps
       )
-    ) dependsOn(blueCompile)
+    ) dependsOn(blueCommon)
 
   lazy val blueCompile =
     (Project(id = "blue-compile",

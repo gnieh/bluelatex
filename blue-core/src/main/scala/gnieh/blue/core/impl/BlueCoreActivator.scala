@@ -54,7 +54,7 @@ class BlueCoreActivator extends BundleActivator {
 
       // register the core Rest API
       context.registerService(classOf[RestApi], new CoreApi(config, system, context, templates, mailAgent, recaptcha, logger), null)
-  }
+    }
 
   def stop(context: BundleContext): Unit = {
   }

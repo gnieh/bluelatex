@@ -35,7 +35,7 @@ class SyncServerActivator extends BundleActivator {
 
   private var _server: Option[SyncServer] = None
 
-  def start(context: BundleContext): Unit = {
+  def start(context: BundleContext): Unit =
     for {
       loader <- context.get[ConfigurationLoader]
       system <- context.get[ActorSystem]
@@ -53,11 +53,9 @@ class SyncServerActivator extends BundleActivator {
       //register the Rest API
       context.registerService(classOf[RestApi], new SyncApi(config, server, logger), null)
     }
-  }
 
-  def stop(context: BundleContext): Unit = {
+  def stop(context: BundleContext): Unit =
     for (server <- _server)
       server.shutdown()
-  }
 
 }
