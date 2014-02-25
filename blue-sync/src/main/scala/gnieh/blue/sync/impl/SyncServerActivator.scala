@@ -23,6 +23,7 @@ import org.osgi.service.log.LogService
 import akka.actor._
 
 import common._
+import http._
 
 /** Registers the synchro service
  *
@@ -48,6 +49,9 @@ class SyncServerActivator extends BundleActivator {
       // register this as the synchronization server
       context.registerService(classOf[SynchroServer], server, null)
       _server = Some(server)
+
+      //register the Rest API
+      context.registerService(classOf[RestApi], new SyncApi(config, server, logger), null)
     }
   }
 
