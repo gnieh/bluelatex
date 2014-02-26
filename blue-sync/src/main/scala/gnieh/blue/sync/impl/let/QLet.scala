@@ -74,7 +74,10 @@ class QLet(paperId: String, synchroServer: SynchroServer, config: Config, logger
           })
           // Write answer back to client
           if (!talkValue.isEmpty) {
-            talk.write(talkValue.toString)
+            val bytes = talkValue.toString.getBytes(talk.encoding)
+            talk
+              .setContentLength(bytes.size)
+              .write(bytes)
           } else {
             talk
               .setStatus(HStatus.InternalServerError)

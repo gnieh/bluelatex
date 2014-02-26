@@ -43,7 +43,14 @@ class SynchronizePaperLet(paperId: String, synchroServer: SynchroServer, config:
         case Some(octets) =>
           val data = new String(octets, talk.req.contentEncoding)
           synchroServer.session(data) match {
-            case Success(result) => talk.write(result)
+            case Success(result) =>
+              // TODO use `writeJson` once the synchronization server returns
+              // a SyncSession instead of a string
+              val bytes = result.getBytes(talk.encoding)
+              talk
+                .setContentType(s"${HMime.json};charset=${talk.encoding}")
+                .setContentLength(bytes.size)
+                .write(bytes)
             case Failure(f) => {
               logError(s"Could not process synchronization session for paper $paperId", f)
               talk
