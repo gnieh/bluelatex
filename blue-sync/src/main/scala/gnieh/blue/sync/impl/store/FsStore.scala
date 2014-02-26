@@ -22,7 +22,6 @@ import scala.io._
 import java.io._
 
 import scala.util.{Try, Success, Failure}
-import scala.language.postfixOps
 
 import resource._
 
@@ -49,9 +48,9 @@ class FsStore extends Store {
   def load(documentPath: String): Document = {
     val file = new File(documentPath)
     if (file.exists) {
-      managed(Source.fromFile(file)).map { source =>
+      managed(Source.fromFile(file)).acquireAndGet { source =>
         new Document(documentPath, source.mkString)
-      } now
+      }
     } else {
       new Document(documentPath, "")
     }
