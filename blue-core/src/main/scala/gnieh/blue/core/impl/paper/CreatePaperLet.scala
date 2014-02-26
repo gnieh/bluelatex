@@ -73,7 +73,7 @@ class CreatePaperLet(config: Config, context: BundleContext, templates: Template
             // TODO just log that the template was not found. It can however be uploaded later by the user
         }
 
-        System.err.println(configuration.paperDir(newId).mkdirs)
+        configuration.paperDir(newId).mkdirs
 
         // write the template to the newly created paper
         for(fw <- managed(new FileWriter(configuration.paperFile(newId)))) {
