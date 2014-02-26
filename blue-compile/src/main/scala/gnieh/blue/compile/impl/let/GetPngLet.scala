@@ -37,7 +37,7 @@ import java.io.FileInputStream
 
 import resource._
 
-class GetPngLet(paperId: String, page: Int, density: Int, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class GetPngLet(paperId: String, page: Int, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   import FileUtils._
 
@@ -59,7 +59,7 @@ class GetPngLet(paperId: String, page: Int, density: Int, config: Config, logger
             val imageWriter = new PDFImageWriter
             imageWriter.writeImage(doc, "png", null, page, page,
               (configuration.buildDir(paperId) / paperId).getCanonicalPath + "-",
-              BufferedImage.TYPE_INT_RGB, density)
+              BufferedImage.TYPE_INT_RGB, 100)
           }
         }
       }

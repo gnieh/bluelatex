@@ -59,8 +59,7 @@ class CompilationApi(context: BundleContext, dispatcher: ActorRef, config: Confi
     // return the page given as parameter converted as a png image
     case req @ p"papers/$paperid/compiled/png" =>
       val page = req.asInt("page").map(math.max(_, 1)).getOrElse(1)
-      val density = req.asInt("density").getOrElse(100)
-      new GetPngLet(paperid, page, density, config, logger)
+      new GetPngLet(paperid, page, config, logger)
     // returns the number of pages in the compiled paper
     case p"papers/$paperid/compiled/pages" =>
       new GetPagesLet(paperid, config, logger)
