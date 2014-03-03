@@ -24,6 +24,9 @@ import akka.util.Timeout
 import akka.actor.{Actor, Props, PoisonPill, ActorSystem}
 import akka.testkit.{TestKit, TestActorRef, ImplicitSender, TestProbe}
 
+import scala.concurrent.{Promise, Await}
+import scala.concurrent.duration.Duration
+
 import net.liftweb.json._
 import net.liftweb.json.Serialization
 
@@ -194,10 +197,11 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(5)), false)))))
 
       When("a persist command is issues")
-      syncActor ! PersistPaper
+      val p = Promise[Unit]()
+      syncActor ! PersistPaper(p)
 
       Then("the actor should write the file to the disk")
-      expectMsg(true)
+      Await.result(p.future, Duration.Inf)
       store.documents.size should be(1)
       store.documents(config.resource("paperId","testPaper").getCanonicalPath) should be("Hello")
 

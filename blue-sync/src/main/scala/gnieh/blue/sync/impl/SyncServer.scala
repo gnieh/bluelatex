@@ -28,7 +28,7 @@ import akka.util.Timeout
 import net.liftweb.json._
 import net.liftweb.json.Serialization
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Promise}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.util.{Try, Success, Failure}
@@ -64,7 +64,10 @@ class SyncServer(dispatcher: ActorRef, configuration: Config) extends SynchroSer
   }
 
   def persist(paperId: String): Unit = {
-    dispatcher ! Forward(paperId, PersistPaper)
+    val promise = Promise[Unit]()
+
+    dispatcher ! Forward(paperId, PersistPaper(promise))
+    Await.result(promise.future, Duration.Inf)
   }
 
   def shutdown(): Unit = {

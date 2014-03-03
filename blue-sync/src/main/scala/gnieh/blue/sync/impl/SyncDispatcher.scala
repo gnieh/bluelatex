@@ -104,17 +104,17 @@ class SyncActor(
       }
       sender ! SyncSession(peerId, paperId, commandResponse)
     }
-    case PersistPaper => {
-      sender ! persistPapers()
+    case PersistPaper(promise) => {
+      promise.complete(persistPapers())
     }
   }
 
-  def persistPapers(): Boolean = {
-      val result = for {
+  def persistPapers(): Try[Unit] =
+    Try {
+      for {
         doc <- documents.values
-      } Try(store.save(doc)) recover { case e => /* TODO: log */}
-      return true
-  }
+      } store.save(doc)
+    }
 
   def applyAction(peer: String,
                   filename: String,

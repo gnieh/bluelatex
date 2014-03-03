@@ -18,6 +18,7 @@ package sync
 package impl
 
 import net.liftweb.json._
+import scala.concurrent.Promise
 
 /* Protocol adapted from Neil Fraser's mobwrite protocol:
  * http://code.google.com/p/google-mobwrite/wiki/Protocol
@@ -27,7 +28,7 @@ import net.liftweb.json._
  *
  * @author Audric Schiltknecht
  */
-case object PersistPaper
+final case class PersistPaper(promise: Promise[Unit])
 
 /** A command list sent for specific peer and file.
  *
