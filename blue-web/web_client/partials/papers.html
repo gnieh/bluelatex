@@ -32,7 +32,7 @@
         </div>
     </div>
     <div class="left">
-        <h3 data-i18n="_Tag_filter_"></h3>
+        <!--<h3 data-i18n="_Tag_filter_"></h3>
         <label>
             <input type="radio" name="tag" ng-model="tag_filter" value="all">
             <span class="label" data-i18n="_All_">All</span>
@@ -78,7 +78,7 @@
             <input type="radio" name="filter" ng-model="date_filter" value="year">
             <span class="label" data-i18n="_This_year_">This Year</span>
             <span class="nb">{{(papers| filter:search | filter:roleFilter | filter:dateFilterYear).length }}</span>
-        </label>
+        </label>-->
         <h3 data-i18n="_Role_filter_">Role filter</h3>
         <label>
             <input type="radio" name="role" ng-model="role_filter" value="all">
@@ -101,27 +101,34 @@
             <div bl-messages></div>
             <div class="paper header" ng-if="display_style=='list'">
                 <div class="title" data-i18n="_Title_"></div>
-                <div class="date" data-i18n="_Date_"></div>
+                <!--<div class="date" data-i18n="_Date_"></div>-->
                 <div class="role" data-i18n="_Role_"></div>
-                <div class="tags" data-i18n="_Tags_"></div>
+                <!--<div class="tags" data-i18n="_Tags_"></div>-->
                 <div class="options" data-i18n="_Options_"></div>
             </div>
             <div class="paper" ng-repeat="paper in papers | filter:search | filter:dateFilter | filter:roleFilter | orderBy:predicate:reverse">
                 <div class="icon">
-                    <a href="#/paper/{{paper.id}}"><img src="/api/papers/{{paper.id}}.png?page=1" alt="{{paper.title}}" title="{{paper.title}}" ></a>
+                    <a href="#/paper/{{paper.id}}">
+                        <div bl-vignette
+                          data-vignetteType="image"
+                          data-page="1"
+                          data-paperId="paper.id"
+                          data-scale="auto">
+                        </div>
+                    </a>
                 </div>
                 <div class="title">
                     <a href="#/paper/{{paper.id}}">{{paper.title}}</a>
                 </div>
-                <div class="date">
+                <!--<div class="date">
                     <a href="#/paper/{{paper.id}}">{{paper.date | date:'MM/dd/yyyy'}}</a>
-                </div>
+                </div>-->
                 <div class="role">
                     <a href="#/paper/{{paper.id}}">{{paper.role}}</a>
                 </div>
-                <div class="tags">
+                <!--<div class="tags">
                     <a href="#/paper/{{paper.id}}"><span ng-repeat="tag in paper.tags | orderBy:'label':false"><span class="diskColor" ng-style="{ backgroundColor: tag.color }"></span></span></a>
-                </div>
+                </div>-->
                 <div class="options">
                     <a class="option rename" href="#/paper/{{paper.id}}/edit" data-i18n="_Options_" ng-if="paper.role == 'author'"></a>
                     <a class="option detele" ng-click="delete(paper)" data-i18n="_Delete_" ng-if="paper.role == 'author'"></a>
