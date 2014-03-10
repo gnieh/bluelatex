@@ -16,7 +16,6 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
             },
             transformResponse: [
               function (data, headersGetter) {
-                console.log(data);
                 return {
                   response: JSON.parse(data)
                 };
@@ -58,7 +57,21 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
 
       var compilers = $resource(apiRootUrl + "/compilers", null, {
         "get": {
-          method: "get"
+          method: "get",
+          isArray: true
+        }
+      });
+
+      var pages = $resource(apiRootUrl + "/papers/:paper_id/compiled/pages", null, {
+        "get": {
+          method: "get",
+          transformResponse: [
+            function (data, headersGetter) {
+              return {
+                response: JSON.parse(data)
+              };
+            }
+          ].concat($http.defaults.transformResponse)
         }
       });
 
@@ -68,7 +81,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
           },
-          responseType: 'json',
+          responseType: 'text',
           isArray: false,
           transformResponse: [
             function (data, headersGetter) {
@@ -395,13 +408,14 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           }).$promise;
         },
         getZipUrl: function (paper_id) {
-          return apiRootUrl + "/papers/" + paper_id + ".zip";
+          return apiRootUrl + "/papers/" + paper_id + "/zip";
         },
         getPDFUrl: function (paper_id) {
-          return apiRootUrl + "/papers/" + paper_id + ".pdf";
+          return apiRootUrl + "/papers/" + paper_id + "/compiled/pdf";
         },
         getPNGUrl: function (paper_id,page) {
-          return apiRootUrl + "/papers/" + paper_id + ".png?page="+page;
+          return apiRootUrl + "/papers/" + paper_id;
+          return apiRootUrl + "/papers/" + paper_id + "/compiled/png?page="+page;
         },
         getPaperUrlRoot: function (paper_id) {
           return apiRootUrl + "/papers/" + paper_id;
@@ -487,7 +501,6 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         editPaperCompiler: function (paper_id) {
           var deferred = $q.defer();
           var promise = deferred.promise;
-          _dataCache.remove('/compiler/'+paper_id);
           compiler.modify({paper_id: paper_id}).$promise.then(function (data) {
             deferred.resolve(data);
           }, function (error) {
@@ -510,7 +523,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         },
         getLog: function (paper_id) {
           var deferred = $q.defer();
-          $http({method:'get',url: apiRootUrl + "/papers/"+paper_id+".log"}).then(function (data) {
+          $http({method:'get',url: apiRootUrl + "/papers/"+paper_id+"/compiled/log"}).then(function (data) {
             deferred.resolve(data.data);
           }, function (error) {
             deferred.reject(error);
@@ -518,6 +531,18 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
             deferred.notify(progress);
           });
           return deferred.promise;
+        },
+        getPages: function (paper_id) {
+          var deferred = $q.defer();
+          var promise = deferred.promise;
+          pages.get({paper_id: paper_id}).$promise.then(function (data) {
+            deferred.resolve(data);
+          }, function (error) {
+            deferred.reject(error);
+          }, function (progress) {
+            deferred.notify(progress);
+          });
+          return promise;
         },
         getUserPapers: function (user) {
           var deferred = $q.defer();
