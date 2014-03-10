@@ -49,9 +49,9 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
           current.appendChild(li);
 
           if(!lastLi) lastLi = li;
-          if(lastLine <=$scope.current.line  &&  line.line > $scope.current.line) {
+          if(lastLine <=$scope.currentLine  &&  line.line > $scope.currentLine) {
             lastLi.setAttribute('class', 'current');
-          } else if(i==toc.length-1 && line.line <= $scope.current.line) {
+          } else if(i==toc.length-1 && line.line <= $scope.currentLine) {
             li.setAttribute('class', 'current');
           }
           lastLine = line.line;
@@ -67,7 +67,7 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
         scope.$watch('toc', function (value) {
           updateTOC(elm, value, scope);
         });
-        scope.$watch('current.line', function (value) {
+        scope.$watch('currentLine', function (value) {
           updateTOC(elm, scope.toc, scope);
         });
         updateTOC(elm, scope.toc, scope);
