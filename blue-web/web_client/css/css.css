@@ -1,7 +1,4 @@
 @charset "UTF-8";
-@media screen {
-    @-ms-viewport { width: device-width; }
-}
 @font-face {
   font-family: "bluelatexicon";
   src:url("fonts/bluelatexicon.eot");
@@ -88,7 +85,15 @@
 .icon-next-page:before {
   content: "p";
 }
-
+.icon-folder-close:before {
+  content: "q";
+}
+.icon-folder-open:before {
+  content: "r";
+}
+.icon-github:before {
+  content: "s";
+}
 
 * {
     -moz-box-sizing: border-box;
@@ -216,6 +221,23 @@ header {
   width: 0;
   float: right;
   height: 0;
+}
+#github {
+  float: right;
+}
+#github > span {
+  position: relative;
+  color: #F3F3F3;
+  font-size: 28px;
+  top: 5px;
+}
+#github > a {
+  position: relative;
+  color:#F3F3F3;
+  padding: 4px;
+  top: -2px;
+  padding-right: 11px;
+  line-height: 40px;
 }
 header .logo{
     padding: 0 10px;
@@ -478,7 +500,9 @@ a:hover {
     display: block;
     clear: both;
 }
+.messages {
 
+}
 .error,.warning,.message {
     background: #BB4545;
     color: #fff;
@@ -558,7 +582,9 @@ a:hover {
 .col.c1-8 {
     width: 12.5%;
 }
-
+.hidden {
+  display: none;
+}
 /*
  * Style used by the label output mode.
  * Applied to the error labels that get positioned after an input.

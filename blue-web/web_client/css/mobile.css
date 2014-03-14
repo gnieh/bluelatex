@@ -59,16 +59,14 @@
       list-style: none;
       margin: 0;
       padding: 0;
-
       float: none;
   }
   nav > div > ul li {
       position: relative;
       white-space: nowrap;
       float: none;
-
       border-bottom: 1px solid #555;
-}
+  }
   nav ul li button {
       color: #f3f3f3;
       font-size: 14px;
@@ -82,7 +80,7 @@
       border-radius: 0;
       width: 100%;
       text-align: left;
-}
+  }
   nav ul li button:hover {
       background: #046DCC;
       background: rgba(0,0,0,0.15);
@@ -106,6 +104,10 @@
   }
   #pull {
     display: block;
+  }
+  #github {
+    float: none;
+    padding: 0 11px;
   }
 
   #papers .top h1 {
@@ -132,6 +134,12 @@
   }
 
   #paper .leftCol {
+    display: none;
+  }
+  #paper .top.options .center {
+    left: 0;
+  }
+  #paper .top> .left {
     display: none;
   }
   #paper .centerRightCol {
