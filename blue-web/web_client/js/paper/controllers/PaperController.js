@@ -110,6 +110,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       $scope.synctex = null;
       $scope.zipURL = PaperService.getZipUrl(paper_id);
       $scope.pdfURL = PaperService.getPDFUrl(paper_id);
+      $scope.logURL = PaperService.getLogUrl(paper_id);
       $scope.currentFile = {};
 
       $scope.vignetteType = "pdf";
@@ -490,7 +491,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       */
       $scope.uploadResource = function () {
         PaperService.uploadResource(paper_id, $scope.new_file.title, $scope.new_file.file).then(function (data) {
-          if(data.response == true) {
+          if(data.data == true) {
             getResources();
             $scope.new_file = {};
           } else
@@ -560,6 +561,16 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       */
       $scope.downloadResource = function (resource) {
         window.open(PaperService.getResourceUrl(paper_id, resource.title));
+      };
+
+      $scope.downloadLog = function () {
+        window.open($scope.logURL);
+      };
+      $scope.downloadPDF = function () {
+        window.open($scope.pdfURL);
+      };
+      $scope.downloadZip = function () {
+        window.open($scope.zipURL);
       };
 
       $scope.range = function(n) {
