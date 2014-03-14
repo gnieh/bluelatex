@@ -72,12 +72,6 @@ angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Shared.Directive
           icon: null,
           action: 'arxiv'
         }, {
-          label: 'Switch ACE/Textarea',
-          type: 'action',
-          class: '',
-          icon: null,
-          action: 'switch_editor_mode'
-        }, {
           label: 'Settings',
           type: 'menu',
           class: '',
