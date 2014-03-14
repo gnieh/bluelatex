@@ -1,10 +1,13 @@
 angular.module('bluelatex.Paper.Controllers.NewPaper', ['bluelatex.Shared.Services.Configuration'])
-  .controller('NewPaperController', ['$scope', 'localize', '$location', 'PaperService', '$log','MessagesService',
-    function ($scope, localize, $location, PaperService, $log,MessagesService) {
+  .controller('NewPaperController', ['$scope', '$location', 'PaperService', '$log','MessagesService',
+    function ($scope, $location, PaperService, $log,MessagesService) {
       var paper = {};
 
       $scope.paper = paper;
 
+      /*
+      * Save the new paper
+      */
       $scope.create = function () {
         PaperService.create(paper).then(function (data) {
           $location.path("/paper/" + data.id);
