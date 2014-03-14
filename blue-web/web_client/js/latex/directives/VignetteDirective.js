@@ -220,6 +220,12 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           var x=event.layerX;
           var y=event.layerY;
 
+          var target = event.target;
+          while(target != event.currentTarget && target!=null && target!=document) {
+            x+=target.offsetLeft;
+            y+=target.offsetTop;
+            target = target.parent;
+          }
           for (var i = $scope.synctex.hBlocks.length - 1; i >= 0; i--) {
             var hBlock = $scope.synctex.hBlocks[i];
 
@@ -241,14 +247,14 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
               for (var i = hBlock.elements.length - 1; i >= 1; i--) {
                 var e = hBlock.elements[i];
                 if(e.left >= x && hBlock.elements[i-1].left <= x ) {
-                  //$scope.currentLine = (i!=(hBlock.elements.length - 3)?hBlock.elements[i+1].line:e.line);
-                  $scope.$parent.$parent.goToLine($scope.currentElem.line);
+                  $scope.currentLine = (i!=(hBlock.elements.length - 3)?hBlock.elements[i+1].line:e.line);
+                  $scope.$parent.$parent.goToLine($scope.currentLine);
                   $scope.$apply();
                   return;
                 }
               }
               if(hBlock.elements[1]) {
-                //$scope.currentLine = hBlock.elements[1].line;
+                $scope.currentLine = hBlock.elements[1].line;
                 $scope.$parent.$parent.goToLine(hBlock.elements[1].line);
                 $scope.$apply();
                 return;
