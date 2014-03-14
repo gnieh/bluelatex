@@ -450,6 +450,9 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         getPDFUrl: function (paper_id) {
           return apiRootUrl + "/papers/" + paper_id + "/compiled/pdf";
         },
+        getLogUrl: function (paper_id) {
+          return apiRootUrl + "/papers/" + paper_id + "/compiled/log";
+        },
         getPNGUrl: function (paper_id,page) {
           return apiRootUrl + "/papers/" + paper_id;
           return apiRootUrl + "/papers/" + paper_id + "/compiled/png?page="+page;

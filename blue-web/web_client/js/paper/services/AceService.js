@@ -512,7 +512,10 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
         loadSettings: loadSettings,
         aceLoaded: aceLoaded,
         getToc: getToc,
-        aceSettings: aceSettings
+        aceSettings: aceSettings,
+        getCommands: function () {
+          return ace.commands;
+        }
       };
     }
   ]);

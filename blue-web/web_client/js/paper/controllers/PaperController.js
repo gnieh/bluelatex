@@ -448,6 +448,13 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       */
       $scope.aceLoaded = function (_editor) {
         AceService.aceLoaded(_editor, function () {
+          _editor.commands.addCommand({
+              name: "compile",
+              bindKey: {win: "Ctrl-S", mac: "Command-S"},
+              exec: function(editor) {
+                $scope.compile();
+              }
+          });
           _editor.selection.on("changeCursor", function(){
             $scope.$apply(function() {
               $scope.currentLine = _editor.selection.getCursor().row+1;
