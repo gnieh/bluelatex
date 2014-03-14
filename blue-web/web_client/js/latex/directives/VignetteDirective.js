@@ -27,6 +27,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         }];
 
         $scope.$watch("currentLine", function (line) {
+          if(!line) return;
           $scope.hightlights = [];
           if(!pdfDimension) return;
           if(!$scope.synctex) return;
@@ -37,7 +38,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           if(!isArray(elems) || !elems[0]) return;
 
           var lines = [];
-          var currentLine = {
+          var cLine = {
             positionFirst: 0,
             minLeft: 0,
             maxLeft: 0,
@@ -49,9 +50,9 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
             var e=elems[i];
             if(e.page != $scope.page) continue;
             //if(e.type!='x') continue;
-            if(e.bottom!=currentLine.bottom){
-              lines.push(currentLine);
-              currentLine = {
+            if(e.bottom!=cLine.bottom){
+              lines.push(cLine);
+              cLine = {
                 positionFirst: i,
                 minLeft: i,
                 maxLeft: i,
@@ -60,17 +61,17 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
               };
               continue;
             }
-            if(e.left < elems[currentLine.minLeft].left) {
-              currentLine.minLeft = i;
-              currentLine.positionFirst = i - currentLine.positionFirst;
-            } else if(e.left > elems[currentLine.maxLeft].left) {
-              currentLine.maxLeft = i;
+            if(e.left < elems[cLine.minLeft].left) {
+              cLine.minLeft = i;
+              cLine.positionFirst = i - cLine.positionFirst;
+            } else if(e.left > elems[cLine.maxLeft].left) {
+              cLine.maxLeft = i;
             }
-            if(e.height>currentLine.height) {
-              currentLine.height=e.height;
+            if(e.height>cLine.height) {
+              cLine.height=e.height;
             }
           }
-          lines.push(currentLine);
+          lines.push(cLine);
 
           for (var i = lines.length - 1; i >= 0; i--) {
             var line = lines[i];
@@ -240,14 +241,14 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
               for (var i = hBlock.elements.length - 1; i >= 1; i--) {
                 var e = hBlock.elements[i];
                 if(e.left >= x && hBlock.elements[i-1].left <= x ) {
-                  $scope.currentElem.line = (i!=(hBlock.elements.length - 3)?hBlock.elements[i+1].line:e.line);
+                  //$scope.currentLine = (i!=(hBlock.elements.length - 3)?hBlock.elements[i+1].line:e.line);
                   $scope.$parent.$parent.goToLine($scope.currentElem.line);
                   $scope.$apply();
                   return;
                 }
               }
               if(hBlock.elements[1]) {
-                $scope.currentElem.line = hBlock.elements[1].line;
+                //$scope.currentLine = hBlock.elements[1].line;
                 $scope.$parent.$parent.goToLine(hBlock.elements[1].line);
                 $scope.$apply();
                 return;
@@ -279,6 +280,10 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           },500);
         });
 
+        $scope.$watch("currentLine", function(val){
+          console.log("ligne", val);
+        });
+
         attrs.$observe("scale", function(val){
           if(!val)return;
           clearTimeout(timeoutIDscale);
@@ -295,7 +300,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         });
 
         attrs.$observe("line",function (value) {
-          $scope.currentLine = value;
+          //$scope.currentLine = value;
         });
 
         var timeoutIDResize = null;
