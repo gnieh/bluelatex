@@ -158,8 +158,8 @@ header {
     position: relative;
     display: block;
     line-height: 34px;
-    padding: 0 27px;
-    padding-left: 30px;
+    padding-right: 27px;
+    padding-left: 8px;
     cursor: pointer;
 }
 .menu_user input {
@@ -232,11 +232,12 @@ header {
   top: 5px;
 }
 #github > a {
+  display: inline-block;
   position: relative;
   color:#F3F3F3;
   padding: 4px;
   top: -2px;
-  padding-right: 11px;
+  /* padding-right: 11px; */
   line-height: 40px;
 }
 header .logo{
