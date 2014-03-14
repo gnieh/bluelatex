@@ -44,6 +44,9 @@
               <div ng-click="downloadZip"><a href="{{zipURL}}">Download Zip</a></div>
             </div>
           </div>
+          <div class="option" ng-click="openItsalltext()">
+            It's All Text!
+          </div>
         </div>
         <div class="right">
           <div class="messages" bl-messages></div>
@@ -78,12 +81,22 @@
               mode: 'latex',
               onLoad: aceLoaded,
               onChange: aceChanged
-            }" ng-model="content" itsalltext-extension=".tex"></div>
-            <textarea ng-hide="mode=='ace'" ng-model="content" itsalltext-extension=".tex"></textarea>
+            }" ng-model="content"></div>
+            <textarea class="itsalltext" ng-hide="mode=='ace'" ng-model="content"
+                      itsalltext-control="content"
+                      itsalltext-extension=".tex"></textarea>
         </section>
         <section class="rightCol">
             <div id="preview">
-              <div ng-repeat="n in range(totalPage) track by $index" class="preview_page_container" bl-vignette data-synctex="synctex" data-current="current" data-currentPage="{{currentPage}}" data-line="{{current.line}}" data-type="{{vignetteType}}" data-page="{{$index+1}}" data-url="urlPaper" data-revision="revision" data-scale="scale" data-currentElem="currentElem"></div>
+              <div ng-repeat="n in range(totalPage) track by $index" class="preview_page_container" bl-vignette
+              data-synctex="synctex"
+              data-currentPage="currentPage"
+              data-currentLine="currentLine"
+              data-vignetteType="vignetteType"
+              data-page="{{$index+1}}"
+              data-paperId="paperId"
+              data-revision="revision"
+              data-scale="scale"></div>
             </div>
         </section>
     </section>
@@ -96,27 +109,62 @@
           Line: {{currentElem.line}}<br>
           bottom: {{currentElem.bottom}}<br>
           left: {{currentElem.left}}<br>
-          currentLine: {{current.line}}<br>
+          currentLine: {{currentLine}}<br>
           currentPage: {{currentPage}}<br>
           <label><input type="checkbox" ng-model="displaySyncTexBox">display SyncTex Box</label>
           <input type="text" ng-model="scale">
         </div>
         <div class="figures" ng-show="listType=='figures'">
-          <div ng-repeat="n in range(totalPage) track by $index" class="preview_page_container" bl-vignette data-current="current" data-type="image" data-page="{{$index+1}}" data-currentPage="{{currentPage}}" data-url="urlPaper" data-scale="auto" data-revision="revision" ng-click="changePage($index+1)"></div>
+          <div ng-repeat="n in range(totalPage) track by $index" class="preview_page_container" bl-vignette
+          data-current="current"
+          data-vignetteType="image"
+          data-page="{{$index+1}}"
+          data-currentPage="currentPage"
+          data-paperId="paperId"
+          data-scale="auto"
+          data-revision="revision"
+          ng-click="changePage($index+1)"></div>
         </div>
         <div class="files" ng-show="listType=='files'">
           <div id="file_list">
-            <div class="file" ng-repeat="file in resources" ng-click="">
-              <div class="icon type-{{file.extension}}"></div>
-              <div class="label" ng-click="insertResource(file)">{{file.name}}<span class="extension">.{{file.extension}}</span></div>
-              <button ng-click="removeResource(file)" class="icon-delete"></button>
-              <button ng-click="viewResource(file)" class="icon-view"></button>
-              <button ng-click="downloadResource(file)" class="icon-download"></button>
-              <div class="clear"></div>
+            <div class="folder open">
+              <span class="icon icon-folder-open"></span>
+              <div class="folder_name" data-i18n="_Resources_"></div>
+              <div class="files">
+                <div class="file" ng-class="" ng-repeat="file in resources" ng-class="{current: file==currentFile}">
+                  <div class="icon type-{{file.extension}}"></div>
+                  <div class="label" ng-click="insertResource(file)">{{file.name}}<span class="extension" ng-if="file.extension">.{{file.extension}}</span></div>
+                  <button ng-click="removeResource(file)" class="delete icon-delete"></button>
+                  <button ng-click="viewResource(file)" class="view icon-view"></button>
+                  <button ng-click="downloadResource(file)" class="download icon-download"></button>
+                  <div class="clear"></div>
+                </div>
+                <div class="file" ng-if="resources.length == 0" data-i18n="_No_resource_found_"></div>
+              </div>
+            </div>
+            <div class="files">
+              <div class="file" ng-repeat="file in synchronizedFiles" ng-class="{current: file==currentFile}">
+                <div class="icon type-{{file.extension}}"></div>
+                <div class="label" ng-click="changeFile(file)">{{file.name}}<span class="extension" ng-if="file.extension">.{{file.extension}}</span></div>
+                <button ng-click="removeSynchronisedFile(file)" class="delete icon-delete"></button>
+                <div class="clear"></div>
+              </div>
+              <div class="file" ng-if="synchronizedFiles.length == 0" data-i18n="_No_synchronized_file_found_"></div>
             </div>
           </div>
+          <section id="new_file">
+            <h3 data-i18n="_New_file_">New file</h3>
+            <label id="new_file">
+              <input type="text" ng-model="new_file_name" data-i18n-attr="_Filename_|placeholder">
+              <select ng-model="new_file_extension">
+                <option value=".tex" selected>.tex</option>
+                <option value=".bib">.bib</option>
+              </select>
+              <button class="button" ng-disabled="new_file_name==null || new_file_name=''" ng-click="newFile(new_file_name+new_file_extension)" data-i18n="_New_file_"></button>
+            </label>
+          </section>
           <section id="upload_resource" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="file-hover">
-            <h3>New Resource</h3>
+            <h3 data-i18n="_New_resource_">New Resource</h3>
             <label id="new_file">
               <span class="icon type-{{new_file.extension}}"></span>
               <div class="label" ng-hide="new_file.title==null" ng-click="insertResource(file)">{{new_file.name}}<span class="extension">.{{new_file.extension}}</span></div>

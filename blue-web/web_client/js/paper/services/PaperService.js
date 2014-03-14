@@ -128,10 +128,26 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         }
       });
       var synchronizedFile = $resource(apiRootUrl + "/papers/:paper_id/files/synchronized", null, {
+        // get the list of synchronized file
         "get": {
           method: "GET",
-          format: 'json',
-          isArray: true
+          isArray: true,
+          transformResponse: [
+            function (data, headersGetter) {
+              var array = [];
+              data = JSON.parse(data);
+              for (var i = 0; i < data.length; i++) {
+                var resource = data[i];
+                array.push({
+                  title: resource,
+                  name: resource.replace(/\.[^\.]+$/, ''),
+                  type: getFileType(resource),
+                  extension: getFileNameExtension(resource)
+                });
+              }
+              return array;
+            }
+          ].concat($http.defaults.transformResponse)
         }
       });
       var resources = $resource(apiRootUrl + "/papers/:paper_id/files/resources/:resource", null, {
@@ -406,6 +422,28 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           return synchronizedFile.get({
             paper_id: paper_id
           }).$promise;
+        },
+        newSynchronizedFile: function (user,paper_id,filename) {
+          var deferred = $q.defer();
+          $http({method:'post',url: apiRootUrl + "/papers/"+paper_id+"/q", data: 'u:'+user.name+'\nF:0:'+filename+'\nr:1:'}).then(function (data) {
+            deferred.resolve(data.data);
+          }, function (error) {
+            deferred.reject(error);
+          }, function (progress) {
+            deferred.notify(progress);
+          });
+          return deferred.promise;
+        },
+        deleteSynchronizedFile: function (user,paper_id,filename) {
+          var deferred = $q.defer();
+          $http({method:'post',url: apiRootUrl + "/papers/"+paper_id+"/q", data: 'u:'+user.name+'\nn:'+filename+'\n'}).then(function (data) {
+            deferred.resolve(data.data);
+          }, function (error) {
+            deferred.reject(error);
+          }, function (progress) {
+            deferred.notify(progress);
+          });
+          return deferred.promise;
         },
         getZipUrl: function (paper_id) {
           return apiRootUrl + "/papers/" + paper_id + "/zip";
