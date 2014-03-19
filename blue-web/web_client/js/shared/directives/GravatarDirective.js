@@ -1,5 +1,7 @@
 'use strict';
-
+/**
+* A directive bl-gravatar witch display the gravatar of email
+*/
 angular.module('bluelatex.Shared.Directives.Gravatar', ['angular-md5','gdi2290.gravatar-filter'])
   .directive('blGravatar', [function () {
     return {

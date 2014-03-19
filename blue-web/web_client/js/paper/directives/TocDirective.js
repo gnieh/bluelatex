@@ -1,3 +1,4 @@
+// a directive used to dipslay a table of content
 angular.module('bluelatex.Paper.Directives.Toc', [])
   .directive('blToc', ['$compile','$document',
     function ($compile,$document) {
@@ -40,7 +41,7 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
 
           currentlevel = line.level;
 
-          //create li
+          //create a new li
           var li = $document[0].createElement('li');
           var a = $document[0].createElement('a');
           a.setAttribute('ng-click', 'goToLine(' + line.line + ')');
@@ -64,6 +65,7 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
         }
       };
       return function (scope, elm, attrs) {
+        // update table of content view when data is changed
         scope.$watch('toc', function (value) {
           updateTOC(elm, value, scope);
         });

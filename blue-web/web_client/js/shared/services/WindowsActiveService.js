@@ -1,5 +1,7 @@
 'use strict';
-
+/**
+* A simple module that launch event when the page is out of fucus et on focus
+*/
 angular.module('bluelatex.Shared.Services.WindowActive', [])
   .factory("WindowActiveService", ['$document', '$window',
     function ($document, $window) {
@@ -20,6 +22,8 @@ angular.module('bluelatex.Shared.Services.WindowActive', [])
 
       var windowActive = true;
       var hidden = "hidden";
+
+      //register event
       // Standards:
       if (hidden in $document)
         $document.addEventListener("visibilitychange", onchange);

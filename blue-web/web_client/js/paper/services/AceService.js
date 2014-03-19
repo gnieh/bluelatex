@@ -6,7 +6,7 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
       var _editor;
       var _renderer;
 
-
+      // ace default settings
       var aceSettings = {
         fontSize: '12px',
         readOnly: false,
@@ -28,12 +28,14 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
         fadeFoldWidgets: false,
         incrementalSearch: false
       };
+      // load ace settings from local storage
       if ($localStorage.aceSettings == null) {
         $localStorage.aceSettings = aceSettings;
       } else {
         aceSettings = $localStorage.aceSettings;
       }
 
+      // change ace settings
       var loadSettings = function () {
         $localStorage.aceSettings = aceSettings;
 
@@ -74,7 +76,7 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
           _renderer.setPrintMarginColumn(col);
         }
       };
-
+      // go to a specific line and give focus to ace
       var goToLine = function (line) {
         _editor.gotoLine(line);
         _editor.focus();
@@ -87,14 +89,14 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
         _renderer = _editor.renderer;
         content = _session.getValue();
 
-        // Options
+        // add undo support
         _session.setUndoManager(new ace.UndoManager());
 
-        // Events
+        // Event when the session change
         _editor.on("changeSession", function () {
           _session = _editor.getSession();
         });
-
+        // When the content change
         _session.on("change", function () {
           content = _session.getValue();
         });
@@ -102,8 +104,10 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
         callback(_editor);
       };
 
+      // Create the table of content
       var getToc = function () {
         var toc = [];
+        // search different section
         var keys = ['chapter', 'section', 'subsection', 'subsubsection', 'paragraph'];
         var regex = '\\\\(' + keys.join('|') + ')(\\*)?{([^}]+)}';
         var reg = new RegExp(regex, "gi");
@@ -127,6 +131,7 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
         return toc;
       };
 
+      // create a new mobwrite client
       var initMobWrite = function () {
         /**
         * Constructor of shared object representing a text field.
@@ -491,6 +496,7 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
         mobwrite.shareHandlers.push(mobwrite.shareAceObj.shareHandler);
       };
 
+      // init mobwrite if mobwrite core is present
       if(window.mobwrite != null) {
         initMobWrite();
       }

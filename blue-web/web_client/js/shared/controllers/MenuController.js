@@ -1,6 +1,11 @@
 angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Shared.Directives.Gravatar'])
   .controller('MenuController', ['$rootScope', '$scope', '$route',
     function ($rootScope, $scope, $route) {
+      $scope.openUserMenu = false;
+      $scope.menus = [];
+      $scope.options = [];
+
+      // close the user menu when  the user is not connected
       $rootScope.$watch('loggedUser', function (value) {
         if (value.name == null) {
           $scope.openUserMenu = false;
@@ -8,6 +13,7 @@ angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Shared.Directive
         $scope.user = value;
       });
 
+      // change the menu when the page changes
       $scope.$on("$routeChangeSuccess", function (event, route) {
         $scope.menus = [];
         if (route.$$route == null) return;
@@ -22,8 +28,6 @@ angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Shared.Directive
             $scope.options.push(_options[i]);
           }
       });
-
-      $scope.openUserMenu = false;
 
       var defaulfMenu = [{
         label: 'New Paper',
@@ -79,9 +83,6 @@ angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Shared.Directive
           action: 'partials/paper_settings.html'
         }]
       };
-
-      $scope.menus = [];
-      $scope.options = [];
 
       $scope.action = function (option) {
         if (option.type == 'action') {
