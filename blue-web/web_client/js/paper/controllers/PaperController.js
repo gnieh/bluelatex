@@ -112,6 +112,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       $scope.pdfURL = PaperService.getPDFUrl(paper_id);
       $scope.logURL = PaperService.getLogUrl(paper_id);
       $scope.currentFile = {};
+      $scope.status = "author";
 
       $scope.vignetteType = "pdf";
       $scope.urlPaper = PaperService.getPaperUrlRoot(paper_id);
@@ -213,7 +214,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           if(callback) callback();
         }, function (error) {
           MessagesService.clear();
-          switch (err.status) {
+          switch (error.status) {
           case 400:
             MessagesService.error('_Delete_resource_Some_parameters_are_missing_',err);
             break;
@@ -265,7 +266,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           $scope.resources = data;
         }, function (error) {
           MessagesService.clear();
-          switch (err.status) {
+          switch (error.status) {
           case 400:
             MessagesService.error('_Delete_resource_Some_parameters_are_missing_',err);
             break;
@@ -308,7 +309,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           }
         }, function (error) {
           MessagesService.clear();
-          switch (err.status) {
+          switch (error.status) {
           case 400:
             MessagesService.error('_Delete_resource_Some_parameters_are_missing_',err);
             break;
@@ -377,13 +378,13 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       * Go to the next page
       */
       $scope.nextPage = function () {
-        $scope.changePage($scope.currentPage+1);
+        $scope.changePage(parseInt($scope.currentPage)+1);
       };
       /**
       * Go to the previous page
       */
       $scope.prevPage = function () {
-        $scope.changePage($scope.currentPage-1);
+        $scope.changePage(parseInt($scope.currentPage)-1);
       };
       /**
       * Go to the page: page
@@ -406,6 +407,9 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       $scope.goToLine = function (line) {
         AceService.goToLine(line);
         $scope.currentLine = line;
+        if(!$scope.synctex) return;
+        if(!$scope.synctex.blockNumberLine[$scope.currentLine]) return;
+        $scope.currentPage = $scope.synctex.blockNumberLine[$scope.currentLine][0].page;
       };
 
       $scope.itsalltextClass = (document.querySelector(".centerCol .itsalltext") && document.querySelector(".centerCol .itsalltext").id)?'':'hidden';
@@ -436,13 +440,15 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         }
       });
 
+
       $scope.openItsalltext = function () {
         if($document[0].querySelector(".itsalltext + img")){
           init_itsalltext();
           $document[0].querySelector(".itsalltext + img").click();
         }else
-          MessagesService.warning("Install It's All Text");
+          MessagesService.warning("_Install_itsalltext_");
       };
+
       /**
       * Load ACE editor
       */
