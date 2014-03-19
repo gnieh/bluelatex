@@ -285,28 +285,26 @@ class SyncActor(
 
       logDebug(s"Computed deltas: $edits")
 
-      if (!edits.isEmpty) {
-        if (view.overwrite) {
-          // Client sending 'D' means number, no error.
-          // Client sending 'R' means number, client error.
-          // Both cases involve numbers, so send back an overwrite delta.
-          view.edits.append(SyncCommand(filename,
-                                        view.serverShadowRevision,
-                                        Delta(view.serverShadowRevision,
-                                              edits,
-                                              true)))
-        } else {
-          // Client sending 'D' means number, no error.
-          // Client sending 'R' means number, client error.
-          // Both cases involve numbers, so send back a merge delta.
-          view.edits.append(SyncCommand(filename,
-                                        view.serverShadowRevision,
-                                        Delta(view.serverShadowRevision,
-                                              edits,
-                                              false)))
-        }
-        view.serverShadowRevision += 1
+      if (view.overwrite) {
+        // Client sending 'D' means number, no error.
+        // Client sending 'R' means number, client error.
+        // Both cases involve numbers, so send back an overwrite delta.
+        view.edits.append(SyncCommand(filename,
+                                      view.serverShadowRevision,
+                                      Delta(view.serverShadowRevision,
+                                            edits,
+                                            true)))
+      } else {
+        // Client sending 'D' means number, no error.
+        // Client sending 'R' means number, client error.
+        // Both cases involve numbers, so send back a merge delta.
+        view.edits.append(SyncCommand(filename,
+                                      view.serverShadowRevision,
+                                      Delta(view.serverShadowRevision,
+                                            edits,
+                                            false)))
       }
+      view.serverShadowRevision += 1
     } else {
       // Error server could not parse client's delta.
       logDebug("Invalid delta(s)")

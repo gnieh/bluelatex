@@ -117,6 +117,22 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
 
     }
 
+    scenario("a user sends a raw command on an empty file") {
+
+      Given("a fresh synchronization actor")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+
+      And("a delta from user")
+      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "", false))))
+
+      When("he sends the message")
+      syncActor ! request
+
+      Then("the actor should process the raw and sends back a response")
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(), false)))))
+
+    }
+
     scenario("a user sends a delta command on a file he already used") {
 
       Given("a synchronization actor, already used by a user")
