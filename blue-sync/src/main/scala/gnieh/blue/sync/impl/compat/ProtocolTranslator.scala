@@ -20,6 +20,8 @@ package compat
 
 import net.liftweb.json._
 
+import scala.annotation.tailrec
+
 import scala.util.Try
 
 /** Converts protocols message from and back to mobwrite protocol
@@ -56,6 +58,7 @@ object ProtocolTranslator {
 
   def mobwrite2bluelatex(paperId: String, commands: String): List[SyncSession] = {
     val result = new StringBuilder
+    @tailrec
     def translate(commands: List[String],
                   currentPeer: Option[String],
                   currentFile: Option[String],
