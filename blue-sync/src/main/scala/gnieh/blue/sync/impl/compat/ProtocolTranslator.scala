@@ -129,11 +129,11 @@ object ProtocolTranslator {
 
       case re"(?:m|M):${obj(content)}" :: rest =>
         val commands = Message(currentPeer.getOrElse(""), content, true, currentFile) :: commandsAcc
-        translate(rest, currentPeer, currentPeer, currentRevision, commands, sessionsAcc)
+        translate(rest, currentPeer, currentFile, currentRevision, commands, sessionsAcc)
 
       case _ :: rest =>
         // simply ignore unknown commands
-        translate(rest, currentPeer, currentPeer, currentRevision, commandsAcc, sessionsAcc)
+        translate(rest, currentPeer, currentFile, currentRevision, commandsAcc, sessionsAcc)
 
       case Nil =>
         val sessions = currentPeer match {
