@@ -21,15 +21,12 @@ import http.ErrorResponse
 import org.scalatest._
 
 import dispatch._
+
 import gnieh.sohva.sync._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import com.ning.http.client.{
-  RequestBuilder,
-  Response,
-  Cookie
-}
+import com.ning.http.client.Cookie
 
 import scala.collection.JavaConverters.{
   mapAsScalaMapConverter,
@@ -142,21 +139,21 @@ abstract class BlueScenario extends FeatureSpec
       throw BlueErrorException(code, error)
   }
 
-  private def http[T: Manifest](request: RequestBuilder): AsyncResult[T] = cookie match {
+  private def http[T: Manifest](request: Req): AsyncResult[T] = cookie match {
     case Some(cookie) =>
       Http(request.addCookie(cookie) > handleResponse[T] _)
     case None =>
       Http(request > handleResponse[T] _)
   }
 
-  private def rawHttp(request: RequestBuilder): AsyncResult[String] = cookie match {
+  private def rawHttp(request: Req): AsyncResult[String] = cookie match {
     case Some(cookie) =>
       Http(request.addCookie(cookie) > handleRawResponse _)
     case None =>
       Http(request > handleRawResponse _)
   }
 
-  private def handleResponse[T: Manifest](response: Response): Result[T] = {
+  private def handleResponse[T: Manifest](response: Res): Result[T] = {
     val str = as.String(response)
     val json = JsonParser.parse(str)
     val code = response.getStatusCode
@@ -171,7 +168,7 @@ abstract class BlueScenario extends FeatureSpec
     }
   }
 
-  private def handleRawResponse(response: Response): Result[String] = {
+  private def handleRawResponse(response: Res): Result[String] = {
     val str = as.String(response)
     val code = response.getStatusCode
     cookie = response.getCookies.asScala.headOption

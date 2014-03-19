@@ -118,8 +118,6 @@ class BlueCommonActivator extends ActorSystemActivator {
   override def stop(context: BundleContext): Unit = {
     // stop the server
     server.foreach(_.stop)
-    // stop the couch client
-    couch.foreach(_.shutdown)
     // stop the template engine
     templates.foreach(_.engine.compiler.shutdown())
     // stop the framework
