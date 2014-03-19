@@ -1,10 +1,9 @@
 angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services.Paper'])
-  .directive('blVignette', ['$window','PaperService', function($window,PaperService) {
+  .directive('blVignette', ['PaperService', function(PaperService) {
     return {
       'require': 'blVignette',
       'scope': {
         'page': "@",
-        'currentElem': "=currentelem",
         'scale': "=scale",
         'type': "=vignettetype",
         'paperId': "=paperid",
@@ -19,12 +18,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         var viewport;
         var pdfDimension;
 
-        $scope.hightlights = [{
-          'height': "10px",
-          'width': "200px",
-          'left': "150px",
-          'bottom': "25px"
-        }];
+        $scope.hightlights = [];
 
         $scope.$watch("currentLine", function (line) {
           if(!line) return;
@@ -101,7 +95,10 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
             });
           }
         });
-
+        $scope.$watch("revision", function () {
+          if(pdf)
+            $scope.loadPDF(element);
+        });
         function loadPdf(pdfURI) {
             PDFJS.getDocument(pdfURI).then(renderPdf);
         }
@@ -180,7 +177,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         }
 
         $scope.resize = function (e) {
-          //element = e;
+          element = e;
           if(pdf) {
             pdf.getPage($scope.page).then(renderPage);
           } else {
@@ -188,8 +185,8 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
             if(img) {
               element[0] = img.parentElement;
               pdfDimension = {
-                scale: element[0]/(img.naturalWidth*0.72),
-                height: img.naturalHeight
+                scale: img.width/(img.naturalWidth*0.72),
+                height: img.height
               };
             }
           }
@@ -198,7 +195,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         $scope.loadPDF = function (e) {
           element = e;
           element.on('click', getCurrentLine);
-          loadPdf(PaperService.getPDFUrl($scope.paperId,$scope.page));
+          loadPdf(PaperService.getPDFUrl($scope.paperId,$scope.page)+"?"+$scope.revision);
         };
         $scope.loadImage = function (e) {
           element = e;
@@ -208,18 +205,16 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
             img.onload=function (event) {
               pdfDimension = {
                 scale: img.width/(img.naturalWidth*0.72),
-                height: img.naturalHeight
+                height: img.height
               };
             };
           },500);
         };
-
         var seuil = 2;
         var getCurrentLine = function(event) {
           if($scope.synctex == null) return;
           var x=event.layerX;
           var y=event.layerY;
-
           var target = event.target;
           while(target != event.currentTarget && target!=null && target!=document) {
             x+=target.offsetLeft;
@@ -286,8 +281,11 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           },500);
         });
 
-        $scope.$watch("currentLine", function(val){
-          console.log("ligne", val);
+        $scope.$watch("currentPage", function (val, oldPage) {
+          if(!val)return;
+          if(val == page && val != oldPage) {
+            element[0].parentElement.scrollTop = element[0].offsetTop -10;
+          }
         });
 
         attrs.$observe("scale", function(val){
@@ -298,24 +296,21 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           },500);
         });
 
-        attrs.$observe("currentpage",function (val) {
-          if(!val)return;
-          if(val == page) {
-            element[0].parentElement.scrollTop = element[0].offsetTop;
+        $scope.$watch("displaysynctexbox", function(val){
+          if(val) {
+            if($scope.synctex)
+            $scope.displayPages($scope.synctex.pages);
           }
         });
 
-        attrs.$observe("line",function (value) {
-          //$scope.currentLine = value;
-        });
-
         var timeoutIDResize = null;
-        $window.onresize = function () {
+        $scope.$on("windowResize", function (event, data) {
           clearTimeout(timeoutIDResize);
           timeoutIDResize = setTimeout(function () {
             $scope.resize(element);
           },500);
-        };
+        });
+
 
         if($scope.type == "pdf") {
           $scope.loadPDF(element);
