@@ -159,7 +159,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
               var array = [];
               data = JSON.parse(data);
               for (var i = 0; i < data.length; i++) {
-                var resource = data[i];
+                var resource = decodeURIComponent(data[i]);
                 array.push({
                   title: resource,
                   name: resource.replace(/\.[^\.]+$/, ''),
@@ -212,7 +212,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         }).success(function (data, status, headers, config) {
           // file is uploaded successfully
           deferred.resolve({
-            data: data,
+            data: JSON.parse(data),
             status: status,
             headers: headers,
             config: config
@@ -409,9 +409,11 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           return apiRootUrl + '/papers/' + paper_id + '/files/resources/' + resource;
         },
         uploadResource: function (paper_id, resource, data) {
+          _dataCache.remove('/resources/' + paper_id);
           return upload(paper_id, data, resource);
         },
         removeResource: function (paper_id, resource) {
+          _dataCache.remove('/resources/' + paper_id);
           return resources.delete({
             paper_id: paper_id,
             resource: resource
