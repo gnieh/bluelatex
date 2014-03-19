@@ -40,8 +40,9 @@ class FsStore extends Store {
     }
 
     // write to file system
-    managed(new BufferedWriter(new FileWriter(file))).map { writer =>
+    for(writer <- managed(new BufferedWriter(new FileWriter(file)))) {
       writer.write(document.text)
+      writer.flush()
     }
   }
 
