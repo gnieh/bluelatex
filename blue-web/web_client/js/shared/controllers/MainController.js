@@ -1,12 +1,16 @@
 'use strict';
 
 angular.module('bluelatex.Shared.Controllers.Main', ['bluelatex.User.Services.User','bluelatex.User.Services.Session','ngStorage','bluelatex.Paper.Services.Ace'])
-  .controller('MainController', ['$rootScope', '$scope', 'UserService','SessionService', '$route', '$location', '$routeParams', 'AceService', '$sessionStorage', '$log','WindowActiveService',
-    function ($rootScope, $scope, UserService,SessionService, $route, $location, $routeParams, AceService, $sessionStorage, $log,WindowActiveService) {
+  .controller('MainController', ['$rootScope', '$scope','$window', 'UserService','SessionService', '$route', '$location', '$routeParams', 'AceService', '$sessionStorage', '$log','WindowActiveService',
+    function ($rootScope, $scope,$window, UserService,SessionService, $route, $location, $routeParams, AceService, $sessionStorage, $log,WindowActiveService) {
       $scope.$route = $route;
       $scope.$location = $location;
       $scope.$routeParams = $routeParams;
       $scope.ace = AceService;
+
+      $window.onresize = function (event) {
+        $scope.$broadcast('windowResize', event);
+      };
 
       // transfert the menu event
       $scope.$on('handleTopAction', function (event, data) {
