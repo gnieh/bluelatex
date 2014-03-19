@@ -293,20 +293,12 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       * The the paper infos
       */
       var updateTexInterval = 0;
-      var getPaperInfo = function () {
+      var getPaperInfo = function (callback) {
         PaperService.getInfo(paper_id).then(function (data) {
           getPages();
           $scope.paper = data;
           $scope.paper.etag = data.header.etag;
-          if($scope.paper.authors.indexOf($rootScope.loggedUser.name) >= 0) {
-            PaperService.joinPaper(paper_id).then(function (data) {
-              getSynchronizedFiles(function () {
-                initMobWrite();
-              });
-            });
-            getResources();
-            getSyncTex();
-          }
+          if(callback) callback($scope.paper);
         }, function (error) {
           MessagesService.clear();
           switch (error.status) {
@@ -324,7 +316,23 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           }
         });
       };
-      getPaperInfo();
+      getPaperInfo(function(paper) {
+        if($scope.paper.authors.indexOf($rootScope.loggedUser.name) >= 0) {
+          $scope.status = "author";
+          PaperService.joinPaper(paper_id).then(function (data) {
+            getSynchronizedFiles(function () {
+              initMobWrite();
+            });
+          });
+          getCompilerInfo();
+          getResources();
+          getSyncTex();
+        } else if($scope.paper.reviewers.indexOf($rootScope.loggedUser.name) >= 0) {
+          $scope.status = "reviewer";
+        } else {
+          $scope.status = "error";
+        }
+      });
 
       $scope.$watch('displaySyncTexBox', function (value) {
         if(value)
@@ -364,14 +372,17 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       */
       $scope.compile = function () {
         PaperService.subscribePaperCompiler(paper_id).then(function (data) {
-          getLog();
-          getSyncTex();
-          getPages();
-          $scope.revision++;
+          if(data.response) {
+            getSyncTex();
+            getPages();
+            $scope.revision++;
+          } else {
+            getLog();
+          }
+          $scope.compile();
         }, function (error) {
           getLog();
-          getSyncTex();
-          $scope.revision++;
+          $scope.compile();
         });
       };
       /**

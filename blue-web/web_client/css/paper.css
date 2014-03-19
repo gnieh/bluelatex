@@ -5,6 +5,11 @@
     top:0;
     bottom:0;
 }
+#paper > div {
+  position:relative;
+  width: 100%;
+  height: 100%;
+}
 #paper .listType input {
     visibility: hidden;
     width: 0;
@@ -41,8 +46,7 @@
     height: 100%;
 }
 #paper .toc {
-    padding-left:13px
-}
+    padding-left: 18px;}
 #paper .toc a {
  cursor: pointer;
  color: #333;
@@ -61,9 +65,9 @@
     background: #FFF;
     overflow-x: hidden;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
-    margin: 7px;
     margin-left: 0;
     cursor: pointer;
+    width: 100%;
 }
 #paper .leftCol img.preview_page {
     width: 100%;
@@ -79,6 +83,21 @@
     background: #fff;
     box-shadow: 2px 0px 3px rgba(0, 0, 0, 0.2);
     z-index: 9;
+}
+#paper .figure {
+ position: relative;
+ /* width: 100%; */
+ margin: 4px;
+}
+#paper .figure .page {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  background: #fff;
+  border: 1px solid #999;
+  padding:2px 4px;
+  border-right: 0;
+  border-top: 0;
 }
 #paper .centerRightCol {
     position: absolute;
@@ -125,6 +144,12 @@
     width: 100%;
     height: 100%;
     overflow: auto;
+    overflow-y: scroll;
+    border-left: 3px solid #999;
+}
+.reviewer #preview {
+  display: block;
+  padding-top: 85px;
 }
 #preview div.preview_page_container {
     position: relative;
@@ -132,6 +157,15 @@
     overflow: hidden;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     margin: 10px;
+}
+#preview div.preview_page_container .container {
+  position: relative;
+  background: #fff;
+  margin: auto;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+#preview div.preview_page_container canvas{
+  position: relative;
 }
 div.preview_page_container img {
     width: 100%;
@@ -392,6 +426,16 @@ div.subOptions > div:last-child {
     color: #999;
     font-size: 80%;
 }
+#new_file > input{
+    width: 138px;
+
+    min-width: 0;
+}
+#new_file > select {
+    width: 64px;
+
+    min-width: 0;
+}
 #file_list {
 
 }
@@ -413,10 +457,11 @@ div.subOptions > div:last-child {
 #file_list .folder {
     margin-bottom: 15px;
 }
-#file_list .folder .icon{
+#file_list .folder > .icon{
     float: left;
     font-size: 21px;
     line-height: 9px;
+    margin-bottom: -1px;
 }
 #file_list .file .label {
     float: left;
@@ -449,4 +494,36 @@ div.subOptions > div:last-child {
 }
 #file_list .file .view {
     right: 54px;
+}
+#paper .resourceViewer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  left: 0;
+  top: 0px;
+  overflow: auto;
+}
+#paper .resourceViewer .close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 35px;
+  cursor: pointer;
+}
+#paper .resourceViewer .container {
+  width: 100%;
+  height: 100%;
+  background: #fff
+;
+  text-align: center;
+}
+#paper .resourceViewer img {
+  /* width: 100%; */
+  height: 100%;
+  max-height: 100%;
+  max-width: 100%;
+  border: 0;
+  margin: 0;
+  padding: 0;
 }

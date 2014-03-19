@@ -1,0 +1,38 @@
+<div class="top options">
+  <div class="subOption">
+    <div class="label">
+      <span ng-click="downloadPDF()">Download</span>
+    </div>
+  </div>
+  <div class="pdf_action">
+    <div class="scale">
+      <select ng-model="scale">
+        <option value="auto">Auto</option>
+        <option value="0.5">50%</option>
+        <option value="0.75">75%</option>
+        <option value="1">100%</option>
+        <option value="1.25">125%</option>
+        <option value="1.50">150%</option>
+        <option value="2">200%</option>
+      </select>
+    </div>
+    <div class="navigation">
+      <div class="prevPage icon-prev-page" ng-click="prevPage()">&nbsp;</div>
+      <input type="text" ng-model="currentPage">
+      <span>/</span>
+      <div class="totalPage">{{totalPage}}</div>
+      <div class="nextPage icon-next-page" ng-click="nextPage()">&nbsp;</div>
+    </div>
+  </div>
+</div>
+<div id="preview">
+  <div ng-repeat="n in range(totalPage) track by $index" class="preview_page_container" bl-vignette
+  data-synctex="synctex"
+  data-currentPage="currentPage"
+  data-currentLine="currentLine"
+  data-vignetteType="vignetteType"
+  data-page="{{$index+1}}"
+  data-paperId="paperId"
+  data-revision="revision"
+  data-scale="scale"></div>
+</div>
