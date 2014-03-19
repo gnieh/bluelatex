@@ -1,6 +1,6 @@
 <div id="papers">
     <div class="top">
-        <h1 data-i18n="_Papers_">Papers</h1>
+        <h1 data-i18n="_Papers_"></h1>
         <div class="options">
             <div id="display_style">
                 <label>
@@ -16,16 +16,16 @@
                 <input type="search" data-i18n-attr="_Search..._|placeholder" ng-model="search" autofocus>
             </form>
             <form id="sort">
-                <span data-i18n="_Sort_by_">Sort by</span>
+                <span data-i18n="_Sort_by_"></span>
                 <select ng-model="predicate">
-                    <option value="id" data-i18n="_Id_">Id</option>
-                    <option value="title" data-i18n="_Title_">Title</option>
-                    <option value="date" data-i18n="_Date_">Date</option>
-                    <option value="auhtors" data-i18n="_Authors_">Auhtors</option>
+                    <option value="id" data-i18n="_Id_"></option>
+                    <option value="title" data-i18n="_Title_"></option>
+                    <!--<option value="date" data-i18n="_Date_"></option>
+                    <option value="auhtors" data-i18n="_Authors_"></option>-->
                 </select>
                 <select ng-model="reverse">
-                    <option value="false" data-i18n="_Ascending_">Ascending</option>
-                    <option value="true" data-i18n="_Descending_">Descending</option>
+                    <option value="false" data-i18n="_Ascending_"></option>
+                    <option value="true" data-i18n="_Descending_"></option>
                 </select>
             </form>
             <div class="clear"></div>
@@ -87,7 +87,7 @@
         </label>
         <label>
             <input type="radio" name="role" ng-model="role_filter" value="author">
-            <span class="label" data-i18n="_Author_">Author</span>
+            <span class="label" data-i18n="_Author_"></span>
             <span class="nb">{{(papers| filter:search | filter:dateFilter | filter:roleFilterAuthor).length }}</span>
         </label>
         <label>
@@ -97,6 +97,7 @@
         </label>
     </div>
     <div class="center">
+        <a class="button" href="#/paper/new" data-i18n="_New_paper_"></a>
         <div id="paper_list" ng-class="display_style">
             <div bl-messages></div>
             <div class="paper header" ng-if="display_style=='list'">
@@ -135,6 +136,8 @@
                 </div>
             </div>
             <div class="no-paper" ng-if="(papers | filter:search | filter:dateFilter | filter:roleFilter).length == 0" data-i18n="_No_paper_found_">No paper found</div>
+            <div class="clear"></div>
         </div>
+        <a class="button" href="#/paper/new" data-i18n="_New_paper_"></a>
     </div>
 </div>
