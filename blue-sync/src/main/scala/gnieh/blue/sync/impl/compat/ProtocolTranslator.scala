@@ -32,7 +32,7 @@ object ProtocolTranslator {
 
   private implicit class ExtractorContext(val sc: StringContext) {
     object re {
-      val regex = sc.parts.mkString("(.+)").r
+      val regex = sc.parts.mkString("(.*)").r
       def unapplySeq(s: String): Option[Seq[String]] =
         regex.unapplySeq(s)
     }
@@ -77,6 +77,9 @@ object ProtocolTranslator {
 
       case re"(?:f|F):${long(rev)}:${name(file)}" :: rest =>
         translate(rest, currentPeer, Some(file), Some(rev), commandsAcc, sessionsAcc)
+
+      case re"(?:f|F):${name(file)}" :: rest =>
+        translate(rest, currentPeer, Some(file), None, commandsAcc, sessionsAcc)
 
       case re"d:${long(rev)}:$delta" :: rest =>
         val commands = (currentFile, currentRevision) match {

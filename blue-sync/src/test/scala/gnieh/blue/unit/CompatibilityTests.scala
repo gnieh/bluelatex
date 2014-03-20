@@ -192,5 +192,27 @@ class CompatibilityTests extends FlatSpec with ShouldMatchers {
 
   }
 
+  "an empty raw command" should "be correctly translated" in {
+    val mobwrite = """U:fraser
+                     |F:file1
+                     |r:1:
+                     |""".stripMargin
+
+    val paperId = "paper_id"
+
+    val session = SyncSession(
+      "fraser",
+      paperId,
+      List(
+        SyncCommand("file1", -1, Raw(1, "", false))
+      )
+    )
+
+    val converted = mobwrite2bluelatex(paperId, mobwrite)
+
+    converted should be(List(session))
+
+  }
+
 }
 
