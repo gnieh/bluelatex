@@ -78,6 +78,10 @@ class CompilerSettingsSpec extends BlueScenario with SomeUsers {
 
       newHeaders("ETag") should not be(revision)
 
+      val (loggedout, _) = delete[Boolean](List("session"))
+
+      loggedout should be(true)
+
     }
 
   }

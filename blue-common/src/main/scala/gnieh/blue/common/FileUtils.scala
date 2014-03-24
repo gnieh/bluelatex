@@ -105,8 +105,9 @@ object FileUtils {
       regex.findAllIn(getFileContents).toList
 
     private def getFileContents =
-      (for(source <- managed(io.Source.fromFile(file)))
-        yield source.mkString).opt.getOrElse("")
+      managed(io.Source.fromFile(file)).acquireAndGet { source =>
+        source.mkString
+      }
 
   }
 

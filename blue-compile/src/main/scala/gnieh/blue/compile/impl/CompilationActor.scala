@@ -19,7 +19,8 @@ package impl
 
 import akka.actor.{
   Actor,
-  ActorRef
+  ActorRef,
+  PoisonPill
 }
 import akka.util.Timeout
 
@@ -66,7 +67,6 @@ class CompilationActor(
 
       implicit val timeout = Timeout(settings.timeout.seconds)
 
-
       // dump the files before printing
       synchro.persist(paperId)
 
@@ -112,6 +112,13 @@ class CompilationActor(
     case Register(client) =>
 
       context.become(receiving(clients + client, settings))
+
+    case Part(_, _) | PoisonPill =>
+
+      for(client <- clients)
+        client.complete(Try(false))
+
+      context.become(receiving(Set(), settings))
 
   }
 

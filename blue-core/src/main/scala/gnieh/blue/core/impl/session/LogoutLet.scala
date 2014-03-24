@@ -37,6 +37,7 @@ class LogoutLet(config: Config, logger: Logger) extends SyncBlueLet(config, logg
   def act(talk: HTalk): Try[Unit] =
     couchSession(talk).logout map {
       case true  =>
+        talk.ses.invalidate
         talk.writeJson(true)
       case false =>
         talk

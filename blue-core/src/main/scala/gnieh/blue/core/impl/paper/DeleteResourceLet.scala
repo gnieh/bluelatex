@@ -23,8 +23,6 @@ import com.typesafe.config.Config
 import common._
 import http._
 
-import java.io.FileInputStream
-
 import tiscaf._
 
 import resource._

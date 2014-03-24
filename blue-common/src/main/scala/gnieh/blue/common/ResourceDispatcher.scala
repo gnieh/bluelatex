@@ -73,6 +73,7 @@ abstract class ResourceDispatcher extends Actor {
 
   private def part(username: String, resourceid: String, msg: Part): Unit = {
     val actor = context.actorSelection(resourceid)
+
     if(users.contains(resourceid) && users(resourceid).size == 1) {
       // this was the last user on this resource, kill it
       actor ! PoisonPill
