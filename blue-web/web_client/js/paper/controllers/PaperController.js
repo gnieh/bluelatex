@@ -183,6 +183,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       * Download the log file
       */
       var getLog = function () {
+        AceService.getSession().setAnnotations([]);
         PaperService.getLog(paper_id).then(function (data) {
           var logs = LatexParser.parse(data,{});
           var annotations = [];
@@ -381,8 +382,10 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           }
           $scope.compile();
         }, function (error) {
-          getLog();
-          $scope.compile();
+          setTimeout(function() {
+            getLog();
+            $scope.compile();
+          }, 3000);
         });
       };
       /**
@@ -422,6 +425,24 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         if(!$scope.synctex.blockNumberLine[$scope.currentLine]) return;
         $scope.currentPage = $scope.synctex.blockNumberLine[$scope.currentLine][0].page;
       };
+      $scope.new_file_extension = '.tex';
+
+      $scope.newFile = function(filename) {
+        PaperService.newSynchronizedFile($rootScope.loggedUser, paper_id, filename).then(function() {
+          $scope.new_file_name = '';
+          getSynchronizedFiles();
+          getResources();
+          $scope.resources = [];
+          $scope.synchronizedFiles = [];
+        });
+      };
+
+      $scope.removeSynchronisedFile = function(file) {
+        PaperService.deleteSynchronizedFile($rootScope.loggedUser, paper_id, file.title).then(function() {
+          getSynchronizedFiles();
+          $scope.synchronizedFiles = [];
+        });
+      };
 
       $scope.itsalltextClass = (document.querySelector(".centerCol .itsalltext") && document.querySelector(".centerCol .itsalltext").id)?'':'hidden';
       var itsalltext_inited = false;
@@ -450,7 +471,6 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           $scope.openItsalltext();
         }
       });
-
 
       $scope.openItsalltext = function () {
         if($document[0].querySelector(".itsalltext + img")){
@@ -559,7 +579,8 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         PaperService.removeResource(paper_id, resource.title).then(function (data) {
           if(data.response == true) {
             getResources();
-            $scope.new_file = {};
+            $scope.synchronizedFiles = [];
+            getSynchronizedFiles();
           } else
             MessagesService.error('_Delete_resource_Some_parameters_are_missing_');
         }, function (err) {

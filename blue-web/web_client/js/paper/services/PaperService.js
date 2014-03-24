@@ -46,12 +46,20 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         "get": {
           method: "get"
         },
-        // long polling a the compiler
+        // long polling compilation
         "subscribe": {
           method: "post",
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
-          }
+          },
+          transformResponse: [
+            function (data, headersGetter) {
+              console.log(data);
+              return {
+                response: JSON.parse(data)
+              };
+            }
+          ].concat($http.defaults.transformResponse)
         },
         // change compiler settings
         "modify": {
@@ -611,6 +619,9 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
             });
           }
           return promise;
+        },
+        clearCache: function() {
+          $angularCacheFactory.clearAll();
         }
       };
     }
