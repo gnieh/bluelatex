@@ -32,7 +32,7 @@ object ProtocolTranslator {
 
   private implicit class ExtractorContext(val sc: StringContext) {
     object re {
-      val regex = sc.parts.mkString("(.*)").r
+      val regex = sc.parts.mkString("([^:]+|.*)").r
       def unapplySeq(s: String): Option[Seq[String]] =
         regex.unapplySeq(s)
     }

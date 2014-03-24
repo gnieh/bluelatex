@@ -214,5 +214,39 @@ class CompatibilityTests extends FlatSpec with ShouldMatchers {
 
   }
 
+  "synchronization of text containing colon" should "be correctly handled" in {
+    val mobwrite = """u:test
+                     |F:2:w2d55931a5b9f4281.tex
+                     |d:2:=477	+ :	=132
+                     |""".stripMargin
+
+    val paperId = "w2d55931a5b9f4281"
+
+    val session = SyncSession(
+      "test",
+      paperId,
+      List(
+        SyncCommand(
+          "w2d55931a5b9f4281.tex",
+          2,
+          Delta(
+            2,
+            List(
+              Equality(477),
+              Add(" :"),
+              Equality(132)
+            ),
+            false
+          )
+        )
+      )
+    )
+
+    val converted = mobwrite2bluelatex(paperId, mobwrite)
+
+    converted should be(List(session))
+
+  }
+
 }
 

@@ -25,6 +25,8 @@ import scala.util.parsing.combinator._
  */
 object EditCommandParsers extends RegexParsers {
 
+  override def skipWhitespace = false
+
   def parseEdits(input: String): List[Edit] =
     parseAll(repsep(edit, '\t'), input) match {
       case Success(res, _) => res
