@@ -20,6 +20,7 @@ package store
 
 import scala.io._
 import java.io._
+import java.nio.charset.CodingErrorAction
 
 import scala.util.{Try, Success, Failure}
 
@@ -30,6 +31,10 @@ import resource._
  *  @author Lucas Satabin
  */
 class FsStore extends Store {
+
+  implicit val codec = Codec("UTF-8")
+  codec.onMalformedInput(CodingErrorAction.REPLACE)
+  codec.onUnmappableCharacter(CodingErrorAction.REPLACE)
 
   def save(document: Document): Unit = {
     val file = new File(document.path)

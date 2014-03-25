@@ -74,6 +74,10 @@ class DummyStore extends Store {
   def load(documentPath: String): Document = new Document(documentPath, documents(documentPath))
 
   def delete(document: Document) = documents.remove(document.path)
+
+  def clear(): Unit = documents.clear()
+
+  def get(documentPath: String): Option[String] = documents.get(documentPath)
 }
 
 
@@ -81,6 +85,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
                             with ImplicitSender
                             with FeatureSpecLike
                             with BeforeAndAfterAll
+                            with BeforeAndAfterEach
                             with GivenWhenThen
                             with ShouldMatchers {
 
@@ -92,6 +97,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
                                  new EditSerializer
 
   override def afterAll() { system.shutdown() }
+  override def beforeEach() { store.clear() }
   implicit val timeout: Timeout = 1
 
   val config = new PaperConfiguration(ConfigFactory.load())
@@ -221,6 +227,54 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       store.documents.size should be(1)
       store.documents(config.resource("paperId","testPaper").getCanonicalPath) should be("Hello")
 
+    }
+
+    scenario("synchronization message for raw content with accent") {
+
+      Given("a synchronization actor")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+
+      And("a raw request with accent from user")
+      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "t%C3%AAte", false))))
+
+      When("he sends the message and persist the file")
+      val p = Promise[Unit]()
+      syncActor ! request
+      syncActor ! PersistPaper(p)
+
+      Then("the actor should process the raw message and sends back a response")
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(4)), false)))))
+
+      And("the stored document should have the accent")
+      Await.result(p.future, Duration.Inf)
+      val documentText = store.get(config.resource("paperId","testPaper").getCanonicalPath)
+      documentText should not be(None)
+      documentText.get should be("tête")
+    }
+
+    scenario("synchronization message for delta content with accent") {
+
+      Given("a synchronization actor with an existing paper")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+      syncActor ! SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "Hello", false))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(5)), false)))))
+
+      And("a delta request with accent from user")
+      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(Delete(5), Add("t%C3%AAte")), false))))
+
+      When("he sends the message and persist the file")
+      val p = Promise[Unit]()
+      syncActor ! request
+      syncActor ! PersistPaper(p)
+
+      Then("the actor should process the delta message and sends back a response")
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(4)), false)))))
+
+      And("the stored document should have the accent")
+      Await.result(p.future, Duration.Inf)
+      val documentText = store.get(config.resource("paperId","testPaper").getCanonicalPath)
+      documentText should not be(None)
+      documentText.get should be("tête")
     }
   }
 

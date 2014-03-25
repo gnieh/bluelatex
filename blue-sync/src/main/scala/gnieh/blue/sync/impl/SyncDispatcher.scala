@@ -31,6 +31,9 @@ import com.typesafe.config.Config
 import org.osgi.framework.BundleContext
 import org.osgi.service.log.LogService
 
+import java.net.URLEncoder;
+import java.net.URLDecoder;
+
 import name.fraser.neil.plaintext.DiffMatchPatch
 
 import gnieh.blue.sync.impl.store._
@@ -203,7 +206,9 @@ class SyncActor(
   }
 
   def processRaw(view: DocumentView, raw: Raw, serverRevision: Long): Unit = {
-    view.setShadow(raw.data, raw.revision, serverRevision, raw.overwrite)
+    // Decode HTML-encoded data
+    val data = URLDecoder.decode(raw.data, "UTF-8")
+    view.setShadow(data, raw.revision, serverRevision, raw.overwrite)
   }
 
   def processMessage(peer: String, message: Message): List[Message] = {
@@ -319,7 +324,7 @@ class SyncActor(
                                           false)))
       } else {
         // Force overwrite client
-        //          val text = URLEncoder.encode(mastertext, "UTF-8")
+        val text = unescapeForEncodeUriCompatability(mastertext)
         view.edits.append(SyncCommand(filename,
                                       view.serverShadowRevision,
                                       Raw(view.serverShadowRevision,
@@ -334,6 +339,22 @@ class SyncActor(
     view.edits.toList.map {
       case SyncCommand(_, _, command)  => command
     }
+  }
+
+  /**
+   * Unescape selected chars for compatability with JavaScript's encodeURI.
+   * Taken from "Diff Match Patch" java's implementation by Neil Fraser.
+   * @param str The string to escape.
+   * @return The escaped string.
+   */
+  private def unescapeForEncodeUriCompatability(str: String): String = {
+    return URLEncoder.encode(str, "UTF-8")
+        .replace("%21", "!").replace("%7E", "~")
+        .replace("%27", "'").replace("%28", "(").replace("%29", ")")
+        .replace("%3B", ";").replace("%2F", "/").replace("%3F", "?")
+        .replace("%3A", ":").replace("%40", "@").replace("%26", "&")
+        .replace("%3D", "=").replace("%2B", "+").replace("%24", "$")
+        .replace("%2C", ",").replace("%23", "#")
   }
 
 }
