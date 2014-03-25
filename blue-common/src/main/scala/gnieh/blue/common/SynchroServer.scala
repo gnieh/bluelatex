@@ -18,6 +18,8 @@ package common
 
 import scala.util.Try
 
+import java.util.Date
+
 /** Synchronization server interface
  *
  *  @author Lucas Satabin
@@ -35,6 +37,12 @@ trait SynchroServer {
    */
   def persist(paperId: String): Unit
 
+  /** Retrieve the last modification date of a paper.
+   *  This date is updated every time a synchronized file of a paper
+   *  (ie, associated to `paperId`) is updated.
+   *  This call is synchronous.
+   */
+  def lastModificationDate(paperId: String): Date
 }
 
 /** Exception used in case of failure of the session() method.

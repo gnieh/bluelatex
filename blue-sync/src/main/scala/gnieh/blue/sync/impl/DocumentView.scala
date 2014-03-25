@@ -21,6 +21,8 @@ import scala.collection.mutable._
 
 import net.liftweb.json._
 
+import java.util.{Calendar, Date}
+
 /** User view of one Document
  *
  * @author Lucas Satabin
@@ -51,6 +53,9 @@ class DocumentView(val document: Document) {
   /** Does the client set the overwrite flag ? */
   var overwrite = false
 
+  /** Last modification date for this document */
+  var lastUpdate: Date = Calendar.getInstance().getTime()
+
   /** Flag if messages are to be retrieved or not */
   var retrieveMessages = false
 
@@ -58,6 +63,7 @@ class DocumentView(val document: Document) {
     edits.clear()
     shadow = backupShadow
     serverShadowRevision = backupShadowRevision
+    update()
   }
 
   def setShadow(text: String, clientRevision: Long, serverRevision: Long, force: Boolean): Unit = {
@@ -73,6 +79,10 @@ class DocumentView(val document: Document) {
       document.text = text
     }
     overwrite = force
+    update()
   }
+
+  def update(): Unit = 
+    lastUpdate = Calendar.getInstance().getTime()
 
 }

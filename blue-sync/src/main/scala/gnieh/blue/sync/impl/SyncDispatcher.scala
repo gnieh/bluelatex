@@ -110,6 +110,11 @@ class SyncActor(
     case PersistPaper(promise) => {
       promise.complete(persistPapers())
     }
+
+    case LastModificationDate(promise) => {
+      val lastUpdatedView = views.values.toList.sortBy(_.lastUpdate).last
+      promise.success(lastUpdatedView.lastUpdate)
+    }
   }
 
   def persistPapers(): Try[Unit] =
@@ -201,6 +206,7 @@ class SyncActor(
       logDebug("Delta and revision ok, process patches")
       applyPatches(view, delta)
       view.clientShadowRevision += 1
+      view.update()
     }
     view.overwrite = delta.overwrite
   }

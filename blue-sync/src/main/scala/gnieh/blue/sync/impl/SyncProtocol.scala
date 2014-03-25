@@ -20,6 +20,8 @@ package impl
 import net.liftweb.json._
 import scala.concurrent.Promise
 
+import java.util.Date
+
 /* Protocol adapted from Neil Fraser's mobwrite protocol:
  * http://code.google.com/p/google-mobwrite/wiki/Protocol
  */
@@ -29,6 +31,12 @@ import scala.concurrent.Promise
  * @author Audric Schiltknecht
  */
 final case class PersistPaper(promise: Promise[Unit])
+
+/** A command sent for retrieving the last modification date of a paper.
+ *
+ * @author Audric Schiltknecht
+ */
+final case class LastModificationDate(promise: Promise[Date])
 
 /** A command list sent for specific peer and file.
  *

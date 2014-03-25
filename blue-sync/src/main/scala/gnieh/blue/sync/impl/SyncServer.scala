@@ -33,6 +33,8 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.util.{Try, Success, Failure}
 
+import java.util.Date
+
 /** A synchronization server.
  *
  * This synchronization server makes use of the mobwrite-based
@@ -67,6 +69,13 @@ class SyncServer(dispatcher: ActorRef, configuration: Config) extends SynchroSer
     val promise = Promise[Unit]()
 
     dispatcher ! Forward(paperId, PersistPaper(promise))
+    Await.result(promise.future, Duration.Inf)
+  }
+
+  def lastModificationDate(paperId: String): Date = {
+    val promise = Promise[Date]
+
+    dispatcher ! Forward(paperId, LastModificationDate(promise))
     Await.result(promise.future, Duration.Inf)
   }
 
