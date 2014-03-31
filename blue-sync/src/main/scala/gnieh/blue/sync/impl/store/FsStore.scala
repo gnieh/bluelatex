@@ -53,7 +53,9 @@ class FsStore extends Store {
         new Document(documentPath, source.mkString)
       }
     } else {
-      new Document(documentPath, "")
+      val doc = new Document(documentPath, "")
+      save(doc)
+      doc
     }
   }
 
