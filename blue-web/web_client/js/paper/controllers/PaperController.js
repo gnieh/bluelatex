@@ -583,11 +583,19 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       $scope.cancelUploadResource = function () {
         $scope.new_file = {};
       };
+
       /**
       * View a resource
       */
       $scope.viewResource = function (resource) {
+        if(resource.type == "image") {
+          $scope.displayResourceViewer = true;
+          $scope.resourceURL = PaperService.getResourceUrl(paper_id,resource.title);
+        }
+      };
 
+      $scope.closeResourceViewer = function() {
+        $scope.displayResourceViewer = false;
       };
 
       $scope.insertResource = function(resource) {

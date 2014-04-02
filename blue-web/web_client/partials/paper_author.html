@@ -91,6 +91,12 @@
   </div>
 </div>
 <section class="centerRightCol">
+  <div ng-if="displayResourceViewer" class="resourceViewer">
+    <div class="close icon-close" ng-click="closeResourceViewer()"></div>
+    <div class="container">
+      <img src="{{resourceURL}}">
+    </div>
+  </div>
     <section class="centerCol">
         <div ng-show="mode=='ace'" ui-ace="{
           useWrapMode : true,
@@ -132,15 +138,18 @@
       <input type="text" ng-model="scale">
     </div>
     <div class="figures" ng-switch-when="figures">
-      <div ng-repeat="n in range(totalPage) track by $index" class="preview_page_container" bl-vignette
-      data-current="current"
-      data-vignetteType="image"
-      data-page="{{$index+1}}"
-      data-currentPage="currentPage"
-      data-paperId="paperId"
-      data-scale="auto"
-      data-revision="revision"
-      ng-click="changePage($index+1)"></div>
+      <div class="figure" ng-repeat="n in range(totalPage) track by $index">
+        <div class="page">{{$index+1}}</div>
+        <div class="preview_page_container" bl-vignette
+        data-current="current"
+        data-vignetteType="image"
+        data-page="{{$index+1}}"
+        data-currentPage="currentPage"
+        data-paperId="paperId"
+        data-scale="auto"
+        data-revision="revision"
+        ng-click="changePage($index+1)"></div>
+      </div>
     </div>
     <div class="files" ng-switch-when="files">
       <div id="file_list">
