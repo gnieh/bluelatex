@@ -24,11 +24,8 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
         }, function (err) {
           MessagesService.clear();
           switch (err.status) {
-          case 400:
-            MessagesService.error('_Get_info_paper_Some_parameters_are_missing_',err);
-            break;
           case 401:
-            MessagesService.error('_Get_info_paper_Wrong_username_and_or_password_',err);
+            MessagesService.error('_Get_info_paper_Not_connected_',err);
             break;
           case 404:
             MessagesService.error('_Get_info_paper_Paper_not_found_',err);
@@ -57,7 +54,7 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
           MessagesService.clear();
           switch (err.status) {
           case 401:
-            MessagesService.error('_Get_users_not_connected_',err);
+            MessagesService.error('_Get_users_Not_connected_',err);
             break;
           case 500:
             MessagesService.error('_Get_users_Something_wrong_happened_',err);
@@ -127,7 +124,7 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
             MessagesService.error('_Edit_paper_Some_parameters_are_missing_',err);
             break;
           case 401:
-            MessagesService.error('_Edit_paper_Wrong_username_and_or_password_',err);
+            MessagesService.error('_Edit_paper_Not_connected_',err);
             break;
           case 404:
             MessagesService.error('_Edit_paper_Paper_not_found_',err);

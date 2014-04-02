@@ -10,11 +10,8 @@ angular.module("bluelatex.User.Controllers.Logout",['bluelatex.User.Services.Ses
         $location.path("/login");
       }, function (err) {
         switch (err.status) {
-        case 400:
-          MessagesService.error('_Logout_Some_parameters_are_missing_',err);
-          break;
         case 401:
-          MessagesService.error('_Logout_Wrong_username_and_or_password_',err);
+          MessagesService.error('_Logout_Not_connected_',err);
           break;
         case 500:
           MessagesService.error('_Logout_Something_wrong_happened_',err);

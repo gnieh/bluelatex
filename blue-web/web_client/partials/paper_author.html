@@ -23,14 +23,14 @@
     <div class="left">
       <div class="subOption">
         <div class="label">
-          <span class="has_sub_label" ng-click="compile()">Compile</span>
+          <span class="has_sub_label" ng-click="compile()" data-i18n="_Compile_"></span>
           <div class="sub_label">ctrl + s</div>
         </div>
         <label><input type="checkbox" name="compilerOptions" ng-model="compilerOptions">
           <span class="icon-down-empty"></span></label>
         <div class="subOptions" ng-show="compilerOptions">
           <label class="bg"><input type="checkbox" name="compilerOptions" ng-model="compilerOptions"></label>
-          <label>Compiler: </label>
+          <label data-i18n="_Compiler_"></label>
           <div class="compilers">
           <label ng-repeat="c in compilers">
             <input type="radio" name="compiler" value="{{c.name}}" ng-checked="compiler.compiler==c.name" ng-class="{selected: compiler.compiler==c.name}" >
@@ -39,7 +39,7 @@
           </div>
           <div>
             <label>
-              <span>Interval</span> <input type="number" ng-model="compiler.interval">
+              <span data-i18n="_Interval_"></span> <input type="number" ng-model="compiler.interval">
             </label>
           </div>
           <div>
@@ -51,19 +51,17 @@
       </div>
       <div class="subOption">
         <div class="label">
-          <span ng-click="downloadPDF()">Download</span>
+          <span ng-click="downloadPDF()" data-i18n="_Download_"></span>
         </div>
         <label><input type="checkbox" name="downloadOptions" ng-model="downloadOptions"><span class="icon-down-empty"></span></label>
         <div class="subOptions" ng-show="downloadOptions">
           <label class="bg"><input type="checkbox" name="downloadOptions" ng-model="downloadOptions"></label>
-          <div ng-click="downloadPDF()">Download PDF</div>
-          <div ng-click="downloadZip()">Download Zip</div>
-          <div ng-click="downloadLog()">Download Log</div>
+          <div ng-click="downloadPDF()" data-i18n="_Download_PDF_"></div>
+          <div ng-click="downloadZip()" data-i18n="_Download_ZIP_"></div>
+          <div ng-click="downloadLog()" data-i18n="_Download_Log_"></div>
         </div>
       </div>
-      <div class="option" ng-click="openItsalltext()">
-        Emacs Users
-      </div>
+      <div class="option" ng-click="openItsalltext()" data-i18n="_Emacs_users_"></div>
     </div>
     <div class="right">
       <div class="messages" bl-messages></div>
@@ -179,7 +177,7 @@
         </div>
       </div>
       <section id="new_file">
-        <h3 data-i18n="_New_file_">New file</h3>
+        <h3 data-i18n="_New_file_"></h3>
         <label id="new_file">
           <input type="text" ng-model="new_file_name" data-i18n-attr="_Filename_|placeholder">
           <select ng-model="new_file_extension">
@@ -190,15 +188,15 @@
         </label>
       </section>
       <section id="upload_resource" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="file-hover">
-        <h3 data-i18n="_New_resource_">New Resource</h3>
+        <h3 data-i18n="_New_resource_"></h3>
         <label id="new_file">
           <span class="icon type-{{new_file.extension}}"></span>
           <div class="label" ng-hide="new_file.title==null" ng-click="insertResource(file)">{{new_file.name}}<span class="extension">.{{new_file.extension}}</span></div>
-          <span ng-hide="new_file.title!=null">Select a file <span ng-file-drop-available="dropSupported=true" ng-show="!dropSupported"> or drag a file</span></span>
+          <span ng-hide="new_file.title!=null"><span data-i18n="_Select_a_file_"></span> <span ng-file-drop-available="dropSupported==true" ng-show="!dropSupported" data-i18n="_or_drag_a_file_"></span></span>
           <input type="file" ng-file-select="onFileSelect($files)">
         </label>
-        <button ng-click="uploadResource()" ng-disabled="new_file.title==null">Upload</button>
-        <button ng-click="cancelUploadResource()" ng-disabled="new_file.title==null">Cancel Upload</button>
+        <button ng-click="uploadResource()" ng-disabled="new_file.title==null" data-i18n="_Upload_"></button>
+        <button ng-click="cancelUploadResource()" ng-disabled="new_file.title==null" data-i18n="_Cancel_upload_"></button>
       </section>
     </div>
   </section>

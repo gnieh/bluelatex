@@ -6,7 +6,6 @@ angular.module("bluelatex.User.Controllers.ResetPassword",['bluelatex.User.Servi
 
       $scope.resetPassword = function () {
         UserService.resetPassword($routeParams.username, $routeParams.token, user.new_password, user.new_password_2).then(function (data) {
-          $log.log(data);
           if (data.name != 'unable_to_reset') {
             MessagesService.message('_Reset_Password_changed_',data);
             $location.path("/");

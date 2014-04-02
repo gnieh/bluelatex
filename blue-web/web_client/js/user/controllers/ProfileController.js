@@ -18,7 +18,7 @@ angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.Us
             MessagesService.error('_Edit_profile_Some_parameters_are_missing_',err);
             break;
           case 401:
-            MessagesService.error('_Edit_profile_Wrong_username_and_or_password_',err);
+            MessagesService.error('_Edit_profile_Not_connected_',err);
             break;
           case 500:
             MessagesService.error('_Edit_profile_Something_wrong_happened_',err);

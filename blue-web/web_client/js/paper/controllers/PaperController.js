@@ -214,17 +214,14 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         }, function (error) {
           MessagesService.clear();
           switch (error.status) {
-          case 400:
-            MessagesService.error('_Delete_resource_Some_parameters_are_missing_',err);
-            break;
           case 401:
-            MessagesService.error('_Delete_resource_Wrong_username_and_or_password_',err);
+            MessagesService.error('_Get_synchronized_resource_Not_connected_',err);
             break;
           case 500:
-            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
+            MessagesService.error('_Get_synchronized_resource_Something_wrong_happened_',err);
             break;
           default:
-            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
+            MessagesService.error('_Get_synchronized_resource_Something_wrong_happened_',err);
           }
         });
       };
@@ -266,17 +263,14 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         }, function (error) {
           MessagesService.clear();
           switch (error.status) {
-          case 400:
-            MessagesService.error('_Delete_resource_Some_parameters_are_missing_',err);
-            break;
           case 401:
-            MessagesService.error('_Delete_resource_Wrong_username_and_or_password_',err);
+            MessagesService.error('_Get_resources_Not_connected_',err);
             break;
           case 500:
-            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
+            MessagesService.error('_Get_resources_Something_wrong_happened_',err);
             break;
           default:
-            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
+            MessagesService.error('_Get_resources_Something_wrong_happened_',err);
           }
         });
       };
@@ -301,17 +295,17 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         }, function (error) {
           MessagesService.clear();
           switch (error.status) {
-          case 400:
-            MessagesService.error('_Delete_resource_Some_parameters_are_missing_',err);
+          case 404:
+            MessagesService.error('_Get_info_paper_Paper_not_found_',err);
             break;
           case 401:
-            MessagesService.error('_Delete_resource_Wrong_username_and_or_password_',err);
+            MessagesService.error('_Get_info_paper_Not_connected_',err);
             break;
           case 500:
-            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
+            MessagesService.error('_Get_info_paper_Something_wrong_happened_',err);
             break;
           default:
-            MessagesService.error('_Delete_resource_Something_wrong_happened_',err);
+            MessagesService.error('_Get_info_paper_Something_wrong_happened_',err);
           }
         });
       };
@@ -564,7 +558,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
             MessagesService.error('_Upload_resource_Some_parameters_are_missing_',err);
             break;
           case 401:
-            MessagesService.error('_Upload_resource_Wrong_username_and_or_password_',err);
+            MessagesService.error('_Upload_resource_Not_connected_',err);
             break;
           case 500:
             MessagesService.error('_Upload_resource_Something_wrong_happened_',err);
@@ -625,7 +619,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
             MessagesService.error('_Delete_resource_Some_parameters_are_missing_',err);
             break;
           case 401:
-            MessagesService.error('_Delete_resource_Wrong_username_and_or_password_',err);
+            MessagesService.error('_Delete_resource_Not_connected_',err);
             break;
           case 500:
             MessagesService.error('_Delete_resource_Something_wrong_happened_',err);

@@ -18,7 +18,7 @@ angular.module('bluelatex.Paper.Controllers.NewPaper', ['bluelatex.Shared.Servic
             MessagesService.error('_New_paper_Some_parameters_are_missing_',err);
             break;
           case 401:
-            MessagesService.error('_New_paper_Wrong_username_and_or_password_',err);
+            MessagesService.error('_New_paper_Not_connected_',err);
             break;
           case 500:
             MessagesService.error('_New_paper_Something_wrong_happened_',err);

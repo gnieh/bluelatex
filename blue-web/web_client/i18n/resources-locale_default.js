@@ -100,6 +100,11 @@
         "description":"Login page"
     },
     {
+        "key": "_Confirm_Password_",
+        "value":"Confirm password",
+        "description":"Reset password page"
+    },
+    {
         "key":"_ChangePasswordTitle_",
         "value":"Change password",
         "description":"Reset password page"
@@ -385,7 +390,7 @@
         "description":"Delete paper: Delete paper User must be authentified"
     },
     {
-        "key":"_List_Papers_User_must_be_authentified_",
+        "key":"_List_Papers_Not_connected_",
         "value":"User must be authentified",
         "description":"Delete paper: Delete paper User must be authentified"
     },
@@ -418,5 +423,315 @@
         "key":"_Role_",
         "value":"Role",
         "description":"Role"
+    },
+    {
+        "key":"_Install_itsalltext_",
+        "value":"Please install <a href='https://addons.mozilla.org/fr/firefox/addon/its-all-text/'>It's all text</a>",
+        "description":"itsalltext not present invit to install it"
+    },
+    {
+        "key":"_New_resource_",
+        "value":"Upload a resource",
+        "description":"Upload a new Resource tiltle"
+    },
+    {
+        "key":"_Resources_",
+        "value":"Resources",
+        "description":"Resources"
+    },
+    {
+        "key":"_No_resource_found_",
+        "value":"No resource found",
+        "description":"No resource found"
+    },
+    {
+        "key":"_Compile_",
+        "value":"Compile",
+        "description":"Compile"
+    },
+    {
+        "key":"_Compiler_",
+        "value":"Compiler",
+        "description":"Compiler"
+    },
+    {
+        "key":"_Download_",
+        "value":"Download",
+        "description":"Download"
+    },
+    {
+        "key":"_Download_ZIP_",
+        "value":"Download ZIP",
+        "description":"Download ZIP"
+    },
+    {
+        "key":"_Download_Log_",
+        "value":"Download Log",
+        "description":"Download log"
+    },
+    {
+        "key":"_Download_PDF_",
+        "value":"Download PDF",
+        "description":"Download PDF"
+    },
+    {
+        "key":"_Emacs_users_",
+        "value":"Emacs users",
+        "description":"Emacs users"
+    },
+    {
+        "key":"_Interval_",
+        "value":"Interval",
+        "description":"Interval"
+    },
+    {
+        "key":"_Upload_",
+        "value":"Upload",
+        "description":"Upload"
+    },
+    {
+        "key":"_Cancel_upload_",
+        "value":"Cancel upload",
+        "description":"Cancel upload"
+    },
+    {
+        "key":"_Select_a_file_",
+        "value":"Select a file",
+        "description":"Select a file"
+    },
+    {
+        "key":"_or_drag_a_file_",
+        "value":"or drag a file",
+        "description":"or drag a file"
+    },
+    {
+        "key":"_New_file_",
+        "value":"New file",
+        "description":"New file"
+    },
+    {
+        "key":"_Filename_",
+        "value":"Filename",
+        "description":"Filename"
+    },
+
+
+    {
+        "key":"_Get_info_paper_Not_connected_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_Get_info_paper_Paper_not_found_",
+        "value":"Paper not found",
+        "description":"Paper not found"
+    },
+    {
+        "key":"_Get_info_paper_Something_wrong_happened_",
+        "value":"Unable to get paper info",
+        "description":"Unable to get paper info"
+    },
+
+
+    {
+        "key":"_Get_users_Not_connected_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_Get_users_Something_wrong_happened_",
+        "value":"Unable to list users",
+        "description":"Unable to list users"
+    },
+
+
+    {
+        "key":"_Edit_paper_Some_parameters_are_missing_",
+        "value":"Please complete all fields",
+        "description":"Some fields are missing"
+    },
+    {
+        "key":"_Edit_paper_Not_connected_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_Edit_paper_Paper_not_found_",
+        "value":"Unable to find the paper",
+        "description":"Edit paper: Paper not found"
+    },
+    {
+        "key":"_Edit_paper_Something_wrong_happened_",
+        "value":"Unable to edit paper",
+        "description":"Unable to edit paper"
+    },
+
+
+    {
+        "key":"_New_paper_Some_parameters_are_missing_",
+        "value":"Please complete all fields",
+        "description":"New paper: some fields are missing"
+    },
+    {
+        "key":"_New_paper_Not_connected_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_New_paper_Something_wrong_happened_",
+        "value":"Unable to create the new paper",
+        "description":"Unable to create the new paper"
+    },
+
+
+    {
+        "key":"_Get_synchronized_resource_Not_connected_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_Get_synchronized_resource_Something_wrong_happened_",
+        "value":"Unable to get synchronized resource",
+        "description":"Unable to get synchronized resource"
+    },
+
+
+    {
+        "key":"_Get_resources_Not_connected_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_Get_resources_Something_wrong_happened_",
+        "value":"Unable to list resources",
+        "description":"Unable to list resources"
+    },
+
+
+    {
+        "key":"_Get_compiler_Unable_to_get_compiler_info_",
+        "value":"Unable to get compiler info",
+        "description":"Unable to get compiler info"
+    },
+
+
+    {
+        "key":"_Get_compilers_Unable_to_get_compiler_list_",
+        "value":"Unable to list compilers",
+        "description":"Unable to list compilers"
+    },
+
+    {
+        "key":"_Upload_resource_Some_parameters_are_missing_",
+        "value":"Please complete all fields",
+        "description":"New resource: some fields are missing"
+    },
+    {
+        "key":"_Upload_resource_Not_connected_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_Upload_resource_Something_wrong_happened_",
+        "value":"Unable to upload resource",
+        "description":"Unable to upload resource"
+    },
+
+
+    {
+        "key":"_Delete_resource_Some_parameters_are_missing_",
+        "value":"Please complete all fields",
+        "description":"Delete resource: some fields are missing"
+    },
+    {
+        "key":"_Delete_resource_Not_connected_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_Delete_resource_Something_wrong_happened_",
+        "value":"Unable to delete the resource",
+        "description":"Unable to delete the resource"
+    },
+
+
+    {
+        "key":"_Logout_Something_wrong_happened_",
+        "value":"Unable to logout",
+        "description":"Unable to logout"
+    },
+    {
+        "key":"_Logout_Not_connected_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+
+    {
+        "key":"_Edit_profile_Some_parameters_are_missing_",
+        "value":"Please complete all fields",
+        "description":"Edit profile: some fields are missing"
+    },
+    {
+        "key":"_Edit_profile_Not_connected_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_Edit_profile_Something_wrong_happened_",
+        "value":"Unable to edit profile",
+        "description":"Unable to edit profile"
+    },
+
+
+    {
+        "key":"_Remove_user_Captcha_not_verify_or_user_not_authenticated_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_Remove_user_The_captcha_did_not_verify_",
+        "value":"Captcha veritication not correct",
+        "description":"Captcha veritication not correct"
+    },
+    {
+        "key":"_Remove_user_The_user_still_owns_papers_",
+        "value":"You can't remove your account because you have still papers",
+        "description":"Remove user: The user still has owns papers"
+    },
+    {
+        "key":"_Remove_user_Something_wrong_happened_",
+        "value":"Unable to remove user",
+        "description":"Unable to remove user"
+    },
+
+    {
+        "key":"_Edit_profile_success_",
+        "value":"Profile edited",
+        "description":"Edit profile: success"
+    },
+    {
+        "key":"_Edit_profile_No_enough_data_",
+        "value":"Please complete all fields",
+        "description":"Edit profile: some fields are missing"
+    },
+    {
+        "key":"_Edit_profile_User_must_be_authenticated_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_Edit_profile_Not_authorized_to_modifiy_the_user_data_",
+        "value":"Your are not authorized to modifify the data of this user",
+        "description":"_Edit_profile_Not_authorized_to_modifiy_the_user_data_"
+    },
+    {
+        "key":"_Edit_profile_User_does_not_exist_",
+        "value":"User not found",
+        "description":"User not found"
+    },
+    {
+        "key":"_Edit_profile_No_revision_obsolete_revision_was_provided_in_the_request_",
+        "value":"The current revision is obsolete. Please refresh the page.",
+        "description":"_Edit_profile_No_revision_obsolete_revision_was_provided_in_the_request_"
     }
 ]

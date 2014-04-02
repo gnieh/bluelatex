@@ -17,7 +17,7 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['bluelatex.Paper.Services.
         MessagesService.clear();
         switch (err.status) {
         case 401:
-          MessagesService.error('_List_Papers_User_must_be_authentified_',err);
+          MessagesService.error('_List_Papers_Not_connected_',err);
           break;
         case 500:
           MessagesService.error('_List_Papers_Something_wrong_happened_',err);
