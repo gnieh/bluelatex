@@ -169,6 +169,9 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
               deferred.notify(progress);
             });
             return promise;
+          },
+          clearCache: function() {
+            $angularCacheFactory.clearAll();
           }
         };
       }
