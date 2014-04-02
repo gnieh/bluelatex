@@ -150,12 +150,10 @@
 .reviewer #preview {
   display: block;
   padding-top: 85px;
+    border-left: 3px solid #999;
 }
 #preview div.preview_page_container {
     position: relative;
-    background: #FFF;
-    overflow: hidden;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     margin: 10px;
 }
 #preview div.preview_page_container .container {
