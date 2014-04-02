@@ -54,7 +54,6 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           },
           transformResponse: [
             function (data, headersGetter) {
-              console.log(data);
               return {
                 response: JSON.parse(data)
               };
@@ -71,9 +70,22 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
       var compilers = $resource(apiRootUrl + "/compilers", null, {
         "get": {
           method: "get",
-          isArray: true
+          isArray: true,
+          transformResponse: [
+            function (data) {
+              var array = [];
+              data = JSON.parse(data);
+              for (var i = 0; i < data.length; i++) {
+                array.push({
+                  name: data[i]
+                });
+              }
+              return array;
+            }
+          ].concat($http.defaults.transformResponse)
         }
       });
+
       // get the number of page of the paper
       var pages = $resource(apiRootUrl + "/papers/:paper_id/compiled/pages", null, {
         "get": {
@@ -491,9 +503,10 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         getCompilers: function () {
           var deferred = $q.defer();
           var promise = deferred.promise;
-          if (_dataCache.get('/compilers')) deferred.resolve(_dataCache.get('/compilers'));
+          if (_dataCache.get('/compilers'))
+            deferred.resolve(_dataCache.get('/compilers'));
           else {
-            compilers.get({}).$promise.then(function (data) {
+            compilers.get().$promise.then(function (data) {
               _dataCache.put('/compilers', data);
               deferred.resolve(data);
             }, function (error) {

@@ -140,9 +140,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         if($scope.paper.authors &&
            $scope.paper.authors.indexOf($rootScope.loggedUser.name) >= 0) {
           stopMobWrite();
-          PaperService.leavePaper(paper_id).then(function (data) {
-            console.log("paper leaved");
-          });
+          PaperService.leavePaper(paper_id);
         }
       };
 
@@ -334,6 +332,25 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           $scope.status = "error";
         }
       });
+
+      var getCompilerInfo = function() {
+        PaperService.getPaperCompiler(paper_id).then(function (data) {
+          $scope.compiler = data;
+        }, function (error) {
+          MessagesService.clear();
+          MessagesService.error('_Get_compiler_Unable_to_get_compiler_info_');
+        });
+      };
+
+      var getCompilers = function() {
+        PaperService.getCompilers().then(function (data) {
+          $scope.compilers = data;
+        }, function (error) {
+          MessagesService.clear();
+          MessagesService.error('_Get_compilers_Unable_to_get_compiler_list_');
+        });
+      };
+      getCompilers();
 
       $scope.$watch('displaySyncTexBox', function (value) {
         if(value)

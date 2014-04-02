@@ -30,10 +30,23 @@
           <span class="icon-down-empty"></span></label>
         <div class="subOptions" ng-show="compilerOptions">
           <label class="bg"><input type="checkbox" name="compilerOptions" ng-model="compilerOptions"></label>
-          <label ng-repeat="compiler in compilers">
-            <input type="radio" name="compiler" value="{{compiler}}" ng-class="{selected: compiler==compiler}">
-            {{compiler}}
+          <label>Compiler: </label>
+          <div class="compilers">
+          <label ng-repeat="c in compilers">
+            <input type="radio" name="compiler" value="{{c.name}}" ng-checked="compiler.compiler==c.name" ng-class="{selected: compiler.compiler==c.name}" >
+            {{c.name}}
           </label>
+          </div>
+          <div>
+            <label>
+              <span>Interval</span> <input type="number" ng-model="compiler.interval">
+            </label>
+          </div>
+          <div>
+            <label>
+              <span>Synctex</span> <input type="checkbox" ng-model="compiler.synctex">
+            </label>
+          </div>
         </div>
       </div>
       <div class="subOption">
