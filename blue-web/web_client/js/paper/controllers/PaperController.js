@@ -572,6 +572,16 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       $scope.viewResource = function (resource) {
 
       };
+
+      $scope.insertResource = function(resource) {
+        var text = resource.title;
+        if(resource.type == "image") {
+          text = '\\includegraphics{'+resource.title+'}\n';
+        }
+        AceService.getSession().insert(AceService.getEditor().selection.getCursor(),text);
+        AceService.getEditor().focus();
+      };
+
       /**
       * Remove a resource
       */
