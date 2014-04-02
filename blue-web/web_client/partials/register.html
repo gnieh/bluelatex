@@ -4,28 +4,32 @@
     <div bl-messages></div>
     <div class="form-group"
       ng-class="{'has-error': registerForm.username.$invalid}">
-      <input class="form-control" name="username" type="text" autofocus
+      <label class="form-label" for="register_username" data-i18n="_Username_"></label>
+      <input class="form-control" id="register_username" name="username" type="text" autofocus
         data-i18n-attr="_Username_|placeholder" required ng-model="user.username" />
         <span class="control-label"
           ng-show="registerForm.username.$error.required" data-i18n="_Required_"></span>
     </div>
     <div class="form-group"
       ng-class="{'has-error': registerForm.firstname.$invalid}">
-      <input class="form-control" name="firstname" type="text"
+      <label class="form-label" for="register_firstname" data-i18n="_FirstName_"></label>
+      <input class="form-control" id="register_firstname" name="firstname" type="text"
         data-i18n-attr="_FirstName_|placeholder" required ng-model="user.first_name" />
         <span class="control-label"
           ng-show="registerForm.firstname.$error.required" data-i18n="_Required_"></span>
     </div>
     <div class="form-group"
       ng-class="{'has-error': registerForm.lastname.$invalid}">
-      <input class="form-control" name="lastname" type="text"
+      <label class="form-label" for="register_lastname" data-i18n="_LastName_"></label>
+      <input class="form-control" id="register_lastname" name="lastname" type="text"
         data-i18n-attr="_LastName_|placeholder" required ng-model="user.last_name" />
         <span class="control-label"
           ng-show="registerForm.lastname.$error.required" data-i18n="_Required_"></span>
     </div>
     <div class="form-group"
       ng-class="{'has-error': registerForm.email.$invalid}">
-      <input class="form-control" name="email" type="email"
+      <label class="form-label" for="register_email" data-i18n="_Email_"></label>
+      <input class="form-control" id="register_email" name="email" type="email"
         data-i18n-attr="_Email_|placeholder" required ng-model="user.email_address" />
         <span class="control-label"
           ng-show="registerForm.email.$error.required" data-i18n="_Required_"></span>
@@ -34,19 +38,20 @@
     </div>
     <div class="form-group"
       ng-class="{'has-error': registerForm.affiliation.$invalid}">
-      <input class="form-control" name="affiliation" type="text"
+      <label class="form-label" for="register_affiliation" data-i18n="_Affiliation_"></label>
+      <input class="form-control" id="register_affiliation" name="affiliation" type="text"
         data-i18n-attr="_Affiliation_|placeholder" ng-model="user.affiliation" />
         <span class="control-label"
           ng-show="registerForm.affiliation.$error.required" data-i18n="_Required_"></span>
     </div>
     <div class="form-group">
-      <button type="submit" class="btn btn-primary pull-right" ng-disabled="!registerForm.$valid"
-        data-i18n-attr="_Register_|value" data-i18n-attr="_Register_|title">
-        <span data-i18n="_Register_"></span>
-      </button>
       <button type="reset" class="btn btn-primary pull-right"
         data-i18n-attr="_Cancel_|value" data-i18n-attr="_Cancel_|title">
         <span data-i18n="_Cancel_"></span>
+      </button>
+      <button type="submit" class="btn btn-primary pull-right" ng-disabled="!registerForm.$valid"
+        data-i18n-attr="_Register_|value" data-i18n-attr="_Register_|title">
+        <span data-i18n="_Register_"></span>
       </button>
     </div>
   </form>

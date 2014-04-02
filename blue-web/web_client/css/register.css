@@ -1,23 +1,40 @@
 #register_form, #reset_form, #reset_password_form {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 275px;
-    height: 375px;
+    position: relative;
+    /* left: 50%; */
+    /* top: 50%; */
+    width: 100%;
+    max-width: 650px;
+    height: 100%;
+    padding-top: 41px;
     background: white;
-    border-radius: 4px;
+    border-radius: 2px;
     border: 1px solid #E0DEDE;
     margin: auto;
-    margin-top: -166.5px;
-    margin-left: -137.5px;
+    /* margin-top: -166.5px; */
+    /* margin-left: -137.5px; */
     overflow: hidden;
 }
 #register_form h1, #reset_form h1, #reset_password_form h1 {
     margin: 0;
     padding: 7px 4px 7px 7px;
-    color: #E7E7E7;
-    background: #025097;
+    color: #333;
+    /* background: #025097; */
     margin-bottom: 24px;
+}
+#register_form .form-label {
+    background: #EEE;
+    line-height: 38px;
+    font-weight: 400;
+    font-size: 12pt;
+    padding: 0 4px;
+    width: 29%;
+    display: inline-block;
+}
+#register_form .form-group {
+    position:relative;
+    clear: both;
+    line-height: 20px;
+    margin-bottom: 5px;
 }
 #register_form input, #reset_form input, #reset_password_form input {
     padding: 10px;
@@ -25,31 +42,29 @@
     border: 0;
     margin: 4px 0;
     outline: none;
-    width: 100%;
+    width: 70%;
     display: inline-block;
+    font-size: 16px;
 }
 #register_form .has-error input, #reset_form .has-error input, #reset_password_form .has-error input {
     background: #F5EAEA;
 }
 #register_form button,#register_form .button, #reset_form button, #reset_form .button, #reset_password_form button, #reset_password_form .button {
     display: inline-block;
-    width:49%;
+    width: 29%;
     border-radius: 0;
     margin: 2px 0;
     outline: none;
     padding: 10px;
+    margin-top: 35px;
 }
 #register_form form, #reset_form form, #reset_password_form form {
-    position: absolute;
-    bottom: 0px;
-    right: 0;
-    left: 0;
     padding: 7px;
 }
 #register_form .control-label, #reset_form .control-label, #reset_password_form .control-label {
     position: absolute;
-    right: 0;
-    top: 0;
-    display: none;
+    left: 3px;
+    top: 26px;
+    font-size: 8pt;
+    color: #999;
 }
-
