@@ -35,6 +35,8 @@ import org.osgi.service.log.LogService
 
 import name.fraser.neil.plaintext.DiffMatchPatch
 
+import java.util.{Date, Calendar}
+
 import gnieh.blue.common.PaperConfiguration
 import gnieh.blue.common.{Join, Part}
 
@@ -309,6 +311,45 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
 
       Then("the actor should detect the invalid revision and send Raw version")
       expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Raw(1, "My name is", true)))))
+    }
+
+    scenario("retrieving the last modification date for 'empty' paper should be possible") {
+
+      Given("a synchronization actor")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+
+      When("a user retrieves the last modification date")
+      val p = Promise[Date]()
+      syncActor ! LastModificationDate(p)
+
+      Then("the actor should always return a valid date (with a small epsilon to now())")
+      val now = Calendar.getInstance().getTime()
+      val modificationDate: Date = Await.result(p.future, Duration.Inf)
+      val epsilon: Long = 500 /* 500 msec */
+      (now.getTime() - modificationDate.getTime()) should be <= epsilon
+    }
+
+    scenario("retrieving the last modification date for modified paper should return new date") {
+
+      Given("a synchronization actor with an existing paper")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+      syncActor ! SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "Hello", false))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(5)), false)))))
+
+      And("the last modification date")
+      val p = Promise[Date]()
+      syncActor ! LastModificationDate(p)
+      val modificationDate: Date = Await.result(p.future, Duration.Inf)
+
+      When("a user modifies the paper")
+      syncActor ! SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(Delete(5),Add("World")), false))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(5)), false)))))
+
+      Then("the actor should always return a new valid date (with after first date)")
+      val pp = Promise[Date]()
+      syncActor ! LastModificationDate(pp)
+      val newModificationDate: Date = Await.result(pp.future, Duration.Inf)
+      newModificationDate.after(modificationDate) should be (true)
     }
   }
 
