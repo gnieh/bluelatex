@@ -33,6 +33,9 @@
   margin-bottom: -1px;
   margin-left: -1px;
 }
+.debug_block.k {
+  background: green;
+}
 .debug_block .info {
   display: none;
   position: absolute;

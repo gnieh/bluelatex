@@ -10,7 +10,8 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         'synctex': "=synctex",
         'revision': "=revision",
         'currentPage': "=currentpage",
-        'currentLine': "=currentline"
+        'currentLine': "=currentline",
+        'displaysynctexbox': "@"
       },
       'controller': function($scope) {
         var pdf = null;
@@ -43,7 +44,8 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           for (var i = elems.length - 1; i >= 0; i--) {
             var e=elems[i];
             if(e.page != $scope.page) continue;
-            //if(e.type!='x') continue;
+            if(e.parent.type == "vertical") continue;
+            if(e.type=='k' || e.type=='h') continue;
             if(e.bottom!=cLine.bottom){
               lines.push(cLine);
               cLine = {
@@ -75,14 +77,13 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
 
             var left = elems[line.minLeft].left;
             if(minPosition <= 1) {
+              width += left - elems[line.minLeft].parent.left;
               left = elems[line.minLeft].parent.left;
             } else if(elems[line.minLeft-1]){
+              width += left - elems[line.minLeft-1].left;
               left = elems[line.minLeft-1].left;
             }
             var width = elems[line.maxLeft].left-left;
-            if(maxPosition<max && elems[line.maxLeft-1]) {
-              width = elems[line.maxLeft-1].left-left;
-            }
 
             var s1 = convertToViewportPoint(left, line.bottom, pdfDimension);
             var s2 = convertToViewportPoint(width, line.height, pdfDimension);
@@ -271,6 +272,92 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         $scope.getUrlVignette = function () {
           return PaperService.getPNGUrl($scope.paperId,$scope.page);
         };
+
+        /* DEBUG */
+        var createBlock = function (b, page){
+          var previews = element[0].getElementsByClassName('preview_page_container');
+          var block = document.createElement('div');
+          var s1 = convertToViewportPoint(b.left, b.bottom, pdfDimension);
+          var s2 = convertToViewportPoint(b.width, b.height, pdfDimension);
+
+          block.style.top = pdfDimension.height-s1[1]-(pdfDimension.height-s2[1]) + 'px';
+          block.style.left = s1[0]+ 'px';
+          block.style.width =  s2[0] + 'px';
+          block.style.height = (pdfDimension.height-s2[1])+'px';
+          block.classList.add(b.type);
+          block.classList.add('debug_block');
+
+          var info = document.createElement('div');
+          info.classList.add('info');
+          info.innerHTML = '<span class="file">'+b.fileNumber+'</span><span class="line">'+b.line+'</span>';
+          block.appendChild(info);
+
+          element[0].appendChild(block);
+        };
+
+        var createElem = function (elm ,page){
+          //if(elm.type!='x') return;
+          var previews = element[0].getElementsByClassName('preview_page_container');
+          var block = document.createElement('div');
+
+          if(pdfDimension==null) {
+            var img = previews[page-1].getElementsByTagName('img')[0];
+            pdfDimension = {
+              scale: img.height/(img.naturalHeight*0.72),
+              height: img.height
+            };
+          }
+
+          var s1 = convertToViewportPoint(elm.left, elm.bottom, pdfDimension);
+          var s2 = convertToViewportPoint(elm.width, elm.height, pdfDimension);
+
+          block.style.top = pdfDimension.height-s1[1]-(pdfDimension.height-s2[1]) + 'px';
+
+          if(elm.width == 0 || !elm.width ){
+            block.style.left = s1[0]+ 'px';
+            block.style.width =  '1px';
+          }else {
+            block.style.left = s1[0]-s2[0]+ 'px';
+            block.style.width =  s2[0]+'px';
+          }
+          block.style.height = (pdfDimension.height-s2[1])+'px';
+          block.classList.add('debug_block');
+          block.classList.add(elm.type);
+
+          var info = document.createElement('div');
+          info.classList.add('info');
+          info.innerHTML = '<span class="file">'+elm.fileNumber+'</span><span class="line">'+elm.line+'</span>';
+          block.appendChild(info);
+          element[0].appendChild(block);
+        };
+
+        var removeBlocks = function () {
+          var blocks = element[0].getElementsByClassName('debug_block');
+          for (var i = blocks.length - 1; i >= 0; i--) {
+            var block = blocks[i];
+            block.parentNode.removeChild(block);
+          }
+        };
+
+        var displayBlocks = function (blocks, page) {
+          if(!isArray(blocks)) return;
+          for (var j = blocks.length - 1; j >= 0; j--) {
+            var block = blocks[j];
+            //if(block.type!='v block')continue;
+            createBlock(block,page);
+            displayBlocks(block.blocks,page);
+            for (var i = block.elements.length - 1; i >= 0; i--) {
+              var elm = block.elements[i];
+              createElem(elm,page);
+            }
+          }
+        };
+
+        $scope.displayPages = function (pages) {
+          removeBlocks();
+          displayBlocks(pages[$scope.page].blocks,$scope.page);
+        };
+
       },
       'link': function($scope, element, attrs, controller) {
         var ratio = 1;
@@ -303,6 +390,13 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           timeoutIDscale = setTimeout(function () {
             $scope.resize(element);
           },500);
+        });
+
+        $scope.$watch("displaysynctexbox", function(val){
+          if(val) {
+            if($scope.synctex)
+            $scope.displayPages($scope.synctex.pages);
+          }
         });
 
         var timeoutIDResize = null;

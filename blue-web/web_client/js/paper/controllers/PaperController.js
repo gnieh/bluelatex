@@ -1,93 +1,3 @@
-/* DEBUG */
-var pdfDimension = null;
-var createBlock = function (b, page){
-  var previews = preview.getElementsByClassName('preview_page_container');
-  var block = document.createElement('div');
-  if(pdfDimension==null) {
-    var img = previews[page-1].getElementsByTagName('img')[0];
-    pdfDimension = {
-      scale: img.height/(img.naturalHeight*0.72),
-      height: img.height
-    };
-  }
-  var s1 = convertToViewportPoint(b.left, b.bottom, pdfDimension);
-  var s2 = convertToViewportPoint(b.width, b.height, pdfDimension);
-
-  block.style.top = pdfDimension.height-s1[1]-(pdfDimension.height-s2[1]) + 'px';
-  block.style.left = s1[0]+ 'px';
-  block.style.width =  s2[0] + 'px';
-  block.style.height = (pdfDimension.height-s2[1])+'px';
-  block.classList.add(b.type);
-  block.classList.add('debug_block');
-
-  var info = document.createElement('div');
-  info.classList.add('info');
-  info.innerHTML = '<span class="file">'+b.fileNumber+'</span><span class="line">'+b.line+'</span>';
-  block.appendChild(info);
-
-  previews[page-1].appendChild(block);
-};
-
-var createElem = function (elm ,page){
-  //if(elm.type!='x') return;
-  var previews = preview.getElementsByClassName('preview_page_container');
-  var block = document.createElement('div');
-
-  if(pdfDimension==null) {
-    var img = previews[page-1].getElementsByTagName('img')[0];
-    pdfDimension = {
-      scale: img.height/(img.naturalHeight*0.72),
-      height: img.height
-    };
-  }
-
-  var s1 = convertToViewportPoint(elm.left, elm.bottom, pdfDimension);
-  var s2 = convertToViewportPoint(elm.width, elm.height, pdfDimension);
-
-  block.style.top = pdfDimension.height-s1[1]-(pdfDimension.height-s2[1]) + 'px';
-  block.style.left = s1[0]+ 'px';
-  block.style.width =  '1px';
-  block.style.height = (pdfDimension.height-s2[1])+'px';
-  block.classList.add('debug_block');
-  block.classList.add(elm.type);
-
-  var info = document.createElement('div');
-  info.classList.add('info');
-  info.innerHTML = '<span class="file">'+elm.fileNumber+'</span><span class="line">'+elm.line+'</span>';
-  block.appendChild(info);
-  previews[page-1].appendChild(block);
-};
-
-var removeBlocks = function () {
-  var blocks = preview.getElementsByClassName('debug_block');
-  for (var i = blocks.length - 1; i >= 0; i--) {
-    var block = blocks[i];
-    block.parentNode.removeChild(block);
-  }
-};
-
-var displayBlocks = function (blocks, page) {
-  if(!isArray(blocks)) return;
-  for (var j = blocks.length - 1; j >= 0; j--) {
-    var block = blocks[j];
-    //if(block.type!='v block')continue;
-    createBlock(block,page);
-    displayBlocks(block.blocks,page);
-    for (var i = block.elements.length - 1; i >= 0; i--) {
-      var elm = block.elements[i];
-      createElem(elm,page);
-    }
-  }
-};
-
-var displayPages = function (pages) {
-  removeBlocks();
-  for(var i in pages) {
-    var page = pages[i];
-    displayBlocks(page.blocks,i);
-  }
-};
-
 angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluelatex.Paper.Directives.Toc','bluelatex.Paper.Services.Ace','bluelatex.Paper.Services.Paper','bluelatex.Paper.Services.Ace','bluelatex.Latex.Services.SyncTexParser'])
   .controller('PaperController', ['$rootScope','$scope', 'localize', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService','SyncTexParserService','$document',
     function ($rootScope,$scope, localize, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService,SyncTexParserService,$document) {
@@ -114,6 +24,8 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       $scope.currentFile = {};
       $scope.status = "author";
 
+      $scope.displaySyncTexBox = true;
+
       $scope.vignetteType = "pdf";
       $scope.urlPaper = PaperService.getPaperUrlRoot(paper_id);
       $scope.scale = "auto";
@@ -127,6 +39,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       var getSyncTex = function () {
         PaperService.getSynctex(paper_id).then(function (data) {
           $scope.synctex = SyncTexParserService.parse(data);
+          console.log($scope.synctex);
           $scope.$apply(function () {
             $scope.synctex = $scope.synctex;
           });
@@ -346,12 +259,9 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       };
       getCompilers();
 
-      $scope.$watch('displaySyncTexBox', function (value) {
-        if(value)
-          displayPages($scope.synctex.pages);
-        else
-          removeBlocks();
-      });
+      $scope.displaySyncTex = function() {
+        $scope.displaySyncTexBox = !$scope.displaySyncTexBox;
+      };
 
       //action listener: action in the menu
       $scope.$on('handleAction', function (event, data) {

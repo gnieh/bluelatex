@@ -117,6 +117,7 @@
           data-page="{{$index+1}}"
           data-paperId="paperId"
           data-revision="revision"
+          data-displaySyncTexBox="{{displaySyncTexBox}}"
           data-scale="scale"></div>
         </div>
     </section>
@@ -132,8 +133,7 @@
       left: {{currentElem.left}}<br>
       currentLine: {{currentLine}}<br>
       currentPage: {{currentPage}}<br>
-      <label><input type="checkbox" ng-model="displaySyncTexBox">display SyncTex Box</label>
-      <input type="text" ng-model="scale">
+      <label ng-click="displaySyncTex()">display SyncTex Box</label>
     </div>
     <div class="figures" ng-switch-when="figures">
       <div class="figure" ng-repeat="n in range(totalPage) track by $index">
@@ -184,7 +184,7 @@
             <option value=".tex" selected>.tex</option>
             <option value=".bib">.bib</option>
           </select>
-          <button class="button" ng-disabled="new_file_name==null || new_file_name=''" ng-click="newFile(new_file_name+new_file_extension)" data-i18n="_New_file_"></button>
+          <button class="button" ng-disabled="new_file_name==null || new_file_name==''" ng-click="newFile(new_file_name+new_file_extension)" data-i18n="_New_file_"></button>
         </label>
       </section>
       <section id="upload_resource" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="file-hover">
