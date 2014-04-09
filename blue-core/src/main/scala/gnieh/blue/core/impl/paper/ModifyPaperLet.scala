@@ -35,12 +35,14 @@ import scala.util.{
   Success
 }
 
+import gnieh.sohva.control.CouchClient
+
 /** Handle JSON Patches that add/remove/modify people involved in the given paper, tags,
  *  branches, ...
  *
  *  @author Lucas Satabin
  */
-class ModifyPaperLet(paperId: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>

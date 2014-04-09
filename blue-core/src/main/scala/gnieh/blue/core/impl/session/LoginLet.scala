@@ -30,12 +30,14 @@ import scala.util.{
   Success
 }
 
+import gnieh.sohva.control.CouchClient
+
 /** Log the user in.
  *  It delegates to the CouchDB login system and keeps track of the CouchDB cookie
  *
  *  @author Lucas Satabin
  */
-class LoginLet(config: Config, logger: Logger) extends SyncBlueLet(config, logger) {
+class LoginLet(val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) {
 
   def act(talk: HTalk): Try[Any] = {
     implicit val t = talk

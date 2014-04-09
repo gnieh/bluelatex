@@ -31,11 +31,13 @@ import scala.util.{
   Success
 }
 
+import gnieh.sohva.control.CouchClient
+
 /** Generates a password reset token and send it per email.
  *
  *  @author Lucas Satabin
  */
-class GeneratePasswordReset(username: String, templates: Templates, mailAgent: MailAgent, config: Config, logger: Logger)
+class GeneratePasswordReset(username: String, templates: Templates, mailAgent: MailAgent, val couch: CouchClient, config: Config, logger: Logger)
     extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
@@ -47,9 +49,9 @@ class GeneratePasswordReset(username: String, templates: Templates, mailAgent: M
 
   override def unauthenticatedAct(implicit talk: HTalk): Try[Unit] =
     // generate reset token to send the link in an email
-    couchConfig.asAdmin { sess =>
+    couchConfig.asAdmin(couch) { sess =>
       val cal = Calendar.getInstance
-      cal.add(Calendar.MILLISECOND, couchConfig.tokenValidity)
+      cal.add(Calendar.SECOND, couchConfig.tokenValidity)
       sess.users.generateResetToken(username, cal.getTime) map {
         case Some(token) =>
           // send the link to reset the password in an email
@@ -59,7 +61,7 @@ class GeneratePasswordReset(username: String, templates: Templates, mailAgent: M
               "baseUrl" -> config.getString("blue.base_url"),
               "name" -> username,
               "token" -> token,
-              "validity" -> (couchConfig.tokenValidity / 24 / 3600 / 1000))
+              "validity" -> (couchConfig.tokenValidity / 24 / 3600))
           mailAgent.send(username, "Password Reset Requested", emailText)
           talk.writeJson(true)
         case None =>

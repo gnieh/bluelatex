@@ -29,6 +29,7 @@ import com.typesafe.config.Config
 
 import tiscaf._
 
+import gnieh.sohva.control.CouchClient
 
 import scala.io.Source
 
@@ -38,7 +39,7 @@ import scala.util.Try
  *
  *  @author Lucas Satabin
  */
-class GetUserPapersLet(username: String, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class GetUserPapersLet(username: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     // only authenticated users may see other people information

@@ -29,11 +29,13 @@ import scala.io.Source
 
 import scala.util.Try
 
+import gnieh.sohva.control.CouchClient
+
 /** Gives access to the synchronized resource list for the given paper.
  *
  *  @author Lucas Satabin
  */
-class SynchronizedResourcesLet(paperId: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class SynchronizedResourcesLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>

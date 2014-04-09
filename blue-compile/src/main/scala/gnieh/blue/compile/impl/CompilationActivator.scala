@@ -25,13 +25,15 @@ import scala.collection.mutable.ListBuffer
 import akka.actor._
 import akka.routing.{
   DefaultResizer,
-  RoundRobinRouter
+  RoundRobinPool
 }
 
 import common._
 import compiler._
 
 import http.RestApi
+
+import gnieh.sohva.control.CouchClient
 
 class CompilationActivator extends BundleActivator {
 
@@ -56,6 +58,7 @@ class CompilationActivator extends BundleActivator {
     for {
       loader <- context.get[ConfigurationLoader]
       system <- context.get[ActorSystem]
+      couch <- context.get[CouchClient]
       logger <- context.get[LogService]
     } {
       val config = loader.load(context.getBundle.getSymbolicName, self.getClass.getClassLoader)
@@ -63,28 +66,27 @@ class CompilationActivator extends BundleActivator {
       // create the dispatcher actor
       val disp =
         system.actorOf(
-          Props(new CompilationDispatcher(context, synchro, config, logger)),
+          Props(new CompilationDispatcher(context, couch, synchro, config, logger)),
           name = "compilation-dispatcher"
         )
       dispatcher = Option(disp)
       // create the system command actor
       val comm =
         system.actorOf(
-          Props(new SystemCommandActor(logger)).withRouter(
-            new RoundRobinRouter(
-              DefaultResizer(
-                config.getInt("tex.min-process"),
-                config.getInt("tex.max-process")
-              )
-            )
-          ),
+          RoundRobinPool(
+            0,
+            Some(DefaultResizer(
+              config.getInt("tex.min-process"),
+              config.getInt("tex.max-process")
+            ))
+          ).props(Props(new SystemCommandActor(logger))),
           name = "system-commands"
         )
       commands = Option(comm)
 
       // register the compilation Api
       services +=
-        context.registerService(classOf[RestApi], new CompilationApi(context, disp, config, logger), null)
+        context.registerService(classOf[RestApi], new CompilationApi(context, couch, disp, config, logger), null)
 
       // register the paper services
       services +=

@@ -34,10 +34,11 @@ import scala.util.Try
 
 import java.io.FileInputStream
 
+import gnieh.sohva.control.CouchClient
 
 import resource._
 
-class GetPngLet(paperId: String, page: Int, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class GetPngLet(paperId: String, page: Int, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   import FileUtils._
 

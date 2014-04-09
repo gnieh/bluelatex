@@ -29,10 +29,11 @@ import scala.util.Try
 
 import java.io.FileInputStream
 
+import gnieh.sohva.control.CouchClient
 
 import resource._
 
-class GetSyncTeXLet(paperId: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class GetSyncTeXLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   import FileUtils._
 

@@ -33,6 +33,8 @@ import scala.collection.{ mutable => mu }
 
 import com.typesafe.config.Config
 
+import java.util.concurrent.TimeUnit
+
 import gnieh.sohva.control.CookieSession
 
 /** The rest interface may be extended by \BlueLaTeX modules.
@@ -65,7 +67,7 @@ class ExtensibleApp(config: Config, system: ActorSystem) extends HApp {
 
   // session stuffs
   override def tracking = HTracking.Cookie
-  override def sessionTimeoutMinutes = config.getMinutes("blue.session-timeout")
+  override def sessionTimeoutMinutes = config.getDuration("blue.session-timeout", TimeUnit.MINUTES).toInt
   override def cookieKey = "BLUE_SESSIONID"
 
   override def onSessionInvalidate(sid: String, data: Map[Any, Any]) {

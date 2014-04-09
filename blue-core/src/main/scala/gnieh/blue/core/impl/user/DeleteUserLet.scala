@@ -37,13 +37,15 @@ import scala.util.{
   Success
 }
 
+import gnieh.sohva.control.CouchClient
+
 /** handles unregistration of a user.
  *  When a user unregisters, if there are papers for which he is the single author,
  *  the user cannot be unregistered and the process is aborted.
  *
  *  @author Lucas Satabin
  */
-class DeleteUserLet(username: String, context: BundleContext, config: Config, recaptcha: ReCaptcha, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class DeleteUserLet(username: String, context: BundleContext, val couch: CouchClient, config: Config, recaptcha: ReCaptcha, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   // TODO logging
 

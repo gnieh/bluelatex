@@ -25,6 +25,8 @@ import akka.actor._
 import common._
 import http._
 
+import gnieh.sohva.control.CouchClient
+
 /** Registers the synchro service
  *
  *  @author Lucas Satabin
@@ -39,6 +41,7 @@ class SyncServerActivator extends BundleActivator {
     for {
       loader <- context.get[ConfigurationLoader]
       system <- context.get[ActorSystem]
+      couch <- context.get[CouchClient]
       logger <- context.get[LogService]
     } {
       val config = loader.load(context.getBundle.getSymbolicName)
@@ -51,7 +54,7 @@ class SyncServerActivator extends BundleActivator {
       _server = Some(server)
 
       //register the Rest API
-      context.registerService(classOf[RestApi], new SyncApi(config, server, logger), null)
+      context.registerService(classOf[RestApi], new SyncApi(couch, config, server, logger), null)
     }
 
   def stop(context: BundleContext): Unit =

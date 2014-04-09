@@ -43,11 +43,13 @@ import scala.util.{
   Success
 }
 
+import gnieh.sohva.control.CouchClient
+
 /** Delete an existing paper.
  *
  *  @author Lucas Satabin
  */
-class DeletePaperLet(paperId: String, context: BundleContext, config: Config, recaptcha: ReCaptcha, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class DeletePaperLet(paperId: String, context: BundleContext, val couch: CouchClient, config: Config, recaptcha: ReCaptcha, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>

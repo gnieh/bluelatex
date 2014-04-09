@@ -33,6 +33,7 @@ import net.liftweb.json._
 import scala.util.{Try, Failure, Success}
 
 import gnieh.sohva.UserInfo
+import gnieh.sohva.control.CouchClient
 
 /** Legacy compatibility let, allowing mobwrite clients to synchronize papers
  *  with the new implementation.
@@ -45,7 +46,7 @@ import gnieh.sohva.UserInfo
  *
  *  @author Lucas Satabin
  */
-class QLet(paperId: String, synchroServer: SynchroServer, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class QLet(paperId: String, synchroServer: SynchroServer, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   override implicit val formats =
     BlueLet.formats +

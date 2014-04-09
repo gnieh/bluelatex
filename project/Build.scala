@@ -66,8 +66,8 @@ class BlueBuild extends Build with Pack with Server with Tests {
     "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
     "commons-collections" % "commons-collections" % "3.2.1",
     "org.fusesource.scalate" %% "scalate-core" % "1.6.1",
-    "com.typesafe.akka" %% "akka-osgi" % "2.2.3",
-    "org.gnieh" %% "sohva-client" % "0.5",
+    "com.typesafe.akka" %% "akka-osgi" % "2.3.1",
+    "org.gnieh" %% "sohva-client" % "1.0.0-SNAPSHOT",
     "org.gnieh" %% "diffson" % "0.2",
     "javax.mail" % "mail" % "1.4.7",
     "ch.qos.logback" % "logback-classic" % "1.0.13",
@@ -77,7 +77,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
     "org.osgi" % "org.osgi.compendium" % "4.3.0" % "provided",
     "com.typesafe" % "config" % "1.0.2",
     "org.scalatest" %% "scalatest" % "2.0.M6" % "test",
-    "com.typesafe.akka" %% "akka-testkit" % "2.2.3" % "test"
+    "com.typesafe.akka" %% "akka-testkit" % "2.3.1" % "test"
   )
 
   lazy val blueMobwrite =

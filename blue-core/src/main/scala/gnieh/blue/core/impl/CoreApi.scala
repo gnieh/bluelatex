@@ -29,6 +29,8 @@ import akka.actor.ActorSystem
 
 import org.osgi.framework.BundleContext
 
+import gnieh.sohva.control.CouchClient
+
 /** The core Api providing features to:
  *   - manage users
  *   - manage sessions
@@ -36,42 +38,50 @@ import org.osgi.framework.BundleContext
  *
  *  @author Lucas Satabin
  */
-class CoreApi(config: Config, system: ActorSystem, context: BundleContext, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha, logger: Logger) extends RestApi {
+class CoreApi(
+  couch: CouchClient,
+  config: Config,
+  system: ActorSystem,
+  context: BundleContext,
+  templates: Templates,
+  mailAgent: MailAgent,
+  recaptcha: ReCaptcha,
+  logger: Logger) extends RestApi {
 
   POST {
     // registers a new user
     case p"users" =>
-      new RegisterUserLet(config, context, templates, mailAgent, recaptcha, logger)
+      new RegisterUserLet(couch, config, context, templates, mailAgent, recaptcha, logger)
     // performs password reset
     case p"users/$username/reset" =>
-      new ResetUserPassword(username, config, logger)
+      new ResetUserPassword(username, couch, config, logger)
     // creates a new paper
     case p"papers" =>
-      new CreatePaperLet(config, context, templates, logger)
+      new CreatePaperLet(couch, config, context, templates, logger)
     // join a paper
     case p"papers/$paperid/join" =>
-      new JoinPaperLet(paperid, system, config, logger)
+      new JoinPaperLet(paperid, system, couch, config, logger)
     // leave a paper
     case p"papers/$paperid/part" =>
-      new PartPaperLet(paperid, system, config, logger)
+      new PartPaperLet(paperid, system, couch, config, logger)
     // log a user in
     case p"session" =>
-      new LoginLet(config, logger)
+      new LoginLet(couch, config, logger)
     // save a non synchronized resource
     case p"papers/$paperid/files/resources/$resourcename" =>
-      new SaveResourceLet(paperid, resourcename, config, logger)
+      new SaveResourceLet(paperid, resourcename, couch, config, logger)
   }
 
   PATCH {
     // save the data for the authenticated user
     case p"users/$username/info" =>
-      new ModifyUserLet(username, config, logger)
+      new ModifyUserLet(username, couch, config, logger)
     // add or remove people involved in this paper (authors, reviewers), change modules, tag, branch, ...
     case p"papers/$paperid/info" =>
-      new ModifyPaperLet(paperid, config, logger)
+      new ModifyPaperLet(paperid, couch, config, logger)
   }
 
-  private val GetUsersLet = new GetUsersLet(config, logger)
+  private val GetUsersLet = new GetUsersLet(couch, config, logger)
 
   GET {
     // gets the list of users matching the given pattern
@@ -79,47 +89,47 @@ class CoreApi(config: Config, system: ActorSystem, context: BundleContext, templ
       GetUsersLet
     // gets the data of the given user
     case p"users/$username/info" =>
-      new GetUserInfoLet(username, config, logger)
+      new GetUserInfoLet(username, couch, config, logger)
     // gets the list of papers the given user is involved in
     case p"users/$username/papers" =>
-      new GetUserPapersLet(username, config, logger)
+      new GetUserPapersLet(username, couch, config, logger)
     // generates a password reset token
     case p"users/$username/reset" =>
-      new GeneratePasswordReset(username, templates, mailAgent, config, logger)
+      new GeneratePasswordReset(username, templates, mailAgent, couch, config, logger)
     // gets the currently logged in user information
     case p"session" =>
-      new GetSessionDataLet(config, logger)
+      new GetSessionDataLet(couch, config, logger)
     // gets the list of people involved in this paper with their role, the currently
     // enabled modules, the tags, the branch, ...
     case p"papers/$paperid/info" =>
-      new GetPaperInfoLet(paperid, config, logger)
+      new GetPaperInfoLet(paperid, couch, config, logger)
     // downloads a zip archive containing the paper files
     case p"papers/$paperid/zip" =>
-      new BackupPaperLet("zip", paperid, config, logger)
+      new BackupPaperLet("zip", paperid, couch, config, logger)
     // downloads the list of synchronized resources
     case p"papers/$paperid/files/synchronized" =>
-      new SynchronizedResourcesLet(paperid, config, logger)
+      new SynchronizedResourcesLet(paperid, couch, config, logger)
     // downloads the list of non synchronized resources
     case p"papers/$paperid/files/resources" =>
-      new NonSynchronizedResourcesLet(paperid, config, logger)
+      new NonSynchronizedResourcesLet(paperid, couch, config, logger)
     // gets a non synchronized resource
     case p"papers/$paperid/files/resources/$resourcename" =>
-      new GetResourceLet(paperid, resourcename, config, logger)
+      new GetResourceLet(paperid, resourcename, couch, config, logger)
   }
 
   DELETE {
     // unregisters the authenticated user
     case p"users/$username" =>
-      new DeleteUserLet(username, context, config, recaptcha, logger)
+      new DeleteUserLet(username, context, couch, config, recaptcha, logger)
     // log a user out
     case p"session" =>
-      new LogoutLet(config, logger)
+      new LogoutLet(couch, config, logger)
     // deletes a paper
     case p"papers/$paperid" =>
-      new DeletePaperLet(paperid, context, config, recaptcha, logger)
+      new DeletePaperLet(paperid, context, couch, config, recaptcha, logger)
     // deletes a non synchronized resource
     case p"papers/$paperid/files/resources/$resourcename" =>
-      new DeleteResourceLet(paperid, resourcename, config, logger)
+      new DeleteResourceLet(paperid, resourcename, couch, config, logger)
   }
 
 }

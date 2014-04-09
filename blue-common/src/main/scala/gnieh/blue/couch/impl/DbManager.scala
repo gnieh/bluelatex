@@ -19,18 +19,20 @@ package impl
 
 import common._
 
+import gnieh.sohva.control._
+
 /** the database manager is in charge of database creation and designs management.
  *
  *  @author Lucas Satabin
  */
-class DbManager(configuration: CouchConfiguration, val logger: Logger) extends Logging {
+class DbManager(client: CouchClient, configuration: CouchConfiguration, val logger: Logger) extends Logging {
 
   /** Starts the database manager.
    *  It creates the databases that need to be created and update all
    *  needed design documents
    */
   def start() {
-    configuration.asAdmin { session =>
+    configuration.asAdmin(client) { session =>
       configuration.databases.foreach { db =>
         try {
           // first create inexistent databases

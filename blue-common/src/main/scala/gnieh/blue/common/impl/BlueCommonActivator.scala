@@ -25,12 +25,16 @@ import org.osgi.service.log.LogService
 
 import akka.actor.ActorSystem
 import akka.osgi.ActorSystemActivator
+import akka.util._
+
+import scala.concurrent.duration._
 
 import org.slf4j.LoggerFactory
 import ch.qos.logback.classic.LoggerContext
 import ch.qos.logback.classic.joran.JoranConfigurator
 
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 import com.typesafe.config._
 
@@ -72,23 +76,24 @@ class BlueCommonActivator extends ActorSystemActivator {
 
     for(logger <- context.get[Logger]) {
       val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
-      println(config)
+
+      // register the couch client service
+      val client = couch(system, config)
+      context.registerService(classOf[CouchClient], client, null)
+
       // create the database, etc...
-      dbManager = Some(new DbManager(new CouchConfiguration(config), logger))
+      dbManager = Some(new DbManager(client, new CouchConfiguration(config), logger))
       dbManager.foreach(_.start())
 
       val configuration = new BlueConfiguration(config)
 
       // register the mail agent client
-      val mailAgent = new MailAgentImpl(configuration)
+      val mailAgent = new MailAgentImpl(client, configuration)
       context.registerService(classOf[MailAgent], mailAgent, null)
 
       // register the recaptcha service
       val recaptcha = new ReCaptchaUtilImpl(configuration)
       context.registerService(classOf[ReCaptcha], recaptcha, null)
-
-      // register the couch client service
-      context.registerService(classOf[CouchClient], couch(config), null)
 
       // create and start the http server
       server = Some(new BlueServer(context, system, config, logger))
@@ -124,11 +129,12 @@ class BlueCommonActivator extends ActorSystemActivator {
     context.getBundle(0).stop
   }
 
-  private def couch(config: Config): CouchClient = {
+  private def couch(system: ActorSystem, config: Config): CouchClient = {
     val hostname = config.getString("couch.hostname")
     val port = config.getInt("couch.port")
     val ssl = config.getBoolean("couch.ssl")
-    val c = new CouchClient(host = hostname, port = port, ssl = ssl)
+    val timeout = Timeout(config.getDuration("couch.timeout", TimeUnit.SECONDS).seconds)
+    val c = new CouchClient(host = hostname, port = port, ssl = ssl)(system, timeout)
     couch = Some(c)
     c
   }

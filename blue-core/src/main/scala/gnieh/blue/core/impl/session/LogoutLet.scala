@@ -27,12 +27,14 @@ import tiscaf._
 
 import scala.util.Try
 
+import gnieh.sohva.control.CouchClient
+
 /** Log the user in.
  *  It delegates to the CouchDB login system and keeps track of the CouchDB cookie
  *
  *  @author Lucas Satabin
  */
-class LogoutLet(config: Config, logger: Logger) extends SyncBlueLet(config, logger) {
+class LogoutLet(val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) {
 
   def act(talk: HTalk): Try[Unit] =
     couchSession(talk).logout map {

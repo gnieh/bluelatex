@@ -31,16 +31,18 @@ import scala.util.{
   Failure
 }
 
+import gnieh.sohva.control._
+
 /** Encapsulates the logic to send emails from the \Blue platform
  *
  * @author Lucas Satabin
  */
-class MailAgentImpl(configuration: BlueConfiguration) extends MailAgent {
+class MailAgentImpl(couch: CouchClient, configuration: BlueConfiguration) extends MailAgent {
 
   /** Returns the list of all email addresses */
   private def retrieveEmail(username: String): Option[String] = {
     val couchConf = configuration.couch
-    couchConf.couch.database(couchConf.database("blue_users"))
+    couch.database(couchConf.database("blue_users"))
       .design("lists")
       .view[String, String, Nothing]("emails")
       .query(key = Some(s"org.couchdb.user:$username")) match {

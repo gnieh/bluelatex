@@ -35,6 +35,8 @@ import com.typesafe.config.Config
 import org.osgi.framework.BundleContext
 import org.osgi.service.log.LogService
 
+import gnieh.sohva.control.CouchClient
+
 /** The compilation system actor is responsible for managing
  *  the compilation actor for each paper
  *
@@ -42,6 +44,7 @@ import org.osgi.service.log.LogService
  */
 class CompilationDispatcher(
   bndContext: BundleContext,
+  couch: CouchClient,
   synchro: SynchroServer,
   config: Config,
   val logger: Logger
@@ -52,7 +55,7 @@ class CompilationDispatcher(
   val couchConf = new CouchConfiguration(config)
   import couchConf._
 
-  def props(username: String, paperId: String) = asAdmin { session =>
+  def props(username: String, paperId: String) = asAdmin(couch) { session =>
     // get the compiler settings
     val db = session.database(database("blue_papers"))
     for(settings <- getOrCreateSettings(paperId, db))

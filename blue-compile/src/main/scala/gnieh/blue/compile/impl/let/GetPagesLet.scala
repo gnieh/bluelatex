@@ -35,11 +35,13 @@ import org.apache.pdfbox.pdmodel.PDDocument
 
 import resource._
 
+import gnieh.sohva.control.CouchClient
+
 /** Handle request that ask for the number of pages in the compiled paper.
  *
  *  @author Lucas Satabin
  */
-class GetPagesLet(paperId: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class GetPagesLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   import FileUtils._
 

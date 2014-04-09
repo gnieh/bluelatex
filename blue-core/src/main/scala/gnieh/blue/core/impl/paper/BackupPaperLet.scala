@@ -39,11 +39,13 @@ import common._
 
 import scala.util.Try
 
+import gnieh.sohva.control.CouchClient
+
 /** Backup the paper sources as a zip file
  *
  *  @author Lucas Satabin
  */
-class BackupPaperLet(format: String, paperId: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class BackupPaperLet(format: String, paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>

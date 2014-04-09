@@ -31,6 +31,7 @@ import scala.util.{
   Failure
 }
 
+import gnieh.sohva.control.CouchClient
 
 import gnieh.diffson.JsonPatch
 
@@ -38,7 +39,7 @@ import gnieh.diffson.JsonPatch
  *
  *  @author Lucas Satabin
  */
-class ModifyCompilerLet(paperId: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class ModifyCompilerLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>

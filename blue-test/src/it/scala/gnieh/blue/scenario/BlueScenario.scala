@@ -39,6 +39,10 @@ import net.liftweb.json._
 
 import java.io.File
 
+import akka.actor.ActorSystem
+import akka.util.Timeout
+import scala.concurrent.duration._
+
 /** Extend this class to implement a test scenario for a feature of \BlueLaTeX.
  *  It provides the environment that allows you to interact with the server and
  *  check that it runs ok.
@@ -60,8 +64,14 @@ abstract class BlueScenario extends FeatureSpec
 
   private var cookie: Option[Cookie] = None
 
+  implicit val system = ActorSystem()
+
+  implicit val timeout = Timeout(20.seconds)
+
+  lazy val ccouch = new CouchClient(port = couchPort)
+
   lazy val couch = {
-    val sess = new CouchClient(port = couchPort).startCookieSession
+    val sess = ccouch.startCookieSession
     sess.login(admin, password)
     sess
   }
@@ -104,6 +114,8 @@ abstract class BlueScenario extends FeatureSpec
     val paperDocs = papersDb._all_docs().filter(!_.startsWith("_design/"))
     if(paperDocs.nonEmpty)
       papersDb.deleteDocs(paperDocs)
+    ccouch.shutdown()
+    system.shutdown()
   }
 
   type AsyncResult[T] = Future[Result[T]]

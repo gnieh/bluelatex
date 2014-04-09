@@ -24,15 +24,10 @@ import java.io.File
 
 import scala.collection.JavaConverters._
 
+import java.util.concurrent.TimeUnit
+
 /** The couchdb configuration part */
 class CouchConfiguration(val config: Config) {
-
-  val couch = {
-    val hostname = config.getString("couch.hostname")
-    val port = config.getInt("couch.port")
-    val ssl = config.getBoolean("couch.ssl")
-    new CouchClient(host = hostname, port = port, ssl = ssl)
-  }
 
   val couchAdminName = config.getString("couch.admin-name")
 
@@ -40,14 +35,14 @@ class CouchConfiguration(val config: Config) {
 
   val couchDesigns = new File(config.getString("couch.design.dir"))
 
-  def adminSession = {
-    val sess = couch.startCookieSession
+  def adminSession(client: CouchClient) = {
+    val sess = client.startCookieSession
     sess.login(couchAdminName, couchAdminPassword)
     sess
   }
 
-  def asAdmin[T](code: CookieSession => T) = {
-    val sess = adminSession
+  def asAdmin[T](client: CouchClient)(code: CookieSession => T) = {
+    val sess = adminSession(client)
     try {
       code(sess)
     } finally {
@@ -74,8 +69,9 @@ class CouchConfiguration(val config: Config) {
   val defaultRoles =
     config.getList("couch.user.roles").unwrapped.asScala.map(_.toString).toList
 
+  /** The reset password token validity in seconds */
   val tokenValidity =
-    config.getMilliseconds("couch.user.token_validity").toInt
+    config.getDuration("couch.user.token-validity", TimeUnit.SECONDS).toInt
 
 }
 

@@ -32,11 +32,13 @@ import scala.io.Source
 
 import scala.util.Try
 
+import gnieh.sohva.control.CouchClient
+
 /** Return a (potentially filtered) list of user names.
  *
  *  @author Lucas Satabin
  */
-class GetUsersLet(config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class GetUsersLet(val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] = {
     val userNames = view[String, String, Any](blue_users, "lists", "names")
