@@ -31,11 +31,7 @@ import scala.util.Try
 object ProtocolTranslator {
 
   private implicit class ExtractorContext(val sc: StringContext) {
-    object re {
-      val regex = sc.parts.mkString("([^:]+|.*)").r
-      def unapplySeq(s: String): Option[Seq[String]] =
-        regex.unapplySeq(s)
-    }
+    def re = sc.parts.mkString.r
   }
 
   private object name {
@@ -66,7 +62,7 @@ object ProtocolTranslator {
                   commandsAcc: List[Command],
                   sessionsAcc: List[SyncSession]): List[SyncSession] = commands match {
 
-      case re"(?:u|U):${name(peerId)}" :: rest =>
+      case re"(?:u|U):(.*)${name(peerId)}" :: rest =>
         val sessions = currentPeer match {
           case Some(peer) if commandsAcc.nonEmpty =>
             SyncSession(peer, paperId, commandsAcc.reverse) :: sessionsAcc
@@ -75,13 +71,13 @@ object ProtocolTranslator {
         }
         translate(rest, Some(peerId), currentFile, currentRevision, Nil, sessions)
 
-      case re"(?:f|F):${long(rev)}:${name(file)}" :: rest =>
+      case re"(?:f|F):(\d+)${long(rev)}:(.*)${name(file)}" :: rest =>
         translate(rest, currentPeer, Some(file), Some(rev), commandsAcc, sessionsAcc)
 
-      case re"(?:f|F):${name(file)}" :: rest =>
+      case re"(?:f|F):(.*)${name(file)}" :: rest =>
         translate(rest, currentPeer, Some(file), None, commandsAcc, sessionsAcc)
 
-      case re"d:${long(rev)}:$delta" :: rest =>
+      case re"d:(\d+)${long(rev)}:(.*)$delta" :: rest =>
         val commands = (currentFile, currentRevision) match {
           case (Some(file), Some(frev)) =>
             val edits = EditCommandParsers.parseEdits(delta)
@@ -94,7 +90,7 @@ object ProtocolTranslator {
         }
         translate(rest, currentPeer, currentFile, currentRevision, commands, sessionsAcc)
 
-      case re"D:${long(rev)}:$delta" :: rest =>
+      case re"D:(\d+)${long(rev)}:(.*)$delta" :: rest =>
         val commands = (currentFile, currentRevision) match {
           case (Some(file), Some(frev)) =>
             val edits = EditCommandParsers.parseEdits(delta)
@@ -107,7 +103,7 @@ object ProtocolTranslator {
         }
         translate(rest, currentPeer, currentFile, currentRevision, commands, sessionsAcc)
 
-      case re"r:${long(rev)}:$content" :: rest =>
+      case re"r:(\d+)${long(rev)}:(.*)$content" :: rest =>
         val commands = (currentFile, currentRevision) match {
           case (Some(file), Some(frev)) =>
             SyncCommand(file, frev, Raw(rev, content, false)) :: commandsAcc
@@ -118,7 +114,7 @@ object ProtocolTranslator {
         }
         translate(rest, currentPeer, currentFile, currentRevision, commands, sessionsAcc)
 
-      case re"R:${long(rev)}:$content" :: rest =>
+      case re"R:(\d+)${long(rev)}:(.*)$content" :: rest =>
         val commands = (currentFile, currentRevision) match {
           case (Some(file), Some(frev)) =>
             SyncCommand(file, frev, Raw(rev, content, true)) :: commandsAcc
@@ -129,11 +125,11 @@ object ProtocolTranslator {
         }
         translate(rest, currentPeer, currentFile, currentRevision, commands, sessionsAcc)
 
-      case re"(?:n|N):${name(file)}" :: rest =>
+      case re"(?:n|N):(.*)${name(file)}" :: rest =>
         val commands = SyncCommand(file, -1, Nullify) :: commandsAcc
         translate(rest, currentPeer, currentFile, currentRevision, commands, sessionsAcc)
 
-      case re"(?:m|M):${obj(content)}" :: rest =>
+      case re"(?:m|M):(.*)${obj(content)}" :: rest =>
         val commands = Message(currentPeer.getOrElse(""), content, true, currentFile) :: commandsAcc
         translate(rest, currentPeer, currentFile, currentRevision, commands, sessionsAcc)
 
