@@ -11,6 +11,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         'revision': "=revision",
         'currentPage': "=currentpage",
         'currentLine': "=currentline",
+        'currentFile': "=currentfile",
         'displaysynctexbox': "@"
       },
       'controller': function($scope) {
@@ -21,14 +22,15 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
 
         $scope.hightlights = [];
 
-        var updateHightlight = function(line) {
+        var updateHightlight = function(file, line) {
           $scope.hightlights = [];
           $scope.$apply();
           if(!pdfDimension) return;
           if(!$scope.synctex) return;
           if(!$scope.synctex.blockNumberLine) return;
-          if(!$scope.synctex.blockNumberLine[line]) return;
-          var elems = $scope.synctex.blockNumberLine[line];
+          if(!$scope.synctex.blockNumberLine[file]) return;
+          if(!$scope.synctex.blockNumberLine[file][line]) return;
+          var elems = $scope.synctex.blockNumberLine[file][line];
 
           if(!isArray(elems) || !elems[0]) return;
 
@@ -77,13 +79,15 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
 
             var left = elems[line.minLeft].left;
             if(minPosition <= 1) {
-              width += left - elems[line.minLeft].parent.left;
               left = elems[line.minLeft].parent.left;
             } else if(elems[line.minLeft-1]){
-              width += left - elems[line.minLeft-1].left;
               left = elems[line.minLeft-1].left;
             }
             var width = elems[line.maxLeft].left-left;
+
+            if(maxPosition<max && elems[line.maxLeft-1]) {
+              width = elems[line.maxLeft-1].left-left;
+            }
 
             var s1 = convertToViewportPoint(left, line.bottom, pdfDimension);
             var s2 = convertToViewportPoint(width, line.height, pdfDimension);
@@ -100,7 +104,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
 
         $scope.$watch("currentLine", function (line) {
           if(!line) return;
-          updateHightlight(line);
+          updateHightlight($scope.currentFile.title, line);
         });
         $scope.$watch("revision", function () {
           if(pdf)
@@ -135,7 +139,8 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
             scale: ratio,
             height: viewport.height
           };
-          updateHightlight($scope.currentLine);
+
+          updateHightlight($scope.currentFile.title, $scope.currentLine);
           //Set the canvas height and width to the height and width of the viewport
           var context = canvas.getContext("2d");
           containerDiv.style.height = viewport.height+"px";
@@ -197,7 +202,8 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
                 scale: img.width/(img.naturalWidth*0.72),
                 height: img.height
               };
-              updateHightlight($scope.currentLine);
+
+              updateHightlight($scope.currentFile.title, $scope.currentLine);
             }
           }
         };
@@ -253,15 +259,23 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
                 var e = hBlock.elements[i];
                 if(e.left >= x && hBlock.elements[i-1].left <= x ) {
                   $scope.currentLine = (i!=(hBlock.elements.length - 3)?hBlock.elements[i+1].line:e.line);
-                  $scope.$parent.$parent.goToLine($scope.currentLine);
-                  $scope.$apply();
+                  $scope.$parent.$parent.changeFileFromName(hBlock.file.name);
+                  (function(line) {
+                    setTimeout(function(arguments) {
+                      $scope.$parent.$parent.goToLine(line);
+                    }, 750);
+                  })($scope.currentLine);
                   return;
                 }
               }
               if(hBlock.elements[1]) {
                 $scope.currentLine = hBlock.elements[1].line;
-                $scope.$parent.$parent.goToLine(hBlock.elements[1].line);
-                $scope.$apply();
+                $scope.$parent.$parent.changeFileFromName(hBlock.file.name);
+                (function(line) {
+                  setTimeout(function(arguments) {
+                    $scope.$parent.$parent.goToLine(line);
+                  }, 750);
+                })($scope.currentLine);
                 return;
               }
               break;

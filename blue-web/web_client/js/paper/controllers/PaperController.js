@@ -353,8 +353,9 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         AceService.goToLine(line);
         $scope.currentLine = line;
         if(!$scope.synctex) return;
-        if(!$scope.synctex.blockNumberLine[$scope.currentLine]) return;
-        $scope.currentPage = $scope.synctex.blockNumberLine[$scope.currentLine][0].page;
+        if(!$scope.synctex.blockNumberLine[$scope.currentFile.title]) return;
+        if(!$scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine]) return;
+        $scope.currentPage = $scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine][0].page;
       };
       $scope.new_file_extension = '.tex';
 
@@ -427,8 +428,9 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
             $scope.$apply(function() {
               $scope.currentLine = _editor.selection.getCursor().row+1;
               if(!$scope.synctex) return;
-              if(!$scope.synctex.blockNumberLine[$scope.currentLine]) return;
-              $scope.currentPage = $scope.synctex.blockNumberLine[$scope.currentLine][0].page;
+              if(!$scope.synctex.blockNumberLine[$scope.currentFile.title]) return;
+              if(!$scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine]) return;
+              $scope.currentPage = $scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine][0].page;
             });
           });
           setTimeout(function () {
