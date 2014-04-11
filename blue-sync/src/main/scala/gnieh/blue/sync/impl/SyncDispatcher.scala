@@ -330,11 +330,11 @@ class SyncActor(
                                           false)))
       } else {
         // Force overwrite client
-        val text = unescapeForEncodeUriCompatability(mastertext)
+        val text = encodeUriCompatibility(mastertext)
         view.edits.append(SyncCommand(filename,
                                       view.serverShadowRevision,
                                       Raw(view.serverShadowRevision,
-                                          mastertext,
+                                          text,
                                           true)))
       }
     }
@@ -348,12 +348,12 @@ class SyncActor(
   }
 
   /**
-   * Unescape selected chars for compatability with JavaScript's encodeURI.
+   * Unescape selected chars for compatibility with JavaScript's encodeURI.
    * Taken from "Diff Match Patch" java's implementation by Neil Fraser.
    * @param str The string to escape.
    * @return The escaped string.
    */
-  private def unescapeForEncodeUriCompatability(str: String): String = {
+  private def encodeUriCompatibility(str: String): String = {
     return URLEncoder.encode(str, "UTF-8")
         .replace("%21", "!").replace("%7E", "~")
         .replace("%27", "'").replace("%28", "(").replace("%29", ")")

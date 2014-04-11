@@ -276,6 +276,23 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       documentText should not be(None)
       documentText.get should be("tête")
     }
+
+    scenario("error during synchronization session for content with accent") {
+
+      Given("a synchronization actor with an existing paper")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+      syncActor ! SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "t%C3%AAte", false))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(4)), false)))))
+
+      And("a message with invalid revision for a the paper")
+      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 42, Delta(0, List(Delete(5), Add("t%C3%AAte")), false))))
+
+      When("the message is sent")
+      syncActor ! request
+
+      Then("the actor should detect the invalid revision and send Raw version")
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Raw(1, "t%C3%AAte", true)))))
+    }
   }
 
   feature("A synchronization actor should handle broadcast messages between clients") {
