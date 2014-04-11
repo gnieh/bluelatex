@@ -504,7 +504,7 @@ a:hover {
 .messages {
 
 }
-.error,.warning,.message {
+.messagesPanel .error,.messagesPanel .warning,.messagesPanel .message {
     background: #BB4545;
     color: #fff;
     padding: 4px 0;
@@ -512,13 +512,13 @@ a:hover {
     padding: 10px;
     font-size: 15px;
 }
-.warning {
+.messagesPanel .warning {
     background: #D68100;
 }
-.message {
+.messagesPanel .message {
     background: #6E99F5;
 }
-.error .close,.warning .close,.message .close {
+.messagesPanel .error .close,.messagesPanel .warning .close,.messagesPanel .message .close {
     float: right;
     cursor: pointer;
 }

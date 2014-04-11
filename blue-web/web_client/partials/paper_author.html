@@ -62,6 +62,32 @@
         </div>
       </div>
       <div class="option" ng-click="openItsalltext()" data-i18n="_Emacs_users_"></div>
+      <div class="errors subOption" ng-show="errors.length > 0">
+        <div class="label">
+          <span data-i18n="_Errors_"></span> {{errors.length}}
+        </div>
+        <label><input type="checkbox" name="errors" ng-model="errorsList"><span class="icon-down-empty"></span></label>
+        <div class="subOptions" ng-show="errorsList">
+          <label class="bg"><input type="checkbox" name="errors" ng-model="errorsList"></label>
+          <div class="error" ng-repeat="err in errors">
+            <div class="file">{{err.filename }} line: {{err.line}}</div>
+            <div class="message">{{err.message}}</div>
+          </div>
+        </div>
+      </div>
+      <div class="warnings subOption" ng-show="warnings.length > 0">
+        <div class="label">
+          <span data-i18n="_Warnings_"></span> {{warnings.length}}
+        </div>
+        <label><input type="checkbox" name="warnings" ng-model="warningsList"><span class="icon-down-empty"></span></label>
+        <div class="subOptions" ng-show="warningsList">
+          <label class="bg"><input type="checkbox" name="warnings" ng-model="warningsList"></label>
+          <div class="warning" ng-repeat="war in warnings">
+            <div class="file">{{war.filename}} line: {{war.line}}</div>
+            <div class="message">{{war.message}}</div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="right">
       <div class="messages" bl-messages></div>

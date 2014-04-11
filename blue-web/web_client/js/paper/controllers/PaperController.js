@@ -22,7 +22,9 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       $scope.pdfURL = PaperService.getPDFUrl(paper_id);
       $scope.logURL = PaperService.getLogUrl(paper_id);
       $scope.currentFile = {};
-      $scope.status = "author";
+      $scope.status = "load";
+      $scope.warnings = [];
+      $scope.errors = [];
 
       $scope.displaySyncTexBox = true;
 
@@ -90,24 +92,31 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         });
       };
 
+      var displayAnnotation = function() {
+        AceService.getSession().setAnnotations([]);
+        var annotations = [];
+        for (var i = 0; i < $scope.logs.all.length; i++) {
+          var error = $scope.logs.all[i];
+          if(error.filename != $scope.currentFile.title) continue;
+          annotations.push({
+            row: error.line - 1,
+            column: 1,
+            text: error.message,
+            type: (error.level=="error")?"error":'warning' // also warning and information
+          });
+        }
+        AceService.getSession().setAnnotations(annotations);
+      };
+
       /*
       * Download the log file
       */
       var getLog = function () {
-        AceService.getSession().setAnnotations([]);
         PaperService.getLog(paper_id).then(function (data) {
-          var logs = LatexParser.parse(data,{});
-          var annotations = [];
-          for (var i = 0; i < logs.all.length; i++) {
-            var error = logs.all[i];
-            annotations.push({
-              row: error.line - 1,
-              column: 1,
-              text: error.message,
-              type: (error.level=="error")?"error":'warning' // also warning and information
-            });
-          }
-          AceService.getSession().setAnnotations(annotations);
+          $scope.logs = LatexParser.parse(data,{});
+          $scope.warnings = $scope.logs.warnings;
+          $scope.errors = $scope.logs.errors;
+          displayAnnotation();
         });
       };
 
@@ -146,7 +155,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         var file_name = PaperService.getResourceUrl(paper_id,paper_id+".tex");
         PaperService.downloadRessource(file_name).then(function (data) {
           $scope.content = data;
-          getLog();
+
           if(callback) {
             callback();
           }
@@ -277,6 +286,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         $scope.content = '';
         AceService.setContent($scope.content);
         initMobWrite();
+        setTimeout(displayAnnotation, 1000);
       };
 
       $scope.changeFileFromName = function(filename) {
@@ -425,6 +435,8 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
             $scope.itsalltextClass = (document.querySelector(".centerCol .itsalltext") && document.querySelector(".centerCol .itsalltext").id)?'':'hidden';
             $scope.$apply();
           },1500);
+          getLog();
+          setTimeout(displayAnnotation, 1000);
           $scope.toc = AceService.getToc();
           AceService.getSession().on("change", function () {
             $scope.toc = AceService.getToc();

@@ -733,5 +733,15 @@
         "key":"_Edit_profile_No_revision_obsolete_revision_was_provided_in_the_request_",
         "value":"The current revision is obsolete. Please refresh the page.",
         "description":"_Edit_profile_No_revision_obsolete_revision_was_provided_in_the_request_"
+    },
+    {
+        "key":"_Errors_",
+        "value":"Errors",
+        "description":"Errors"
+    },
+    {
+        "key":"_Warnings_",
+        "value":"Warnings",
+        "description":"Warnings"
     }
 ]

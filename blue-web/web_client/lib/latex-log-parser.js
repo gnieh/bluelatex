@@ -104,6 +104,7 @@ var LatexParser = function (text, options) {
           this.currentError = {
             line: null,
             file: this.currentFilePath,
+            filename: this.currentFilePath.replace(/^.*[\\\/]/, ''),
             level: "error",
             message: this.currentLine.slice(2),
             content: "",
@@ -197,6 +198,7 @@ var LatexParser = function (text, options) {
 
           var newFile = {
             path: filePath,
+            name: filePath.replace(/^.*[\\\/]/, ''),
             files: []
           };
           this.fileStack.push(newFile);

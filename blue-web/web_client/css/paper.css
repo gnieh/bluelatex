@@ -250,7 +250,7 @@ div.preview_page_container img {
     position: relative;
     height: 100%;
     float: left;
-    margin-right: 6px;
+    padding-left: 6px;
     -webkit-user-select: none;  /* Chrome all / Safari all */
     -moz-user-select: none;     /* Firefox all */
     -ms-user-select: none;      /* IE 10+ */
@@ -266,7 +266,7 @@ div.preview_page_container img {
     z-index: 0;
     border-radius: 0 0 2px 2px;
 }
-.subOption .subOptions div {
+.subOption .subOptions > div {
     padding: 3px 7px;
     border-bottom: 1px solid #DDD;
     cursor: pointer;
@@ -306,7 +306,7 @@ div.subOptions > div:last-child {
 }
 .subOption > label {
     cursor: pointer;
-    padding: 11px 0px;
+    padding: 12px 0px;
 }
 .subOption > label:hover {
     background: rgba(0,0,0,0.2);
@@ -318,6 +318,15 @@ div.subOptions > div:last-child {
 }
 .subOption > label input {
     display: none;
+}
+.subOption.errors{
+    background: #BB4545;
+}
+.subOption.errors > .label, .subOption.warnings > .label{
+    color: #fff;
+}
+.subOption.warnings {
+    background: #D68100;
 }
 #paper .top.options .option {
     position: relative;

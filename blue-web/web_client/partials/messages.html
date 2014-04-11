@@ -1,4 +1,4 @@
-<div ng-controller="MessagesController">
+<div class="messagesPanel" ng-controller="MessagesController">
   <div ng-show="messages.length > 0" class="messages">
     <div ng-repeat="message in messages" class="message"><span ng-bind-html="message"></span> <span class="icon-close close" ng-click="close(message)"></span></div>
   </div>
