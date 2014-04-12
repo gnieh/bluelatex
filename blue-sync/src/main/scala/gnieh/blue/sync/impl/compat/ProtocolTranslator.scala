@@ -170,12 +170,12 @@ object ProtocolTranslator {
             case Raw(newRevision, data, true) =>
               result ++= s"""U:$peerId
                             |F:$lastRevision:$filename
-                            |R:$data
+                            |R:$newRevision:$data
                             |""".stripMargin
             case Raw(newRevision, data, false) =>
               result ++= s"""U:$peerId
                             |F:$lastRevision:$filename
-                            |r:$data
+                            |r:$newRevision:$data
                             |""".stripMargin
             case Nullify =>
               result ++= s"""U:$peerId
