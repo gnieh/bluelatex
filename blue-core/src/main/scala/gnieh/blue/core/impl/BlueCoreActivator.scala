@@ -28,6 +28,7 @@ import akka.actor.ActorSystem
 import http.RestApi
 import common._
 
+import gnieh.sohva.control.CouchClient
 
 /** The `BlueActivator` starts the \BlueLaTeX core system:
  *   - the configuration loader
@@ -44,6 +45,7 @@ class BlueCoreActivator extends BundleActivator {
       loader <- context.get[ConfigurationLoader]
       logger <- context.get[Logger]
       system <- context.get[ActorSystem]
+      couch <- context.get[CouchClient]
       templates <- context.get[Templates]
       mailAgent <- context.get[MailAgent]
       recaptcha <- context.get[ReCaptcha]
@@ -53,7 +55,7 @@ class BlueCoreActivator extends BundleActivator {
       val configuration = new BlueConfiguration(config)
 
       // register the core Rest API
-      context.registerService(classOf[RestApi], new CoreApi(config, system, context, templates, mailAgent, recaptcha, logger), null)
+      context.registerService(classOf[RestApi], new CoreApi(couch, config, system, context, templates, mailAgent, recaptcha, logger), null)
     }
 
   def stop(context: BundleContext): Unit = {

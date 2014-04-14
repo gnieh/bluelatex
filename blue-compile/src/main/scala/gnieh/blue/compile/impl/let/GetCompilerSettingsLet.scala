@@ -31,11 +31,13 @@ import scala.util.{
   Failure
 }
 
+import gnieh.sohva.control.CouchClient
+
 /** Handle request that want to access the compiler data
  *
  *  @author Lucas Satabin
  */
-class GetCompilerSettingsLet(paperId: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class GetCompilerSettingsLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>

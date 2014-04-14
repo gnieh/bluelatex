@@ -25,6 +25,8 @@ import org.osgi.service.log.LogService
 
 import com.typesafe.config.Config
 
+import java.util.concurrent.TimeUnit
+
 /** This hooks creates the compiler settings when a paper is created
  *
  *  @author Lucas Satabin
@@ -38,8 +40,8 @@ class CreateSettingsHook(config: Config, logger: Logger) extends PaperCreated {
       s"$paperId:compiler",
       config.getString("compiler.default"),
       config.getBoolean("compiler.synctex"),
-      config.getSeconds("compiler.timeout"),
-      config.getSeconds("compiler.interval")
+      config.getDuration("compiler.timeout", TimeUnit.SECONDS).toInt,
+      config.getDuration("compiler.interval", TimeUnit.SECONDS).toInt
     )
 
   def afterCreate(paperId: String, session: CookieSession): Unit = {

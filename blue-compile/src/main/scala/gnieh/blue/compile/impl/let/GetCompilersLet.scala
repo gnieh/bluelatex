@@ -29,12 +29,14 @@ import org.osgi.framework.BundleContext
 
 import scala.util.Try
 
+import gnieh.sohva.control.CouchClient
+
 /** Returns the list of compilers that are currently available in \BlueLaTeX
  *  and that can be used to compile the papers
  *
  *  @author Lucas Satabin
  */
-class GetCompilersLet(context: BundleContext, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class GetCompilersLet(context: BundleContext, val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   import OsgiUtils._
 

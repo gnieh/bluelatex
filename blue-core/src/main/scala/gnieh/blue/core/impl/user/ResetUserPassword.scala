@@ -30,11 +30,13 @@ import scala.util.{
   Failure
 }
 
+import gnieh.sohva.control.CouchClient
+
 /** Performs the password reset action for a given user.
  *
  *  @author Lucas Satabin
  */
-class ResetUserPassword(username: String, config: Config, logger: Logger) extends SyncBlueLet(config, logger) {
+class ResetUserPassword(username: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) {
 
   def act(talk: HTalk): Try[Unit] = {
     val token = talk.req.param("reset_token")
@@ -43,7 +45,7 @@ class ResetUserPassword(username: String, config: Config, logger: Logger) extend
     (token, password1, password2) match {
       case (Some(token), Some(password1), Some(password2)) if password1 == password2 =>
         // all parameters given, and passwords match, proceed
-        couchConfig.asAdmin { sess =>
+        couchConfig.asAdmin(couch) { sess =>
           sess.users.resetPassword(username, token, password1) map {
             case true =>
               talk.writeJson(true)

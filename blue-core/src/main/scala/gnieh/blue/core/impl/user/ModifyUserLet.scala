@@ -36,11 +36,13 @@ import scala.util.{
   Failure
 }
 
+import gnieh.sohva.control.CouchClient
+
 /** Handle JSON Patches that modify the user data
  *
  *  @author Lucas Satabin
  */
-class ModifyUserLet(username: String, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class ModifyUserLet(username: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     if(username == user.name) {

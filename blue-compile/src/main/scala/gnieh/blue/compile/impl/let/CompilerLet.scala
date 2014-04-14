@@ -31,7 +31,9 @@ import scala.concurrent._
 
 import com.typesafe.config.Config
 
-class CompilerLet(paperId: String, dispatcher: ActorRef, config: Config, logger: Logger) extends AsyncRoleLet(paperId, config, logger) {
+import gnieh.sohva.control.CouchClient
+
+class CompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef, config: Config, logger: Logger) extends AsyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Future[Any] = {
     val promise = Promise[Boolean]()

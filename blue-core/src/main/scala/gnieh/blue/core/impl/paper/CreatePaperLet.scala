@@ -43,11 +43,13 @@ import scala.util.{
   Success
 }
 
+import gnieh.sohva.control.CouchClient
+
 /** Create a new paper. The currently authenticated user is added as author of this paper
  *
  *  @author Lucas Satabin
  */
-class CreatePaperLet(config: Config, context: BundleContext, templates: Templates, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class CreatePaperLet(val couch: CouchClient, config: Config, context: BundleContext, templates: Templates, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
     talk.req.param("paper_title") match {

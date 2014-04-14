@@ -36,6 +36,8 @@ trait CouchSupport {
 
   val config: Config
 
+  val couch: CouchClient
+
   lazy val couchConfig =
     new CouchConfiguration(config)
 
@@ -47,7 +49,7 @@ trait CouchSupport {
       case Some(sess) => sess
       case None =>
         // start and register a new couch session
-        val sess = couchConfig.couch.startCookieSession
+        val sess = couch.startCookieSession
         talk.ses(SessionKeys.Couch) = sess
         sess
     }

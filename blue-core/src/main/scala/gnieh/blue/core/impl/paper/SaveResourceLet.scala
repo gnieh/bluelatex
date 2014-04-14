@@ -34,11 +34,13 @@ import common._
 
 import scala.util.Try
 
+import gnieh.sohva.control.CouchClient
+
 /** Saves some resource associated to the paper.
  *
  *  @author Lucas Satabin
  */
-class SaveResourceLet(paperId: String, resourceName: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class SaveResourceLet(paperId: String, resourceName: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   override def partsAcceptor(reqInfo: HReqHeaderData) =
     Some(new ResourcePartsAcceptor(reqInfo))

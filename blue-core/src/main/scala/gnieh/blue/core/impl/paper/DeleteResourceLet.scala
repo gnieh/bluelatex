@@ -29,11 +29,13 @@ import resource._
 
 import scala.util.Try
 
+import gnieh.sohva.control.CouchClient
+
 /** Deletes some resource associated to the paper.
  *
  *  @author Lucas Satabin
  */
-class DeleteResourceLet(paperId: String, resourceName: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class DeleteResourceLet(paperId: String, resourceName: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>

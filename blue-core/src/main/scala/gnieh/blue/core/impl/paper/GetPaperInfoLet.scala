@@ -30,11 +30,13 @@ import scala.io.Source
 
 import scala.util.Try
 
+import gnieh.sohva.control.CouchClient
+
 /** Returns the paper data
  *
  *  @author Lucas Satabin
  */
-class GetPaperInfoLet(paperid: String, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class GetPaperInfoLet(paperid: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] = {
     // only authenticated users may see other people information

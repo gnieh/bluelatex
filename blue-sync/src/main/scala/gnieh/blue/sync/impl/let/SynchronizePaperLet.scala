@@ -29,11 +29,13 @@ import scala.io.Source
 
 import scala.util.{Try, Success, Failure}
 
+import gnieh.sohva.control.CouchClient
+
 /** A synchronization request for a paper. Only authors may send this kind of request
  *
  *  @author Lucas Satabin
  */
-class SynchronizePaperLet(paperId: String, synchroServer: SynchroServer, config: Config, logger: Logger)
+class SynchronizePaperLet(paperId: String, synchroServer: SynchroServer, val couch: CouchClient, config: Config, logger: Logger)
     extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {

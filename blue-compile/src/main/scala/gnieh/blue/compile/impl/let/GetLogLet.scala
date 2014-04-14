@@ -29,10 +29,11 @@ import scala.util.Try
 
 import scala.io.Source
 
-
 import resource._
 
-class GetLogLet(paperId: String, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+import gnieh.sohva.control.CouchClient
+
+class GetLogLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>

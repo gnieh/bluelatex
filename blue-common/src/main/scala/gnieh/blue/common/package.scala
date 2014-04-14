@@ -23,15 +23,5 @@ package object common {
 
   type UserInfo = gnieh.sohva.UserInfo
 
-  implicit class RichConfig(val config: Config) extends AnyVal {
-
-    def getSeconds(path: String): Int =
-      (config.getMilliseconds(path) / 1000).toInt
-
-    def getMinutes(path: String): Int =
-      (config.getMilliseconds(path) / 60000).toInt
-
-  }
-
 }
 

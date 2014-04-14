@@ -36,6 +36,8 @@ import scala.util.{
   Random
 }
 
+import gnieh.sohva.control.CouchClient
+
 /** Handle registration of a new user into the system.
  *  When a user is created it is created with a randomly generated password and a password reset
  *  token is created and sent to the user email address, so that he can confirm both his email
@@ -43,7 +45,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class RegisterUserLet(config: Config, context: BundleContext, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha, logger: Logger)
+class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleContext, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha, logger: Logger)
     extends SyncBlueLet(config, logger) {
 
   // TODO logging
@@ -58,7 +60,7 @@ class RegisterUserLet(config: Config, context: BundleContext, templates: Templat
         email <- talk.req.param("email_address")
         affiliation = talk.req.param("affiliation")
       } yield {
-        couchConfig.asAdmin { session =>
+        couchConfig.asAdmin(couch) { session =>
           // generate a random password
           val password = session._uuid.getOrElse(Random.nextString(20))
           // first save the standard couchdb user
@@ -72,7 +74,7 @@ class RegisterUserLet(config: Config, context: BundleContext, templates: Templat
                   // the user is now registered
                   // generate the password reset token
                   val cal = Calendar.getInstance
-                  cal.add(Calendar.MILLISECOND, couchConfig.tokenValidity)
+                  cal.add(Calendar.SECOND, couchConfig.tokenValidity)
                   session.users.generateResetToken(username, cal.getTime) map {
                     case Some(token) =>
                       // send the confirmation email
@@ -81,12 +83,12 @@ class RegisterUserLet(config: Config, context: BundleContext, templates: Templat
                         "baseUrl" -> config.getString("blue.base_url"),
                         "name" -> username,
                         "token" -> token,
-                        "validity" -> (couchConfig.tokenValidity / 24 / 3600 / 1000))
+                        "validity" -> (couchConfig.tokenValidity / 24 / 3600))
                       mailAgent.send(username, "Welcome to \\BlueLaTeX", email)
 
                       import OsgiUtils._
                       // notifiy creation hooks
-                      couchConfig.asAdmin { session =>
+                      couchConfig.asAdmin(couch) { session =>
                         for(hook <- context.getAll[UserRegistered])
                           Try(hook.afterRegister(username, session))
                       }

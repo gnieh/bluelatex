@@ -25,6 +25,7 @@ import common._
 
 import tiscaf._
 
+import gnieh.sohva.control.CouchClient
 
 import scala.util.{
   Try,
@@ -35,7 +36,7 @@ import scala.util.{
  *
  *  @author Lucas Satabin
  */
-class GetSessionDataLet(config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class GetSessionDataLet(val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     Success(talk.writeJson(user))

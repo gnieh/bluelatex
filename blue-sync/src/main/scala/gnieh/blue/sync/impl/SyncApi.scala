@@ -23,18 +23,20 @@ import let._
 
 import com.typesafe.config.Config
 
+import gnieh.sohva.control.CouchClient
+
 /** The synchronization service API exposes an interface for clients
  *  to synchronize their paper
  *
  *  @author Lucas Satabin
  */
-class SyncApi(config: Config, synchroServer: SynchroServer, logger: Logger) extends RestApi {
+class SyncApi(couch: CouchClient, config: Config, synchroServer: SynchroServer, logger: Logger) extends RestApi {
 
   POST {
     case p"papers/$paperid/q" =>
-      new QLet(paperid, synchroServer, config, logger)
+      new QLet(paperid, synchroServer, couch, config, logger)
     case p"papers/$paperid/sync" =>
-      new SynchronizePaperLet(paperid, synchroServer, config, logger)
+      new SynchronizePaperLet(paperid, synchroServer, couch, config, logger)
   }
 
 }
