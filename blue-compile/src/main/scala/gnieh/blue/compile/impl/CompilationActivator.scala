@@ -99,7 +99,7 @@ class CompilationActivator extends BundleActivator {
     }
 
   def undeploy(context: BundleContext): Unit = {
-    dispatcher.foreach(_ ! PoisonPill)
+    dispatcher.foreach(_ ! Stop)
     commands.foreach(_ ! PoisonPill)
     // unregister services
     services.foreach(_.unregister())

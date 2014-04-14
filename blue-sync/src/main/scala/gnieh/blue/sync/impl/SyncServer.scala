@@ -21,7 +21,7 @@ import common._
 
 import com.typesafe.config.Config
 
-import akka.actor.{ActorRef, PoisonPill}
+import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 
@@ -80,6 +80,6 @@ class SyncServer(dispatcher: ActorRef, configuration: Config) extends SynchroSer
   }
 
   def shutdown(): Unit = {
-    dispatcher ! PoisonPill
+    dispatcher ! Stop
   }
 }

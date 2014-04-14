@@ -19,8 +19,7 @@ package impl
 
 import akka.actor.{
   Actor,
-  ActorRef,
-  PoisonPill
+  ActorRef
 }
 import akka.util.Timeout
 
@@ -60,9 +59,9 @@ class CompilationActor(
     context.system.scheduler.scheduleOnce(Duration.Zero, self, Compile)
   }
 
-  def receive = receiving(Set(), defaultSettings)
+  def receive = receiving(Map(), defaultSettings)
 
-  def receiving(clients: Set[Promise[Boolean]], settings: CompilerSettings): Receive = {
+  def receiving(clients: Map[String, Promise[Boolean]], settings: CompilerSettings): Receive = {
     case Compile =>
 
       implicit val timeout = Timeout(settings.timeout.seconds)
@@ -94,11 +93,11 @@ class CompilationActor(
         }
 
         // and we send back the answer to the clients
-        for(client <- clients)
+        for((_, client) <- clients)
           client.complete(res)
 
         // and listen again with an empty list of clients
-        context.become(receiving(Set(), settings))
+        context.become(receiving(Map(), settings))
 
       }
 
@@ -109,21 +108,25 @@ class CompilationActor(
       // settings were changed, take them immediately into account
       context.become(receiving(clients, settings))
 
-    case Register(client) =>
+    case Register(username, client) =>
 
-      context.become(receiving(clients + client, settings))
+      context.become(receiving(clients + (username -> client), settings))
 
-    case Part(_, _) | PoisonPill =>
+    case Part(username, _) =>
 
-      for(client <- clients)
+      context.become(receiving(clients - username, settings))
+
+    case Stop =>
+
+      for((_, client) <- clients)
         client.complete(Try(false))
 
-      context.become(receiving(Set(), settings))
+      context.become(receiving(Map(), settings))
 
   }
 
 }
 
 case object Compile
-case class Register(response: Promise[Boolean])
+case class Register(username: String, response: Promise[Boolean])
 

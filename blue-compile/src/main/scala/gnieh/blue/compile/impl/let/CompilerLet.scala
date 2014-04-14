@@ -37,7 +37,7 @@ class CompilerLet(paperId: String, dispatcher: ActorRef, config: Config, logger:
     val promise = Promise[Boolean]()
 
     // register the client with the paper compiler
-    dispatcher ! Forward(paperId, Register(promise))
+    dispatcher ! Forward(paperId, Register(user.name, promise))
 
     promise.future.map(talk.writeJson) recoverWith {
       case e =>
