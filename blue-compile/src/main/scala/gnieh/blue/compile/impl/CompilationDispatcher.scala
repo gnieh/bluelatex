@@ -59,7 +59,7 @@ class CompilationDispatcher(
     // get the compiler settings
     val db = session.database(database("blue_papers"))
     for(settings <- getOrCreateSettings(paperId, db))
-      yield Props(new CompilationActor(bndContext, synchro, configuration, paperId, settings, logger))
+      yield Props(new CompilationActor(bndContext, synchro, configuration, couchConf, paperId, settings, logger))
   }
 
   def getOrCreateSettings(paperId: String, db: Database): Try[CompilerSettings] =
