@@ -293,6 +293,23 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       Then("the actor should detect the invalid revision and send Raw version")
       expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Raw(1, "t%C3%AAte", true)))))
     }
+
+    scenario("error during synchronization session for content with space") {
+
+      Given("a synchronization actor with an existing paper")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+      syncActor ! SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "My name is", false))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(10)), false)))))
+
+      And("a message with invalid revision for a the paper")
+      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 42, Delta(0, List(Delete(5), Add("t%C3%AAte")), false))))
+
+      When("the message is sent")
+      syncActor ! request
+
+      Then("the actor should detect the invalid revision and send Raw version")
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Raw(1, "My name is", true)))))
+    }
   }
 
   feature("A synchronization actor should handle broadcast messages between clients") {

@@ -355,7 +355,7 @@ class SyncActor(
    */
   private def encodeUriCompatibility(str: String): String = {
     return URLEncoder.encode(str, "UTF-8")
-        .replace("%21", "!").replace("%7E", "~")
+        .replace('+', ' ').replace("%21", "!").replace("%7E", "~")
         .replace("%27", "'").replace("%28", "(").replace("%29", ")")
         .replace("%3B", ";").replace("%2F", "/").replace("%3F", "?")
         .replace("%3A", ":").replace("%40", "@").replace("%26", "&")
