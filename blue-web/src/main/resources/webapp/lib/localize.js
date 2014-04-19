@@ -73,7 +73,7 @@ angular.module('localization', [])
           cache: false
         }).success(localize.successCallback).error(function () {
           // the request failed set the url to the default resource file
-          var url = '/i18n/resources-locale_default.js';
+          var url = 'i18n/resources-locale_default.js';
           // request the default resource file
           $http({
             method: "GET",
