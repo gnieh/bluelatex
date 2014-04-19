@@ -30,6 +30,7 @@ tmp*
 dist
 test-output
 build.log
+build.sbt
 
 # other scm
 .svn
