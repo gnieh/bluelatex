@@ -22,6 +22,7 @@ import tiscaf._
 import akka.actor.ActorSystem
 
 import org.osgi.framework.BundleContext
+import org.osgi.util.tracker.ServiceTracker
 
 import com.typesafe.config._
 
@@ -40,23 +41,35 @@ class BlueServer(context: BundleContext, system: ActorSystem, configuration: Con
   private val extApp =
     new ExtensibleApp(configuration, system)
 
-  protected def apps =
-    Seq(extApp)
+  private var allApps =
+    Vector[HApp](extApp)
 
-  private val tracker =
+  protected def apps =
+    allApps
+
+  private val restTracker =
     new RestServiceTracker(context, extApp)
+
+  import OsgiUtils._
+
+  private val appTracker =
+    context.trackAll[HApp] {
+      case ServiceAdded(app)   => allApps = allApps :+ app
+      case ServiceRemoved(app) => allApps = allApps.filter(_ ne app)
+    }
 
   override protected def maxPostDataLength =
     100000000
 
   override protected def onStart: Unit = {
     // start the application tracker
-    tracker.open
+    restTracker.open()
   }
 
   override protected def onStop: Unit = {
     // stop the application tracker
-    tracker.close
+    restTracker.close()
+    appTracker.close()
   }
 
   logInfo("blue server started")
