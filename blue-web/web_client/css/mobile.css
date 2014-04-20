@@ -128,7 +128,7 @@
     padding-left: 1px!important;
     padding-right: 1px!important;
     margin-right: 4px!important;
-    width: 140px;
+    width: 130px;
   }
 
   #paper .leftCol {
@@ -144,7 +144,7 @@
   }
 }
 @media only screen and (max-width : 1000px) {
-  #paper_list.list .paper .authors {
+  #paper_list.list .paper .tags {
     display: none!important;
   }
 }
