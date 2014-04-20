@@ -311,7 +311,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           return promise;
         },
         getResourceUrl: function (paper_id, resource) {
-          return apiRoot + '/papers/' + paper_id + '/files/resources/' + resource;
+          return apiRootUrl + '/papers/' + paper_id + '/files/resources/' + resource;
         },
         uploadResource: function (paper_id, resource, data) {
           return upload(paper_id, data, resource);
@@ -328,7 +328,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           }).$promise;
         },
         getZipUrl: function (paper_id) {
-          return apiRoot + "/papers/" + paper_id + ".zip";
+          return apiRootUrl + "/papers/" + paper_id + ".zip";
         }
       };
     }

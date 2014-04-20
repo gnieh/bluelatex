@@ -138,7 +138,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         });
       };
       $scope.downloadResource = function (resource) {
-        window.open(Paper.getResourceUrl(paper_id, resource.title));
+        window.open(PaperService.getResourceUrl(paper_id, resource.title));
       };
     }
   ]);
