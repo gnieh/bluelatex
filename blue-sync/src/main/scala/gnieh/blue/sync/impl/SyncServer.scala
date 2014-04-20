@@ -73,7 +73,7 @@ class SyncServer(dispatcher: ActorRef, configuration: Config) extends SynchroSer
   }
 
   def lastModificationDate(paperId: String): Date = {
-    val promise = Promise[Date]
+    val promise = Promise[Date]()
 
     dispatcher ! Forward(paperId, LastModificationDate(promise))
     Await.result(promise.future, Duration.Inf)

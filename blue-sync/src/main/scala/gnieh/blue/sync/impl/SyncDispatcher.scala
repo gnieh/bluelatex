@@ -34,6 +34,8 @@ import org.osgi.service.log.LogService
 import java.net.URLEncoder;
 import java.net.URLDecoder;
 
+import java.util.{Date, Calendar}
+
 import name.fraser.neil.plaintext.DiffMatchPatch
 
 import gnieh.blue.sync.impl.store._
@@ -83,9 +85,15 @@ class SyncActor(
   /** Map destPeer -> List(message) */
   private val messages = Map.empty[String, ListBuffer[Message]]
 
+  /** Store the last modification time for this paperId */
+  private var lastModificationTime = Calendar.getInstance().getTime()
+
   override def postStop() {
     persistPapers()
   }
+
+  private def updateLastModificationTime(): Unit =
+      lastModificationTime = Calendar.getInstance().getTime()
 
   def receive = {
     case Join(peerId, _) => messages += (peerId -> ListBuffer.empty[Message])
@@ -112,8 +120,7 @@ class SyncActor(
     }
 
     case LastModificationDate(promise) => {
-      val lastUpdatedView = views.values.toList.sortBy(_.lastUpdate).last
-      promise.success(lastUpdatedView.lastUpdate)
+      promise.success(lastModificationTime)
     }
   }
 
@@ -150,6 +157,7 @@ class SyncActor(
       // and the local stack should be cleared. Continue.
       logDebug("Restore backup shadow")
       view.restoreBackupShadow()
+      updateLastModificationTime()
     }
 
     // If the version number is equal to one of the edits on the local stack,
@@ -215,6 +223,7 @@ class SyncActor(
     // Decode HTML-encoded data
     val data = URLDecoder.decode(raw.data, "UTF-8")
     view.setShadow(data, raw.revision, serverRevision, raw.overwrite)
+    updateLastModificationTime()
   }
 
   def processMessage(peer: String, message: Message): List[Message] = {
@@ -274,6 +283,11 @@ class SyncActor(
     }
     logDebug(s"New document text: $mastertext")
     view.document.text = mastertext
+
+    if (!patch.isEmpty) {
+      logDebug("Patch is not empty -> update modification time")
+      updateLastModificationTime()
+    }
   }
 
   def flushStack(view: DocumentView): List[SyncAction] = {

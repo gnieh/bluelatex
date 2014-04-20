@@ -26,9 +26,14 @@ import akka.util.Timeout
 import scala.concurrent.Promise
 import scala.concurrent.duration._
 
-import scala.util.Try
+import scala.util.{
+  Try,
+  Success
+}
 
 import org.osgi.framework.BundleContext
+
+import java.util.Date
 
 import common._
 
@@ -59,9 +64,11 @@ class CompilationActor(
     context.system.scheduler.scheduleOnce(Duration.Zero, self, Compile)
   }
 
-  def receive = receiving(Map(), defaultSettings)
+  def receive = receiving(Map(), defaultSettings, None)
 
-  def receiving(clients: Map[String, Promise[Boolean]], settings: CompilerSettings): Receive = {
+  def receiving(clients: Map[String, Promise[Boolean]],
+                settings: CompilerSettings,
+                lastCompilationDate: Option[Date]): Receive = {
     case Compile =>
 
       implicit val timeout = Timeout(settings.timeout.seconds)
@@ -69,18 +76,29 @@ class CompilationActor(
       // dump the files before printing
       synchro.persist(paperId)
 
+      // get the last modification date
+      val lastModificationDate = synchro.lastModificationDate(paperId)
+
       // create the build directory
       configuration.buildDir(paperId).mkdirs
 
+      // Check if compilation is needed:
+      // No need to recompile document if it has not been modified,
+      // ie. last compilation date is the same as the last modification date.
+      val hasBeenModified = (for {
+        compilDate <- lastCompilationDate
+      } yield compilDate before lastModificationDate).getOrElse(true)
+      logDebug(s"Document needs to be compiled: $hasBeenModified")
+
       for(compiler <- bndContext.get[Compiler]) {
 
-        // TODO iddeally the number of times we run the latex compiler, and bibtex,
+        // TODO ideally the number of times we run the latex compiler, and bibtex,
         // and the index compiler should be smarter than this.
         // For the moment, we run only once, but we could make it configurable if the compilation
         // occurs on its own compilation server
         // it is also not necessary to run bibtex if no bibliography is to be generated
         // the settings should be able to handle this properly
-        val res = for {
+        val res = if (!hasBeenModified) Success(false) else for {
           // if the compiler is defined, we first compile the paper
           res <- compiler.compile(paperId, settings)
           // we run bibtex on it if the compilation succeeded
@@ -96,8 +114,11 @@ class CompilationActor(
         for((_, client) <- clients)
           client.complete(res)
 
+        // if hasBeenModified is false, we are sure that lastCompilationDate is defined
+        val newDate = if (hasBeenModified) lastModificationDate else lastCompilationDate.get
+
         // and listen again with an empty list of clients
-        context.become(receiving(Map(), settings))
+        context.become(receiving(Map(), settings, Some(newDate)))
 
       }
 
@@ -106,22 +127,22 @@ class CompilationActor(
 
     case settings @ CompilerSettings(_, _, _, _, _) =>
       // settings were changed, take them immediately into account
-      context.become(receiving(clients, settings))
+      context.become(receiving(clients, settings, lastCompilationDate))
 
     case Register(username, client) =>
 
-      context.become(receiving(clients + (username -> client), settings))
+      context.become(receiving(clients + (username -> client), settings, lastCompilationDate))
 
     case Part(username, _) =>
 
-      context.become(receiving(clients - username, settings))
+      context.become(receiving(clients - username, settings, lastCompilationDate))
 
     case Stop =>
 
       for((_, client) <- clients)
         client.complete(Try(false))
 
-      context.become(receiving(Map(), settings))
+      context.become(receiving(Map(), settings, lastCompilationDate))
 
   }
 
