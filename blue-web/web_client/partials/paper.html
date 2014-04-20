@@ -24,7 +24,7 @@
         <div class="left">
           <div class="subOption">
             <div class="label">
-              Compile
+              <span ng-click="compile()">Compile</span>
             </div>
             <label><input type="checkbox" ng-model="compilerOptions"><span class="icon-down-empty"></span></label>
             <div class="subOptions" ng-show="compilerOptions">
@@ -40,8 +40,8 @@
             </div>
             <label><input type="checkbox" ng-model="downloadOptions"><span class="icon-down-empty"></span></label>
             <div class="subOptions" ng-show="downloadOptions">
-              <div ng-click="downloadPDF">Download PDF</div>
-              <div ng-click="downloadZip">Download Zip</div>
+              <div ng-click="downloadPDF"><a href="{{pdfURL}}">Download PDF</a></div>
+              <div ng-click="downloadZip"><a href="{{zipURL}}">Download Zip</a></div>
             </div>
           </div>
         </div>
@@ -60,11 +60,11 @@
               </select>
             </div>
             <div class="navigation">
-              <div class="prevPage icon-prev-page" ng-click="prevPage"></div>
+              <div class="prevPage icon-prev-page" ng-click="prevPage()">&nbsp;</div>
               <input type="text" ng-model="currentPage">
               <span>/</span>
               <div class="totalPage">{{totalPage}}</div>
-              <div class="nextPage icon-next-page" ng-click="nextPage"></div>
+              <div class="nextPage icon-next-page" ng-click="nextPage()">&nbsp;</div>
             </div>
           </div>
         </div>
@@ -83,7 +83,7 @@
         </section>
         <section class="rightCol">
             <div id="preview">
-              <div class="preview_page_container" bl-vignette data-synctex="synctex" data-current="current" data-line="{{current.line}}" data-type="vignetteType" data-page="1" data-currentPage="currentPage" data-url="urlPaper" data-scale="scale"></div>
+              <div ng-repeat="n in range(totalPage) track by $index" class="preview_page_container" bl-vignette data-synctex="synctex" data-current="current" data-currentPage="{{currentPage}}" data-line="{{current.line}}" data-type="{{vignetteType}}" data-page="{{$index+1}}" data-url="urlPaper" data-revision="revision" data-scale="scale"></div>
             </div>
         </section>
     </section>
@@ -97,16 +97,12 @@
           bottom: {{currentElem.bottom}}<br>
           left: {{currentElem.left}}<br>
           currentLine: {{current.line}}<br>
+          currentPage: {{currentPage}}<br>
           <label><input type="checkbox" ng-model="displaySyncTexBox">display SyncTex Box</label>
           <input type="text" ng-model="scale">
         </div>
         <div class="figures" ng-show="listType=='figures'">
-          <div class="preview_page_container">
-            <img class="preview_page" src="">
-          </div>
-          <div class="preview_page_container">
-            <img class="preview_page" src="">
-          </div>
+          <div ng-repeat="n in range(totalPage) track by $index" class="preview_page_container" bl-vignette data-current="current" data-type="image" data-page="{{$index+1}}" data-currentPage="{{currentPage}}" data-url="urlPaper" data-scale="auto" data-revision="revision" ng-click="changePage($index+1)"></div>
         </div>
         <div class="files" ng-show="listType=='files'">
           <div id="file_list">

@@ -29,7 +29,6 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
         }
       });
       UserService.getUsers().then(function (users) {
-        console.log(users);
         $scope.users = users;
       }, function (err) {
         MessagesService.clear();

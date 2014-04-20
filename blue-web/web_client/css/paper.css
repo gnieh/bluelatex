@@ -28,7 +28,6 @@
 }
 #paper .leftCol .list {
     position: absolute;
-    overflow: auto;
     height: 100%;
     top: 0;
     bottom: 0;
@@ -36,6 +35,10 @@
     left: 0;
     padding-top: 0px;
     padding-left: 7px;
+}
+#paper .leftCol .list > div{
+    overflow: auto;
+    height: 100%;
 }
 #paper .toc {
     padding-left:13px
@@ -129,6 +132,9 @@
     overflow: hidden;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     margin: 10px;
+}
+div.preview_page_container img {
+    width: 100%;
 }
 .textLayer {
     position: absolute;

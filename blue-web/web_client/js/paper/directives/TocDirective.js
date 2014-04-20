@@ -68,7 +68,6 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
           updateTOC(elm, value, scope);
         });
         scope.$watch('current.line', function (value) {
-          console.log(value);
           updateTOC(elm, scope.toc, scope);
         });
         updateTOC(elm, scope.toc, scope);
