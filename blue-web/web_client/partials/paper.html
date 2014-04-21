@@ -4,7 +4,6 @@
             <div ui-ace="{
               useWrapMode : true,
               showGutter: true,
-              theme:'TextMate',
               mode: 'latex',
               onLoad: aceLoaded,
               onChange: aceChanged
@@ -43,9 +42,13 @@
 \end{document}</div>
         </section>
         <section class="rightCol">
-            <button ng-click="compile()">Compile</button>
-            <div class="preview">
-
+            <div id="preview">
+              <div class="preview_page_container">
+                <img class="preview_page" src="//writelatex.s3.amazonaws.com/qkmscjgckstd/page/e3ec3f7bcb5c9e01a9e1630ddbabce9ec89edda4.jpeg">
+              </div>
+              <div class="preview_page_container">
+                <img class="preview_page" src="//writelatex.s3.amazonaws.com/qkmscjgckstd/page/4e97a487a6e1525e2c7d548b98caa06447003d8c.jpeg">
+              </div>
             </div>
         </section>
     </section>
