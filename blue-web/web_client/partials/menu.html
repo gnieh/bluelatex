@@ -1,5 +1,20 @@
-<ul ng-controller="menuController">
-    <li ng-repeat="link in menus" data-ng-class="(link.url == location.path() && 'active')">
-        <a href="{{link.link}}">{{link.label}}</a>
-    </li>
-</ul>
+<div ng-controller="menuController">
+    <ul id="menu_options">
+        <li ng-repeat="option in options">
+            <button class="{{option.class}}" ng-click="action(option)">{{option.label}}</button>
+            <div class="sub_menu" ng-show="option.display" ng-if="option.type == 'menu'" ng-include src="option.action"></div>
+        </li>
+    </ul>
+    <div id="menu_user" ng-show="(loggedUser != null)">
+        User
+        <div class="submenu">
+
+        </div>
+    </div>
+    <ul id="menu_navigation">
+        <li ng-repeat="link in menus"
+            ng-if="(loggedUser == null && link.unconnected) || (loggedUser != null && link.connected)" >
+            <a href="{{link.link}}" ng-class="{'current': link.active}">{{link.label}}</a>
+        </li>
+    </ul>
+<div>
