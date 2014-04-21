@@ -87,7 +87,7 @@ angular.module('localization', [])
                             return element.key === value;
                         }
                     )[0];
-                    if(entry == null) console.log(value + ' not found');
+                    if(entry==null) console.log(value+ ' not foud');
                     else
                     // set the result
                     result = entry.value;

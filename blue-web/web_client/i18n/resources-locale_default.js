@@ -21,7 +21,7 @@
     },
     {
         "key":"_RegisterTitle_",
-        "value":"Register",
+        "value":"Register now",
         "description":"The title of the register page"
     },
     {
@@ -43,6 +43,11 @@
         "key":"_Email_",
         "value":"Email",
         "description":"Email"
+    },
+    {
+        "key": "_Error_format_",
+        "value": "Format invalid",
+        "description": "Field of a form is correct"
     },
     {
         "key":"_Register_",
@@ -100,6 +105,11 @@
         "description":"Reset password page"
     },
     {
+        "key":"_Reset_User_not_found",
+        "value":"User not found",
+        "description":"Reset page"
+    },
+    {
         "key":"_Reset_",
         "value":"Reset",
         "description":"Reset password page"
@@ -107,12 +117,11 @@
     {
         "key":"_Submit_",
         "value":"Submit",
-        "description":"Reset page"
-    }
-    ,
+        "description":"Send a form"
+    },
     {
-        "key":"_Reset_User_not_found",
-        "value":"User not found",
-        "description":"Reset page"
+        "key":"_Cancel_",
+        "value":"Cancel",
+        "description":"Reset a form"
     }
 ]
