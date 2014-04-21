@@ -41,6 +41,7 @@
     top: 0px;
     bottom: 0;
     padding-top: 45px;
+    overflow: auto;
 }
 #papers .center {
     position: absolute;

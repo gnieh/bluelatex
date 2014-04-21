@@ -16,6 +16,7 @@
                 <input type="search" data-i18n-attr="_Search..._|placeholder" ng-model="search" autofocus>
             </form>
             <form id="sort">
+                <span data-i18n="_Sort_by_">Sort by</span>
                 <select ng-model="predicate">
                     <option value="id" data-i18n="_Id_">Id</option>
                     <option value="title" data-i18n="_Title_">Title</option>
@@ -35,37 +36,37 @@
         <label>
             <input type="radio" name="filter" ng-model="date_filter" value="all">
             <span class="label" data-i18n="_All_">All</span>
-            <span class="nb">{{(papers| filter:search).length }}</span>
+            <span class="nb">{{(papers| filter:search | filter:roleFilter).length }}</span>
         </label>
         <label>
             <input type="radio" name="filter" ng-model="date_filter" value="today">
             <span class="label" data-i18n="_Today_">Today</span>
-            <span class="nb">{{(papers| filter:search | filter:dateFilterToday).length }}</span>
+            <span class="nb">{{(papers| filter:search | filter:roleFilter | filter:dateFilterToday).length }}</span>
         </label>
         <label>
             <input type="radio" name="filter" ng-model="date_filter" value="yesterday">
             <span class="label" data-i18n="_Yesterday_">Yesterday</span>
-            <span class="nb">{{(papers| filter:search | filter:dateFilterYesterday).length }}</span>
+            <span class="nb">{{(papers| filter:search | filter:roleFilter | filter:dateFilterYesterday).length }}</span>
         </label>
         <label>
             <input type="radio" name="filter" ng-model="date_filter" value="tweek">
             <span class="label" data-i18n="_This_week_">This week</span>
-            <span class="nb">{{(papers| filter:search | filter:dateFilterTWeek).length }}</span>
+            <span class="nb">{{(papers| filter:search | filter:roleFilter | filter:dateFilterTWeek).length }}</span>
         </label>
         <label>
             <input type="radio" name="filter" ng-model="date_filter" value="lweek">
             <span class="label" data-i18n="_Last_week_">Last week</span>
-            <span class="nb">{{(papers| filter:search | filter:dateFilterLWeek).length }}</span>
+            <span class="nb">{{(papers| filter:search | filter:roleFilter | filter:dateFilterLWeek).length }}</span>
         </label>
         <label>
             <input type="radio" name="filter" ng-model="date_filter" value="month">
             <span class="label" data-i18n="_This_month_">This month</span>
-            <span class="nb">{{(papers| filter:search | filter:dateFilterMonth).length }}</span>
+            <span class="nb">{{(papers| filter:search | filter:roleFilter | filter:dateFilterMonth).length }}</span>
         </label>
         <label>
             <input type="radio" name="filter" ng-model="date_filter" value="year">
             <span class="label" data-i18n="_This_year_">This Year</span>
-            <span class="nb">{{(papers| filter:search | filter:dateFilterYear).length }}</span>
+            <span class="nb">{{(papers| filter:search | filter:roleFilter | filter:dateFilterYear).length }}</span>
         </label>
         <h3 data-i18n="_Role_filter_">Role filter</h3>
         <label>
@@ -93,15 +94,15 @@
                 <div class="date" data-i18n="_Date_">
                     Date
                 </div>
-                <div class="authors" data-i18n="_Author_">
-                    Auhtor
+                <div class="authors" data-i18n="_Authors_">
+                    Auhtors
                 </div>
                 <div class="authors" data-i18n="_Options_">
                     Options
                 </div>
                 <div class="clear"></div>
             </div>
-            <div class="paper" ng-repeat="paper in papers | filter:search | filter:dateFilter |orderBy:predicate:reverse">
+            <div class="paper" ng-repeat="paper in papers | filter:search | filter:dateFilter | filter:roleFilter | orderBy:predicate:reverse">
                 <div class="icon">
                     <a href="#/paper/{{paper.id}}" ng-if="paper.icon"><img src="{{paper.icon}}" alt="{{paper.title}}" title="{{paper.title}}" ></a>
                 </div>
@@ -115,13 +116,13 @@
                     <a href="#/paper/{{paper.id}}"><span ng-repeat="author in paper.authors">{{author}},</span></a>
                 </div>
                 <div class="options">
-                    <a class="option rename" href="#/paper/{{paper.id}}/edit">Edit</a>
-                    <button class="option detele" ng-click="delete(paper)">Delete</button>
+                    <a class="option rename" href="#/paper/{{paper.id}}/edit" data-i18n="_Options_">Options</a>
+                    <button class="option detele" ng-click="delete(paper)" data-i18n="_Delete_">Delete</button>
                     <div class="clear"></div>
                 </div>
                 <div class="clear"></div>
             </div>
-            <div class="no-paper" ng-if="(papers | filter:search | filter:dateFilter).length == 0">No paper found</div>
+            <div class="no-paper" ng-if="(papers | filter:search | filter:dateFilter | filter:roleFilter).length == 0" data-i18n="_No_paper_found_">No paper found</div>
         </div>
     </div>
 </div>
