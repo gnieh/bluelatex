@@ -35,7 +35,15 @@ import org.osgi.framework.BundleContext
 
 import java.util.Date
 
+import org.apache.pdfbox.pdmodel.PDDocument
+
+import resource._
+
 import common._
+
+import couch.Paper
+
+import gnieh.sohva.control._
 
 /** This actor handles compilation of a paper.
  *  An instance of this actor is not eternally resident, if no
@@ -49,6 +57,7 @@ class CompilationActor(
   bndContext: BundleContext,
   synchro: SynchroServer,
   configuration: PaperConfiguration,
+  couchConfig: CouchConfiguration,
   paperId: String,
   defaultSettings: CompilerSettings,
   val logger: Logger
@@ -90,7 +99,10 @@ class CompilationActor(
       } yield compilDate before lastModificationDate).getOrElse(true)
       logDebug(s"Document needs to be compiled: $hasBeenModified")
 
-      for(compiler <- bndContext.get[Compiler]) {
+      for {
+        compiler <- bndContext.get[Compiler]
+        couch <- bndContext.get[CouchClient]
+      } {
 
         // TODO ideally the number of times we run the latex compiler, and bibtex,
         // and the index compiler should be smarter than this.
@@ -107,6 +119,20 @@ class CompilationActor(
           // clean the generated png files when compilation succeeded
           for(file <- configuration.buildDir(paperId).filter(_.extension == ".png"))
             file.delete
+          // extract the paper title and update it if necessary
+          // i.e. if it changes since the last version saved in the database
+          val pdfFile = configuration.buildDir(paperId) / s"$paperId.pdf"
+          couchConfig.asAdmin(couch) { session =>
+            val db = session.database(couchConfig.database("blue_papers"))
+            for {
+              paper <- db.getDocById[Paper](paperId)
+              pdf <- managed(PDDocument.load(pdfFile))
+              newTitle <- Option(pdf.getDocumentInformation.getTitle)
+              p <- paper
+              if p.title != newTitle
+            } db.saveDoc(p.copy(title = newTitle).withRev(p._rev))
+          }
+
           res
         }
 
