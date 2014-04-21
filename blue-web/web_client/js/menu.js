@@ -68,6 +68,20 @@ angular.module('bluelatex.menu', [])
           action: 'partials/paper_share_menu.html'
         },
         {
+          label: 'Send to Arxiv',
+          type: 'action',
+          class: '',
+          icon: null,
+          action: 'arxiv'
+        },
+        {
+          label: 'Switch ACE/Textarea',
+          type: 'action',
+          class: '',
+          icon: null,
+          action: 'switch_editor_mode'
+        },
+        {
           label: 'Settings',
           type: 'menu',
           class: '',

@@ -1,13 +1,14 @@
 <section id="paper">
     <section class="centerRightCol">
         <section class="centerCol">
-            <div ui-ace="{
+            <div ng-show="mode=='ace'" ui-ace="{
               useWrapMode : true,
               showGutter: true,
               mode: 'latex',
               onLoad: aceLoaded,
               onChange: aceChanged
-            }" ng-model="content"></div>
+            }" ng-model="content" itsalltext-extension=".tex"></div>
+            <textarea ng-hide="mode=='ace'" ng-model="content" itsalltext-extension=".tex"></textarea>
         </section>
         <section class="rightCol">
             <div id="preview">
@@ -22,6 +23,10 @@
     </section>
     <section class="leftCol">
       <div class="btn-group listType">
+        <label class="btn btn-default" ng-class="{'active': listType=='files'}" for="files">
+            <input type="radio" name="listType" value="files" id="files" ng-model="listType">
+            <span class="icon-file"></span>
+        </label>
         <label class="btn btn-default" ng-class="{'active': listType=='toc'}" for="toc">
             <input type="radio" name="listType" value="toc" id="toc" ng-model="listType">
             <span class="icon-list" ></span>
@@ -29,10 +34,6 @@
         <label class="btn btn-default" ng-class="{'active': listType=='figures'}" for="figure">
             <input type="radio" name="listType" value="figures" id="figure" checked="true" ng-model="listType">
             <span class="icon-vignette"></span>
-        </label>
-        <label class="btn btn-default" ng-class="{'active': listType=='files'}" for="files">
-            <input type="radio" name="listType" value="files" id="files" ng-model="listType">
-            <span class="icon-file"></span>
         </label>
       </div>
       <section class="list">

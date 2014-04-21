@@ -204,7 +204,9 @@ angular.module('bluelatex.paper',[])
           goToLine: goToLine,
           getContent: function () { return content;},
           setContent: function (c) { return _session.setValue(c);},
-          _editor: _editor,
+          getEditor: function () {
+            return _editor;
+          },
           getSession: function () {
             return _editor.getSession();
           },
@@ -230,9 +232,11 @@ angular.module('bluelatex.paper',[])
     var paper = {};
     var textLog= '';
 
+
+    $scope.mode = 'ace';
     $scope.logs = [];
     $scope.toc = [];
-    $scope.listType = 'toc';
+    $scope.listType = 'files';
 
     //action listener: action in the menu
     $scope.$on('handleAction', function(event, data){
@@ -240,6 +244,10 @@ angular.module('bluelatex.paper',[])
         $scope[data]();
       }
     });
+
+    $scope.switch_editor_mode = function () {
+      $scope.mode = ($scope.mode == 'ace'?'text':'ace');
+    }
 
     $scope.compile = function () {
       textLog = '';
@@ -284,6 +292,7 @@ angular.module('bluelatex.paper',[])
             ace.getSession().on("change", function(){
               $scope.toc = ace.getToc();
             });
+            _editor.focus();
         });
     };
 
