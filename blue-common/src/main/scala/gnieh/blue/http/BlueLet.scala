@@ -267,7 +267,7 @@ abstract class AsyncRoleLet(val paperId: String, config: Config, logger: Logger)
 
   final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Future[Any] =
     roles(talk) match {
-      case Success(m) => roleAct(user, m(s"org.couchdb.user:${user.name}"))
+      case Success(m) => roleAct(user, m(user.name))
       case Failure(t) => Future.failed(t)
     }
 
