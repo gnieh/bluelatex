@@ -3,10 +3,48 @@
 /* Controllers */
 
 angular.module('bluelatex.controller', ['bluelatex.User'])
-  .controller('LoginController', ['$scope','User','localize','$location', function ($scope, User,localize,$location) {
+  .controller('MainController', ['$scope','User','$route','$location','$routeParams','ace', function ($scope, User,$route,$location,$routeParams,ace) {
+    $scope.$on( "$routeChangeSuccess", function(event, route) {
+      $scope.currentRoute = route;
+    });
+    $scope.$route = $route;
+    $scope.$location = $location;
+    $scope.$routeParams = $routeParams;
+    $scope.ace = ace;
+
+    $scope.$on('handleTopAction', function(event, data){
+      $scope.$broadcast('handleAction', data);
+    });
+  }])
+  .controller('LoginLogoutController', ['$scope','User','localize','$location', function ($scope, User,localize,$location) {
     var user = {};
     $scope.user = user;
     $scope.errors = [];
+
+    $scope.logout = function () {
+        $scope.errors = [];
+
+        User.login(user.username, user.password).then(function(data) {
+            $location.path( "/papers" );
+        }, function(err) {
+          switch(err.status){
+            case 400:
+              $scope.errors.push(localize.getLocalizedString('_Login_Some_parameters_are_missing_'));
+              break;
+            case 401:
+              $scope.errors.push(localize.getLocalizedString('_Login_Wrong_username_and_or_password_'));
+              break;
+            case 500:
+              $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
+              break;
+            default:
+              $scope.errors.push(localize.getLocalizedString('_Login_Something_wrong_happened_'));
+              console.log(err);
+          }
+        }, function (progress) {
+            console.log(progress);
+        });
+    };
 
     $scope.login = function () {
         $scope.errors = [];
@@ -202,115 +240,8 @@ angular.module('bluelatex.controller', ['bluelatex.User'])
         }, function (progress) {});
     };
 
-  }]).controller('PaperController', ['$scope','localize','$location', function ($scope, User,localize,$location) {
-    var paper = {};
-    var content;
-    var _session;
-    $scope.paper = paper;
-    $scope.logs = [];
-    $scope.toc = [];
-    $scope.listType = 'toc';
-
-    $scope.content = content;
-
-    $scope.compile = function () {
-      err = '';
-      var pdftex = new PDFTeX();
-      pdftex.set_TOTAL_MEMORY(80*1024*1024).then(function() {
-        //pdftex.FS_createLazyFile('/', 'snowden.jpg', 'snowden.jpg', true, true);
-
-        pdftex.on_stdout = appendOutput;
-        pdftex.on_stderr = appendOutput;
-
-        var start_time = new Date().getTime();
-        pdftex.compile(content).then(function(pdf_dataurl) {
-          var end_time = new Date().getTime();
-          console.info("Execution time: " + (end_time-start_time)/1000+' sec');
-          console.log(pdf_dataurl);
-          var logs = LatexParser.parse(err,{});
-          var annotations = [];
-          for (var i = 0; i < logs.all.length; i++) {
-            var error = logs.all[i];
-            annotations.push({
-              row: error.line - 1,
-              column: 1,
-              text: error.message,
-              type: (error.level=="error")?"error":'warning' // also warning and information
-            });
-          }
-          _session.setAnnotations(annotations);
-          console.log(logs);
-          if(pdf_dataurl === false)
-            return;
-        });
-      });
-    };
-    var out = '';
-    var err = '';
-    var appendOutput = function(msg) {
-        err += "\r\n" + msg;
-    }
-
-    $scope.aceLoaded = function(_editor) {
-      // Editor part
-      _session = _editor.getSession();
-      var _renderer = _editor.renderer;
-
-      content = _session.getValue();
-
-      $scope.goToLine = function (line) {
-        _editor.gotoLine(line);
-      };
-
-      // Options
-      _editor.setReadOnly(false);
-      _session.setUndoManager(new ace.UndoManager());
-      _renderer.setShowGutter(true);
-
-      // Events
-      _editor.on("changeSession", function(){
-        _session = _editor.getSession();
-      });
-      _session.on("change", function(){
-        content = _session.getValue();
-        parseTOC(content);
-      });
-      parseTOC(content);
-
-      // HACK to have the ace instance in the scope...
-      $scope.modeChanged = function () {
-        _session.setMode('ace/mode/latex');
-      };
-    };
-    var parseTOC = function (latex) {
-      var toc = [];
-      var keys = ['chapter','section','subsection','subsubsection','paragraph'];
-      var regex = '\\\\('+keys.join('|')+')(\\*)?\{([^}]+)\}';
-      var reg = new RegExp(regex,"gi");
-      var astring = latex.split('\n');
-
-      for (var i = 0; i < astring.length; i++) {
-        var number = i+1;
-        var line = astring[i];
-        var result;
-        while ((result = reg.exec(line)) !== null) {
-          var type = (result[1]);
-          toc.push({
-            type: type,
-            level: keys.indexOf(type),
-            restart: result[2]=='*',
-            title: result[3],
-            line: number
-          });
-        }
-      };
-      $scope.toc = toc;
-    }
-    $scope.aceChanged = function(e) {
-    };
-
   }])
-  .controller('MyCtrl1', [function() {
+  .controller('papersController', [function() {
 
   }])
   .controller('MyCtrl2', [function() {
