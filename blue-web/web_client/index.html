@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" ng-controller="MainController">
 <head>
   <meta charset="utf-8">
   <script>
@@ -27,13 +27,13 @@
 
     // load all of the dependencies asynchronously.
     $script([
-      'js/bootstrap.min.js',
       'lib/angular/angular.js',
       'lib/angular/angular-resource.js',
       'lib/angular/angular-route.js',
       'lib/localize.js',
       'js/app.js',
       'js/menu.js',
+      'js/Paper.js',
       'js/Session.js',
       'js/services.js',
       'js/controllers.js',
@@ -42,24 +42,27 @@
       'lib/ui-ace.js',
       'lib/promise.js',
       'lib/texlive.js/pdftex.js',
+      'lib/latex-log-parser.js',
       'ace/ace.js'
     ], function() {
       // when all is done, execute bootstrap angular application
       angular.bootstrap(document, ['bluelatex']);
     });
   </script>
-  <title>\BlueLatex</title>
-  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <title ng-bind="$route.current.$$route.options.title">\BlueLatex</title>
   <link rel="stylesheet" href="css/css.css">
-  <script type="text/javascript" src='/js/jquery-2.0.3.min.js'></script>
-  <script type="text/javascript" src='/lib/latex-log-parser.js'></script>
+  <link rel="stylesheet" href="css/register.css">
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/paper.css">
+  <link rel="stylesheet" href="css/papers.css">
+  <link rel="stylesheet" href="css/profil.css">
+  <link rel="stylesheet" href="css/papers.css">
 </head>
 <body>
   <header>
     <div class="logo">
-      <a href="#/"><img src="/img/logo.png" alt="\BlueLatex"></a>
+      <a href="#/"><img src="/img/logo1.png" alt="\BlueLatex"></a>
     </div>
-    <nav bl-options></nav>
     <nav bl-menu></nav>
   </header>
   <div ng-view></div>
