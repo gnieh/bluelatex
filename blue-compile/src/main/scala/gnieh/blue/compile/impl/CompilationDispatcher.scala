@@ -83,7 +83,7 @@ class CompilationDispatcher(
     case Register(_, client) =>
       // A client tried to registered to an unknown paper identifier,
       // to avoid having dangling request, reply immediately with an error
-      client.complete(Try(false))
+      client.complete(Try(CompilationAborted))
     case _ =>
       // ignore other messages
   }
