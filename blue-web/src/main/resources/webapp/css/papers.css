@@ -141,8 +141,19 @@
     box-shadow: 0px 0px 3px rgba(0,0,0,0.2);
     background: #fff;
 }
+#paper_list.vignette .paper .icon {
+    width: 100%;
+    height: 100%;
+}
+#paper_list.vignette .paper .icon a > div {
+    width: 100%;
+    height: 100%;
+}
 #paper_list.vignette .paper a {
     color: #fff;
+    width: 100%;
+    display: inline-block;
+    height: 100%;
 }
 #paper_list.vignette .paper img {
     width: 100%;
@@ -155,6 +166,7 @@
     line-height: 34px;
     padding: 4px 7px;
     height:40px;
+    z-index: 1;
 }
 #paper_list.vignette .paper:hover *{
     -moz-transition: bottom 0.2s;
@@ -163,7 +175,7 @@
     transition: bottom 0.2s;
 }
 #paper_list.vignette .paper:hover .title {
-    bottom: 102px;
+    bottom: 33px;
 }
 #paper_list.vignette .paper .tags {
     bottom: -34px;
@@ -179,8 +191,9 @@
 }
 #paper_list.vignette .paper .options {
     padding: 0;
-    bottom: -102px;
+    bottom: -33px;
     height: 33px;
+    border-top: 1px solid #FEFEFE;
 }
 #paper_list.vignette .paper:hover .options {
     bottom: 0px;
@@ -195,7 +208,7 @@
     border-radius: 0;
     text-align: center;
 }
-#paper_list.vignette .paper .options:last-child {
+#paper_list.vignette .paper .option:last-child {
     border-left: 1px solid #fefefe;
 }
 #paper_list.vignette .paper .option:hover {
