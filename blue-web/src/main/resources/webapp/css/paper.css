@@ -132,7 +132,7 @@
 }
 
 .ace_editor {
-    width: 100%;
+    /* width: 100%; */
     height: 100%;
 }
 .ace-tm .ace_gutter {

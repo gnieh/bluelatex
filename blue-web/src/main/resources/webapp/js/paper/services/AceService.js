@@ -1,6 +1,6 @@
 angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.Shared.Services.Configuration'])
-  .factory("AceService", ['$localStorage','$log','apiRootUrl',
-    function ($localStorage,$log,apiRootUrl) {
+  .factory("AceService", ['$localStorage','$log','apiRootUrl','$q','$http',
+    function ($localStorage,$log,apiRootUrl,$q,$http) {
       var content;
       var _session;
       var _editor;
@@ -82,15 +82,60 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
         _editor.focus();
       };
 
+    var langTools = ace.require("ace/ext/language_tools");
+
+    var downloadTexCmds = function() {
+      var deferred = $q.defer();
+      $http({method:'get',url: "resources/texCmds.json"}).then(function (data) {
+        deferred.resolve(data.data);
+      }, function (error) {
+        deferred.reject(error);
+      }, function (progress) {
+        deferred.notify(progress);
+      });
+      return deferred.promise;
+    };
+    var texCmds = null;
+    var texCompleter = {
+      getCompletions: function(editor, session, pos, prefix, callback) {
+        if(texCmds == null ){
+          downloadTexCmds().then(function(cmds) {
+            texCmds = cmds;
+            callback(null, texCmds);
+          });
+        } else {
+          callback(null, texCmds);
+        }
+        /*callback(null, texCmds.reduce(function(a, b, i){
+          if(b.value.search(prefix)>-1){
+            a.push({
+              name: b.name,
+              value: b.value.replace(prefix,''),
+              score: 99999999-i,
+              meta: b.meta
+            });
+          }
+          return a;
+        },[]));*/
+        return;
+      }
+    };
+    langTools.addCompleter(texCompleter);
+
       var aceLoaded = function (_e, callback) {
         // Editor part
         _editor = _e;
+
         _session = _editor.getSession();
         _renderer = _editor.renderer;
         content = _session.getValue();
 
         // add undo support
         _session.setUndoManager(new ace.UndoManager());
+        _editor.setOptions({
+            enableBasicAutocompletion: true,
+            spellcheck: true
+        });
 
         // Event when the session change
         _editor.on("changeSession", function () {
