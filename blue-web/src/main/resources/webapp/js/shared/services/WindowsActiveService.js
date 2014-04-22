@@ -16,7 +16,7 @@ angular.module('bluelatex.Shared.Services.WindowActive', [])
       //call this when you know 'foo' has been changed
       var notifyObservers = function(){
         angular.forEach(observerCallbacks, function(callback){
-          callback();
+          callback(windowActive);
         });
       };
 
