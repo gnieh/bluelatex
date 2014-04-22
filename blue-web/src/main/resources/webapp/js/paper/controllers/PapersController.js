@@ -1,15 +1,40 @@
-angular.module('bluelatex.Paper.Controllers.Papers', ['bluelatex.Paper.Services.Paper'])
-  .controller('PapersController', ['$rootScope', '$scope', 'PaperService','$log','MessagesService',
-    function ($rootScope, $scope, PaperService,$log,MessagesService) {
+angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Paper.Services.Paper'])
+  .controller('PapersController', ['$rootScope', '$scope', 'PaperService','$log','MessagesService','$localStorage',
+    function ($rootScope, $scope, PaperService,$log,MessagesService,$localStorage) {
+      $scope.papers = [];
 
-      $scope.reverse = false;
-      $scope.predicate = 'title';
+      if($localStorage.userPaperReverse == null)
+        $scope.reverse = false;
+      else
+        $scope.reverse = $localStorage.userPaperReverse;
+      $scope.$watch("reverse", function(value) {
+        $localStorage.reverse = value;
+      });
+
+      if($localStorage.userPaperPredicate == null)
+        $scope.predicate = 'title';
+      else
+        $scope.predicate = $localStorage.userPaperPredicate;
+      $scope.$watch("predicate", function(value) {
+        $localStorage.userPaperPredicate = value;
+      });
+
+      if($localStorage.userPaperStyle == null)
+        $scope.display_style = 'list';
+      else
+        $scope.display_style = $localStorage.userPaperStyle;
+      $scope.$watch("display_style", function(value) {
+        $localStorage.userPaperStyle = value;
+      });
+
+      $scope.date_filter = 'all';
+      $scope.role_filter = 'all';
+      $scope.tag_filter = 'all';
 
       PaperService.getUserPapers($rootScope.loggedUser).then(function (data) {
         $scope.papers = [];
         for (var i = 0; i < data.length; i++) {
           data[i].date = new Date();
-          data[i].tags = $scope.tags;
 
           $scope.papers.push(data[i]);
         }
@@ -26,22 +51,6 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['bluelatex.Paper.Services.
           MessagesService.error('_List_Papers_Something_wrong_happened_',err);
         }
       });
-      $scope.papers = [];
-      $scope.tags = [{
-        label: 'Brouillion',
-        color: get_radom_color()
-      }, {
-        label: 'A tag',
-        color: get_radom_color()
-      }, {
-        label: 'CV',
-        color: get_radom_color()
-      }];
-
-      $scope.display_style = 'list';
-      $scope.date_filter = 'all';
-      $scope.role_filter = 'all';
-      $scope.tag_filter = 'all';
 
       var dateFilterToday = function (paper) {
         var now = new Date();
