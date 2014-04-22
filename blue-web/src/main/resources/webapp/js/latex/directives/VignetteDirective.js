@@ -1,5 +1,5 @@
 angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services.Paper'])
-  .directive('blVignette', ['PaperService', function(PaperService) {
+  .directive('blVignette', ['$rootScope','PaperService','$q', function($rootScope,PaperService,$q) {
     return {
       'require': 'blVignette',
       'scope': {
@@ -24,82 +24,91 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
 
         var updateHightlight = function(file, line) {
           $scope.hightlights = [];
-          $scope.$apply();
-          if(!pdfDimension) return;
-          if(!$scope.synctex) return;
-          if(!$scope.synctex.blockNumberLine) return;
-          if(!$scope.synctex.blockNumberLine[file]) return;
-          if(!$scope.synctex.blockNumberLine[file][line]) return;
-          var elems = $scope.synctex.blockNumberLine[file][line];
+          (function() {
+            var deferred = $q.defer();
+            setTimeout(function(file, line) {
+              var hightlights = [];
+              if(!pdfDimension) return;
+              if(!$scope.synctex) return;
+              if(!$scope.synctex.blockNumberLine) return;
+              if(!$scope.synctex.blockNumberLine[file]) return;
+              if(!$scope.synctex.blockNumberLine[file][line]) return;
+              var elems = $scope.synctex.blockNumberLine[file][line];
 
-          if(!isArray(elems) || !elems[0]) return;
+              if(!isArray(elems) || !elems[0]) return;
 
-          var lines = [];
-          var cLine = {
-            positionFirst: 0,
-            minLeft: 0,
-            maxLeft: 0,
-            bottom: elems[0].bottom,
-            height: elems[0].height
-          };
-
-          for (var i = elems.length - 1; i >= 0; i--) {
-            var e=elems[i];
-            if(e.page != $scope.page) continue;
-            if(e.parent.type == "vertical") continue;
-            if(e.type=='k' || e.type=='h') continue;
-            if(e.bottom!=cLine.bottom){
-              lines.push(cLine);
-              cLine = {
-                positionFirst: i,
-                minLeft: i,
-                maxLeft: i,
-                bottom: elems[i].bottom,
-                height: elems[i].height
+              var lines = [];
+              var cLine = {
+                positionFirst: 0,
+                minLeft: 0,
+                maxLeft: 0,
+                bottom: elems[0].bottom,
+                height: elems[0].height
               };
-              continue;
-            }
-            if(e.left < elems[cLine.minLeft].left) {
-              cLine.minLeft = i;
-              cLine.positionFirst = i - cLine.positionFirst;
-            } else if(e.left > elems[cLine.maxLeft].left) {
-              cLine.maxLeft = i;
-            }
-            if(e.height>cLine.height) {
-              cLine.height=e.height;
-            }
-          }
-          lines.push(cLine);
 
-          for (var i = lines.length - 1; i >= 0; i--) {
-            var line = lines[i];
-            var minPosition = elems[line.minLeft].parent.elements.indexOf(elems[line.minLeft]);
-            var maxPosition = elems[line.minLeft].parent.elements.indexOf(elems[line.maxLeft]);
-            var max = elems[line.minLeft].parent.elements.length -1;
+              for (var i = elems.length - 1; i >= 0; i--) {
+                var e=elems[i];
+                if(e.page != $scope.page) continue;
+                if(e.parent.type == "vertical") continue;
+                if(e.type=='k' || e.type=='h') continue;
+                if(e.bottom!=cLine.bottom){
+                  lines.push(cLine);
+                  cLine = {
+                    positionFirst: i,
+                    minLeft: i,
+                    maxLeft: i,
+                    bottom: elems[i].bottom,
+                    height: elems[i].height
+                  };
+                  continue;
+                }
+                if(e.left < elems[cLine.minLeft].left) {
+                  cLine.minLeft = i;
+                  cLine.positionFirst = i - cLine.positionFirst;
+                } else if(e.left > elems[cLine.maxLeft].left) {
+                  cLine.maxLeft = i;
+                }
+                if(e.height>cLine.height) {
+                  cLine.height=e.height;
+                }
+              }
+              lines.push(cLine);
 
-            var left = elems[line.minLeft].left;
-            if(minPosition <= 1) {
-              left = elems[line.minLeft].parent.left;
-            } else if(elems[line.minLeft-1]){
-              left = elems[line.minLeft-1].left;
-            }
-            var width = elems[line.maxLeft].left-left;
+              for (var i = lines.length - 1; i >= 0; i--) {
+                var line = lines[i];
+                var minPosition = elems[line.minLeft].parent.elements.indexOf(elems[line.minLeft]);
+                var maxPosition = elems[line.minLeft].parent.elements.indexOf(elems[line.maxLeft]);
+                var max = elems[line.minLeft].parent.elements.length -1;
 
-            if(maxPosition<max && elems[line.maxLeft-1]) {
-              width = elems[line.maxLeft-1].left-left;
-            }
+                var left = elems[line.minLeft].left;
+                if(minPosition <= 1) {
+                  left = elems[line.minLeft].parent.left;
+                } else if(elems[line.minLeft-1]){
+                  left = elems[line.minLeft-1].left;
+                }
+                var width = elems[line.maxLeft].left-left;
 
-            var s1 = convertToViewportPoint(left, line.bottom, pdfDimension);
-            var s2 = convertToViewportPoint(width, line.height, pdfDimension);
+                if(maxPosition<max && elems[line.maxLeft-1]) {
+                  width = elems[line.maxLeft-1].left-left;
+                }
 
-            $scope.hightlights.push({
-              height: (pdfDimension.height-s2[1])+"px",
-              width: s2[0] + "px",
-              left: s1[0] + "px",
-              top :pdfDimension.height-s1[1]-(pdfDimension.height-s2[1]) + 'px'
-            });
-          }
-          $scope.$apply();
+                var s1 = convertToViewportPoint(left, line.bottom, pdfDimension);
+                var s2 = convertToViewportPoint(width, line.height, pdfDimension);
+
+                hightlights.push({
+                  height: (pdfDimension.height-s2[1])+"px",
+                  width: s2[0] + "px",
+                  left: s1[0] + "px",
+                  top :pdfDimension.height-s1[1]-(pdfDimension.height-s2[1]) + 'px'
+                });
+              }
+              deferred.resolve(hightlights);
+            },0,file, line);
+            return deferred.promise;
+          })().then(function(hightlights) {
+            $scope.hightlights = hightlights;
+            $rootScope.$$phase || $rootScope.$apply();
+          });
         };
 
         $scope.$watch("currentLine", function (line) {
@@ -139,8 +148,8 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
             scale: ratio,
             height: viewport.height
           };
-
-          updateHightlight($scope.currentFile.title, $scope.currentLine);
+          if($scope.synctex)
+            updateHightlight($scope.currentFile.title, $scope.currentLine);
           //Set the canvas height and width to the height and width of the viewport
           var context = canvas.getContext("2d");
           containerDiv.style.height = viewport.height+"px";
@@ -173,7 +182,12 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           if (outputScale.scaled) {
               context.scale(outputScale.sx, outputScale.sy);
           }
-          page.getTextContent().then(function (textContent) {
+          var renderContext = {
+              canvasContext: context,
+              viewport: viewport
+          };
+          page.render(renderContext);
+          /*page.getTextContent().then(function (textContent) {
               var textLayer = new TextLayerBuilder({
                   textLayerDiv: textLayerDiv,
                   pageIndex: 0
@@ -187,7 +201,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
                   textLayer: textLayer
               };
               page.render(renderContext);
-          });
+          });*/
         }
 
         $scope.resize = function (e) {
@@ -202,22 +216,21 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
                 scale: img.width/(img.naturalWidth*0.72),
                 height: img.height
               };
-
-              updateHightlight($scope.currentFile.title, $scope.currentLine);
+              if($scope.synctex)
+                updateHightlight($scope.currentFile.title, $scope.currentLine);
             }
           }
         };
-
-        $scope.loadPDF = function (e) {
+        $scope.init = function(e) {
           element = e;
           element.on('click', getCurrentLine);
+        };
+        $scope.loadPDF = function (e) {
           loadPdf(PaperService.getPDFUrl($scope.paperId,$scope.page)+"?"+$scope.revision);
         };
         $scope.loadImage = function (e) {
-          element = e;
-          element.on('click', getCurrentLine);
           setTimeout(function () {
-            var img = element[0].getElementsByTagName("img")[0];
+            var img = e[0].getElementsByTagName("img")[0];
             img.onload=function (event) {
               pdfDimension = {
                 scale: img.width/(img.naturalWidth*0.72),
@@ -228,59 +241,69 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         };
         var seuil = 2;
         var getCurrentLine = function(event) {
-          if($scope.synctex == null) return;
-          var x=event.layerX;
-          var y=event.layerY;
-          var target = event.target;
-          while(target != event.currentTarget && target!=null && target!=document) {
-            x+=target.offsetLeft;
-            y+=target.offsetTop;
-            target = target.parent;
-          }
-          for (var i = $scope.synctex.hBlocks.length - 1; i >= 0; i--) {
-            var hBlock = $scope.synctex.hBlocks[i];
+          (function() {
+            var deferred = $q.defer();
+            setTimeout(function(event) {
+              if($scope.synctex == null) return;
+              var x=event.layerX;
+              var y=event.layerY;
+              var target = event.target;
+              while(target != event.currentTarget && target!=null && target!=document) {
+                x+=target.offsetLeft;
+                y+=target.offsetTop;
+                target = target.parent;
+              }
+              for (var i = $scope.synctex.hBlocks.length - 1; i >= 0; i--) {
+                var hBlock = $scope.synctex.hBlocks[i];
 
-            var s1 = convertToViewportPoint(hBlock.left, hBlock.bottom, pdfDimension);
-            var s2 = convertToViewportPoint(hBlock.width, hBlock.height, pdfDimension);
+                var s1 = convertToViewportPoint(hBlock.left, hBlock.bottom, pdfDimension);
+                var s2 = convertToViewportPoint(hBlock.width, hBlock.height, pdfDimension);
 
-            var dim = {
-              height: (pdfDimension.height-s2[1]),
-              width: s2[0],
-              left: s1[0],
-              top : s2[1]-s1[1]
-            };
-            if($scope.page == hBlock.page &&
-                y <= dim.top + dim.height + seuil &&
-                y >= dim.top - seuil &&
-                x >= dim.left - seuil &&
-                x <= dim.left + dim.width + seuil ){
-              //console.log('('+y+','+x+')', '('+(dim.top - seuil)+','+(dim.left - seuil)+')', '('+(dim.top + dim.height + seuil)+','+(dim.left + dim.width + seuil)+')', hBlock);
-              for (var i = hBlock.elements.length - 1; i >= 1; i--) {
-                var e = hBlock.elements[i];
-                if(e.left >= x && hBlock.elements[i-1].left <= x ) {
-                  $scope.currentLine = (i!=(hBlock.elements.length - 3)?hBlock.elements[i+1].line:e.line);
-                  $scope.$parent.$parent.changeFileFromName(hBlock.file.name);
-                  (function(line) {
-                    setTimeout(function(arguments) {
-                      $scope.$parent.$parent.goToLine(line);
-                    }, 750);
-                  })($scope.currentLine);
-                  return;
+                var dim = {
+                  height: (pdfDimension.height-s2[1]),
+                  width: s2[0],
+                  left: s1[0],
+                  top : s2[1]-s1[1]
+                };
+                if($scope.page == hBlock.page &&
+                    y <= dim.top + dim.height + seuil &&
+                    y >= dim.top - seuil &&
+                    x >= dim.left - seuil &&
+                    x <= dim.left + dim.width + seuil ){
+                  //console.log('('+y+','+x+')', '('+(dim.top - seuil)+','+(dim.left - seuil)+')', '('+(dim.top + dim.height + seuil)+','+(dim.left + dim.width + seuil)+')', hBlock);
+                  for (var i = hBlock.elements.length - 1; i >= 1; i--) {
+                    var e = hBlock.elements[i];
+                    if(e.left >= x && hBlock.elements[i-1].left <= x ) {
+                      $scope.currentLine = (i!=(hBlock.elements.length - 3)?hBlock.elements[i+1].line:e.line);
+                      $scope.$parent.$parent.changeFileFromName(hBlock.file.name);
+                      (function(line) {
+                        setTimeout(function(arguments) {
+                          $scope.$parent.$parent.goToLine(line);
+                        }, 750);
+                      })($scope.currentLine);
+                      deferred.resolve($scope.currentLine);
+                      return;
+                    }
+                  }
+                  if(hBlock.elements[1]) {
+                    $scope.currentLine = hBlock.elements[1].line;
+                    $scope.$parent.$parent.changeFileFromName(hBlock.file.name);
+                    (function(line) {
+                      setTimeout(function(arguments) {
+                        $scope.$parent.$parent.goToLine(line);
+                      }, 750);
+                    })($scope.currentLine);
+                    deferred.resolve($scope.currentLine);
+                    return;
+                  }
+                  break;
                 }
               }
-              if(hBlock.elements[1]) {
-                $scope.currentLine = hBlock.elements[1].line;
-                $scope.$parent.$parent.changeFileFromName(hBlock.file.name);
-                (function(line) {
-                  setTimeout(function(arguments) {
-                    $scope.$parent.$parent.goToLine(line);
-                  }, 750);
-                })($scope.currentLine);
-                return;
-              }
-              break;
-            }
-          }
+            },0,event);
+            return deferred.promise;
+          })().then(function() {
+            $rootScope.$$phase || $rootScope.$apply();
+          });
         };
 
         $scope.getUrlVignette = function () {
@@ -368,6 +391,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         };
 
         $scope.displayPages = function (pages) {
+          if(pdfDimension== null) return;
           removeBlocks();
           displayBlocks(pages[$scope.page].blocks,$scope.page);
         };
@@ -409,7 +433,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         $scope.$watch("displaysynctexbox", function(val){
           if(val) {
             if($scope.synctex)
-            $scope.displayPages($scope.synctex.pages);
+              $scope.displayPages($scope.synctex.pages);
           }
         });
 
@@ -421,7 +445,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           },500);
         });
 
-
+        $scope.init(element);
         if($scope.type == "pdf") {
           $scope.loadPDF(element);
         } else if($scope.type == "image") {
