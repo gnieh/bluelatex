@@ -1,8 +1,8 @@
-angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluelatex.Paper.Directives.Toc','bluelatex.Paper.Services.Ace','bluelatex.Paper.Services.Paper','bluelatex.Paper.Services.Ace','bluelatex.Latex.Services.SyncTexParser'])
-  .controller('PaperController', ['$rootScope','$scope', 'localize', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService','SyncTexParserService','$document',
-    function ($rootScope,$scope, localize, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService,SyncTexParserService,$document) {
+angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluelatex.Paper.Directives.Toc','bluelatex.Paper.Services.Ace','bluelatex.Paper.Services.Paper','bluelatex.Paper.Services.Ace','bluelatex.Latex.Services.SyncTexParser','bluelatex.Shared.Services.WindowActive'])
+  .controller('PaperController', ['$rootScope','$scope', 'localize', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService','SyncTexParserService','$document','WindowActiveService',
+    function ($rootScope,$scope, localize, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService,SyncTexParserService,$document,WindowActiveService) {
       var paper_id = $routeParams.id;
-
+      var pageActive = true;
       $scope.paperId = paper_id;
       $scope.pageViewport = {};
 
@@ -42,9 +42,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         PaperService.getSynctex(paper_id).then(function (data) {
           $scope.synctex = SyncTexParserService.parse(data);
           console.log($scope.synctex);
-          $scope.$apply(function () {
-            $scope.synctex = $scope.synctex;
-          });
+          $rootScope.$$phase || $rootScope.$apply();
         });
       };
 
@@ -52,6 +50,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       * Exit paper
       */
       var exitPaper = function () {
+        pageActive = false;
         if($scope.paper.authors &&
            $scope.paper.authors.indexOf($rootScope.loggedUser.name) >= 0) {
           stopMobWrite();
@@ -242,6 +241,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           getCompilerInfo();
           getResources();
           getSyncTex();
+          $scope.compile();
         } else if($scope.paper.reviewers.indexOf($rootScope.loggedUser.name) >= 0) {
           $scope.status = "reviewer";
         } else {
@@ -299,26 +299,42 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         }
       };
 
+      WindowActiveService.registerObserverCallback(function(windowActive) {
+        if(windowActive == true) {
+          pageActive = true;
+          $scope.compile();
+        } else {
+          pageActive = false;
+        }
+      });
+
       /**
       * Compile the paper
       */
+      var compileActive = false;
       $scope.compile = function () {
+        if(!pageActive) return;
+        if(compileActive) return;
+
+        compileActive = true;
         PaperService.subscribePaperCompiler(paper_id).then(function (data) {
-          if(data.response) {
+          compileActive = false;
+          getLog();
+          if(data.response == true) {
             getSyncTex();
             getPages();
             $scope.revision++;
-          } else {
-            getLog();
           }
           $scope.compile();
         }, function (error) {
+          compileActive = false;
           setTimeout(function() {
             getLog();
             $scope.compile();
           }, 3000);
         });
       };
+
       /**
       * Go to the next page
       */
