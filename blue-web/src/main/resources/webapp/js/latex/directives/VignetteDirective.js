@@ -6,6 +6,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         'page': "@",
         'scale': "=scale",
         'type': "=vignettetype",
+        'pdf': "=pdf",
         'paperId': "=paperid",
         'synctex': "=synctex",
         'revision': "=revision",
@@ -115,22 +116,19 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           if(!line) return;
           updateHightlight($scope.currentFile.title, line);
         });
-        $scope.$watch("revision", function () {
-          if(pdf)
-            $scope.loadPDF(element);
-        });
-        function loadPdf(pdfURI) {
-            PDFJS.getDocument(pdfURI).then(renderPdf);
-        }
 
         function loadImage (imageURI) {
 
         }
 
         function renderPdf(p) {
-          pdf = p;
-          pdf.getPage($scope.page).then(renderPage);
+          p.getPage(parseInt($scope.page)).then(renderPage);
         }
+
+        $scope.$watch("pdf", function(pdf) {
+          if(pdf!=null)
+          renderPdf(pdf);
+        });
 
         function renderPage(page) {
           var parent = element[0];
@@ -207,7 +205,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         $scope.resize = function (e) {
           element = e;
           if(pdf) {
-            pdf.getPage($scope.page).then(renderPage);
+            $scope.pdf.getPage($scope.page).then(renderPage);
           } else {
             var img = element[0].getElementsByTagName("img")[0];
             if(img) {
@@ -225,9 +223,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           element = e;
           element.on('click', getCurrentLine);
         };
-        $scope.loadPDF = function (e) {
-          loadPdf(PaperService.getPDFUrl($scope.paperId,$scope.page)+"?"+$scope.revision);
-        };
+
         $scope.loadImage = function (e) {
           setTimeout(function () {
             var img = e[0].getElementsByTagName("img")[0];
@@ -447,7 +443,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
 
         $scope.init(element);
         if($scope.type == "pdf") {
-          $scope.loadPDF(element);
+          //$scope.loadPDF(element);
         } else if($scope.type == "image") {
           $scope.loadImage(element);
         }

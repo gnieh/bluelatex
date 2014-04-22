@@ -140,7 +140,7 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
         */
         mobwrite.shareAceObj = function(paper) {
           // Call our prototype's constructor.
-          mobwrite.debug=true;
+          // mobwrite.debug=true;
           mobwrite.shareObj.apply(this, [paper.file]);
           mobwrite.syncGateway = apiRootUrl + "/papers/" + paper.paper_id + "/q";
           this.file = paper.file;

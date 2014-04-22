@@ -29,6 +29,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       $scope.displaySyncTexBox = true;
 
       $scope.vignetteType = "pdf";
+      $scope.pdf = null;
       $scope.urlPaper = PaperService.getPaperUrlRoot(paper_id);
       $scope.scale = "auto";
       $scope.totalPage = 0;
@@ -242,6 +243,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           getResources();
           getSyncTex();
           $scope.compile();
+          parsePDF();
         } else if($scope.paper.reviewers.indexOf($rootScope.loggedUser.name) >= 0) {
           $scope.status = "reviewer";
         } else {
@@ -308,6 +310,14 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         }
       });
 
+      var parsePDF = function() {
+        if($scope.vignetteType == "pdf") {
+          PDFJS.getDocument(PaperService.getPDFUrl(paper_id)+"?"+$scope.revision).then(function(pdf) {
+            $scope.pdf = pdf;
+            $scope.$apply();
+          });
+        }
+      };
       /**
       * Compile the paper
       */
@@ -321,6 +331,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           compileActive = false;
           getLog();
           if(data.response == true) {
+            parsePDF();
             getSyncTex();
             getPages();
             $scope.revision++;
