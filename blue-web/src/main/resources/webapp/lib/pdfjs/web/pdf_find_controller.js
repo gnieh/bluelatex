@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* globals PDFFindBar, PDFJS, FindStates, FirefoxCom, Promise */
 
 'use strict';
-
-/* globals PDFFindBar, PDFJS, FindStates, FirefoxCom, Promise */
 
 /**
  * Provides a "search" or "find" functionality for the PDF.
@@ -65,7 +64,7 @@ var PDFFindController = {
   initialize: function(options) {
     if(typeof PDFFindBar === 'undefined' || PDFFindBar === null) {
       throw 'PDFFindController cannot be initialized ' +
-            'without a PDFFindController instance';
+            'without a PDFFindBar instance';
     }
 
     this.pdfPageSource = options.pdfPageSource;
@@ -146,19 +145,21 @@ var PDFFindController = {
     var self = this;
     function extractPageText(pageIndex) {
       self.pdfPageSource.pages[pageIndex].getTextContent().then(
-        function textContentResolved(bidiTexts) {
+        function textContentResolved(textContent) {
+          var textItems = textContent.items;
           var str = '';
 
-          for (var i = 0; i < bidiTexts.length; i++) {
-            str += bidiTexts[i].str;
+          for (var i = 0; i < textItems.length; i++) {
+            str += textItems[i].str;
           }
 
           // Store the pageContent as a string.
           self.pageContents.push(str);
 
           extractTextPromisesResolves[pageIndex](pageIndex);
-          if ((pageIndex + 1) < self.pdfPageSource.pages.length)
+          if ((pageIndex + 1) < self.pdfPageSource.pages.length) {
             extractPageText(pageIndex + 1);
+          }
         }
       );
     }

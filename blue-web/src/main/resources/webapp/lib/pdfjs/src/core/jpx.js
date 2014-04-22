@@ -14,7 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* globals error, globalScope, warn */
+/* globals ArithmeticDecoder, error, globalScope, log2, readUint16, readUint32,
+           warn */
 
 'use strict';
 
@@ -38,33 +39,41 @@ var JpxImage = (function JpxImageClosure() {
         // TODO catch parse error
         var data = new Uint8Array(xhr.response || xhr.mozResponseArrayBuffer);
         this.parse(data);
-        if (this.onload)
+        if (this.onload) {
           this.onload();
+        }
       }).bind(this);
       xhr.send(null);
     },
     parse: function JpxImage_parse(data) {
-      function readUint(data, offset, bytes) {
-        var n = 0;
-        for (var i = 0; i < bytes; i++)
-          n = n * 256 + (data[offset + i] & 0xFF);
-        return n;
+
+      var head = readUint16(data, 0);
+      // No box header, immediate start of codestream (SOC)
+      if (head === 0xFF4F) {
+        this.parseCodestream(data, 0, data.length);
+        return;
       }
+
       var position = 0, length = data.length;
       while (position < length) {
         var headerSize = 8;
-        var lbox = readUint(data, position, 4);
-        var tbox = readUint(data, position + 4, 4);
+        var lbox = readUint32(data, position);
+        var tbox = readUint32(data, position + 4);
         position += headerSize;
-        if (lbox == 1) {
-          lbox = readUint(data, position, 8);
+        if (lbox === 1) {
+          // XLBox: read UInt64 according to spec.
+          // JavaScript's int precision of 53 bit should be sufficient here.
+          lbox = readUint32(data, position) * 4294967296 +
+                 readUint32(data, position + 4);
           position += 8;
           headerSize += 8;
         }
-        if (lbox === 0)
+        if (lbox === 0) {
           lbox = length - position + headerSize;
-        if (lbox < headerSize)
+        }
+        if (lbox < headerSize) {
           error('JPX error: Invalid box field size');
+        }
         var dataLength = lbox - headerSize;
         var jumpDataLength = true;
         switch (tbox) {
@@ -81,19 +90,53 @@ var JpxImage = (function JpxImageClosure() {
             this.parseCodestream(data, position, position + dataLength);
             break;
         }
-        if (jumpDataLength)
+        if (jumpDataLength) {
           position += dataLength;
+        }
+      }
+    },
+    parseImageProperties: function JpxImage_parseImageProperties(stream) {
+      try {
+        var newByte = stream.getByte();
+        while (newByte >= 0) {
+          var oldByte = newByte;
+          newByte = stream.getByte();
+          var code = (oldByte << 8) | newByte;
+          // Image and tile size (SIZ)
+          if (code == 0xFF51) {
+            stream.skip(4);
+            var Xsiz = stream.getInt32() >>> 0; // Byte 4
+            var Ysiz = stream.getInt32() >>> 0; // Byte 8
+            var XOsiz = stream.getInt32() >>> 0; // Byte 12
+            var YOsiz = stream.getInt32() >>> 0; // Byte 16
+            stream.skip(16);
+            var Csiz = stream.getUint16(); // Byte 36
+            this.width = Xsiz - XOsiz;
+            this.height = Ysiz - YOsiz;
+            this.componentsCount = Csiz;
+            // Results are always returned as Uint8Arrays
+            this.bitsPerComponent = 8;
+            return;
+          }
+        }
+        throw 'No size marker found in JPX stream';
+      } catch (e) {
+        if (this.failOnCorruptedImage) {
+          error('JPX error: ' + e);
+        } else {
+          warn('JPX error: ' + e + '. Trying to recover');
+        }
       }
     },
     parseCodestream: function JpxImage_parseCodestream(data, start, end) {
       var context = {};
       try {
         var position = start;
-        while (position < end) {
+        while (position + 1 < end) {
           var code = readUint16(data, position);
           position += 2;
 
-          var length = 0, j;
+          var length = 0, j, sqcd, spqcds, spqcdSize, scalarExpounded, tile;
           switch (code) {
             case 0xFF4F: // Start of codestream (SOC)
               context.mainHeader = true;
@@ -135,8 +178,7 @@ var JpxImage = (function JpxImageClosure() {
               length = readUint16(data, position);
               var qcd = {};
               j = position + 2;
-              var sqcd = data[j++];
-              var spqcdSize, scalarExpounded;
+              sqcd = data[j++];
               switch (sqcd & 0x1F) {
                 case 0:
                   spqcdSize = 8;
@@ -153,10 +195,10 @@ var JpxImage = (function JpxImageClosure() {
                 default:
                   throw 'Invalid SQcd value ' + sqcd;
               }
-              qcd.noQuantization = spqcdSize == 8;
+              qcd.noQuantization = (spqcdSize == 8);
               qcd.scalarExpounded = scalarExpounded;
               qcd.guardBits = sqcd >> 5;
-              var spqcds = [];
+              spqcds = [];
               while (j < length + position) {
                 var spqcd = {};
                 if (spqcdSize == 8) {
@@ -170,9 +212,9 @@ var JpxImage = (function JpxImageClosure() {
                 spqcds.push(spqcd);
               }
               qcd.SPqcds = spqcds;
-              if (context.mainHeader)
+              if (context.mainHeader) {
                 context.QCD = qcd;
-              else {
+              } else {
                 context.currentTile.QCD = qcd;
                 context.currentTile.QCC = [];
               }
@@ -182,14 +224,13 @@ var JpxImage = (function JpxImageClosure() {
               var qcc = {};
               j = position + 2;
               var cqcc;
-              if (context.SIZ.Csiz < 257)
+              if (context.SIZ.Csiz < 257) {
                 cqcc = data[j++];
-              else {
+              } else {
                 cqcc = readUint16(data, j);
                 j += 2;
               }
-              var sqcd = data[j++];
-              var spqcdSize, scalarExpounded;
+              sqcd = data[j++];
               switch (sqcd & 0x1F) {
                 case 0:
                   spqcdSize = 8;
@@ -206,12 +247,12 @@ var JpxImage = (function JpxImageClosure() {
                 default:
                   throw 'Invalid SQcd value ' + sqcd;
               }
-              qcc.noQuantization = spqcdSize == 8;
+              qcc.noQuantization = (spqcdSize == 8);
               qcc.scalarExpounded = scalarExpounded;
               qcc.guardBits = sqcd >> 5;
-              var spqcds = [];
-              while (j < length + position) {
-                var spqcd = {};
+              spqcds = [];
+              while (j < (length + position)) {
+                spqcd = {};
                 if (spqcdSize == 8) {
                   spqcd.epsilon = data[j++] >> 3;
                   spqcd.mu = 0;
@@ -223,10 +264,11 @@ var JpxImage = (function JpxImageClosure() {
                 spqcds.push(spqcd);
               }
               qcc.SPqcds = spqcds;
-              if (context.mainHeader)
+              if (context.mainHeader) {
                 context.QCC[cqcc] = qcc;
-              else
+              } else {
                 context.currentTile.QCC[cqcc] = qcc;
+              }
               break;
             case 0xFF52: // Coding style default (COD)
               length = readUint16(data, position);
@@ -236,7 +278,6 @@ var JpxImage = (function JpxImageClosure() {
               cod.entropyCoderWithCustomPrecincts = !!(scod & 1);
               cod.sopMarkerUsed = !!(scod & 2);
               cod.ephMarkerUsed = !!(scod & 4);
-              var codingStyle = {};
               cod.progressionOrder = data[j++];
               cod.layersCount = readUint16(data, j);
               j += 2;
@@ -252,11 +293,11 @@ var JpxImage = (function JpxImageClosure() {
               cod.verticalyStripe = !!(blockStyle & 8);
               cod.predictableTermination = !!(blockStyle & 16);
               cod.segmentationSymbolUsed = !!(blockStyle & 32);
-              cod.transformation = data[j++];
+              cod.reversibleTransformation = data[j++];
               if (cod.entropyCoderWithCustomPrecincts) {
-                var precinctsSizes = {};
+                var precinctsSizes = [];
                 while (j < length + position) {
-                  var precinctsSize = data[j];
+                  var precinctsSize = data[j++];
                   precinctsSizes.push({
                     PPx: precinctsSize & 0xF,
                     PPy: precinctsSize >> 4
@@ -269,20 +310,21 @@ var JpxImage = (function JpxImageClosure() {
                   cod.selectiveArithmeticCodingBypass ||
                   cod.resetContextProbabilities ||
                   cod.terminationOnEachCodingPass ||
-                  cod.verticalyStripe || cod.predictableTermination)
+                  cod.verticalyStripe || cod.predictableTermination) {
                 throw 'Unsupported COD options: ' +
                   globalScope.JSON.stringify(cod);
+              }
 
-              if (context.mainHeader)
+              if (context.mainHeader) {
                 context.COD = cod;
-              else {
+              } else {
                 context.currentTile.COD = cod;
                 context.currentTile.COC = [];
               }
               break;
             case 0xFF90: // Start of tile-part (SOT)
               length = readUint16(data, position);
-              var tile = {};
+              tile = {};
               tile.index = readUint16(data, position + 2);
               tile.length = readUint32(data, position + 4);
               tile.dataEnd = tile.length + position - 2;
@@ -300,7 +342,7 @@ var JpxImage = (function JpxImageClosure() {
               context.currentTile = tile;
               break;
             case 0xFF93: // Start of data (SOD)
-              var tile = context.currentTile;
+              tile = context.currentTile;
               if (tile.partIndex === 0) {
                 initializeTile(context, tile.index);
                 buildPackets(context);
@@ -308,23 +350,25 @@ var JpxImage = (function JpxImageClosure() {
 
               // moving to the end of the data
               length = tile.dataEnd - position;
-
               parseTilePackets(context, data, position, length);
               break;
             case 0xFF64: // Comment (COM)
               length = readUint16(data, position);
               // skipping content
               break;
+            case 0xFF53: // Coding style component (COC)
+              throw 'Codestream code 0xFF53 (COC) is not implemented';
             default:
               throw 'Unknown codestream code: ' + code.toString(16);
           }
           position += length;
         }
       } catch (e) {
-        if (this.failOnCorruptedImage)
+        if (this.failOnCorruptedImage) {
           error('JPX error: ' + e);
-        else
+        } else {
           warn('JPX error: ' + e + '. Trying to recover');
+        }
       }
       this.tiles = transformComponents(context);
       this.width = context.SIZ.Xsiz - context.SIZ.XOsiz;
@@ -332,21 +376,6 @@ var JpxImage = (function JpxImageClosure() {
       this.componentsCount = context.SIZ.Csiz;
     }
   };
-  function readUint32(data, offset) {
-    return (data[offset] << 24) | (data[offset + 1] << 16) |
-      (data[offset + 2] << 8) | data[offset + 3];
-  }
-  function readUint16(data, offset) {
-    return (data[offset] << 8) | data[offset + 1];
-  }
-  function log2(x) {
-    var n = 1, i = 0;
-    while (x > n) {
-      n <<= 1;
-      i++;
-    }
-    return i;
-  }
   function calculateComponentDimensions(component, siz) {
     // Section B.2 Component mapping
     component.x0 = Math.ceil(siz.XOsiz / component.XRsiz);
@@ -359,12 +388,12 @@ var JpxImage = (function JpxImageClosure() {
   function calculateTileGrids(context, components) {
     var siz = context.SIZ;
     // Section B.3 Division into tile and tile-components
-    var tiles = [];
+    var tile, tiles = [];
     var numXtiles = Math.ceil((siz.Xsiz - siz.XTOsiz) / siz.XTsiz);
     var numYtiles = Math.ceil((siz.Ysiz - siz.YTOsiz) / siz.YTsiz);
     for (var q = 0; q < numYtiles; q++) {
       for (var p = 0; p < numXtiles; p++) {
-        var tile = {};
+        tile = {};
         tile.tx0 = Math.max(siz.XTOsiz + p * siz.XTsiz, siz.XOsiz);
         tile.ty0 = Math.max(siz.YTOsiz + q * siz.YTsiz, siz.YOsiz);
         tile.tx1 = Math.min(siz.XTOsiz + (p + 1) * siz.XTsiz, siz.Xsiz);
@@ -380,9 +409,9 @@ var JpxImage = (function JpxImageClosure() {
     var componentsCount = siz.Csiz;
     for (var i = 0, ii = componentsCount; i < ii; i++) {
       var component = components[i];
-      var tileComponents = [];
       for (var j = 0, jj = tiles.length; j < jj; j++) {
-        var tileComponent = {}, tile = tiles[j];
+        var tileComponent = {};
+        tile = tiles[j];
         tileComponent.tcx0 = Math.ceil(tile.tx0 / component.XRsiz);
         tileComponent.tcy0 = Math.ceil(tile.ty0 / component.YRsiz);
         tileComponent.tcx1 = Math.ceil(tile.tx1 / component.XRsiz);
@@ -404,27 +433,27 @@ var JpxImage = (function JpxImageClosure() {
       result.PPy = codOrCoc.precinctsSizes[r].PPy;
     }
     // calculate codeblock size as described in section B.7
-    result.xcb_ = r > 0 ? Math.min(codOrCoc.xcb, result.PPx - 1) :
-      Math.min(codOrCoc.xcb, result.PPx);
-    result.ycb_ = r > 0 ? Math.min(codOrCoc.ycb, result.PPy - 1) :
-      Math.min(codOrCoc.ycb, result.PPy);
+    result.xcb_ = (r > 0 ? Math.min(codOrCoc.xcb, result.PPx - 1) :
+                   Math.min(codOrCoc.xcb, result.PPx));
+    result.ycb_ = (r > 0 ? Math.min(codOrCoc.ycb, result.PPy - 1) :
+                   Math.min(codOrCoc.ycb, result.PPy));
     return result;
   }
   function buildPrecincts(context, resolution, dimensions) {
     // Section B.6 Division resolution to precincts
     var precinctWidth = 1 << dimensions.PPx;
     var precinctHeight = 1 << dimensions.PPy;
-    var numprecinctswide = resolution.trx1 > resolution.trx0 ?
+    var numprecinctswide = (resolution.trx1 > resolution.trx0 ?
       Math.ceil(resolution.trx1 / precinctWidth) -
-      Math.floor(resolution.trx0 / precinctWidth) : 0;
-    var numprecinctshigh = resolution.try1 > resolution.try0 ?
+      Math.floor(resolution.trx0 / precinctWidth) : 0);
+    var numprecinctshigh = (resolution.try1 > resolution.try0 ?
       Math.ceil(resolution.try1 / precinctHeight) -
-      Math.floor(resolution.try0 / precinctHeight) : 0;
+      Math.floor(resolution.try0 / precinctHeight) : 0);
     var numprecincts = numprecinctswide * numprecinctshigh;
     var precinctXOffset = Math.floor(resolution.trx0 / precinctWidth) *
-      precinctWidth;
+                          precinctWidth;
     var precinctYOffset = Math.floor(resolution.try0 / precinctHeight) *
-      precinctHeight;
+                          precinctHeight;
     resolution.precinctParameters = {
       precinctXOffset: precinctXOffset,
       precinctYOffset: precinctYOffset,
@@ -441,16 +470,17 @@ var JpxImage = (function JpxImageClosure() {
     var ycb_ = dimensions.ycb_;
     var codeblockWidth = 1 << xcb_;
     var codeblockHeight = 1 << ycb_;
-    var cbx0 = Math.floor(subband.tbx0 / codeblockWidth);
-    var cby0 = Math.floor(subband.tby0 / codeblockHeight);
-    var cbx1 = Math.ceil(subband.tbx1 / codeblockWidth);
-    var cby1 = Math.ceil(subband.tby1 / codeblockHeight);
+    var cbx0 = subband.tbx0 >> xcb_;
+    var cby0 = subband.tby0 >> ycb_;
+    var cbx1 = (subband.tbx1 + codeblockWidth - 1) >> xcb_;
+    var cby1 = (subband.tby1 + codeblockHeight - 1) >> ycb_;
     var precinctParameters = subband.resolution.precinctParameters;
     var codeblocks = [];
     var precincts = [];
-    for (var j = cby0; j < cby1; j++) {
-      for (var i = cbx0; i < cbx1; i++) {
-        var codeblock = {
+    var i, j, codeblock, precinctNumber;
+    for (j = cby0; j < cby1; j++) {
+      for (i = cbx0; i < cbx1; i++) {
+        codeblock = {
           cbx: i,
           cby: j,
           tbx0: codeblockWidth * i,
@@ -460,31 +490,33 @@ var JpxImage = (function JpxImageClosure() {
         };
         // calculate precinct number
         var pi = Math.floor((codeblock.tbx0 -
-          precinctParameters.precinctXOffset) /
-          precinctParameters.precinctWidth);
+                 precinctParameters.precinctXOffset) /
+                 precinctParameters.precinctWidth);
         var pj = Math.floor((codeblock.tby0 -
-          precinctParameters.precinctYOffset) /
-          precinctParameters.precinctHeight);
-        var precinctNumber = pj +
-          pi * precinctParameters.numprecinctswide;
+                 precinctParameters.precinctYOffset) /
+                 precinctParameters.precinctHeight);
+        precinctNumber = pj + pi * precinctParameters.numprecinctswide;
         codeblock.tbx0_ = Math.max(subband.tbx0, codeblock.tbx0);
         codeblock.tby0_ = Math.max(subband.tby0, codeblock.tby0);
         codeblock.tbx1_ = Math.min(subband.tbx1, codeblock.tbx1);
         codeblock.tby1_ = Math.min(subband.tby1, codeblock.tby1);
         codeblock.precinctNumber = precinctNumber;
         codeblock.subbandType = subband.type;
-        var coefficientsLength = (codeblock.tbx1_ - codeblock.tbx0_) *
-          (codeblock.tby1_ - codeblock.tby0_);
         codeblock.Lblock = 3;
         codeblocks.push(codeblock);
         // building precinct for the sub-band
-        var precinct;
-        if (precinctNumber in precincts) {
-          precinct = precincts[precinctNumber];
-          precinct.cbxMin = Math.min(precinct.cbxMin, i);
-          precinct.cbyMin = Math.min(precinct.cbyMin, j);
-          precinct.cbxMax = Math.max(precinct.cbxMax, i);
-          precinct.cbyMax = Math.max(precinct.cbyMax, j);
+        var precinct = precincts[precinctNumber];
+        if (precinct !== undefined) {
+          if (i < precinct.cbxMin) {
+            precinct.cbxMin = i;
+          } else if (i > precinct.cbxMax) {
+            precinct.cbxMax = i;
+          }
+          if (j < precinct.cbyMin) {
+            precinct.cbxMin = j;
+          } else if (j > precinct.cbyMax) {
+            precinct.cbyMax = j;
+          }
         } else {
           precincts[precinctNumber] = precinct = {
             cbxMin: i,
@@ -503,10 +535,6 @@ var JpxImage = (function JpxImageClosure() {
       numcodeblockhigh: cby1 - cby1 + 1
     };
     subband.codeblocks = codeblocks;
-    for (var i = 0, ii = codeblocks.length; i < ii; i++) {
-      var codeblock = codeblocks[i];
-      var precinctNumber = codeblock.precinctNumber;
-    }
     subband.precincts = precincts;
   }
   function createPacket(resolution, precinctNumber, layerNumber) {
@@ -519,8 +547,9 @@ var JpxImage = (function JpxImageClosure() {
       var codeblocks = subband.codeblocks;
       for (var j = 0, jj = codeblocks.length; j < jj; j++) {
         var codeblock = codeblocks[j];
-        if (codeblock.precinctNumber != precinctNumber)
+        if (codeblock.precinctNumber != precinctNumber) {
           continue;
+        }
         precinctCodeblocks.push(codeblock);
       }
     }
@@ -549,8 +578,9 @@ var JpxImage = (function JpxImageClosure() {
         for (; r <= maxDecompositionLevelsCount; r++) {
           for (; i < componentsCount; i++) {
             var component = tile.components[i];
-            if (r > component.codingStyleParameters.decompositionLevelsCount)
+            if (r > component.codingStyleParameters.decompositionLevelsCount) {
               continue;
+            }
 
             var resolution = component.resolutions[r];
             var numprecincts = resolution.precinctParameters.numprecincts;
@@ -588,8 +618,9 @@ var JpxImage = (function JpxImageClosure() {
         for (; l < layersCount; l++) {
           for (; i < componentsCount; i++) {
             var component = tile.components[i];
-            if (r > component.codingStyleParameters.decompositionLevelsCount)
+            if (r > component.codingStyleParameters.decompositionLevelsCount) {
               continue;
+            }
 
             var resolution = component.resolutions[r];
             var numprecincts = resolution.precinctParameters.numprecincts;
@@ -689,7 +720,6 @@ var JpxImage = (function JpxImageClosure() {
     }
     // Generate the packets sequence
     var progressionOrder = tile.codingStyleDefaultParameters.progressionOrder;
-    var packetsIterator;
     switch (progressionOrder) {
       case 0:
         tile.packetsIterator =
@@ -733,20 +763,22 @@ var JpxImage = (function JpxImageClosure() {
       }
     }
     function readCodingpasses() {
-      var value = readBits(1);
-      if (value === 0)
+      if (readBits(1) === 0) {
         return 1;
-      value = (value << 1) | readBits(1);
-      if (value == 0x02)
+      }
+      if (readBits(1) === 0) {
         return 2;
-      value = (value << 2) | readBits(2);
-      if (value <= 0x0E)
-        return (value & 0x03) + 3;
-      value = (value << 5) | readBits(5);
-      if (value <= 0x1FE)
-        return (value & 0x1F) + 6;
-      value = (value << 7) | readBits(7);
-      return (value & 0x7F) + 37;
+      }
+      var value = readBits(2);
+      if (value < 3) {
+        return value + 3;
+      }
+      value = readBits(5);
+      if (value < 31) {
+        return value + 6;
+      }
+      value = readBits(7);
+      return value + 37;
     }
     var tileIndex = context.currentTile.index;
     var tile = context.tiles[tileIndex];
@@ -758,19 +790,20 @@ var JpxImage = (function JpxImageClosure() {
         continue;
       }
       var layerNumber = packet.layerNumber;
-      var queue = [];
+      var queue = [], codeblock;
       for (var i = 0, ii = packet.codeblocks.length; i < ii; i++) {
-        var codeblock = packet.codeblocks[i];
+        codeblock = packet.codeblocks[i];
         var precinct = codeblock.precinct;
         var codeblockColumn = codeblock.cbx - precinct.cbxMin;
         var codeblockRow = codeblock.cby - precinct.cbyMin;
         var codeblockIncluded = false;
         var firstTimeInclusion = false;
+        var valueReady;
         if ('included' in codeblock) {
           codeblockIncluded = !!readBits(1);
         } else {
           // reading inclusion tree
-          var precinct = codeblock.precinct;
+          precinct = codeblock.precinct;
           var inclusionTree, zeroBitPlanesTree;
           if ('inclusionTree' in precinct) {
             inclusionTree = precinct.inclusionTree;
@@ -787,7 +820,7 @@ var JpxImage = (function JpxImageClosure() {
           if (inclusionTree.reset(codeblockColumn, codeblockRow, layerNumber)) {
             while (true) {
               if (readBits(1)) {
-                var valueReady = !inclusionTree.nextLevel();
+                valueReady = !inclusionTree.nextLevel();
                 if (valueReady) {
                   codeblock.included = true;
                   codeblockIncluded = firstTimeInclusion = true;
@@ -800,24 +833,28 @@ var JpxImage = (function JpxImageClosure() {
             }
           }
         }
-        if (!codeblockIncluded)
+        if (!codeblockIncluded) {
           continue;
+        }
         if (firstTimeInclusion) {
           zeroBitPlanesTree = precinct.zeroBitPlanesTree;
           zeroBitPlanesTree.reset(codeblockColumn, codeblockRow);
           while (true) {
             if (readBits(1)) {
-              var valueReady = !zeroBitPlanesTree.nextLevel();
-              if (valueReady)
+              valueReady = !zeroBitPlanesTree.nextLevel();
+              if (valueReady) {
                 break;
-            } else
+              }
+            } else {
               zeroBitPlanesTree.incrementValue();
+            }
           }
           codeblock.zeroBitPlanes = zeroBitPlanesTree.value;
         }
         var codingpasses = readCodingpasses();
-        while (readBits(1))
+        while (readBits(1)) {
           codeblock.Lblock++;
+        }
         var codingpassesLog2 = log2(codingpasses);
         // rounding down log2
         var bits = ((codingpasses < (1 << codingpassesLog2)) ?
@@ -832,9 +869,10 @@ var JpxImage = (function JpxImageClosure() {
       alignToByte();
       while (queue.length > 0) {
         var packetItem = queue.shift();
-        var codeblock = packetItem.codeblock;
-        if (!('data' in codeblock))
+        codeblock = packetItem.codeblock;
+        if (!('data' in codeblock)) {
           codeblock.data = [];
+        }
         codeblock.data.push({
           data: data,
           start: offset + position,
@@ -846,43 +884,52 @@ var JpxImage = (function JpxImageClosure() {
     }
     return position;
   }
-  function copyCoefficients(coefficients, x0, y0, width, height,
-                            delta, mb, codeblocks, transformation,
-                            segmentationSymbolUsed) {
-    var r = 0.5; // formula (E-6)
+  function copyCoefficients(coefficients, levelWidth, levelHeight, subband,
+                            delta, mb, reversible, segmentationSymbolUsed) {
+    var x0 = subband.tbx0;
+    var y0 = subband.tby0;
+    var width = subband.tbx1 - subband.tbx0;
+    var codeblocks = subband.codeblocks;
+    var right = subband.type.charAt(0) === 'H' ? 1 : 0;
+    var bottom = subband.type.charAt(1) === 'H' ? levelWidth : 0;
+
     for (var i = 0, ii = codeblocks.length; i < ii; ++i) {
       var codeblock = codeblocks[i];
       var blockWidth = codeblock.tbx1_ - codeblock.tbx0_;
       var blockHeight = codeblock.tby1_ - codeblock.tby0_;
-      if (blockWidth === 0 || blockHeight === 0)
+      if (blockWidth === 0 || blockHeight === 0) {
         continue;
-      if (!('data' in codeblock))
+      }
+      if (!('data' in codeblock)) {
         continue;
+      }
 
       var bitModel, currentCodingpassType;
       bitModel = new BitModel(blockWidth, blockHeight, codeblock.subbandType,
-        codeblock.zeroBitPlanes);
+                              codeblock.zeroBitPlanes, mb);
       currentCodingpassType = 2; // first bit plane starts from cleanup
 
       // collect data
       var data = codeblock.data, totalLength = 0, codingpasses = 0;
-      for (var q = 0, qq = data.length; q < qq; q++) {
-        var dataItem = data[q];
+      var j, jj, dataItem;
+      for (j = 0, jj = data.length; j < jj; j++) {
+        dataItem = data[j];
         totalLength += dataItem.end - dataItem.start;
         codingpasses += dataItem.codingpasses;
       }
-      var encodedData = new Uint8Array(totalLength), k = 0;
-      for (var q = 0, qq = data.length; q < qq; q++) {
-        var dataItem = data[q];
+      var encodedData = new Uint8Array(totalLength);
+      var position = 0;
+      for (j = 0, jj = data.length; j < jj; j++) {
+        dataItem = data[j];
         var chunk = dataItem.data.subarray(dataItem.start, dataItem.end);
-        encodedData.set(chunk, k);
-        k += chunk.length;
+        encodedData.set(chunk, position);
+        position += chunk.length;
       }
       // decoding the item
       var decoder = new ArithmeticDecoder(encodedData, 0, totalLength);
       bitModel.setDecoder(decoder);
 
-      for (var q = 0; q < codingpasses; q++) {
+      for (j = 0; j < codingpasses; j++) {
         switch (currentCodingpassType) {
           case 0:
             bitModel.runSignificancePropogationPass();
@@ -892,28 +939,43 @@ var JpxImage = (function JpxImageClosure() {
             break;
           case 2:
             bitModel.runCleanupPass();
-            if (segmentationSymbolUsed)
+            if (segmentationSymbolUsed) {
               bitModel.checkSegmentationSymbol();
+            }
             break;
         }
         currentCodingpassType = (currentCodingpassType + 1) % 3;
       }
 
       var offset = (codeblock.tbx0_ - x0) + (codeblock.tby0_ - y0) * width;
-      var position = 0;
-      for (var j = 0; j < blockHeight; j++) {
-        for (var k = 0; k < blockWidth; k++) {
-          var n = (bitModel.coefficentsSign[position] ? -1 : 1) *
-            bitModel.coefficentsMagnitude[position];
-          var nb = bitModel.bitsDecoded[position], correction;
-          if (transformation === 0 || mb > nb) {
-            // use r only if transformation is irreversible or
-            // not all bitplanes were decoded for reversible transformation
-            n += n < 0 ? n - r : n > 0 ? n + r : 0;
-            correction = 1 << (mb - nb);
-          } else
-            correction = 1;
-          coefficients[offset++] = n * correction * delta;
+      var sign = bitModel.coefficentsSign;
+      var magnitude = bitModel.coefficentsMagnitude;
+      var bitsDecoded = bitModel.bitsDecoded;
+      var magnitudeCorrection = reversible ? 0 : 0.5;
+      var k, n, nb;
+      position = 0;
+      // Do the interleaving of Section F.3.3 here, so we do not need 
+      // to copy later. LL level is not interleaved, just copied.
+      var interleave = (subband.type !== 'LL');
+      for (j = 0; j < blockHeight; j++) {
+        var row = (offset / width) | 0; // row in the non-interleaved subband
+        var levelOffset = 2 * row * (levelWidth - width) + right + bottom;
+        for (k = 0; k < blockWidth; k++) {
+          n = magnitude[position];
+          if (n !== 0) {
+            n = (n + magnitudeCorrection) * delta;
+            if (sign[position] !== 0) {
+              n = -n;
+            }
+            nb = bitsDecoded[position];
+            var pos = interleave ? (levelOffset + (offset << 1)) : offset;
+            if (reversible && (nb >= mb)) {
+              coefficients[pos] = n;
+            } else {
+              coefficients[pos] = n * (1 << (mb - nb));
+            }
+          }
+          offset++;
           position++;
         }
         offset += width - blockWidth;
@@ -929,14 +991,22 @@ var JpxImage = (function JpxImageClosure() {
     var spqcds = quantizationParameters.SPqcds;
     var scalarExpounded = quantizationParameters.scalarExpounded;
     var guardBits = quantizationParameters.guardBits;
-    var transformation = codingStyleParameters.transformation;
     var segmentationSymbolUsed = codingStyleParameters.segmentationSymbolUsed;
     var precision = context.components[c].precision;
 
+    var reversible = codingStyleParameters.reversibleTransformation;
+    var transform = (reversible ? new ReversibleTransform() :
+                                  new IrreversibleTransform());
+
     var subbandCoefficients = [];
-    var k = 0, b = 0;
+    var b = 0;
     for (var i = 0; i <= decompositionLevelsCount; i++) {
       var resolution = component.resolutions[i];
+
+      var width = resolution.trx1 - resolution.trx0;
+      var height = resolution.try1 - resolution.try0;
+      // Allocate space for the whole sublevel.
+      var coefficients = new Float32Array(width * height);
 
       for (var j = 0, jj = resolution.subbands.length; j < jj; j++) {
         var mu, epsilon;
@@ -947,38 +1017,34 @@ var JpxImage = (function JpxImageClosure() {
         } else {
           mu = spqcds[b].mu;
           epsilon = spqcds[b].epsilon;
+          b++;
         }
 
         var subband = resolution.subbands[j];
-        var width = subband.tbx1 - subband.tbx0;
-        var height = subband.tby1 - subband.tby0;
         var gainLog2 = SubbandsGainLog2[subband.type];
 
         // calulate quantization coefficient (Section E.1.1.1)
-        var delta = Math.pow(2, (precision + gainLog2) - epsilon) *
-          (1 + mu / 2048);
+        var delta = (reversible ? 1 :
+          Math.pow(2, precision + gainLog2 - epsilon) * (1 + mu / 2048));
         var mb = (guardBits + epsilon - 1);
 
-        var coefficients = new Float32Array(width * height);
-        copyCoefficients(coefficients, subband.tbx0, subband.tby0,
-          width, height, delta, mb, subband.codeblocks, transformation,
-          segmentationSymbolUsed);
-
-        subbandCoefficients.push({
-          width: width,
-          height: height,
-          items: coefficients
-        });
-
-        b++;
+        // In the first resolution level, copyCoefficients will fill the
+        // whole array with coefficients. In the succeding passes,
+        // copyCoefficients will consecutively fill in the values that belong
+        // to the interleaved positions of the HL, LH, and HH coefficients.
+        // The LL coefficients will then be interleaved in Transform.iterate().
+        copyCoefficients(coefficients, width, height, subband, delta, mb,
+                         reversible, segmentationSymbolUsed);
       }
+      subbandCoefficients.push({
+        width: width,
+        height: height,
+        items: coefficients
+      });
     }
 
-    var transformation = codingStyleParameters.transformation;
-    var transform = transformation === 0 ? new IrreversibleTransform() :
-      new ReversibleTransform();
     var result = transform.calculate(subbandCoefficients,
-      component.tcx0, component.tcy0);
+                                     component.tcx0, component.tcy0);
     return {
       left: component.tcx0,
       top: component.tcy0,
@@ -994,54 +1060,92 @@ var JpxImage = (function JpxImageClosure() {
     var resultImages = [];
     for (var i = 0, ii = context.tiles.length; i < ii; i++) {
       var tile = context.tiles[i];
-      var result = [];
-      for (var c = 0; c < componentsCount; c++) {
-        var image = transformTile(context, tile, c);
-        result.push(image);
+      var transformedTiles = [];
+      var c;
+      for (c = 0; c < componentsCount; c++) {
+        transformedTiles[c] = transformTile(context, tile, c);
       }
+      var tile0 = transformedTiles[0];
+      var out = new Uint8Array(tile0.items.length * componentsCount);
+      var result = {
+        left: tile0.left,
+        top: tile0.top,
+        width: tile0.width,
+        height: tile0.height,
+        items: out
+      };
 
       // Section G.2.2 Inverse multi component transform
+      var shift, offset, max, min;
+      var pos = 0, j, jj, y0, y1, y2, r, g, b, k, val;
       if (tile.codingStyleDefaultParameters.multipleComponentTransform) {
-        var y0items = result[0].items;
-        var y1items = result[1].items;
-        var y2items = result[2].items;
-        for (var j = 0, jj = y0items.length; j < jj; j++) {
-          var y0 = y0items[j], y1 = y1items[j], y2 = y2items[j];
-          var i1 = y0 - ((y2 + y1) >> 2);
-          y1items[j] = i1;
-          y0items[j] = y2 + i1;
-          y2items[j] = y1 + i1;
+        var fourComponents = componentsCount === 4;
+        var y0items = transformedTiles[0].items;
+        var y1items = transformedTiles[1].items;
+        var y2items = transformedTiles[2].items;
+        var y3items = fourComponents ? transformedTiles[3].items : null;
+
+        // HACK: The multiple component transform formulas below assume that
+        // all components have the same precision. With this in mind, we
+        // compute shift and offset only once.
+        shift = components[0].precision - 8;
+        offset = (128 << shift) + 0.5;
+        max = (127.5 * (1 << shift));
+        min = -max;
+
+        var component0 = tile.components[0];
+        if (!component0.codingStyleParameters.reversibleTransformation) {
+          // inverse irreversible multiple component transform
+          for (j = 0, jj = y0items.length; j < jj; ++j) {
+            y0 = y0items[j];
+            y1 = y1items[j];
+            y2 = y2items[j];
+            r = y0 + 1.402 * y2;
+            g = y0 - 0.34413 * y1 - 0.71414 * y2;
+            b = y0 + 1.772 * y1;
+            out[pos++] = r <= min ? 0 : r >= max ? 255 : (r + offset) >> shift;
+            out[pos++] = g <= min ? 0 : g >= max ? 255 : (g + offset) >> shift;
+            out[pos++] = b <= min ? 0 : b >= max ? 255 : (b + offset) >> shift;
+            if (fourComponents) {
+              k = y3items[j];
+              out[pos++] =
+                k <= min ? 0 : k >= max ? 255 : (k + offset) >> shift;
+            }
+          }
+        } else {
+          // inverse reversible multiple component transform
+          for (j = 0, jj = y0items.length; j < jj; ++j) {
+            y0 = y0items[j];
+            y1 = y1items[j];
+            y2 = y2items[j];
+            g = y0 - ((y2 + y1) >> 2);
+            r = g + y2;
+            b = g + y1;
+            out[pos++] = r <= min ? 0 : r >= max ? 255 : (r + offset) >> shift;
+            out[pos++] = g <= min ? 0 : g >= max ? 255 : (g + offset) >> shift;
+            out[pos++] = b <= min ? 0 : b >= max ? 255 : (b + offset) >> shift;
+            if (fourComponents) {
+              k = y3items[j];
+              out[pos++] =
+                k <= min ? 0 : k >= max ? 255 : (k + offset) >> shift;
+            }
+          }
+        }
+      } else { // no multi-component transform
+        for (c = 0; c < componentsCount; c++) {
+          var items = transformedTiles[c].items;
+          shift = components[c].precision - 8;
+          offset = (128 << shift) + 0.5;
+          max = (127.5 * (1 << shift));
+          min = -max;
+          for (pos = c, j = 0, jj = items.length; j < jj; j++) {
+            val = items[j];
+            out[pos] = val <= min ? 0 :
+                       val >= max ? 255 : (val + offset) >> shift;
+            pos += componentsCount;
+          }
         }
       }
-
-      // Section G.1 DC level shifting to unsigned component values
-      for (var c = 0; c < componentsCount; c++) {
-        var component = components[c];
-        if (component.isSigned)
-          continue;
-
-        var offset = 1 << (component.precision - 1);
-        var tileImage = result[c];
-        var items = tileImage.items;
-        for (var j = 0, jj = items.length; j < jj; j++)
-          items[j] += offset;
-      }
-
-      // To simplify things: shift and clamp output to 8 bit unsigned
-      for (var c = 0; c < componentsCount; c++) {
-        var component = components[c];
-        var offset = component.isSigned ? 128 : 0;
-        var shift = component.precision - 8;
-        var tileImage = result[c];
-        var items = tileImage.items;
-        var data = new Uint8Array(items.length);
-        for (var j = 0, jj = items.length; j < jj; j++) {
-          var value = (items[j] >> shift) + offset;
-          data[j] = value < 0 ? 0 : value > 255 ? 255 : value;
-        }
-        result[c].items = data;
-      }
-
       resultImages.push(result);
     }
     return resultImages;
@@ -1050,14 +1154,13 @@ var JpxImage = (function JpxImageClosure() {
     var siz = context.SIZ;
     var componentsCount = siz.Csiz;
     var tile = context.tiles[tileIndex];
-    var resultTiles = [];
     for (var c = 0; c < componentsCount; c++) {
       var component = tile.components[c];
-      var qcdOrQcc = c in context.currentTile.QCC ?
-        context.currentTile.QCC[c] : context.currentTile.QCD;
+      var qcdOrQcc = (c in context.currentTile.QCC ?
+        context.currentTile.QCC[c] : context.currentTile.QCD);
       component.quantizationParameters = qcdOrQcc;
-      var codOrCoc = c in context.currentTile.COC ?
-        context.currentTile.COC[c] : context.currentTile.COD;
+      var codOrCoc = (c in context.currentTile.COC ?
+        context.currentTile.COC[c] : context.currentTile.COD);
       component.codingStyleParameters = codOrCoc;
     }
     tile.codingStyleDefaultParameters = context.currentTile.COD;
@@ -1081,9 +1184,9 @@ var JpxImage = (function JpxImageClosure() {
     }
     TagTree.prototype = {
       reset: function TagTree_reset(i, j) {
-        var currentLevel = 0, value = 0;
+        var currentLevel = 0, value = 0, level;
         while (currentLevel < this.levels.length) {
-          var level = this.levels[currentLevel];
+          level = this.levels[currentLevel];
           var index = i + j * level.width;
           if (index in level.items) {
             value = level.items[index];
@@ -1095,7 +1198,7 @@ var JpxImage = (function JpxImageClosure() {
           currentLevel++;
         }
         currentLevel--;
-        var level = this.levels[currentLevel];
+        level = this.levels[currentLevel];
         level.items[level.index] = value;
         this.currentLevel = currentLevel;
         delete this.value;
@@ -1115,7 +1218,7 @@ var JpxImage = (function JpxImageClosure() {
         }
 
         this.currentLevel = currentLevel;
-        var level = this.levels[currentLevel];
+        level = this.levels[currentLevel];
         level.items[level.index] = value;
         return true;
       }
@@ -1129,8 +1232,9 @@ var JpxImage = (function JpxImageClosure() {
       this.levels = [];
       for (var i = 0; i < levelsLength; i++) {
         var items = new Uint8Array(width * height);
-        for (var j = 0, jj = items.length; j < jj; j++)
+        for (var j = 0, jj = items.length; j < jj; j++) {
           items[j] = defaultValue;
+        }
 
         var level = {
           width: width,
@@ -1152,8 +1256,9 @@ var JpxImage = (function JpxImageClosure() {
           level.index = index;
           var value = level.items[index];
 
-          if (value == 0xFF)
+          if (value == 0xFF) {
             break;
+          }
 
           if (value > stopValue) {
             this.currentLevel = currentLevel;
@@ -1179,7 +1284,7 @@ var JpxImage = (function JpxImageClosure() {
         var level = this.levels[levelIndex];
         var currentValue = level.items[level.index];
         while (--levelIndex >= 0) {
-          var level = this.levels[levelIndex];
+          level = this.levels[levelIndex];
           level.items[level.index] = currentValue;
         }
       },
@@ -1189,11 +1294,12 @@ var JpxImage = (function JpxImageClosure() {
         var value = level.items[level.index];
         level.items[level.index] = 0xFF;
         currentLevel--;
-        if (currentLevel < 0)
+        if (currentLevel < 0) {
           return false;
+        }
 
         this.currentLevel = currentLevel;
-        var level = this.levels[currentLevel];
+        level = this.levels[currentLevel];
         level.items[level.index] = value;
         return true;
       }
@@ -1201,171 +1307,10 @@ var JpxImage = (function JpxImageClosure() {
     return InclusionTree;
   })();
 
-  // Implements C.3. Arithmetic decoding procedures
-  var ArithmeticDecoder = (function ArithmeticDecoderClosure() {
-    var QeTable = [
-      {qe: 0x5601, nmps: 1, nlps: 1, switchFlag: 1},
-      {qe: 0x3401, nmps: 2, nlps: 6, switchFlag: 0},
-      {qe: 0x1801, nmps: 3, nlps: 9, switchFlag: 0},
-      {qe: 0x0AC1, nmps: 4, nlps: 12, switchFlag: 0},
-      {qe: 0x0521, nmps: 5, nlps: 29, switchFlag: 0},
-      {qe: 0x0221, nmps: 38, nlps: 33, switchFlag: 0},
-      {qe: 0x5601, nmps: 7, nlps: 6, switchFlag: 1},
-      {qe: 0x5401, nmps: 8, nlps: 14, switchFlag: 0},
-      {qe: 0x4801, nmps: 9, nlps: 14, switchFlag: 0},
-      {qe: 0x3801, nmps: 10, nlps: 14, switchFlag: 0},
-      {qe: 0x3001, nmps: 11, nlps: 17, switchFlag: 0},
-      {qe: 0x2401, nmps: 12, nlps: 18, switchFlag: 0},
-      {qe: 0x1C01, nmps: 13, nlps: 20, switchFlag: 0},
-      {qe: 0x1601, nmps: 29, nlps: 21, switchFlag: 0},
-      {qe: 0x5601, nmps: 15, nlps: 14, switchFlag: 1},
-      {qe: 0x5401, nmps: 16, nlps: 14, switchFlag: 0},
-      {qe: 0x5101, nmps: 17, nlps: 15, switchFlag: 0},
-      {qe: 0x4801, nmps: 18, nlps: 16, switchFlag: 0},
-      {qe: 0x3801, nmps: 19, nlps: 17, switchFlag: 0},
-      {qe: 0x3401, nmps: 20, nlps: 18, switchFlag: 0},
-      {qe: 0x3001, nmps: 21, nlps: 19, switchFlag: 0},
-      {qe: 0x2801, nmps: 22, nlps: 19, switchFlag: 0},
-      {qe: 0x2401, nmps: 23, nlps: 20, switchFlag: 0},
-      {qe: 0x2201, nmps: 24, nlps: 21, switchFlag: 0},
-      {qe: 0x1C01, nmps: 25, nlps: 22, switchFlag: 0},
-      {qe: 0x1801, nmps: 26, nlps: 23, switchFlag: 0},
-      {qe: 0x1601, nmps: 27, nlps: 24, switchFlag: 0},
-      {qe: 0x1401, nmps: 28, nlps: 25, switchFlag: 0},
-      {qe: 0x1201, nmps: 29, nlps: 26, switchFlag: 0},
-      {qe: 0x1101, nmps: 30, nlps: 27, switchFlag: 0},
-      {qe: 0x0AC1, nmps: 31, nlps: 28, switchFlag: 0},
-      {qe: 0x09C1, nmps: 32, nlps: 29, switchFlag: 0},
-      {qe: 0x08A1, nmps: 33, nlps: 30, switchFlag: 0},
-      {qe: 0x0521, nmps: 34, nlps: 31, switchFlag: 0},
-      {qe: 0x0441, nmps: 35, nlps: 32, switchFlag: 0},
-      {qe: 0x02A1, nmps: 36, nlps: 33, switchFlag: 0},
-      {qe: 0x0221, nmps: 37, nlps: 34, switchFlag: 0},
-      {qe: 0x0141, nmps: 38, nlps: 35, switchFlag: 0},
-      {qe: 0x0111, nmps: 39, nlps: 36, switchFlag: 0},
-      {qe: 0x0085, nmps: 40, nlps: 37, switchFlag: 0},
-      {qe: 0x0049, nmps: 41, nlps: 38, switchFlag: 0},
-      {qe: 0x0025, nmps: 42, nlps: 39, switchFlag: 0},
-      {qe: 0x0015, nmps: 43, nlps: 40, switchFlag: 0},
-      {qe: 0x0009, nmps: 44, nlps: 41, switchFlag: 0},
-      {qe: 0x0005, nmps: 45, nlps: 42, switchFlag: 0},
-      {qe: 0x0001, nmps: 45, nlps: 43, switchFlag: 0},
-      {qe: 0x5601, nmps: 46, nlps: 46, switchFlag: 0}
-    ];
-
-    function ArithmeticDecoder(data, start, end) {
-      this.data = data;
-      this.bp = start;
-      this.dataEnd = end;
-
-      this.chigh = data[start];
-      this.clow = 0;
-
-      this.byteIn();
-
-      this.chigh = ((this.chigh << 7) & 0xFFFF) | ((this.clow >> 9) & 0x7F);
-      this.clow = (this.clow << 7) & 0xFFFF;
-      this.ct -= 7;
-      this.a = 0x8000;
-    }
-
-    ArithmeticDecoder.prototype = {
-      byteIn: function ArithmeticDecoder_byteIn() {
-        var data = this.data;
-        var bp = this.bp;
-        if (data[bp] == 0xFF) {
-          var b1 = data[bp + 1];
-          if (b1 > 0x8F) {
-            this.clow += 0xFF00;
-            this.ct = 8;
-          } else {
-            bp++;
-            this.clow += (data[bp] << 9);
-            this.ct = 7;
-            this.bp = bp;
-          }
-        } else {
-          bp++;
-          this.clow += bp < this.dataEnd ? (data[bp] << 8) : 0xFF00;
-          this.ct = 8;
-          this.bp = bp;
-        }
-        if (this.clow > 0xFFFF) {
-          this.chigh += (this.clow >> 16);
-          this.clow &= 0xFFFF;
-        }
-      },
-      readBit: function ArithmeticDecoder_readBit(cx) {
-        var qeIcx = QeTable[cx.index].qe;
-        this.a -= qeIcx;
-
-        if (this.chigh < qeIcx) {
-          var d = this.exchangeLps(cx);
-          this.renormD();
-          return d;
-        } else {
-          this.chigh -= qeIcx;
-          if ((this.a & 0x8000) === 0) {
-            var d = this.exchangeMps(cx);
-            this.renormD();
-            return d;
-          } else {
-            return cx.mps;
-          }
-        }
-      },
-      renormD: function ArithmeticDecoder_renormD() {
-        do {
-          if (this.ct === 0)
-            this.byteIn();
-
-          this.a <<= 1;
-          this.chigh = ((this.chigh << 1) & 0xFFFF) | ((this.clow >> 15) & 1);
-          this.clow = (this.clow << 1) & 0xFFFF;
-          this.ct--;
-        } while ((this.a & 0x8000) === 0);
-      },
-      exchangeMps: function ArithmeticDecoder_exchangeMps(cx) {
-        var d;
-        var qeTableIcx = QeTable[cx.index];
-        if (this.a < qeTableIcx.qe) {
-          d = 1 - cx.mps;
-
-          if (qeTableIcx.switchFlag == 1) {
-            cx.mps = 1 - cx.mps;
-          }
-          cx.index = qeTableIcx.nlps;
-        } else {
-          d = cx.mps;
-          cx.index = qeTableIcx.nmps;
-        }
-        return d;
-      },
-      exchangeLps: function ArithmeticDecoder_exchangeLps(cx) {
-        var d;
-        var qeTableIcx = QeTable[cx.index];
-        if (this.a < qeTableIcx.qe) {
-          this.a = qeTableIcx.qe;
-          d = cx.mps;
-          cx.index = qeTableIcx.nmps;
-        } else {
-          this.a = qeTableIcx.qe;
-          d = 1 - cx.mps;
-
-          if (qeTableIcx.switchFlag == 1) {
-            cx.mps = 1 - cx.mps;
-          }
-          cx.index = qeTableIcx.nlps;
-        }
-        return d;
-      }
-    };
-
-    return ArithmeticDecoder;
-  })();
-
   // Section D. Coefficient bit modeling
   var BitModel = (function BitModelClosure() {
+    var UNIFORM_CONTEXT = 17;
+    var RUNLENGTH_CONTEXT = 18;
     // Table D-1
     // The index is binary presentation: 0dddvvhh, ddd - sum of Di (0..4),
     // vv - sum of Vi (0..2), and hh - sum of Hi (0..2)
@@ -1385,35 +1330,12 @@ var JpxImage = (function JpxImageClosure() {
       8, 0, 8, 8, 8, 0, 8, 8, 8, 0, 0, 0, 0, 0, 8, 8, 8, 0, 8, 8, 8, 0, 8, 8, 8
     ]);
 
-    // Table D-2
-    function calcSignContribution(significance0, sign0, significance1, sign1) {
-      if (significance1) {
-        if (!sign1)
-          return significance0 ? (!sign0 ? 1 : 0) : 1;
-        else
-          return significance0 ? (!sign0 ? 0 : -1) : -1;
-      } else
-        return significance0 ? (!sign0 ? 1 : -1) : 0;
-    }
-    // Table D-3
-    var SignContextLabels = [
-      {contextLabel: 13, xorBit: 0},
-      {contextLabel: 12, xorBit: 0},
-      {contextLabel: 11, xorBit: 0},
-      {contextLabel: 10, xorBit: 0},
-      {contextLabel: 9, xorBit: 0},
-      {contextLabel: 10, xorBit: 1},
-      {contextLabel: 11, xorBit: 1},
-      {contextLabel: 12, xorBit: 1},
-      {contextLabel: 13, xorBit: 1}
-    ];
-
-    function BitModel(width, height, subband, zeroBitPlanes) {
+    function BitModel(width, height, subband, zeroBitPlanes, mb) {
       this.width = width;
       this.height = height;
 
-      this.contextLabelTable = subband == 'HH' ? HHContextLabel :
-        subband == 'HL' ? HLContextLabel : LLAndLHContextsLabel;
+      this.contextLabelTable = (subband == 'HH' ? HHContextLabel :
+        (subband == 'HL' ? HLContextLabel : LLAndLHContextsLabel));
 
       var coefficientCount = width * height;
 
@@ -1421,12 +1343,17 @@ var JpxImage = (function JpxImageClosure() {
       // add border state cells for significanceState
       this.neighborsSignificance = new Uint8Array(coefficientCount);
       this.coefficentsSign = new Uint8Array(coefficientCount);
-      this.coefficentsMagnitude = new Uint32Array(coefficientCount);
+      this.coefficentsMagnitude = mb > 14 ? new Uint32Array(coefficientCount) :
+                                  mb > 6 ? new Uint16Array(coefficientCount) :
+                                  new Uint8Array(coefficientCount);
       this.processingFlags = new Uint8Array(coefficientCount);
 
-      var bitsDecoded = new Uint8Array(this.width * this.height);
-      for (var i = 0, ii = bitsDecoded.length; i < ii; i++)
-        bitsDecoded[i] = zeroBitPlanes;
+      var bitsDecoded = new Uint8Array(coefficientCount);
+      if (zeroBitPlanes !== 0) {
+        for (var i = 0; i < coefficientCount; i++) {
+          bitsDecoded[i] = zeroBitPlanes;
+        }
+      }
       this.bitsDecoded = bitsDecoded;
 
       this.reset();
@@ -1437,36 +1364,52 @@ var JpxImage = (function JpxImageClosure() {
         this.decoder = decoder;
       },
       reset: function BitModel_reset() {
-        this.uniformContext = {index: 46, mps: 0};
-        this.runLengthContext = {index: 3, mps: 0};
-        this.contexts = [];
-        this.contexts.push({index: 4, mps: 0});
-        for (var i = 1; i <= 16; i++)
-          this.contexts.push({index: 0, mps: 0});
+        // We have 17 contexts that are accessed via context labels,
+        // plus the uniform and runlength context.
+        this.contexts = new Int8Array(19);
+
+        // Contexts are packed into 1 byte:
+        // highest 7 bits carry the index, lowest bit carries mps
+        this.contexts[0] = (4 << 1) | 0;
+        this.contexts[UNIFORM_CONTEXT] = (46 << 1) | 0;
+        this.contexts[RUNLENGTH_CONTEXT] = (3 << 1) | 0;
       },
       setNeighborsSignificance:
-        function BitModel_setNeighborsSignificance(row, column) {
+        function BitModel_setNeighborsSignificance(row, column, index) {
         var neighborsSignificance = this.neighborsSignificance;
         var width = this.width, height = this.height;
-        var index = row * width + column;
+        var left = (column > 0);
+        var right = (column + 1 < width);
+        var i;
+
         if (row > 0) {
-          if (column > 0)
-            neighborsSignificance[index - width - 1] += 0x10;
-          if (column + 1 < width)
-            neighborsSignificance[index - width + 1] += 0x10;
-          neighborsSignificance[index - width] += 0x04;
+          i = index - width;
+          if (left) {
+            neighborsSignificance[i - 1] += 0x10;
+          }
+          if (right) {
+            neighborsSignificance[i + 1] += 0x10;
+          }
+          neighborsSignificance[i] += 0x04;
         }
+
         if (row + 1 < height) {
-          if (column > 0)
-            neighborsSignificance[index + width - 1] += 0x10;
-          if (column + 1 < width)
-            neighborsSignificance[index + width + 1] += 0x10;
-          neighborsSignificance[index + width] += 0x04;
+          i = index + width;
+          if (left) {
+            neighborsSignificance[i - 1] += 0x10;
+          }
+          if (right) {
+            neighborsSignificance[i + 1] += 0x10;
+          }
+          neighborsSignificance[i] += 0x04;
         }
-        if (column > 0)
+
+        if (left) {
           neighborsSignificance[index - 1] += 0x01;
-        if (column + 1 < width)
+        }
+        if (right) {
           neighborsSignificance[index + 1] += 0x01;
+        }
         neighborsSignificance[index] |= 0x80;
       },
       runSignificancePropogationPass:
@@ -1475,38 +1418,38 @@ var JpxImage = (function JpxImageClosure() {
         var width = this.width, height = this.height;
         var coefficentsMagnitude = this.coefficentsMagnitude;
         var coefficentsSign = this.coefficentsSign;
-        var contextLabels = this.contextLabels;
         var neighborsSignificance = this.neighborsSignificance;
         var processingFlags = this.processingFlags;
         var contexts = this.contexts;
         var labels = this.contextLabelTable;
         var bitsDecoded = this.bitsDecoded;
-        // clear processed flag
         var processedInverseMask = ~1;
         var processedMask = 1;
         var firstMagnitudeBitMask = 2;
-        for (var q = 0, qq = width * height; q < qq; q++)
-          processingFlags[q] &= processedInverseMask;
 
         for (var i0 = 0; i0 < height; i0 += 4) {
           for (var j = 0; j < width; j++) {
             var index = i0 * width + j;
             for (var i1 = 0; i1 < 4; i1++, index += width) {
               var i = i0 + i1;
-              if (i >= height)
+              if (i >= height) {
                 break;
+              }
+              // clear processed flag first
+              processingFlags[index] &= processedInverseMask;
 
-              if (coefficentsMagnitude[index] || !neighborsSignificance[index])
+              if (coefficentsMagnitude[index] ||
+                  !neighborsSignificance[index]) {
                 continue;
+              }
 
               var contextLabel = labels[neighborsSignificance[index]];
-              var cx = contexts[contextLabel];
-              var decision = decoder.readBit(cx);
+              var decision = decoder.readBit(contexts, contextLabel);
               if (decision) {
-                var sign = this.decodeSignBit(i, j);
+                var sign = this.decodeSignBit(i, j, index);
                 coefficentsSign[index] = sign;
                 coefficentsMagnitude[index] = 1;
-                this.setNeighborsSignificance(i, j);
+                this.setNeighborsSignificance(i, j, index);
                 processingFlags[index] |= firstMagnitudeBitMask;
               }
               bitsDecoded[index]++;
@@ -1515,28 +1458,56 @@ var JpxImage = (function JpxImageClosure() {
           }
         }
       },
-      decodeSignBit: function BitModel_decodeSignBit(row, column) {
+      decodeSignBit: function BitModel_decodeSignBit(row, column, index) {
         var width = this.width, height = this.height;
-        var index = row * width + column;
         var coefficentsMagnitude = this.coefficentsMagnitude;
         var coefficentsSign = this.coefficentsSign;
-        var horizontalContribution = calcSignContribution(
-          column > 0 && coefficentsMagnitude[index - 1],
-          coefficentsSign[index - 1],
-          column + 1 < width && coefficentsMagnitude[index + 1],
-          coefficentsSign[index + 1]);
-        var verticalContribution = calcSignContribution(
-          row > 0 && coefficentsMagnitude[index - width],
-          coefficentsSign[index - width],
-          row + 1 < height && coefficentsMagnitude[index + width],
-          coefficentsSign[index + width]);
+        var contribution, sign0, sign1, significance1;
+        var contextLabel, decoded;
 
-        var contextLabelAndXor = SignContextLabels[
-          3 * (1 - horizontalContribution) + (1 - verticalContribution)];
-        var contextLabel = contextLabelAndXor.contextLabel;
-        var cx = this.contexts[contextLabel];
-        var decoded = this.decoder.readBit(cx);
-        return decoded ^ contextLabelAndXor.xorBit;
+        // calculate horizontal contribution
+        significance1 = (column > 0 && coefficentsMagnitude[index - 1] !== 0);
+        if (column + 1 < width && coefficentsMagnitude[index + 1] !== 0) {
+          sign1 = coefficentsSign[index + 1];
+          if (significance1) {
+            sign0 = coefficentsSign[index - 1];
+            contribution = 1 - sign1 - sign0;
+          } else {
+            contribution = 1 - sign1 - sign1;
+          }
+        } else if (significance1) {
+          sign0 = coefficentsSign[index - 1];
+          contribution = 1 - sign0 - sign0;
+        } else {
+          contribution = 0;
+        }
+        var horizontalContribution = 3 * contribution;
+
+        // calculate vertical contribution and combine with the horizontal
+        significance1 = (row > 0 && coefficentsMagnitude[index - width] !== 0);
+        if (row + 1 < height && coefficentsMagnitude[index + width] !== 0) {
+          sign1 = coefficentsSign[index + width];
+          if (significance1) {
+            sign0 = coefficentsSign[index - width];
+            contribution = 1 - sign1 - sign0 + horizontalContribution;
+          } else {
+            contribution = 1 - sign1 - sign1 + horizontalContribution;
+          }
+        } else if (significance1) {
+          sign0 = coefficentsSign[index - width];
+          contribution = 1 - sign0 - sign0 + horizontalContribution;
+        } else {
+          contribution = horizontalContribution;
+        }
+
+        if (contribution >= 0) {
+          contextLabel = 9 + contribution;
+          decoded = this.decoder.readBit(this.contexts, contextLabel);
+        } else {
+          contextLabel = 9 - contribution;
+          decoded = this.decoder.readBit(this.contexts, contextLabel) ^ 1;
+        }
+        return decoded;
       },
       runMagnitudeRefinementPass:
         function BitModel_runMagnitudeRefinementPass() {
@@ -1549,32 +1520,29 @@ var JpxImage = (function JpxImageClosure() {
         var processingFlags = this.processingFlags;
         var processedMask = 1;
         var firstMagnitudeBitMask = 2;
-        for (var i0 = 0; i0 < height; i0 += 4) {
+        var length = width * height;
+        var width4 = width * 4;
+
+        for (var index0 = 0, indexNext; index0 < length; index0 = indexNext) {
+          indexNext = Math.min(length, index0 + width4);
           for (var j = 0; j < width; j++) {
-            for (var i1 = 0; i1 < 4; i1++) {
-              var i = i0 + i1;
-              if (i >= height)
-                break;
-              var index = i * width + j;
+            for (var index = index0 + j; index < indexNext; index += width) {
 
               // significant but not those that have just become
               if (!coefficentsMagnitude[index] ||
-                (processingFlags[index] & processedMask) !== 0)
+                (processingFlags[index] & processedMask) !== 0) {
                 continue;
-
-              var contextLabel = 16;
-              if ((processingFlags[index] &
-                firstMagnitudeBitMask) !== 0) {
-                processingFlags[i * width + j] ^= firstMagnitudeBitMask;
-                // first refinement
-                var significance = neighborsSignificance[index];
-                var sumOfSignificance = (significance & 3) +
-                  ((significance >> 2) & 3) + ((significance >> 4) & 7);
-                contextLabel = sumOfSignificance >= 1 ? 15 : 14;
               }
 
-              var cx = contexts[contextLabel];
-              var bit = decoder.readBit(cx);
+              var contextLabel = 16;
+              if ((processingFlags[index] & firstMagnitudeBitMask) !== 0) {
+                processingFlags[index] ^= firstMagnitudeBitMask;
+                // first refinement
+               var significance = neighborsSignificance[index] & 127;
+               contextLabel = significance === 0 ? 15 : 14;
+              }
+
+              var bit = decoder.readBit(contexts, contextLabel);
               coefficentsMagnitude[index] =
                 (coefficentsMagnitude[index] << 1) | bit;
               bitsDecoded[index]++;
@@ -1587,7 +1555,6 @@ var JpxImage = (function JpxImageClosure() {
         var decoder = this.decoder;
         var width = this.width, height = this.height;
         var neighborsSignificance = this.neighborsSignificance;
-        var significanceState = this.significanceState;
         var coefficentsMagnitude = this.coefficentsMagnitude;
         var coefficentsSign = this.coefficentsSign;
         var contexts = this.contexts;
@@ -1604,7 +1571,7 @@ var JpxImage = (function JpxImageClosure() {
             var index0 = i0 * width + j;
             // using the property: labels[neighborsSignificance[index]] == 0
             // when neighborsSignificance[index] == 0
-            var allEmpty = i0 + 3 < height &&
+            var allEmpty = (i0 + 3 < height &&
               processingFlags[index0] === 0 &&
               processingFlags[index0 + oneRowDown] === 0 &&
               processingFlags[index0 + twoRowsDown] === 0 &&
@@ -1612,12 +1579,12 @@ var JpxImage = (function JpxImageClosure() {
               neighborsSignificance[index0] === 0 &&
               neighborsSignificance[index0 + oneRowDown] === 0 &&
               neighborsSignificance[index0 + twoRowsDown] === 0 &&
-              neighborsSignificance[index0 + threeRowsDown] === 0;
+              neighborsSignificance[index0 + threeRowsDown] === 0);
             var i1 = 0, index = index0;
-            var cx, i;
+            var i, sign;
             if (allEmpty) {
-              cx = this.runLengthContext;
-              var hasSignificantCoefficent = decoder.readBit(cx);
+              var hasSignificantCoefficent =
+                decoder.readBit(contexts, RUNLENGTH_CONTEXT);
               if (!hasSignificantCoefficent) {
                 bitsDecoded[index0]++;
                 bitsDecoded[index0 + oneRowDown]++;
@@ -1625,40 +1592,42 @@ var JpxImage = (function JpxImageClosure() {
                 bitsDecoded[index0 + threeRowsDown]++;
                 continue; // next column
               }
-              cx = this.uniformContext;
-              i1 = (decoder.readBit(cx) << 1) | decoder.readBit(cx);
+              i1 = (decoder.readBit(contexts, UNIFORM_CONTEXT) << 1) |
+                    decoder.readBit(contexts, UNIFORM_CONTEXT);
               i = i0 + i1;
               index += i1 * width;
 
-              var sign = this.decodeSignBit(i, j);
+              sign = this.decodeSignBit(i, j, index);
               coefficentsSign[index] = sign;
               coefficentsMagnitude[index] = 1;
-              this.setNeighborsSignificance(i, j);
+              this.setNeighborsSignificance(i, j, index);
               processingFlags[index] |= firstMagnitudeBitMask;
 
               index = index0;
-              for (var i2 = i0; i2 <= i; i2++, index += width)
+              for (var i2 = i0; i2 <= i; i2++, index += width) {
                 bitsDecoded[index]++;
+              }
 
               i1++;
             }
             for (; i1 < 4; i1++, index += width) {
               i = i0 + i1;
-              if (i >= height)
+              if (i >= height) {
                 break;
+              }
 
               if (coefficentsMagnitude[index] ||
-                (processingFlags[index] & processedMask) !== 0)
+                (processingFlags[index] & processedMask) !== 0) {
                 continue;
+              }
 
               var contextLabel = labels[neighborsSignificance[index]];
-              cx = contexts[contextLabel];
-              var decision = decoder.readBit(cx);
+              var decision = decoder.readBit(contexts, contextLabel);
               if (decision == 1) {
-                var sign = this.decodeSignBit(i, j);
+                sign = this.decodeSignBit(i, j, index);
                 coefficentsSign[index] = sign;
                 coefficentsMagnitude[index] = 1;
-                this.setNeighborsSignificance(i, j);
+                this.setNeighborsSignificance(i, j, index);
                 processingFlags[index] |= firstMagnitudeBitMask;
               }
               bitsDecoded[index]++;
@@ -1668,128 +1637,140 @@ var JpxImage = (function JpxImageClosure() {
       },
       checkSegmentationSymbol: function BitModel_checkSegmentationSymbol() {
         var decoder = this.decoder;
-        var cx = this.uniformContext;
-        var symbol = (decoder.readBit(cx) << 3) | (decoder.readBit(cx) << 2) |
-                     (decoder.readBit(cx) << 1) | decoder.readBit(cx);
-        if (symbol != 0xA)
+        var contexts = this.contexts;
+        var symbol = (decoder.readBit(contexts, UNIFORM_CONTEXT) << 3) |
+                     (decoder.readBit(contexts, UNIFORM_CONTEXT) << 2) |
+                     (decoder.readBit(contexts, UNIFORM_CONTEXT) << 1) |
+                      decoder.readBit(contexts, UNIFORM_CONTEXT);
+        if (symbol != 0xA) {
           throw 'Invalid segmentation symbol';
+        }
       }
     };
 
     return BitModel;
   })();
 
-  // Section F, Discrete wavelet transofrmation
+  // Section F, Discrete wavelet transformation
   var Transform = (function TransformClosure() {
-    function Transform() {
-    }
+    function Transform() {}
+
     Transform.prototype.calculate =
       function transformCalculate(subbands, u0, v0) {
       var ll = subbands[0];
-      for (var i = 1, ii = subbands.length, j = 1; i < ii; i += 3, j++) {
-        ll = this.iterate(ll, subbands[i], subbands[i + 1],
-                          subbands[i + 2], u0, v0);
+      for (var i = 1, ii = subbands.length; i < ii; i++) {
+        ll = this.iterate(ll, subbands[i], u0, v0);
       }
       return ll;
     };
-    Transform.prototype.expand = function expand(buffer, bufferPadding, step) {
-        // Section F.3.7 extending... using max extension of 4
-        var i1 = bufferPadding - 1, j1 = bufferPadding + 1;
-        var i2 = bufferPadding + step - 2, j2 = bufferPadding + step;
-        buffer[i1--] = buffer[j1++];
-        buffer[j2++] = buffer[i2--];
-        buffer[i1--] = buffer[j1++];
-        buffer[j2++] = buffer[i2--];
-        buffer[i1--] = buffer[j1++];
-        buffer[j2++] = buffer[i2--];
-        buffer[i1--] = buffer[j1++];
-        buffer[j2++] = buffer[i2--];
+    Transform.prototype.extend = function extend(buffer, offset, size) {
+      // Section F.3.7 extending... using max extension of 4
+      var i1 = offset - 1, j1 = offset + 1;
+      var i2 = offset + size - 2, j2 = offset + size;
+      buffer[i1--] = buffer[j1++];
+      buffer[j2++] = buffer[i2--];
+      buffer[i1--] = buffer[j1++];
+      buffer[j2++] = buffer[i2--];
+      buffer[i1--] = buffer[j1++];
+      buffer[j2++] = buffer[i2--];
+      buffer[i1] = buffer[j1];
+      buffer[j2] = buffer[i2];
     };
-    Transform.prototype.iterate = function Transform_iterate(ll, hl, lh, hh,
-                                                            u0, v0) {
-      var llWidth = ll.width, llHeight = ll.height, llItems = ll.items;
-      var hlWidth = hl.width, hlHeight = hl.height, hlItems = hl.items;
-      var lhWidth = lh.width, lhHeight = lh.height, lhItems = lh.items;
-      var hhWidth = hh.width, hhHeight = hh.height, hhItems = hh.items;
+    Transform.prototype.iterate = function Transform_iterate(ll, hl_lh_hh,
+                                                             u0, v0) {
 
-      // Section F.3.3 interleave
-      var width = llWidth + hlWidth;
-      var height = llHeight + lhHeight;
-      var items = new Float32Array(width * height);
-      for (var i = 0, ii = llHeight; i < ii; i++) {
-        var k = i * llWidth, l = i * 2 * width;
-        for (var j = 0, jj = llWidth; j < jj; j++, k++, l += 2)
+      var llWidth = ll.width, llHeight = ll.height, llItems = ll.items;
+      var width = hl_lh_hh.width;
+      var height = hl_lh_hh.height;
+      var items = hl_lh_hh.items;
+      var i, j, k, l, u, v;
+
+      // Interleave LL according to Section F.3.3
+      for (k = 0, i = 0; i < llHeight; i++) {
+        l = i * 2 * width;
+        for (j = 0; j < llWidth; j++, k++, l += 2) {
           items[l] = llItems[k];
+        }
       }
-      for (var i = 0, ii = hlHeight; i < ii; i++) {
-        var k = i * hlWidth, l = i * 2 * width + 1;
-        for (var j = 0, jj = hlWidth; j < jj; j++, k++, l += 2)
-          items[l] = hlItems[k];
-      }
-      for (var i = 0, ii = lhHeight; i < ii; i++) {
-        var k = i * lhWidth, l = (i * 2 + 1) * width;
-        for (var j = 0, jj = lhWidth; j < jj; j++, k++, l += 2)
-          items[l] = lhItems[k];
-      }
-      for (var i = 0, ii = hhHeight; i < ii; i++) {
-        var k = i * hhWidth, l = (i * 2 + 1) * width + 1;
-        for (var j = 0, jj = hhWidth; j < jj; j++, k++, l += 2)
-          items[l] = hhItems[k];
-      }
+      // The LL band is not needed anymore.
+      llItems = ll.items = null;
 
       var bufferPadding = 4;
-      var bufferLength = new Float32Array(Math.max(width, height) +
-        2 * bufferPadding);
-      var buffer = new Float32Array(bufferLength);
-      var bufferOut = new Float32Array(bufferLength);
+      var rowBuffer = new Float32Array(width + 2 * bufferPadding);
 
       // Section F.3.4 HOR_SR
-      for (var v = 0; v < height; v++) {
-        if (width == 1) {
-          // if width = 1, when u0 even keep items as is, when odd divide by 2
-          if ((u0 % 1) !== 0) {
-            items[v * width] /= 2;
+      if (width === 1) {
+        // if width = 1, when u0 even keep items as is, when odd divide by 2
+        if ((u0 & 1) !== 0) {
+          for (v = 0, k = 0; v < height; v++, k += width) {
+            items[k] *= 0.5;
           }
-          continue;
         }
+      } else {
+        for (v = 0, k = 0; v < height; v++, k += width) {
+          rowBuffer.set(items.subarray(k, k + width), bufferPadding);
 
-        var k = v * width;
-        var l = bufferPadding;
-        for (var u = 0; u < width; u++, k++, l++)
-          buffer[l] = items[k];
+          this.extend(rowBuffer, bufferPadding, width);
+          this.filter(rowBuffer, bufferPadding, width, u0, rowBuffer);
 
-        this.expand(buffer, bufferPadding, width);
-        this.filter(buffer, bufferPadding, width, u0, bufferOut);
-
-        k = v * width;
-        l = bufferPadding;
-        for (var u = 0; u < width; u++, k++, l++)
-          items[k] = bufferOut[l];
+          items.set(
+            rowBuffer.subarray(bufferPadding, bufferPadding + width),
+            k);
+        }
       }
+
+      // Accesses to the items array can take long, because it may not fit into
+      // CPU cache and has to be fetched from main memory. Since subsequent
+      // accesses to the items array are not local when reading columns, we
+      // have a cache miss every time. To reduce cache misses, get up to
+      // 'numBuffers' items at a time and store them into the individual
+      // buffers. The colBuffers should be small enough to fit into CPU cache.
+      var numBuffers = 16;
+      var colBuffers = [];
+      for (i = 0; i < numBuffers; i++) {
+        colBuffers.push(new Float32Array(height + 2 * bufferPadding));
+      }
+      var b, currentBuffer = 0;
+      ll = bufferPadding + height;
 
       // Section F.3.5 VER_SR
-      for (var u = 0; u < width; u++) {
-        if (height == 1) {
+      if (height === 1) {
           // if height = 1, when v0 even keep items as is, when odd divide by 2
-          if ((v0 % 1) !== 0) {
-            items[u] /= 2;
+        if ((v0 & 1) !== 0) {
+          for (u = 0; u < width; u++) {
+            items[u] *= 0.5;
           }
-          continue;
         }
+      } else {
+        for (u = 0; u < width; u++) {
+          // if we ran out of buffers, copy several image columns at once
+          if (currentBuffer === 0) {
+            numBuffers = Math.min(width - u, numBuffers);
+            for (k = u, l = bufferPadding; l < ll; k += width, l++) {
+              for (b = 0; b < numBuffers; b++) {
+                colBuffers[b][l] = items[k + b];
+              }
+            }
+            currentBuffer = numBuffers;
+          }
 
-        var k = u;
-        var l = bufferPadding;
-        for (var v = 0; v < height; v++, k += width, l++)
-          buffer[l] = items[k];
+          currentBuffer--;
+          var buffer = colBuffers[currentBuffer];
+          this.extend(buffer, bufferPadding, height);
+          this.filter(buffer, bufferPadding, height, v0, buffer);
 
-        this.expand(buffer, bufferPadding, height);
-        this.filter(buffer, bufferPadding, height, v0, bufferOut);
-
-        k = u;
-        l = bufferPadding;
-        for (var v = 0; v < height; v++, k += width, l++)
-          items[k] = bufferOut[l];
+          // If this is last buffer in this group of buffers, flush all buffers.
+          if (currentBuffer === 0) {
+            k = u - numBuffers + 1;
+            for (l = bufferPadding; l < ll; k += width, l++) {
+              for (b = 0; b < numBuffers; b++) {
+                items[k + b] = colBuffers[b][l];
+              }
+            }
+          }
+        }
       }
+
       return {
         width: width,
         height: height,
@@ -1808,9 +1789,8 @@ var JpxImage = (function JpxImageClosure() {
     IrreversibleTransform.prototype = Object.create(Transform.prototype);
     IrreversibleTransform.prototype.filter =
       function irreversibleTransformFilter(y, offset, length, i0, x) {
-      var i0_ = Math.floor(i0 / 2);
-      var i1_ = Math.floor((i0 + length) / 2);
-      var offset_ = offset - (i0 % 1);
+      var len = length >> 1;
+      offset = offset | 0;
 
       var alpha = -1.586134342059924;
       var beta = -0.052980118572961;
@@ -1818,36 +1798,35 @@ var JpxImage = (function JpxImageClosure() {
       var delta = 0.443506852043971;
       var K = 1.230174104914001;
       var K_ = 1 / K;
+      var j, n;
 
-      // step 1
-      var j = offset_ - 2;
-      for (var n = i0_ - 1, nn = i1_ + 2; n < nn; n++, j += 2)
-        x[j] = K * y[j];
+      // step 1 is combined with step 3
 
       // step 2
-      var j = offset_ - 3;
-      for (var n = i0_ - 2, nn = i1_ + 2; n < nn; n++, j += 2)
+      for (j = offset - 3, n = len + 4; n--; j += 2) {
         x[j] = K_ * y[j];
+      }
 
-      // step 3
-      var j = offset_ - 2;
-      for (var n = i0_ - 1, nn = i1_ + 2; n < nn; n++, j += 2)
-        x[j] -= delta * (x[j - 1] + x[j + 1]);
+      // step 1 & 3
+      for (j = offset - 2, n = len + 3; n--; j += 2) {
+        x[j] = K * y[j] -
+          delta * (x[j - 1] + x[j + 1]);
+      }
 
       // step 4
-      var j = offset_ - 1;
-      for (var n = i0_ - 1, nn = i1_ + 1; n < nn; n++, j += 2)
+      for (j = offset - 1, n = len + 2; n--; j += 2) {
         x[j] -= gamma * (x[j - 1] + x[j + 1]);
+      }
 
       // step 5
-      var j = offset_;
-      for (var n = i0_, nn = i1_ + 1; n < nn; n++, j += 2)
+      for (j = offset, n = len + 1; n--; j += 2) {
         x[j] -= beta * (x[j - 1] + x[j + 1]);
+      }
 
       // step 6
-      var j = offset_ + 1;
-      for (var n = i0_, nn = i1_; n < nn; n++, j += 2)
+      for (j = offset + 1, n = len; n--; j += 2) {
         x[j] -= alpha * (x[j - 1] + x[j + 1]);
+      }
     };
 
     return IrreversibleTransform;
@@ -1862,15 +1841,17 @@ var JpxImage = (function JpxImageClosure() {
     ReversibleTransform.prototype = Object.create(Transform.prototype);
     ReversibleTransform.prototype.filter =
       function reversibleTransformFilter(y, offset, length, i0, x) {
-      var i0_ = Math.floor(i0 / 2);
-      var i1_ = Math.floor((i0 + length) / 2);
-      var offset_ = offset - (i0 % 1);
+      var len = length >> 1;
+      offset = offset | 0;
+      var j, n;
 
-      for (var n = i0_, nn = i1_ + 1, j = offset_; n < nn; n++, j += 2)
-        x[j] = y[j] - Math.floor((y[j - 1] + y[j + 1] + 2) / 4);
+      for (j = offset, n = len + 1; n--; j += 2) {
+        x[j] = y[j] - ((y[j - 1] + y[j + 1] + 2) >> 2);
+      }
 
-      for (var n = i0_, nn = i1_, j = offset_ + 1; n < nn; n++, j += 2)
-        x[j] = y[j] + Math.floor((x[j - 1] + x[j + 1]) / 2);
+      for (j = offset + 1, n = len; n--; j += 2) {
+        x[j] = y[j] + ((x[j - 1] + x[j + 1]) >> 1);
+      }
     };
 
     return ReversibleTransform;

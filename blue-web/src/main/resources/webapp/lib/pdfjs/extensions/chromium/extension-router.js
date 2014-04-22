@@ -18,9 +18,22 @@ limitations under the License.
 /* globals chrome */
 
 'use strict';
+
 (function ExtensionRouterClosure() {
   var VIEWER_URL = chrome.extension.getURL('content/web/viewer.html');
   var CRX_BASE_URL = chrome.extension.getURL('/');
+
+  var schemes = [
+    'http',
+    'https',
+    'ftp',
+    'file',
+    'chrome-extension',
+    // Chromium OS
+    'filesystem',
+    // Chromium OS, shorthand for filesystem:<origin>/external/
+    'drive'
+  ];
 
   /**
    * @param {string} url The URL prefixed with chrome-extension://.../
@@ -28,10 +41,15 @@ limitations under the License.
    */
   function parseExtensionURL(url) {
     url = url.substring(CRX_BASE_URL.length);
-    var matchingUrl = /^(?:https?|file|ftp|chrome-extension)(:|%3A)/i.exec(url);
-    if (matchingUrl) {
+    // Find the (url-encoded) colon and verify that the scheme is whitelisted.
+    var schemeIndex = url.search(/:|%3A/i);
+    if (schemeIndex === -1) {
+      return;
+    }
+    var scheme = url.slice(0, schemeIndex).toLowerCase();
+    if (schemes.indexOf(scheme) >= 0) {
       url = url.split('#')[0];
-      if (matchingUrl[1] === ':') {
+      if (url.charAt(schemeIndex) === ':') {
         url = encodeURIComponent(url);
       }
       return url;
@@ -85,21 +103,16 @@ limitations under the License.
       return { redirectUrl: url };
     }
   }, {
-      types: ['main_frame', 'sub_frame'],
-      urls: [
-        CRX_BASE_URL + 'http*', // and https
-        CRX_BASE_URL + 'file*',
-        CRX_BASE_URL + 'ftp*',
-        CRX_BASE_URL + 'chrome-extension*'
-      ]
+    types: ['main_frame', 'sub_frame'],
+    urls: schemes.map(function(scheme) {
+      // Format: "chrome-extension://[EXTENSIONID]/<scheme>*"
+      return CRX_BASE_URL + scheme + '*';
+    })
   }, ['blocking']);
 
   chrome.runtime.onMessage.addListener(function(message, sender) {
     if (message === 'showPageAction' && sender.tab) {
-      if (sender.tab.url === sender.url) {
-        // Only respond to messages from the top-level frame
-        showPageAction(sender.tab.id, sender.url);
-      }
+      showPageAction(sender.tab.id, sender.tab.url);
     }
   });
 
@@ -107,7 +120,7 @@ limitations under the License.
   // webRequest event listener is attached (= page not found).
   // Reload these tabs.
   chrome.tabs.query({
-    url: CRX_BASE_URL + '*://*'
+    url: CRX_BASE_URL + '*:*'
   }, function(tabsFromLastSession) {
     for (var i = 0; i < tabsFromLastSession.length; ++i) {
       chrome.tabs.reload(tabsFromLastSession[i].id);

@@ -16,7 +16,7 @@
  */
 /* jshint esnext:true */
 /* globals Components, Services, dump, XPCOMUtils, PdfStreamConverter,
-           PdfRedirector, APP_SHUTDOWN */
+           PdfRedirector, APP_SHUTDOWN, DEFAULT_PREFERENCES */
 
 'use strict';
 
@@ -43,17 +43,32 @@ function getBoolPref(pref, def) {
   }
 }
 
-function setStringPref(pref, value) {
-  var str = Cc['@mozilla.org/supports-string;1']
-              .createInstance(Ci.nsISupportsString);
-  str.data = value;
-  Services.prefs.setComplexValue(pref, Ci.nsISupportsString, str);
+function log(str) {
+  if (!getBoolPref(EXT_PREFIX + '.pdfBugEnabled', false)) {
+    return;
+  }
+  dump(str + '\n');
 }
 
-function log(str) {
-  if (!getBoolPref(EXT_PREFIX + '.pdfBugEnabled', false))
-    return;
-  dump(str + '\n');
+function initializeDefaultPreferences() {
+//#include ../../web/default_preferences.js
+
+  var defaultBranch = Services.prefs.getDefaultBranch(EXT_PREFIX + '.');
+  var defaultValue;
+  for (var key in DEFAULT_PREFERENCES) {
+    defaultValue = DEFAULT_PREFERENCES[key];
+    switch (typeof defaultValue) {
+      case 'boolean':
+        defaultBranch.setBoolPref(key, defaultValue);
+        break;
+      case 'number':
+        defaultBranch.setIntPref(key, defaultValue);
+        break;
+      case 'string':
+        defaultBranch.setCharPref(key, defaultValue);
+        break;
+    }
+  }
 }
 
 // Factory that registers/unregisters a constructor as a component.
@@ -80,8 +95,9 @@ Factory.prototype = {
 
   // nsIFactory
   createInstance: function createInstance(aOuter, iid) {
-    if (aOuter !== null)
+    if (aOuter !== null) {
       throw Cr.NS_ERROR_NO_AGGREGATION;
+    }
     return (new (this._targetConstructor)()).QueryInterface(iid);
   },
 
@@ -111,24 +127,27 @@ function startup(aData, aReason) {
 
   // Load the component and register it.
   pdfStreamConverterUrl = aData.resourceURI.spec +
-                          'components/PdfStreamConverter.js';
+                          'content/PdfStreamConverter.jsm';
   Cu.import(pdfStreamConverterUrl);
   pdfStreamConverterFactory.register(PdfStreamConverter);
 
   if (registerOverlayPreview) {
     pdfRedirectorUrl = aData.resourceURI.spec +
-                       'components/PdfRedirector.js';
+                       'content/PdfRedirector.jsm';
     Cu.import(pdfRedirectorUrl);
     pdfRedirectorFactory.register(PdfRedirector);
 
     Ph.registerPlayPreviewMimeType('application/pdf', true,
       'data:application/x-moz-playpreview-pdfjs;,');
   }
+
+  initializeDefaultPreferences();
 }
 
 function shutdown(aData, aReason) {
-  if (aReason == APP_SHUTDOWN)
+  if (aReason == APP_SHUTDOWN) {
     return;
+  }
   var ioService = Services.io;
   var resProt = ioService.getProtocolHandler('resource')
                   .QueryInterface(Ci.nsIResProtocolHandler);
@@ -150,9 +169,10 @@ function shutdown(aData, aReason) {
 }
 
 function install(aData, aReason) {
+  // TODO remove after some time -- cleanup of unused preferences
+  Services.prefs.clearUserPref(EXT_PREFIX + '.database');
 }
 
 function uninstall(aData, aReason) {
-  setStringPref(EXT_PREFIX + '.database', '{}');
 }
 
