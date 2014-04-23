@@ -48,8 +48,6 @@ import gnieh.sohva.control.CouchClient
 class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleContext, templates: Templates, mailAgent: MailAgent, recaptcha: ReCaptcha, logger: Logger)
     extends SyncBlueLet(config, logger) {
 
-  // TODO logging
-
   def act(talk: HTalk): Try[Unit] =
     if(recaptcha.verify(talk)) {
       val result = for {
@@ -95,14 +93,14 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
 
                       (HStatus.Created, true)
                     case None =>
-                      // TODO log it
+                      logWarn(s"Unable to generate password reset token for user $username")
                       Try(session.users.delete(username))
                       Try(db.deleteDoc(user._id))
                       (HStatus.InternalServerError,
                         ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry"))
                   }
                 case None =>
-                  // TODO log it
+                  logWarn(s"Unable to create \\BlueLaTeX user $username")
                   // somehow we couldn't save it
                   // remove the couchdb user from database
                   Try(session.users.delete(username))
@@ -111,12 +109,12 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
                     ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry")))
               }
             case false =>
-              // TODO log it
+              logWarn(s"Unable to create CouchDB user $username")
               Success((HStatus.InternalServerError,
                 ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry")))
           } recover {
-            case c: gnieh.sohva.ConflictException =>
-              // TODO log it
+            case _: gnieh.sohva.ConflictException =>
+              logWarn(s"User $username already exists")
               (HStatus.Conflict,
                 ErrorResponse("unable_to_register", s"The user $username already exists"))
           }
@@ -128,7 +126,7 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
       }
 
     } else {
-      // TODO log it
+      logWarn(s"ReCaptcha did not verify when trying to create a user")
       Success(talk
         .setStatus(HStatus.Unauthorized)
         .writeJson(ErrorResponse("not_authorized", "ReCaptcha did not verify")))

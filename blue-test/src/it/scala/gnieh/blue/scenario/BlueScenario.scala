@@ -122,7 +122,7 @@ abstract class BlueScenario extends FeatureSpec
 
   type Result[T] = Either[(Int, ErrorResponse), (T, Map[String, List[String]])]
 
-  val PasswordResetRegex = s"(?s).*http://localhost:$bluePort/reset\\.html\\?user=(.+)\\&token=(\\S+).*".r
+  val PasswordResetRegex = s"(?s).*http://localhost:$bluePort/web/index\\.html#/([^/]+)/reset/(\\S+).*".r
 
   case class BlueErrorException(status: Int, error: ErrorResponse) extends Exception {
     override def toString  = s"error: $status, message: $error"
