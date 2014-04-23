@@ -57,7 +57,7 @@ class GeneratePasswordReset(username: String, templates: Templates, mailAgent: M
           // send the link to reset the password in an email
           val emailText =
             templates.layout(
-              "emails/reset.mustache",
+              "emails/reset",
               "baseUrl" -> config.getString("blue.base_url"),
               "name" -> username,
               "token" -> token,

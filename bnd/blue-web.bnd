@@ -1,0 +1,5 @@
+Bundle-Activator: gnieh.blue.web.BlueWebActivator
+Bundle-SymbolicName: org.gnieh.blue.web
+Bundle-Name: \\BlueLaTeX Web client
+Provide-Capability: org.gnieh.blue.sync
+Private-Package=gnieh.blue.web

@@ -1,0 +1,109 @@
+#manage {
+    background: #fff;
+    position: relative;
+    width: 724px;
+    margin: auto;
+    padding: 10px;
+    padding-top: 50px;
+    min-height: 100%;
+    box-shadow: 0 0 3px rgba(0,0,0,0.2);
+}
+#manage h1 {
+    margin-top: 1px;
+    margin-bottom: 10px;
+}
+#manage label {
+    margin-right: 4px;
+    display: block;
+    background: #eee;
+    padding: 4px;
+    line-height: 30px;
+}
+#manage input{
+    padding: 10px;
+    background: #ECF2F4;
+    border: 0;
+    margin: 4px 0;
+    outline: none;
+    width: 100%;
+    display: inline-block;
+}
+#manage .has-error input {
+    background: #F5EAEA;
+}
+#manage .control-label {
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: none;
+}
+#manage button,#manage .button {
+    display: inline-block;
+    width:33%;
+    border-radius: 0;
+    margin: 2px 0;
+    outline: none;
+    padding: 10px;
+}
+
+#manage .authors,#manage .reviewers {
+}
+#manage .authors .author,#manage .reviewers .reviewer {
+    background: #eee;
+    float:left;
+    margin-top: 4px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+#manage .authors .author .label, #manage .reviewers .reviewer .label {
+    display: inline;
+    line-height: 22px;
+    padding: 8px;
+    float: left;
+}
+#manage .authors .author .button, #manage .reviewers .reviewer .button {
+    margin: 0;
+    background: transparent;
+    color: #4D4D4D;
+    padding: 0 5px;
+    padding-top: 9px;
+    font-size: 21px;
+    width: auto;
+}
+#manage .new input {
+    width: 250px;
+}
+
+.angucomplete-holder {
+    display: inline;
+    position: relative;
+}
+
+.angucomplete-dropdown {
+    width: 250px;
+    padding: 0;
+    cursor: pointer;
+    z-index: 9999;
+    position: absolute;
+    margin-top: -6px;
+    background-color: #68738A;
+
+}
+
+.angucomplete-searching {
+    color: #FAFAFA;
+    font-size: 14px;
+    padding: 5px;
+}
+
+.angucomplete-row {
+    padding: 5px;
+    color: #fff;
+    border-bottom: 1px solid #ddd;
+
+}
+
+.angucomplete-selected-row, .angucomplete-row:hover {
+    background-color: #025097;
+    color: #ffffff;
+}

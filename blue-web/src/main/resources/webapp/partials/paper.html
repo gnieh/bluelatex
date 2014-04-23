@@ -1,0 +1,5 @@
+<section id="paper" class="{{status}}">
+  <div ng-if="status=='load'" ng-include src="'partials/paper_load.html'"></div>
+  <div ng-if="status=='author'"  ng-include src="'partials/paper_author.html'"></div>
+  <div ng-if="status=='reviewer'" ng-include src="'partials/paper_reviewer.html'"></div>
+</section>

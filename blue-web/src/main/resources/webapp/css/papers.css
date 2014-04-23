@@ -1,0 +1,319 @@
+#papers {
+    position: absolute;
+    bottom: 0;
+    top: 42px;
+    left: 0;
+    right: 0;
+}
+#papers .top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #fff;
+    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fff), color-stop(100%, rgba(255,255,255,0.6)));
+    background: -webkit-linear-gradient(top, #FFF, rgba(255, 255, 255, 0.6));
+    background: -moz-linear-gradient(top, #fff,rgba(255,255,255,0.6));
+    background: -o-linear-gradient(top, #fff,rgba(255,255,255,0.6));
+    background: -ms-linear-gradient(top, #fff,rgba(255,255,255,0.6));
+    background: linear-gradient(top, #fff,rgba(255,255,255,0.6));
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    width: 100%;
+    height: 45px;
+    z-index: 99;
+}
+#papers .top h1 {
+    margin: 0;
+    font-size: 37px;
+    float: left;
+    padding-left: 41px;
+    line-height: 42px;
+    color: #444;
+    width: 195px;
+}
+#papers .top .options {
+
+}
+#papers .left {
+    position: absolute;
+    background: #fff;
+    box-shadow: 1px 3px 3px rgba(0,0,0,0.2);
+    width: 195px;
+    top: 0px;
+    bottom: 0;
+    padding-top: 45px;
+    overflow: auto;
+}
+#papers .center {
+    position: absolute;
+    bottom: 0;
+    top: 45px;
+    left: 200px;
+    right: 0;
+    overflow: auto;
+}
+#display_style {
+    float: left;
+}
+#display_style  ul {
+    margin: 0;
+    padding: 0;
+}
+#display_style  ul li {
+    float: left;
+}
+#search {
+    float: right;
+}
+#paper_list {
+    margin: 10px;
+}
+#paper_list.list {
+    border: 1px solid #ddd;
+    background: #fff;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+}
+#paper_list.list .paper {
+    width: 100%;
+    position: relative;
+    border-bottom: 1px solid #DDD;
+    display: table;
+}
+#paper_list.list .paper a {
+    display: block;
+}
+#paper_list.list .paper.header .date, #paper_list.list .paper.header .options, #paper_list.list .paper.header .tags, #paper_list.list .paper.header .role {
+    text-align: left;
+    height: 34px;
+    padding: 7px;
+}
+#paper_list.list .paper .title, #paper_list.list .paper .date, #paper_list.list .paper .options, #paper_list.list .paper .tags, #paper_list.list .paper .role {
+    position: relative;
+    display: table-cell;
+    vertical-align: middle;
+    padding: 7px;
+    border-left: 1px solid #ddd;
+    min-height: 34px;
+}
+#paper_list.list .paper .title{
+    border-left: 0;
+}
+#paper_list.list .paper .date {
+    width: 110px;
+    text-align: center;
+}
+#paper_list.list .paper .tags {
+    width: 170px;
+}
+#paper_list.list .paper .role{
+    width: 100px;
+    text-align: center;
+}
+#paper_list.list .paper .options{
+    width: 170px;
+    padding: 1px 0 1px 12px;
+}
+#paper_list.list .paper .options .option {
+    display: inline;
+    color: #fff;
+    background: #025097;
+    padding: 4px 7px;
+    border-radius: 2px;
+    margin: 2px 2px;
+    cursor: pointer;
+    border: 0;
+    outline: none;
+    font-size: 17px;
+    overflow: hidden;
+    height: 27px;
+}
+#paper_list.list .icon {
+    position: relative;
+    display: none;
+}
+#paper_list.vignette .paper {
+    position: relative;
+    width: 220px;
+    overflow: hidden;
+    height: 310px;
+    float: left;
+    margin: 7px;
+    border-radius: 2px;
+    box-shadow: 0px 0px 3px rgba(0,0,0,0.2);
+    background: #fff;
+}
+#paper_list.vignette .paper .icon {
+    width: 100%;
+    height: 100%;
+}
+#paper_list.vignette .paper .icon a > div {
+    width: 100%;
+    height: 100%;
+}
+#paper_list.vignette .paper a {
+    color: #fff;
+    width: 100%;
+    display: inline-block;
+    height: 100%;
+}
+#paper_list.vignette .paper img {
+    width: 100%;
+}
+#paper_list.vignette .paper .title,#paper_list.vignette .paper .date, #paper_list.vignette .paper .tags, #paper_list.vignette .paper .options {
+    position: absolute;
+    bottom: 0;
+    background: #025097;
+    width: 100%;
+    line-height: 34px;
+    padding: 4px 7px;
+    height:40px;
+    z-index: 1;
+}
+#paper_list.vignette .paper:hover *{
+    -moz-transition: bottom 0.2s;
+    -webkit-transition: bottom 0.2s;
+    -o-transition: bottom 0.2s;
+    transition: bottom 0.2s;
+}
+#paper_list.vignette .paper:hover .title {
+    bottom: 33px;
+}
+#paper_list.vignette .paper .tags {
+    bottom: -34px;
+}
+#paper_list.vignette .paper:hover .tags {
+    bottom: 68px;
+}
+#paper_list.vignette .paper .date {
+    bottom: -68px;
+}
+#paper_list.vignette .paper:hover .date {
+    bottom: 34px;
+}
+#paper_list.vignette .paper .options {
+    padding: 0;
+    bottom: -33px;
+    height: 33px;
+    border-top: 1px solid #FEFEFE;
+}
+#paper_list.vignette .paper:hover .options {
+    bottom: 0px;
+}
+#paper_list.vignette .paper .option {
+    display: block;
+    background: transparent;
+    border: 0;
+    float: left;
+    width: 50%;
+    margin: 0;
+    border-radius: 0;
+    text-align: center;
+}
+#paper_list.vignette .paper .option:last-child {
+    border-left: 1px solid #fefefe;
+}
+#paper_list.vignette .paper .option:hover {
+    background: rgba(0,0,0,0.2);
+}
+#paper_list .no-paper {
+    padding: 10px;
+}
+#display_style input {
+    visibility: hidden;
+    width: 0;
+}
+#display_style span {
+    font-size: 20px;
+    color: #444;
+    line-height: 55px;
+    cursor: pointer;
+}
+#display_style input:checked + span {
+    color: #025097;
+}
+#search input{
+    padding: 4px 7px;
+    margin: 8px 4px;
+    border-radius: 2px;
+    margin-right: 11px;
+    outline: none;
+}
+#search button {
+    content: ' ';
+    margin: 0;
+    border-radius: 2px;
+    border: 1px solid #BABABA;
+    border-left: 0;
+    background: transparent;
+    color: #333;
+    padding: 4px 7px;
+    font-size: 15px;
+    margin-left: -7px;
+    margin-right: 7px;
+}
+#sort {
+    float: right;
+    line-height: 44px;
+}
+#sort select {
+    background: #fff;
+    outline: none;
+    margin-top: 10px;
+    min-width: 110px;
+    border-radius: 2px;
+}
+
+#papers .left label {
+    position: relative;
+    display: block;
+    border-bottom: 1px solid #DDD;
+    margin: 0;
+    padding: 0;
+}
+#papers .left label input {
+    position: absolute;
+    top: -100px;
+    visibility: hidden;
+    width: 0;
+    margin: 0;
+    float: right;
+}
+.diskColor {
+    position: relative;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    top: 1px;
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.8);
+}
+.tags .diskColor {
+    margin-left: 3px;
+}
+#papers .left label .label {
+    padding: 2px 6px;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    width: 100%;
+    display: inline-block;
+}
+#papers .left label input:checked + .label {
+    border-left: 3px solid #025097;
+}
+#papers .left label .nb {
+    position: absolute;
+    top: 0;
+    right: 7px;
+    font-size: 12px;
+    color: #888;
+    line-height: 28px;
+}
+
+.animate-enter {
+    -webkit-transition: 1s linear all; /* Chrome */
+    transition: 1s linear all;
+    opacity: 0;
+}
+
+.animate-enter.animate-enter-active {
+    opacity: 1;
+}
