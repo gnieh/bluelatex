@@ -451,7 +451,6 @@ div.subOptions > div:last-child {
 }
 #file_list .file{
     position: relative;
-    cursor: pointer;
     border-bottom: 1px solid #ddd;
     border-left: 2px solid transparent;
 }
@@ -471,9 +470,11 @@ div.subOptions > div:last-child {
     margin-bottom: -1px;
 }
 #file_list .file .label {
-    float: left;
+    display: inline-block;
+    width: 80%;
     line-height: 24px;
     margin-left: 20px;
+    cursor: pointer;
 }
 #file_list .file .label .extension {
     color: #999;
@@ -488,10 +489,14 @@ div.subOptions > div:last-child {
     background: #fff;
     color: #333;
     font-size: 17px;
-    padding: 5px;
+    padding: 5px 5px 0px 0px;
     padding-bottom: 0;
     margin: 0;
     display: none;
+    top: 50%;
+    margin-top: -13px;
+    height: 25px;
+    overflow: hidden;
 }
 #file_list .file .delete {
     right: 0px;
