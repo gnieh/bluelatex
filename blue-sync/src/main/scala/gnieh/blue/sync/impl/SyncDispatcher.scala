@@ -79,7 +79,7 @@ class SyncActor(
   private val paperDir = config.paperDir(paperId)
 
   /** Map (peer, filepath) -> DocumentView instance */
-  private val views = Map.empty[(String, String), DocumentView]
+  private var views = Map.empty[(String, String), DocumentView]
   /** Map filepath -> Document instance */
   private val documents = Map.empty[String, Document]
   /** Map destPeer -> List(message) */
@@ -190,6 +190,11 @@ class SyncActor(
   }
 
   def nullify(view: DocumentView): Unit = {
+    // remove document from memory
+    // only keep views on documents that are not the gone we nullify
+    views = views.filterNot { case ((_, path), _) => path == view.document.path }
+    documents -= view.document.path
+    // delete it from store
     store.delete(view.document)
   }
 
