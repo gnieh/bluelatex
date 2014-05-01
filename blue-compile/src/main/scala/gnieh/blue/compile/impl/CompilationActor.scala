@@ -126,11 +126,11 @@ class CompilationActor(
             val db = session.database(couchConfig.database("blue_papers"))
             for {
               paper <- db.getDocById[Paper](paperId)
-              pdf <- managed(PDDocument.load(pdfFile))
-              newTitle <- Option(pdf.getDocumentInformation.getTitle)
+              newTitle <- texTitle(paperId)
+              newClass <- documentClass(paperId)
               p <- paper
-              if p.title != newTitle
-            } db.saveDoc(p.copy(title = newTitle).withRev(p._rev))
+              if p.title != newTitle || p.cls != newClass
+            } db.saveDoc(p.copy(title = newTitle, cls = newClass).withRev(p._rev))
           }
 
           res
@@ -171,6 +171,14 @@ class CompilationActor(
       context.become(receiving(Map(), settings, lastCompilationDate))
 
   }
+
+  def texTitle(paperId: String) =
+    configuration.paperFile(paperId)
+      .extractFirst("\\\\title.([^}]+)".r)
+
+  def documentClass(paperId: String) =
+    configuration.paperFile(paperId)
+      .extractFirst("""\\documentclass(?:\[[^\[]*\])?.([^}]+)""".r)
 
 }
 
