@@ -21,7 +21,10 @@ import let._
 
 import org.osgi.framework.BundleContext
 
-import java.io.File
+import java.io.{
+  File,
+  PushbackInputStream
+}
 
 /** Implements the tiscaf built-in HLet that makes it possible to server
  *  static resources from the class loader.
@@ -45,10 +48,20 @@ class WebLet(context: BundleContext) extends ResourceLet {
       null
     else url.getProtocol match {
       case "jar" | "bundle"  =>
-        val is = url.openStream
+        val is = new PushbackInputStream(url.openStream)
         try {
           is.available
-          is
+          val first = is.read()
+          if(first == -1) {
+            // this is an empty stream representing a directory entry or an empty file
+            // we never serve directory entries nor empty files, only files with some content.
+            is.close
+            null
+          } else {
+            // unread the first byte and return the input stream
+            is.unread(first)
+            is
+          }
         } catch {
           case _: Exception => null
         }
