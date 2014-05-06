@@ -76,7 +76,7 @@ class CompilationDispatcher(
           // this will be catched and transformed into a `Try` instance.
           // `None` means that the settings could not be saved, obviously something is going really wrong
           // with the database...
-          yield settings.get
+          yield settings
     }
 
   override def unknownReceiver(paperId: String, msg: Any): Unit = msg match {

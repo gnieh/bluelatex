@@ -41,12 +41,12 @@ import gnieh.sohva.control.CouchClient
 class GetUsersLet(val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] = {
-    val userNames = view[String, String, Any](blue_users, "lists", "names")
+    val userNames = view(blue_users, "lists", "names")
     // get the filter parameter if any
     val filter = talk.req.param("name")
     val startkey = filter.map(_.toLowerCase)
     val endkey = startkey.map(_.toLowerCase + "Z")
-    for(users <- userNames.query(startkey = startkey, endkey = endkey))
+    for(users <- userNames.query[String, String, Any](startkey = startkey, endkey = endkey))
       yield talk.writeJson(users.rows.map(_.key))
   }
 

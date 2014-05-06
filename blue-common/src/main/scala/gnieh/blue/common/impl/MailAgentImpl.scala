@@ -44,8 +44,8 @@ class MailAgentImpl(couch: CouchClient, configuration: BlueConfiguration) extend
     val couchConf = configuration.couch
     couch.database(couchConf.database("blue_users"))
       .design("lists")
-      .view[String, String, Nothing]("emails")
-      .query(key = Some(s"org.couchdb.user:$username")) match {
+      .view("emails")
+      .query[String, String, Nothing](key = Some(s"org.couchdb.user:$username")) match {
         case Success(result) =>
           result.rows
             .headOption

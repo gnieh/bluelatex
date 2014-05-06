@@ -63,7 +63,7 @@ class DeleteUserLet(username: String, context: BundleContext, val couch: CouchCl
       val userid = s"org.couchdb.user:$username"
 
       // get the papers in which this user is involved
-      view[String, UserRole, Paper](blue_papers, "papers", "for").query(key = Some(username), include_docs = true) flatMap { res =>
+      view(blue_papers, "papers", "for").query[String, UserRole, Paper](key = Some(username), include_docs = true) flatMap { res =>
         val rows = res.rows
 
         // get the papers for which the user is the single author

@@ -55,17 +55,11 @@ class ModifyCompilerLet(paperId: String, val couch: CouchClient, config: Config,
                   // the revision matches, we can apply the patch
                   val settings1 = patch(settings).withRev(knownRev)
                   // and save the new compiler data
-                  db.saveDoc(settings1) map {
-                    case Some(s) =>
+                  for(s <- db.saveDoc(settings1))
+                    yield
                       // save successfully, return ok with the new ETag
                       // we are sure that the revision is not empty because it comes from the database
                       talk.writeJson(true, s._rev.get)
-                    case None =>
-                      // something went wrong
-                      talk
-                        .setStatus(HStatus.InternalServerError)
-                        .writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
-                  }
                 case None =>
                   // nothing to do
                   Success(

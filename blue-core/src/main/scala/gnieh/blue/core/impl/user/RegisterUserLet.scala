@@ -67,39 +67,39 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
               // now the user is registered as standard couchdb user, we can add the \BlueLaTeX specific data
               val user = User(username, firstName, lastName, email, affiliation)
               val db = session.database(blue_users)
-              db.saveDoc(user) flatMap {
-                case Some(user) =>
+              db.saveDoc(user) flatMap { user =>
                   // the user is now registered
                   // generate the password reset token
                   val cal = Calendar.getInstance
                   cal.add(Calendar.SECOND, couchConfig.tokenValidity)
-                  session.users.generateResetToken(username, cal.getTime) map {
-                    case Some(token) =>
-                      // send the confirmation email
-                      val email = templates.layout("emails/register",
-                        "firstName" -> firstName,
-                        "baseUrl" -> config.getString("blue.base_url"),
-                        "name" -> username,
-                        "token" -> token,
-                        "validity" -> (couchConfig.tokenValidity / 24 / 3600))
-                      mailAgent.send(username, "Welcome to \\BlueLaTeX", email)
+                  session.users.generateResetToken(username, cal.getTime) map { token =>
+                    // send the confirmation email
+                    val email = templates.layout("emails/register",
+                      "firstName" -> firstName,
+                      "baseUrl" -> config.getString("blue.base_url"),
+                      "name" -> username,
+                      "token" -> token,
+                      "validity" -> (couchConfig.tokenValidity / 24 / 3600))
+                    mailAgent.send(username, "Welcome to \\BlueLaTeX", email)
 
-                      import OsgiUtils._
-                      // notifiy creation hooks
-                      couchConfig.asAdmin(couch) { session =>
-                        for(hook <- context.getAll[UserRegistered])
-                          Try(hook.afterRegister(username, session))
-                      }
+                    import OsgiUtils._
+                    // notifiy creation hooks
+                    couchConfig.asAdmin(couch) { session =>
+                      for(hook <- context.getAll[UserRegistered])
+                        Try(hook.afterRegister(username, session))
+                    }
 
-                      (HStatus.Created, true)
-                    case None =>
+                    (HStatus.Created, true)
+                  } recover {
+                    case e =>
                       logWarn(s"Unable to generate password reset token for user $username")
                       Try(session.users.delete(username))
                       Try(db.deleteDoc(user._id))
                       (HStatus.InternalServerError,
                         ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry"))
                   }
-                case None =>
+              } recoverWith {
+                case e =>
                   logWarn(s"Unable to create \\BlueLaTeX user $username")
                   // somehow we couldn't save it
                   // remove the couchdb user from database
@@ -112,12 +112,12 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
               logWarn(s"Unable to create CouchDB user $username")
               Success((HStatus.InternalServerError,
                 ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry")))
-          } recover {
+          }
+        } recover {
             case _: gnieh.sohva.ConflictException =>
               logWarn(s"User $username already exists")
               (HStatus.Conflict,
                 ErrorResponse("unable_to_register", s"The user $username already exists"))
-          }
         }
       }
 

@@ -52,23 +52,19 @@ class GeneratePasswordReset(username: String, templates: Templates, mailAgent: M
     couchConfig.asAdmin(couch) { sess =>
       val cal = Calendar.getInstance
       cal.add(Calendar.SECOND, couchConfig.tokenValidity)
-      sess.users.generateResetToken(username, cal.getTime) map {
-        case Some(token) =>
-          // send the link to reset the password in an email
-          val emailText =
-            templates.layout(
-              "emails/reset",
-              "baseUrl" -> config.getString("blue.base_url"),
-              "name" -> username,
-              "token" -> token,
-              "validity" -> (couchConfig.tokenValidity / 24 / 3600))
-          mailAgent.send(username, "Password Reset Requested", emailText)
-          talk.writeJson(true)
-        case None =>
-          talk
-            .setStatus(HStatus.InternalServerError)
-            .writeJson(ErrorResponse("unable_to_generate", "Something went wrong when generating password reset token"))
-      }
+      for(token <- sess.users.generateResetToken(username, cal.getTime))
+        yield {
+            // send the link to reset the password in an email
+            val emailText =
+              templates.layout(
+                "emails/reset",
+                "baseUrl" -> config.getString("blue.base_url"),
+                "name" -> username,
+                "token" -> token,
+                "validity" -> (couchConfig.tokenValidity / 24 / 3600))
+            mailAgent.send(username, "Password Reset Requested", emailText)
+            talk.writeJson(true)
+        }
     }
 
 }

@@ -59,17 +59,10 @@ class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, lo
                   // the revision matches, we can apply the patch
                   val paper1 = patch(paper).withRev(knownRev)
                   // and save the new paper data
-                  db.saveDoc(paper1) map {
-                    case Some(p) =>
-                      // save successfully, return ok with the new ETag
-                      // we are sure that the revision is not empty because it comes from the database
-                      talk.writeJson(true, p._rev.get)
-                    case None =>
-                      // something went wrong
-                      talk
-                        .setStatus(HStatus.InternalServerError)
-                        .writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
-                  }
+                  for(p <- db.saveDoc(paper1))
+                    // save successfully, return ok with the new ETag
+                    // we are sure that the revision is not empty because it comes from the database
+                    yield talk.writeJson(true, p._rev.get)
                 case None =>
                   // nothing to do
                   Success(

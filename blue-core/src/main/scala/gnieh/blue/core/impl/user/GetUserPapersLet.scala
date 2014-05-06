@@ -43,7 +43,7 @@ class GetUserPapersLet(username: String, val couch: CouchClient, config: Config,
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     // only authenticated users may see other people information
-    view[String, UserRole, Any](blue_papers, "papers", "for").query(key = Some(username)) map { res =>
+    view(blue_papers, "papers", "for").query[String, UserRole, Any](key = Some(username)) map { res =>
       val roles = res.values
       val result = (for((_, userRole) <- roles)
         yield userRole).toList

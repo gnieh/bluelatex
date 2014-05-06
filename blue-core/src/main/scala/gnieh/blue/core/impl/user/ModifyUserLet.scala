@@ -59,17 +59,12 @@ class ModifyUserLet(username: String, val couch: CouchClient, config: Config, lo
                   // the revision matches, we can apply the patch
                   val user1 = patch(user).withRev(knownRev)
                   // and save the new paper data
-                  db.saveDoc(user1) map {
-                    case Some(u) =>
-                      // save successfully, return ok with the new ETag
-                      // we are sure that the revision is not empty because it comes from the database
-                      talk.writeJson(true, u._rev.get)
-                    case None =>
-                      // something went wrong
-                      talk
-                        .setStatus(HStatus.InternalServerError)
-                        .writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
-                  }
+                  for(u <- db.saveDoc(user1))
+                    yield {
+                        // save successfully, return ok with the new ETag
+                        // we are sure that the revision is not empty because it comes from the database
+                        talk.writeJson(true, u._rev.get)
+                    }
                 case None =>
                   // nothing to do
                   Success(
