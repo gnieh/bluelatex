@@ -61,40 +61,48 @@ class CreatePaperLet(val couch: CouchClient, config: Config, context: BundleCont
 
         val configuration = new PaperConfiguration(config)
 
-        // if the template is not one of the standard styles,
-        // then there should be an associated .sty file to be copied in `resources'
-        // directory
-        val clazz = template match {
-          case "article" | "book" | "report" =>
-            // built-in template, ignore it
-          case cls if configuration.cls(cls).exists =>
-            // copy the file to the working directory
-            (configuration.cls(cls) #> new File(configuration.paperDir(newId), cls + ".cls")) !
-              CreationProcessLogger
-          case cls =>
-            // TODO just log that the template was not found. It can however be uploaded later by the user
-        }
+        if(configuration.paperDir(newId).mkdirs) {
 
-        configuration.paperDir(newId).mkdirs
-
-        // write the template to the newly created paper
-        for(fw <- managed(new FileWriter(configuration.paperFile(newId)))) {
-          fw.write(templates.layout(s"$template.tex", "title" -> title, "id" -> newId))
-        }
-
-        // create empty bibfile
-        configuration.bibFile(newId).createNewFile
-
-        import OsgiUtils._
-
-        // create the paper database
-        for(_ <- database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template)))
-          yield {
-            // notifiy creation hooks
-            for(hook <- context.getAll[PaperCreated])
-              Try(hook.afterCreate(newId, couchSession))
-            talk.setStatus(HStatus.Created).writeJson(newId)
+          // if the template is not one of the standard styles,
+          // then there should be an associated .sty file to be copied in `resources'
+          // directory
+          template match {
+            case "article" | "book" | "report" =>
+              // built-in template, ignore it
+            case cls if configuration.cls(cls).exists =>
+              // copy the file to the working directory
+              logDebug(s"Copying class ${configuration.cls(cls)} to paper directory ${configuration.paperDir(newId)}")
+              (configuration.cls(cls) #> new File(configuration.paperDir(newId), cls + ".cls")) !
+                CreationProcessLogger
+            case cls =>
+              // just log that the template was not found. It can however be uploaded later by the user
+              logDebug(s"Class $cls was not found, the user will have to upload it later")
           }
+
+          // write the template to the newly created paper
+          for(fw <- managed(new FileWriter(configuration.paperFile(newId)))) {
+            fw.write(templates.layout(s"$template.tex", "title" -> title, "id" -> newId))
+          }
+
+          // create empty bibfile
+          configuration.bibFile(newId).createNewFile
+
+          import OsgiUtils._
+
+          // create the paper database
+          for(_ <- database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template)))
+            yield {
+              // notifiy creation hooks
+              for(hook <- context.getAll[PaperCreated])
+                Try(hook.afterCreate(newId, couchSession))
+              talk.setStatus(HStatus.Created).writeJson(newId)
+            }
+        } else {
+          logError(s"Unable to create the paper directory: ${configuration.paperDir(newId)}")
+          Try(talk
+            .setStatus(HStatus.InternalServerError)
+            .writeJson(ErrorResponse("cannot_create_paper", "Something went wrong on the server side")))
+        }
 
       case None =>
         // missing parameter
@@ -106,8 +114,10 @@ class CreatePaperLet(val couch: CouchClient, config: Config, context: BundleCont
     }
 
   object CreationProcessLogger extends ProcessLogger {
-    def out(s: => String) = ???
-    def err(s: => String) = ???
+    def out(s: => String) =
+      logInfo(s)
+    def err(s: => String) =
+      logError(s)
     def buffer[T](f: => T) = f
   }
 
