@@ -40,10 +40,15 @@ class CompilationSpec extends BlueScenario with SomeUsers with SomePapers {
       loggedin should be(true)
 
       When("he tries to register to a compilation stream")
-      val (res, _) = post[Boolean](List("papers", paper1._id, "compiler"), Map(), headers = Map("Content-Length" -> "0", "Content-Type" -> "application/json"))
+      val exn = evaluating {
+        post[Boolean](List("papers", paper1._id, "compiler"), Map(), headers = Map("Content-Length" -> "0", "Content-Type" -> "application/json"))
+      } should produce[BlueErrorException]
 
       Then("the server authorizes the registration")
-      res should be(false)
+      exn.status should be(503)
+      val error = exn.error
+      error.name should be("unable_to_compile")
+      error.description should be("No compilation task started")
 
     }
 

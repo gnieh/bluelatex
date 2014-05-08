@@ -75,7 +75,7 @@ class CompilationActor(
 
   def receive = receiving(Map(), defaultSettings, None)
 
-  def receiving(clients: Map[String, Promise[Boolean]],
+  def receiving(clients: Map[String, Promise[CompilationStatus]],
                 settings: CompilerSettings,
                 lastCompilationDate: Option[Date]): Receive = {
     case Compile =>
@@ -110,7 +110,7 @@ class CompilationActor(
         // occurs on its own compilation server
         // it is also not necessary to run bibtex if no bibliography is to be generated
         // the settings should be able to handle this properly
-        val res = if (!hasBeenModified) Success(false) else for {
+        val res = if (!hasBeenModified) Success(CompilationUnnecessary) else for {
           // if the compiler is defined, we first compile the paper
           res <- compiler.compile(paperId, settings)
           // we run bibtex on it if the compilation succeeded
@@ -133,7 +133,11 @@ class CompilationActor(
             } db.saveDoc(p.copy(title = newTitle, cls = newClass).withRev(p._rev))
           }
 
-          res
+          if(res)
+            CompilationSucceeded
+          else
+            CompilationFailed
+
         }
 
         // and we send back the answer to the clients
@@ -166,7 +170,7 @@ class CompilationActor(
     case Stop =>
 
       for((_, client) <- clients)
-        client.complete(Try(false))
+        client.complete(Try(CompilationAborted))
 
       context.become(receiving(Map(), settings, lastCompilationDate))
 
@@ -183,5 +187,5 @@ class CompilationActor(
 }
 
 case object Compile
-case class Register(username: String, response: Promise[Boolean])
+case class Register(username: String, response: Promise[CompilationStatus])
 
