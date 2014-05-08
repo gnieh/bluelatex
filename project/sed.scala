@@ -40,15 +40,20 @@ object sed {
         val fis = new FileInputStream(file)
         val fc = fis.getChannel
 
-        // Get the file's size and then map it into memory
-        val sz = fc.size
-        val bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, sz)
+        val outString = try {
+          // Get the file's size and then map it into memory
+          val sz = fc.size
+          val bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, sz)
 
-        val charset = Charset.forName("UTF-8")
-        val decoder = charset.newDecoder
-        val cb = decoder.decode(bb)
+          val charset = Charset.forName("UTF-8")
+          val decoder = charset.newDecoder
+          val cb = decoder.decode(bb)
 
-        val outString = pattern.replaceAllIn(cb, substituteReplacement)
+          pattern.replaceAllIn(cb, substituteReplacement)
+        } finally {
+          fc.close
+          fis.close
+        }
 
         val fos = new FileOutputStream(file.getAbsolutePath)
         val ps =new PrintStream(fos)
