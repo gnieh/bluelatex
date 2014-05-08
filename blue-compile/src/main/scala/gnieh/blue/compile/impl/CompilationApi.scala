@@ -34,7 +34,7 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class CompilationApi(context: BundleContext, couch: CouchClient, dispatcher: ActorRef, config: Config, logger: Logger) extends RestApi {
+class CompilationApi(context: BundleContext, couch: CouchClient, dispatcher: ActorRef, val config: Config, logger: Logger) extends RestApi {
 
   POST {
     // join the paper compiler stream

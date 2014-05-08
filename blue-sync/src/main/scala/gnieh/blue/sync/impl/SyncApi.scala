@@ -30,7 +30,7 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class SyncApi(couch: CouchClient, config: Config, synchroServer: SynchroServer, logger: Logger) extends RestApi {
+class SyncApi(couch: CouchClient, val config: Config, synchroServer: SynchroServer, logger: Logger) extends RestApi {
 
   POST {
     case p"papers/$paperid/q" =>
