@@ -229,7 +229,7 @@ abstract class SyncRoleLet(val paperId: String, config: Config, logger: Logger) 
 
   private def roles(implicit talk: HTalk): Try[Map[String, PaperRole]] =
     couchSession.database(couchConfig.database("blue_papers")).getDocById[Paper](paperId) map {
-      case Some(Paper(_, _, authors, reviewers, _, _, _, _, _)) =>
+      case Some(Paper(_, _, authors, reviewers, _, _, _, _, _, _)) =>
         (authors.map(id => (id, Author)) ++
           reviewers.map(id => (id, Reviewer))).toMap.withDefaultValue(Other)
       case None =>
@@ -258,7 +258,7 @@ abstract class AsyncRoleLet(val paperId: String, config: Config, logger: Logger)
 
   private def roles(implicit talk: HTalk): Try[Map[String, PaperRole]] =
     couchSession.database(couchConfig.database("blue_papers")).getDocById[Paper](paperId) map {
-      case Some(Paper(_, _, authors, reviewers, _, _, _, _, _)) =>
+      case Some(Paper(_, _, authors, reviewers, _, _, _, _, _, _)) =>
         (authors.map(id => (id, Author)) ++
           reviewers.map(id => (id, Reviewer))).toMap.withDefaultValue(Other)
       case None =>
