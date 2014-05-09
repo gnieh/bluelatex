@@ -68,7 +68,7 @@ class DeleteUserLet(username: String, context: BundleContext, val couch: CouchCl
 
         // get the papers for which the user is the single author
         val singleAuthor = rows.collect {
-          case Row(_, _, _, Some(Paper(id, _, SingletonSet(name), _, _, _, _, _, _))) if name == userid =>
+          case Row(_, _, _, Some(Paper(id, _, SingletonSet(name), _, _, _, _, _, _, _))) if name == userid =>
             id
         }
 

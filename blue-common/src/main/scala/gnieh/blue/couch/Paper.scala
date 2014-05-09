@@ -17,11 +17,14 @@ package gnieh.blue.couch
 
 import gnieh.sohva.IdRev
 
+import java.util.Date
+
 case class Paper(_id: String,
                  title: String,
                  authors: Set[String],
                  reviewers: Set[String],
                  cls: String,
+                 last_modification: Option[Date] = None,
                  references: List[String] = Nil,
                  enabled_modules: List[String] = Nil,
                  tags: List[String] = Nil,

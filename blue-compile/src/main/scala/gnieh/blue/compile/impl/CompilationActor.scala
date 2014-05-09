@@ -129,8 +129,8 @@ class CompilationActor(
               newTitle <- texTitle(paperId)
               newClass <- documentClass(paperId)
               p <- paper
-              if p.title != newTitle || p.cls != newClass
-            } db.saveDoc(p.copy(title = newTitle, cls = newClass).withRev(p._rev))
+              if p.title != newTitle || p.cls != newClass || p.last_modification != Some(lastModificationDate)
+            } db.saveDoc(p.copy(title = newTitle, cls = newClass, last_modification = Some(lastModificationDate)).withRev(p._rev))
           }
 
           if(res)
@@ -145,10 +145,10 @@ class CompilationActor(
           client.complete(res)
 
         // if hasBeenModified is false, we are sure that lastCompilationDate is defined
-        val newDate = if (hasBeenModified) lastModificationDate else lastCompilationDate.get
+        val newDate = if (hasBeenModified) Some(lastModificationDate) else lastCompilationDate
 
         // and listen again with an empty list of clients
-        context.become(receiving(Map(), settings, Some(newDate)))
+        context.become(receiving(Map(), settings, newDate))
 
       }
 
