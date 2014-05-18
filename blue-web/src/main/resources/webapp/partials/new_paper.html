@@ -20,8 +20,10 @@
             </div>
             <div class="col c2-3 form-group"
               ng-class="{'has-error': newPaperForm.template.$invalid}">
-              <input class="form-control" id="template" name="template" type="text"
-                data-i18n-attr="_Template_|placeholder" ng-model="paper.template" />
+              <select class="form-control" id="template" name="template"
+                data-i18n-attr="_Template_|placeholder" ng-model="paper.template"
+                ng-options="key as template.name group by template.scope for (key, template) in templates">
+              </select>
                 <span class="control-label"
                   ng-show="newPaperForm.template.$error.required" data-i18n="_Required_"></span>
             </div>

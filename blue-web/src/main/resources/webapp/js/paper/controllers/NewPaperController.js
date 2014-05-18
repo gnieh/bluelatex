@@ -5,6 +5,26 @@ angular.module('bluelatex.Paper.Controllers.NewPaper', ['bluelatex.Shared.Servic
 
       $scope.paper = paper;
 
+      /* Hard-coded for now, but will be dynamically loaded  later */
+      $scope.templates = {
+        "article": {
+          "name": "Article",
+          "scope": "Global"
+        },
+        "llncs": {
+          "name": "Lecture Notes in Computer Science",
+          "scope": "Global"
+        },
+        "sigproc-sp": {
+          "name": "Strict Adherence to SIGS style",
+          "scope": "Global"
+        },
+        "sig-alternate": {
+          "name": "SIGS Tighter Alternate",
+          "scope": "Global"
+        }
+      };
+
       /*
       * Save the new paper
       */
