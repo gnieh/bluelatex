@@ -37,6 +37,10 @@ import scala.util.{
 }
 
 import gnieh.sohva.control.CouchClient
+import gnieh.sohva.{
+  SohvaException,
+  ConflictException
+}
 
 /** Handle registration of a new user into the system.
  *  When a user is created it is created with a randomly generated password and a password reset
@@ -114,10 +118,10 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
                 ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry")))
           }
         } recover {
-            case _: gnieh.sohva.ConflictException =>
-              logWarn(s"User $username already exists")
-              (HStatus.Conflict,
-                ErrorResponse("unable_to_register", s"The user $username already exists"))
+          case SohvaException(_, ConflictException(_)) =>
+            logWarn(s"User $username already exists")
+            (HStatus.Conflict,
+              ErrorResponse("unable_to_register", s"The user $username already exists"))
         }
       }
 
