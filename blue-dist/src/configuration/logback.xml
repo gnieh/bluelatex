@@ -1,0 +1,13 @@
+<configuration>
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>$log_dir/bluelatex.log</file>
+    <append>true</append>
+    <encoder>
+      <pattern>%level [%d] %logger: %msg%n%ex</pattern>
+    </encoder>
+  </appender>
+
+  <root level="info">
+    <appender-ref ref="FILE" />
+  </root>
+</configuration>

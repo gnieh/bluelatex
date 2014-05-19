@@ -10,7 +10,7 @@ import sbtbuildinfo.Plugin._
 
 object BlueBuild extends BlueBuild
 
-class BlueBuild extends Build with Pack with Server with Tests {
+class BlueBuild extends Build with Pack with Server with Distrib with Tests {
 
   val blueVersion = "1.0.0-SNAPSHOT"
 
@@ -21,7 +21,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
       organization in ThisBuild := "org.gnieh",
       name := "bluelatex",
       version in ThisBuild := blueVersion,
-      scalaVersion in ThisBuild := "2.10.3",
+      scalaVersion in ThisBuild := "2.10.4",
       compileOptions,
       // fork jvm when running
       fork in run := true)
