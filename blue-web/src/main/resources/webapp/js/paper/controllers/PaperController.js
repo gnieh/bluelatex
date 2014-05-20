@@ -36,6 +36,32 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
 
       $scope.revision=Math.random();
 
+
+      /**
+      * Exit paper
+      */
+      var exitPaper = function () {
+        pageActive = false;
+        WindowActiveService.removeObserverCallback(windowStatusCallback);
+        if($scope.paper.authors &&
+           $scope.paper.authors.indexOf($rootScope.loggedUser.name) >= 0) {
+          stopMobWrite();
+          PaperService.leavePaper(paper_id);
+        }
+      };
+      
+      window.onbeforeunload = function () {
+        exitPaper();
+      };
+
+      /**
+      * Exit paper on controller destroy
+      */
+      $scope.$on("$destroy", function(){
+        exitPaper();
+      });
+
+
       /**
       * Download and parse SyncTex file
       */
@@ -45,22 +71,6 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
           console.log($scope.synctex);
           $rootScope.$$phase || $rootScope.$apply();
         });
-      };
-
-      /**
-      * Exit paper
-      */
-      var exitPaper = function () {
-        pageActive = false;
-        if($scope.paper.authors &&
-           $scope.paper.authors.indexOf($rootScope.loggedUser.name) >= 0) {
-          stopMobWrite();
-          PaperService.leavePaper(paper_id);
-        }
-      };
-
-      window.onbeforeunload = function (event) {
-        exitPaper();
       };
 
       /**
@@ -198,13 +208,6 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       };
 
       /**
-      * Close connection on leaving
-      */
-      $scope.$on('$locationChangeStart', function (event, next, current) {
-        exitPaper();
-      });
-
-      /**
       * The the paper infos
       */
       var updateTexInterval = 0;
@@ -301,14 +304,16 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         }
       };
 
-      WindowActiveService.registerObserverCallback(function(windowActive) {
+      var windowStatusCallback = function(windowActive) {
         if(windowActive == true) {
           pageActive = true;
           $scope.compile();
         } else {
           pageActive = false;
         }
-      });
+      };
+
+      WindowActiveService.registerObserverCallback(windowStatusCallback);
 
       var parsePDF = function() {
         if($scope.vignetteType == "pdf") {

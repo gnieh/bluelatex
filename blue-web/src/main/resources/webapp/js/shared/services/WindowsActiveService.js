@@ -13,6 +13,10 @@ angular.module('bluelatex.Shared.Services.WindowActive', [])
         observerCallbacks.push(callback);
       };
 
+      var removeObserverCallback = function(callback){
+        observerCallbacks.splice(observerCallbacks.indexOf(callback), 1);
+      };
+
       //call this when you know 'foo' has been changed
       var notifyObservers = function(){
         angular.forEach(observerCallbacks, function(callback){
@@ -64,7 +68,8 @@ angular.module('bluelatex.Shared.Services.WindowActive', [])
         isActiveWindow: function () {
           return windowActive;
         },
-        registerObserverCallback: registerObserverCallback
+        registerObserverCallback: registerObserverCallback,
+        removeObserverCallback: removeObserverCallback
       };
     }
   ]);
