@@ -156,6 +156,34 @@
   #paper .centerRightCol {
     padding-left: 0!important;
   }
+  #manage {
+    width: 100%;
+    min-height: 0;
+  }
+  #manage .col {
+    width: 100%;
+  }
+  #manage label {
+    margin: 0;
+    background: #E9E9E9;
+  }
+  #manage input {
+    margin: 0;
+    width: 100%;
+  }
+  #manage .new input {
+    width: 66.666%;
+    margin:0 ;
+  }
+  #manage  .new .button {
+    position: absolute;
+    right: 10px;
+    margin:0 ;
+    margin-left: 15px;
+  }
+  #manage .grid {
+    margin-bottom: 17px;
+  }
 }
 @media only screen and (max-width : 900px) {
   #paper_list.list .paper .role {
