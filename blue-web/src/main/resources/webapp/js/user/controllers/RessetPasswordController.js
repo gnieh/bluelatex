@@ -3,14 +3,18 @@ angular.module("bluelatex.User.Controllers.ResetPassword",['bluelatex.User.Servi
     function ($scope, $routeParams, UserService, $location, $log,MessagesService) {
       var user = {};
       $scope.user = user;
-
+      MessagesService.clear();
+      /**
+      * Change the password
+      */
       $scope.resetPassword = function () {
+        MessagesService.clear();
         UserService.resetPassword($routeParams.username, $routeParams.token, user.new_password, user.new_password_2).then(function (data) {
           if (data.name != 'unable_to_reset') {
-            MessagesService.message('_Reset_Password_changed_',data);
-            $location.path("/");
+            MessagesService.messageSession('_Reset_Password_changed_');
+            $location.path("/login");
           } else {
-            MessagesService.error('_Reset_password_Some_parameters_are_missing_');
+            MessagesService.error('_Reset_password_Something_wrong_happened_');
           }
         }, function (err) {
           $scope.errors = [];
@@ -29,14 +33,19 @@ angular.module("bluelatex.User.Controllers.ResetPassword",['bluelatex.User.Servi
           }
         });
       };
-
+      
+      /**
+      * Get the token
+      */
       $scope.reset = function () {
+        MessagesService.clear();
         UserService.getPasswordToken(user.username).then(function (data) {
-          if (data.name != 'unable_to_reset') {
-            MessagesService.message('_Reset_Wait_email_confirm_request_',data);
-            $location.path("/");
+          console.log(data);
+          if (data.response == true) {
+            MessagesService.messageSession('_Reset_Wait_email_confirm_request_');
+            $location.path("/login");
           } else {
-            MessagesService.error('_Login_Some_parameters_are_missing_',data);
+            MessagesService.error('_Login_Some_parameters_are_missing_');
           }
         }, function (err) {
           $scope.errors = [];

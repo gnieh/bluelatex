@@ -1,11 +1,14 @@
 <div class="messagesPanel" ng-controller="MessagesController">
-  <div ng-show="messages.length > 0" class="messages">
+  <div ng-show="messages.length > 0 || messagesSession.length > 0" class="messages">
+    <div ng-repeat="message in messagesSession" class="message"><span ng-bind-html="message"></span> <span class="icon-close close" ng-click="close(message)"></span></div>
     <div ng-repeat="message in messages" class="message"><span ng-bind-html="message"></span> <span class="icon-close close" ng-click="close(message)"></span></div>
   </div>
-  <div ng-show="warnings.length > 0" class="warnings">
+  <div ng-show="warnings.length > 0 || warningsSession.length > 0" class="warnings">
+    <div ng-repeat="warning in warningsSession" class="warning"><span ng-bind-html="warning"></span> <span class="icon-close close" ng-click="close(warning)"></span></div>
     <div ng-repeat="warning in warnings" class="warning"><span ng-bind-html="warning"></span> <span class="icon-close close" ng-click="close(warning)"></span></div>
   </div>
-  <div ng-show="errors.length > 0" class="errors">
+  <div ng-show="errors.length > 0 || errorsSession.length > 0" class="errors">
+    <div ng-repeat="error in errorsSession" class="error"><span ng-bind-html="error"></span> <span class="icon-close close" ng-click="close(error)"></span></div>
     <div ng-repeat="error in errors" class="error"><span ng-bind-html="error"></span> <span class="icon-close close" ng-click="close(error)"></span></div>
   </div>
 </div>

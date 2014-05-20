@@ -5,6 +5,7 @@ angular.module("bluelatex.User.Controllers.Register",['bluelatex.User.Services.U
 
       $scope.register = function () {
         UserService.register($scope.user).then(function (data) {
+          MessagesService.messageSession('_Registration_Success_');
           $location.path("/login");
         }, function (err) {
           MessagesService.clear();
@@ -19,8 +20,6 @@ angular.module("bluelatex.User.Controllers.Register",['bluelatex.User.Services.U
             MessagesService.error('_Registration_User_with_the_same_username_already_exists_',err);
             break;
           case 500:
-            MessagesService.error('_Registration_Something_wrong_happened_',err);
-            break;
           default:
             MessagesService.error('_Registration_Something_wrong_happened_',err);
           }

@@ -600,3 +600,32 @@ label.error {
     -webkit-border-radius: 4px;
     border-radius: 4px;
 }
+
+.debug_block {
+  position: absolute;
+  padding-top: 1px;
+  margin-bottom: -1px;
+  margin-left: -1px;
+}
+.debug_block.k {
+  background: green;
+}
+.debug_block .info {
+  display: none;
+  position: absolute;
+}
+.debug_block:hover .info {
+  display: block;
+}
+.debug_block.x {
+  background: red
+}
+.debug_block.horizontal{
+  border: 1px solid blue;
+}
+.debug_block.vertical{
+  border: 1px solid orange;
+}
+.hidden {
+  display: none;
+}

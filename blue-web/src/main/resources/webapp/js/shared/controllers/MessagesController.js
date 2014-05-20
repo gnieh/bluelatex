@@ -8,6 +8,10 @@ angular.module('bluelatex.Shared.Controllers.Messages', ['bluelatex.Shared.Servi
       $scope.warnings = MessagesService.warnings;
       $scope.errors = MessagesService.errors;
 
+      $scope.messagesSession = MessagesService.messagesSession;
+      $scope.warningsSession = MessagesService.warningsSession;
+      $scope.errorsSession = MessagesService.errorsSession;
+
       $scope.close = MessagesService.close;
     }
   ]);

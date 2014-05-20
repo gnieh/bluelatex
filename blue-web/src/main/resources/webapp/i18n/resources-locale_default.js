@@ -85,6 +85,11 @@
         "description":"Login error"
     },
     {
+        "key":"_Reset_Wait_email_confirm_request_",
+        "value":"Please ckeck your email",
+        "description":"Reset password succed"
+    },
+    {
         "key":"_Login_Wrong_username_and_or_password_",
         "value":"Wrong username and/or password",
         "description":"Login error"
