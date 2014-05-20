@@ -239,6 +239,7 @@ header {
   top: -2px;
   /* padding-right: 11px; */
   line-height: 40px;
+  font-size: 14px;
 }
 header .logo{
     padding: 0 10px;
