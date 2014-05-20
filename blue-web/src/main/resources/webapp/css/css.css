@@ -91,8 +91,14 @@
 .icon-folder-open:before {
   content: "r";
 }
-.icon-github:before {
+.icon-fork:before {
+  content: "t";
+}
+.icon-exclamation:before {
   content: "s";
+}
+.icon-bug:before {
+  content: "u";
 }
 
 * {
@@ -146,6 +152,7 @@ header {
     font-weight: bold;
     height: 42px;
     z-index: 195;
+    color: #fff;
 }
 .menu_user {
     position: relative;
@@ -222,23 +229,23 @@ header {
   float: right;
   height: 0;
 }
-#github {
+#git {
   float: right;
 }
-#github > span {
+#git .icon  {
   position: relative;
-  color: #F3F3F3;
-  font-size: 28px;
+  font-size: 24px;
   top: 5px;
+  line-height: 26px;
 }
-#github > a {
+#git > a {
   display: inline-block;
   position: relative;
   color:#F3F3F3;
   padding: 4px;
   top: -2px;
-  /* padding-right: 11px; */
-  line-height: 40px;
+  line-height: 36px;
+  font-size: 14px;
 }
 header .logo{
     padding: 0 10px;
@@ -281,16 +288,17 @@ nav ul li button:hover {
     opacity: 1;
 }
 nav > div > ul li a,nav > div > ul li a:visited,nav > div > ul li a:focus,nav > div > ul li a:active {
-    color: #f3f3f3;
+    color: #F3F3F3;
     font-size: 14px;
     font-weight: bold;
     white-space: nowrap;
     padding: 0 10px;
     display: block;
 }
-nav > div > ul li a:hover,nav > div > ul li a.current {
+nav a:hover,nav > div > ul li a.current {
     background: #046DCC;
     background: rgba(0,0,0,0.15);
+    color: #f3f3f3;
     opacity: 1;
     text-decoration: none;
 }

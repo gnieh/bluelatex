@@ -743,5 +743,15 @@
         "key":"_Warnings_",
         "value":"Warnings",
         "description":"Warnings"
+    },
+    {
+        "key":"_Clone_me_",
+        "value":"Clone me!",
+        "description":"Clone me in the header"
+    },
+    {
+        "key":"_Report_an_issue_",
+        "value":"Report an issue!",
+        "description":"Report an issue in the header"
     }
 ]

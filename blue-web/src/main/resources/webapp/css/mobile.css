@@ -116,9 +116,12 @@
   #pull {
     display: block;
   }
-  #github {
+  #git {
     float: none;
-    padding: 0 11px;
+  }
+  #git a {
+    margin: 0;
+    width: 100%;
   }
 
   #papers .top h1 {
