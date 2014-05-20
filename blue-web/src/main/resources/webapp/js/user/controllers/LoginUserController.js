@@ -18,12 +18,13 @@ angular.module("bluelatex.User.Controllers.Login",['bluelatex.User.Services.Sess
                 email: data.email,
                 etag: data.header.etag
               };
+              MessagesService.clear();
               $location.path("/");
             }, function (err) {
-              $log.error(err);
+              MessagesService.error('_Login_Something_wrong_happened_',err);
             });
           } else {
-
+            MessagesService.error('_Login_Something_wrong_happened_');
           }
         }, function (err) {
           switch (err.status) {

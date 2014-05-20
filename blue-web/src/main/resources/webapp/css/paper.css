@@ -242,7 +242,7 @@ div.preview_page_container img {
     float: left;
     height: 100%;
 }
-.messages {
+#paper .messages {
     position: absolute;
     width: 100%;
 }

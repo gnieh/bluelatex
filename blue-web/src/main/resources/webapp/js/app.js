@@ -70,7 +70,7 @@ angular.module('bluelatex', [
         name: 'resetPassword',
         connected: false,
         unconnected: true,
-        title: 'Rset password'
+        title: 'Reset password'
       }
     });
     $routeProvider.when('/profile', {
