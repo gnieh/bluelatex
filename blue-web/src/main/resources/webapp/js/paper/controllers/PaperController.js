@@ -10,6 +10,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       $scope.currentPage = 0;
 
       $scope.resources = [];
+      $scope.compiler = {};
       $scope.paper = {};
       $scope.listType = 'files';
       $scope.mode = 'ace';
@@ -257,10 +258,24 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       var getCompilerInfo = function() {
         PaperService.getPaperCompiler(paper_id).then(function (data) {
           $scope.compiler = data;
+          $scope.newcompiler = {};
+          $scope.newcompiler.interval = $scope.compiler.interval;
+          $scope.newcompiler.synctex = $scope.compiler.synctex;
+          $scope.newcompiler.compiler = $scope.compiler.compiler;
         }, function (error) {
           MessagesService.clear();
           MessagesService.error('_Get_compiler_Unable_to_get_compiler_info_');
         });
+      }; 
+
+      $scope.modifyCompiler = function () {
+        if($scope.compiler.interval != $scope.newcompiler.interval || 
+           $scope.compiler.synctex != $scope.newcompiler.synctex || 
+           $scope.compiler.compiler != $scope.newcompiler.compiler) {
+          PaperService.editPaperCompiler(paper_id, $scope.newcompiler, $scope.compiler).then(function () {
+            getCompilerInfo();
+          });
+        } 
       };
 
       var getCompilers = function() {
