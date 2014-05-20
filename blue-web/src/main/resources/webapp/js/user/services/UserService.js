@@ -13,7 +13,12 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
           username: "@username"
         }, {
           "getToken": {
-            method: "get"
+            method: "get",
+            transformResponse: [
+              function (data, headersGetter) {
+                return {response: JSON.parse(data)};
+              }
+            ].concat($http.defaults.transformResponse)
           },
           "reset": {
             'method': 'POST',
@@ -60,9 +65,7 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
           "modify": {
             'method': 'PATCH',
             transformRequest: [
-
               function (data, headersGetter) {
-                $log.log(data, headersGetter);
                 return data;
               }
             ].concat($http.defaults.transformRequest)
