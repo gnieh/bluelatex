@@ -12,6 +12,17 @@
   <script type="text/javascript" src="ace/ext-language_tools.js"></script>
 
   <script type="text/javascript">
+    /*
+    * Display the loading label
+    */
+    var displayLoadingLabel = function () {
+      var loadinglabel = document.getElementById("loading-label");
+      if(loadinglabel != null ) {
+        loadinglabel.style.display="block";
+      }
+    };
+    window.onload = displayLoadingLabel;
+
     // include angular loader, which allows the files to load in any order
     /*
      AngularJS v1.2.6
@@ -112,7 +123,7 @@
   </script>
 
   <style>
-    html{-ms-touch-action:none;height:100%;width:100%;overflow-x:hidden;overflow-y:auto;position:relative}body{position:relative;font-family:Helvetica,Arial,sans-serif;background-color:#eee;color:#333;font-size:13pt;padding:0;height:100%;width:100%;font-weight:100;margin:0}header{position:absolute;width:100%;background:#373942;box-shadow:0 1px 3px rgba(0,0,0,.2);font-weight:700;height:42px;z-index:195}.menu_user{position:relative;float:right;color:#fff;margin-left:auto}.menu_user label{color:#fff;position:relative;display:block;line-height:34px;padding:0 27px;padding-left:30px;cursor:pointer}.menu_user input{visibility:hidden;width:0;float:right;margin:0}.menu_user .submenu{position:absolute;background:#373942;padding:7px;color:#fff;width:170px;overflow:auto;right:0}.menu_user .submenu ul{list-style:none;margin:0;padding:0}.menu_user a{color:#F3F3F3!important;font-size:14px;white-space:nowrap;display:block;line-height:25px}.menu_user label .icon{width:33px;height:33px;overflow:hidden;display:inline-block;float:left;border-radius:50%;margin-right:15px;box-shadow:0 0 #FFF,0 0 0 0 #eee,0 0 0 2px rgba(0,0,0,.2)}.menu_user label .icon img{width:100%}header .logo{padding:0 10px;float:left}header .logo img{height:42px}
+    html{-ms-touch-action:none;height:100%;width:100%;overflow-x:hidden;overflow-y:auto;position:relative}body{position:relative;font-family:Helvetica,Arial,sans-serif;background-color:#eee;color:#333;font-size:13pt;padding:0;height:100%;width:100%;font-weight:100;margin:0}header{position:absolute;width:100%;background:#373942;box-shadow:0 1px 3px rgba(0,0,0,.2);font-weight:700;height:42px;z-index:195}.menu_user{position:relative;float:right;color:#fff;margin-left:auto}.menu_user label{color:#fff;position:relative;display:block;line-height:34px;padding:0 27px;padding-left:30px;cursor:pointer}.menu_user input{visibility:hidden;width:0;float:right;margin:0}.menu_user .submenu{position:absolute;background:#373942;padding:7px;color:#fff;width:170px;overflow:auto;right:0}.menu_user .submenu ul{list-style:none;margin:0;padding:0}.menu_user a{color:#F3F3F3!important;font-size:14px;white-space:nowrap;display:block;line-height:25px}.menu_user label .icon{width:33px;height:33px;overflow:hidden;display:inline-block;float:left;border-radius:50%;margin-right:15px;box-shadow:0 0 #FFF,0 0 0 0 #eee,0 0 0 2px rgba(0,0,0,.2)}.menu_user label .icon img{width:100%}header .logo{padding:0 10px;float:left}header .logo img{height:42px}.noscript,#loading-label{position:relative;top:70px;font-size:44px;text-align:center;background:#fff;width:480px;margin:auto;padding:40px;line-height:82px;box-shadow:0 0 3px rgba(0,0,0,.2)}
   </style>
   <title ng-bind="$route.current.$$route.options.title">\BlueLatex</title>
 </head>
@@ -138,7 +149,16 @@
     </div>
     <nav bl-menu ng-class="{'show': isMenuOpen, 'hide': !isMenuOpen}"></nav>
   </header>
-  <div ng-view></div>
+  <div ng-view>
+    <div id="loading-label" style="display: none;">
+      Loading...
+    </div>
+    <noscript>
+      <div class="noscript">
+      \BlueLaTeX needs JavaScript !
+      </div>
+    </noscript>
+  </div>
   <link rel="stylesheet" href="css/css.css">
   <link rel="stylesheet" href="css/font-type.css">
   <link rel="stylesheet" href="css/register.css">
