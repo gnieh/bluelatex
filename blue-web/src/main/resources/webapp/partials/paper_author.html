@@ -33,18 +33,18 @@
           <label data-i18n="_Compiler_"></label>
           <div class="compilers">
           <label ng-repeat="c in compilers">
-            <input type="radio" name="compiler" value="{{c.name}}" ng-checked="compiler.compiler==c.name" ng-class="{selected: compiler.compiler==c.name}" >
+            <input type="radio" name="compiler" value="{{c.name}}" ng-checked="newcompiler.compiler==c.name" ng-class="{selected: compiler.compiler==c.name}" ng-change="modifyCompiler()">
             {{c.name}}
           </label>
           </div>
           <div>
             <label>
-              <span data-i18n="_Interval_"></span> <input type="number" ng-model="compiler.interval">
+              <span data-i18n="_Interval_"></span> <input type="number" ng-model="newcompiler.interval" ng-change="modifyCompiler()">
             </label>
           </div>
           <div>
             <label>
-              <span>Synctex</span> <input type="checkbox" ng-model="compiler.synctex">
+              <span>Synctex</span> <input type="checkbox" ng-model="newcompiler.synctex" ng-change="modifyCompiler()">
             </label>
           </div>
         </div>

@@ -44,7 +44,15 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
       var compiler = $resource(apiRootUrl + "/papers/:paper_id/compiler", null, {
         // get compiler settings
         "get": {
-          method: "get"
+          method: "get",
+          transformResponse: [
+            function (data, headersGetter) {
+              data = JSON.parse(data);
+              var headers = headersGetter();
+              data.etag = headers.etag;
+              return data;
+            }
+          ].concat($http.defaults.transformResponse)
         },
         // long polling compilation
         "subscribe": {
@@ -62,7 +70,17 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         },
         // change compiler settings
         "modify": {
-          method: "PATCH"
+          method: "PATCH",
+          headers: {
+            'Content-Type': 'application/json-patch'
+          },
+          transformRequest: [
+            function (data, headersGetter) {
+              var header = headersGetter();
+              header['If-Match'] = data.etag;
+              return data.path_json;
+            }
+          ].concat($http.defaults.transformRequest)
         }
       });
 
@@ -520,17 +538,13 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         getPaperCompiler: function (paper_id) {
           var deferred = $q.defer();
           var promise = deferred.promise;
-          if (_dataCache.get('/compiler/'+paper_id)) deferred.resolve(_dataCache.get('/compiler/'+paper_id));
-          else {
-            compiler.get({paper_id: paper_id}).$promise.then(function (data) {
-              _dataCache.put('/compiler/'+paper_id, data);
-              deferred.resolve(data);
-            }, function (error) {
-              deferred.reject(error);
-            }, function (progress) {
-              deferred.notify(progress);
-            });
-          }
+          compiler.get({paper_id: paper_id}).$promise.then(function (data) {
+            deferred.resolve(data);
+          }, function (error) {
+            deferred.reject(error);
+          }, function (progress) {
+            deferred.notify(progress);
+          });
           return promise;
         },
         subscribePaperCompiler: function (paper_id) {
@@ -569,17 +583,45 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           });
           return promise;
         },
-        editPaperCompiler: function (paper_id) {
+        editPaperCompiler: function (paper_id, newvalue, oldvalue) {
           var deferred = $q.defer();
-          var promise = deferred.promise;
-          compiler.modify({paper_id: paper_id}).$promise.then(function (data) {
+
+          var path_json = [];
+          if (newvalue.interval != oldvalue.interval) {
+            path_json.push({
+              'op': 'replace',
+              "path": "/interval",
+              "value": newvalue.interval
+            });
+          }
+          if (newvalue.synctex != oldvalue.synctex) {
+            path_json.push({
+              'op': 'replace',
+              "path": "/synctex",
+              "value": newvalue.synctex
+            });
+          }
+          if (newvalue.compiler != oldvalue.compiler) {
+            path_json.push({
+              'op': 'replace',
+              "path": "/compiler",
+              "value": newvalue.compiler
+            });
+          }
+
+          compiler.modify({
+            paper_id: paper_id
+          }, {
+            "etag": oldvalue.etag,
+            path_json: path_json
+          }).$promise.then(function (data) {
             deferred.resolve(data);
           }, function (error) {
             deferred.reject(error);
           }, function (progress) {
             deferred.notify(progress);
           });
-          return promise;
+          return deferred.promise;
         },
         getSynctex: function (paper_id) {
           var deferred = $q.defer();
