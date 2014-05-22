@@ -148,3 +148,16 @@ background-repeat: no-repeat;
     background-color: #025097;
     color: #ffffff;
 }
+
+.captcha {
+    display: inline-block;
+    line-height: 15px;
+    position: relative;
+}
+#recaptcha_table {
+    border: 0!important;
+    line-height: normal;
+}
+#recaptcha_image {
+    border: 0!important;
+}

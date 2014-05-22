@@ -69,6 +69,18 @@
       </div>
     </div>
 
+    <div class="grid" ng-if="displayCaptcha">
+      <div class="col c1-3">
+        <label for="recaptcha_response_field" data-i18n="_Captcha_"></label>
+        <span class="control-label"
+            ng-show="registerForm.recaptcha_response_field.$error.required" data-i18n="_Required_"></span>
+      </div>
+      <div class="col c2-3 form-group"
+        ng-class="{'has-error': registerForm.recaptcha_response_field.$invalid}">
+        <div re-captcha required class="captcha"></div>
+      </div>
+    </div>
+    
     <div class="form-group">
       <button type="reset" class="btn btn-primary pull-right"
         data-i18n-attr="_Cancel_|value" data-i18n-attr="_Cancel_|title">

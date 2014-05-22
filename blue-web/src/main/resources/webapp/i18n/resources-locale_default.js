@@ -60,6 +60,11 @@
         "description":"Affiliation"
     },
     {
+        "key":"_Registration_Success_",
+        "value":"You are now registred please check your email to define your password.",
+        "description":"Registration success"
+    },
+    {
         "key":"_Registration_Some_parameters_are_missing_",
         "value":"Some parameters are missing",
         "description":"Error registration"
@@ -802,5 +807,10 @@
         "key":"_Report_an_issue_",
         "value":"Report an issue!",
         "description":"Report an issue in the header"
+    },
+    {
+        "key":"_Captcha_",
+        "value":"Captcha",
+        "description":"Registration captcha label"
     }
 ]
