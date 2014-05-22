@@ -140,7 +140,11 @@ abstract class SyncBlueLet(config: Config, logger: Logger) extends BlueLet[Try](
     try2future(act(talk) recoverWith {
       case t =>
         logError("Something went wrong", t)
-        Failure(t)
+        Try(
+          talk.writeJson(
+            ErrorResponse(
+              "unexpected_error",
+              "Something went really wrong. If the problem persists contact an administrator")))
     })
 
 }
@@ -159,7 +163,11 @@ abstract class AsyncBlueLet(config: Config, logger: Logger) extends BlueLet[Futu
     act(talk) recoverWith {
       case t =>
         logError("Something went wrong", t)
-        Future.failed(t)
+        Future(
+          talk.writeJson(
+            ErrorResponse(
+              "unexpected_error",
+              "Something went really wrong. If the problem persists contact an administrator")))
     }
 
 }
