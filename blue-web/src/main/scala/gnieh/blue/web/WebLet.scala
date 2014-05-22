@@ -34,11 +34,11 @@ import java.io.{
  *
  *  @author Lucas Satabin
  */
-class WebLet(context: BundleContext) extends ResourceLet {
+class WebLet(context: BundleContext, prefix: String) extends ResourceLet {
 
   protected def dirRoot = "webapp"
 
-  override protected def uriRoot = "web"
+  override protected def uriRoot = prefix
 
   override protected def indexes = List("index.html")
 

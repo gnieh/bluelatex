@@ -16,35 +16,32 @@
 package gnieh.blue
 package web
 
-import org.osgi.framework._
-
 import tiscaf._
+import let._
+
+import org.osgi.framework.BundleContext
 
 import com.typesafe.config.Config
 
-import common.{
-  ConfigurationLoader,
-  OsgiUtils
-}
+import http.BlueLet
 
-/** The `BlueWebActivator` registers the HLet that serves the blue web client
+import scala.util.Try
+
+/** Returns the base configuration data needed by the client.
  *
  *  @author Lucas Satabin
  */
-class BlueWebActivator extends BundleActivator {
+class ConfigLet(context: BundleContext, config: Config) extends HSimpleLet {
 
-  import OsgiUtils._
+  import BlueLet._
 
-  def start(context: BundleContext): Unit =
-    for(loader <- context.get[ConfigurationLoader]) {
-      val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
-      // register the web application
-      context.registerService(classOf[HApp], new WebApp(context, config), null)
-    }
-
-  def stop(context: BundleContext): Unit = {
-  }
+  def act(talk: HTalk): Unit = {
+    val recaptcha = Try(config.getString("recaptcha.public-key")).toOption
+    talk.writeJson(
+      AppConfig(
+        config.getString("blue.api.path-prefix"),
+        recaptcha)
+    )
+   }
 
 }
-
-
