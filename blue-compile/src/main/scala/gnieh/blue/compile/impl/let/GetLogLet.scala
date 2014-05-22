@@ -27,7 +27,10 @@ import com.typesafe.config.Config
 
 import scala.util.Try
 
-import scala.io.Source
+import scala.io.{
+  Source,
+  Codec
+}
 
 import resource._
 
@@ -43,7 +46,7 @@ class GetLogLet(paperId: String, val couch: CouchClient, config: Config, logger:
       val logFile = configuration.buildDir(paperId) / s"$paperId.log"
 
       if(logFile.exists)
-        Try(for(log <- managed(Source.fromFile(logFile))) {
+        Try(for(log <- managed(Source.fromFile(logFile)(Codec.UTF8))) {
 
           val text = log.mkString
 
