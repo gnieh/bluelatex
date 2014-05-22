@@ -80,7 +80,7 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
                     // send the confirmation email
                     val email = templates.layout("emails/register",
                       "firstName" -> firstName,
-                      "baseUrl" -> config.getString("blue.base_url"),
+                      "baseUrl" -> config.getString("blue.base-url"),
                       "name" -> username,
                       "token" -> token,
                       "validity" -> (couchConfig.tokenValidity / 24 / 3600))

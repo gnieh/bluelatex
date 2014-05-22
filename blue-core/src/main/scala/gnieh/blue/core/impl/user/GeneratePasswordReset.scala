@@ -54,16 +54,16 @@ class GeneratePasswordReset(username: String, templates: Templates, mailAgent: M
       cal.add(Calendar.SECOND, couchConfig.tokenValidity)
       for(token <- sess.users.generateResetToken(username, cal.getTime))
         yield {
-            // send the link to reset the password in an email
-            val emailText =
-              templates.layout(
-                "emails/reset",
-                "baseUrl" -> config.getString("blue.base_url"),
-                "name" -> username,
-                "token" -> token,
-                "validity" -> (couchConfig.tokenValidity / 24 / 3600))
-            mailAgent.send(username, "Password Reset Requested", emailText)
-            talk.writeJson(true)
+          // send the link to reset the password in an email
+          val emailText =
+            templates.layout(
+              "emails/reset",
+              "baseUrl" -> config.getString("blue.base-url"),
+              "name" -> username,
+              "token" -> token,
+              "validity" -> (couchConfig.tokenValidity / 24 / 3600))
+          mailAgent.send(username, "Password Reset Requested", emailText)
+          talk.writeJson(true)
         }
     }
 

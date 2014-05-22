@@ -14,30 +14,6 @@
  * limitations under the License.
  */
 package gnieh.blue
-package sync
-package impl
+package web
 
-import http._
-import common._
-import let._
-
-import com.typesafe.config.Config
-
-import gnieh.sohva.control.CouchClient
-
-/** The synchronization service API exposes an interface for clients
- *  to synchronize their paper
- *
- *  @author Lucas Satabin
- */
-class SyncApi(couch: CouchClient, val config: Config, synchroServer: SynchroServer, logger: Logger) extends RestApi {
-
-  POST {
-    case p"papers/$paperid/q" =>
-      new QLet(paperid, synchroServer, couch, config, logger)
-    case p"papers/$paperid/sync" =>
-      new SynchronizePaperLet(paperid, synchroServer, couch, config, logger)
-  }
-
-}
-
+case class AppConfig(api_prefix: String, recaptcha_public_key: Option[String])

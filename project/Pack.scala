@@ -34,7 +34,7 @@ trait Pack {
     settingKey[File]("the directory containing the templates")
 
   val blueClassDir =
-    settingKey[File]("the directory containing the templates")
+    settingKey[File]("the directory containing the TeX classes")
 
   val blueDesignDir =
     settingKey[File]("the directory containing the couchdb design documents")
@@ -176,7 +176,7 @@ trait Pack {
         sed.replaceAll(packDir / "conf" / "org.gnieh.blue.common" / "application.conf", "\\$couchPassword", couchpassword)
 
         out.log.info("copy templates")
-        IO.copyDirectory(templatedir, packDir / "conf" / "templates")
+        IO.copyDirectory(templatedir, packDir / "data" / "templates")
 
         (packDir / "data").mkdir
 

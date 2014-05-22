@@ -51,7 +51,7 @@ object BlueLet {
    *
    *  @author Lucas Satabin
    */
-  class RichTalk(val talk: HTalk) {
+  implicit class RichTalk(val talk: HTalk) extends AnyVal {
 
     def serialize(obj: Any): JValue = obj match {
       case i: Int => JInt(i)

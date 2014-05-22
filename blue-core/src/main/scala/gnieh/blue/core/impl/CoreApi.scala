@@ -40,7 +40,7 @@ import gnieh.sohva.control.CouchClient
  */
 class CoreApi(
   couch: CouchClient,
-  config: Config,
+  val config: Config,
   system: ActorSystem,
   context: BundleContext,
   templates: Templates,

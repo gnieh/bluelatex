@@ -20,18 +20,35 @@ import tiscaf._
 
 import org.osgi.framework.BundleContext
 
+import com.typesafe.config.Config
+
 /** This web application serves static web client
  *
  *  @author Lucas Satabin
  */
-class WebApp(context: BundleContext) extends HApp {
+class WebApp(context: BundleContext, config: Config) extends HApp {
 
   // this is required by the resource let used to serve static content
   override val buffered = true
 
-  private val webLet = new WebLet(context)
+  private val Prefix = "/*(.*)/*".r
 
-  def resolve(req: HReqData) = Some(webLet)
+  private val prefix = config.getString("blue.client.path-prefix") match {
+    case Prefix(prefix) => prefix
+    case _              => "web"
+  }
+
+  private val configLet = new ConfigLet(context, config)
+  private val webLet = new WebLet(context, prefix)
+
+  private val configPath =
+    s"${prefix}/configuration"
+
+  def resolve(req: HReqData) =
+    if(req.uriPath == configPath)
+      Some(configLet)
+    else
+      Some(webLet)
 
 }
 
