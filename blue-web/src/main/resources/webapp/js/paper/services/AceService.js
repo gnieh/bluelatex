@@ -379,33 +379,27 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
          * @private
          */
         mobwrite.shareAceObj.prototype.captureCursor_ = function() {
-          // TODO use ACE api
           var padLength = this.dmp.Match_MaxBits / 2;  // Normally 16.
           var text = content;
           var cursor = {};
-          /*try {
-            var selectionStart = this.element.selectionStart;
-            var selectionEnd = this.element.selectionEnd;
-          } catch (e) {
-            // No cursor; the element may be "display:none".
-            return null;
-          }*/
+
           cursor.range = _editor.selection.getRange();
           cursor.cursor = _editor.selection.getCursor();
 
           var splittedContent = content.split('\n');
           var count = cursor.range.start.column;
           for(var i =0 ; i<cursor.range.start.row; i++) {
-            count+=splittedContent[i].length;
+            count+=splittedContent[i].length + 1;
           }
           selectionStart = count;
           count = cursor.range.end.column;
           for(var i =0 ; i<cursor.range.end.row; i++) {
-            count+=splittedContent[i].length;
+            // +1 for the \n character
+            count+=splittedContent[i].length + 1;
           }
           selectionEnd = count;
 
-          cursor.scrollTop = _editor.session.getScrollTop();
+          cursor.scrollTop  = _editor.session.getScrollTop();
           cursor.scrollLeft = _editor.session.getScrollLeft();
 
           cursor.startPrefix = text.substring(selectionStart - padLength, selectionStart);
@@ -491,17 +485,18 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
           var endCol = 0;
 
           for (var i = 0; i < splittedText.length; i++) {
-            if(count+splittedText[i].length > cursorStartPoint && !startFound) {
+            if(count+splittedText[i].length + 1 > cursorStartPoint && !startFound) {
               startRow = i;
               startCol = cursorStartPoint -count;
               startFound = true;
             }
-            if(count+splittedText[i].length > cursorEndPoint) {
+            if(count+splittedText[i].length+1 > cursorEndPoint) {
               endRow = i;
               endCol = cursorEndPoint -count;
               break;
             }
-            count+=splittedText[i].length;
+            // +1 for \n character
+            count+=splittedText[i].length + 1;
           }
           var Range = ace.require('ace/range').Range;
 
