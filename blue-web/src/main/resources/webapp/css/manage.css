@@ -19,6 +19,13 @@
     padding: 4px;
     line-height: 30px;
 }
+#manage select {
+    height: 38px;
+    margin: 4px 0;
+    width: 100%;
+    background: #ECF2F4;
+    display: inline-block;
+}
 #manage input{
     padding: 10px;
     background: #ECF2F4;
@@ -28,7 +35,7 @@
     width: 100%;
     display: inline-block;
 }
-#manage .has-error input {
+#manage .has-error input,#manage .has-error select {
     background: #F5EAEA;
 }
 #manage .control-label {

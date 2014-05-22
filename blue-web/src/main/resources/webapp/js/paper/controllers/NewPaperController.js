@@ -1,7 +1,10 @@
 angular.module('bluelatex.Paper.Controllers.NewPaper', ['bluelatex.Shared.Services.Configuration'])
   .controller('NewPaperController', ['$scope', '$location', 'PaperService', '$log','MessagesService',
-    function ($scope, $location, PaperService, $log,MessagesService) {
-      var paper = {};
+    function ($scope, $location, PaperService, $log, MessagesService) {
+      var paper = {
+        template: "article",
+        title: ''
+      };
 
       $scope.paper = paper;
 
