@@ -49,15 +49,30 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class DeletePaperLet(paperId: String, context: BundleContext, val couch: CouchClient, config: Config, recaptcha: ReCaptcha, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class DeletePaperLet(
+  paperId: String,
+  context: BundleContext,
+  val couch: CouchClient,
+  config: Config,
+  recaptcha: ReCaptcha,
+  logger: Logger)
+    extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>
       // only authors may delete a paper
       // first delete the paper files
       import FileUtils._
-      val dirDeleted = configuration.paperDir(paperId).deleteRecursive()
-      if(dirDeleted) {
+
+      // delete the paper directory if it exists
+      val paperDir = configuration.paperDir(paperId)
+      val continue =
+        if(paperDir.exists)
+          paperDir.deleteRecursive()
+        else
+          true
+
+      if(continue) {
         import OsgiUtils._
 
         database("blue_papers").deleteDoc(paperId) map {
