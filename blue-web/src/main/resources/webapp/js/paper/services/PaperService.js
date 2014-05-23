@@ -9,7 +9,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         verifyIntegrity: true
       });
       // join a paper
-      var join = $resource(apiRootUrl + "/papers/:paper_id/join", null, {
+      var join = $resource(apiRootUrl + "/papers/:paper_id/join/:peer_id", null, {
           "join": {
             method: "post",
             headers: {
@@ -25,7 +25,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           }
       });
       // leave a paper
-      var leave = $resource(apiRootUrl + "/papers/:paper_id/part", null, {
+      var leave = $resource(apiRootUrl + "/papers/:paper_id/part/:peer_id", null, {
           "leave": {
             method: "post",
             headers: {
@@ -559,10 +559,10 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           });
           return promise;
         },
-        joinPaper: function (paper_id) {
+        joinPaper: function (paper_id, peer_id) {
           var deferred = $q.defer();
           var promise = deferred.promise;
-          join.join({paper_id: paper_id},{}).$promise.then(function (data) {
+          join.join({paper_id: paper_id, peer_id: peer_id},{}).$promise.then(function (data) {
             deferred.resolve(data);
           }, function (error) {
             deferred.reject(error);
@@ -571,10 +571,10 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           });
           return promise;
         },
-        leavePaper: function (paper_id) {
+        leavePaper: function (paper_id, peer_id) {
           var deferred = $q.defer();
           var promise = deferred.promise;
-          leave.leave({paper_id: paper_id},{}).$promise.then(function (data) {
+          leave.leave({paper_id: paper_id,peer_id: peer_id},{}).$promise.then(function (data) {
             deferred.resolve(data);
           }, function (error) {
             deferred.reject(error);

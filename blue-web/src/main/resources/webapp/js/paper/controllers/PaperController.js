@@ -3,6 +3,8 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
     function ($rootScope,$scope, localize, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService,SyncTexParserService,$document,WindowActiveService) {
       var paper_id = $routeParams.id;
       var pageActive = true;
+      var peerId = mobwrite.syncUsername;
+
       $scope.paperId = paper_id;
       $scope.pageViewport = {};
 
@@ -47,7 +49,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         if($scope.paper.authors &&
            $scope.paper.authors.indexOf($rootScope.loggedUser.name) >= 0) {
           stopMobWrite();
-          PaperService.leavePaper(paper_id);
+          PaperService.leavePaper(paper_id, paperId);
         }
       };
       
@@ -78,7 +80,6 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       * Start mobWrite
       */
       var initMobWrite = function () {
-        mobwrite.syncUsername = $rootScope.loggedUser.name;
         mobwrite.share({paper_id: $scope.paperId,file:$scope.currentFile.title});
       };
 
@@ -238,10 +239,9 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       getPaperInfo(function(paper) {
         if($scope.paper.authors.indexOf($rootScope.loggedUser.name) >= 0) {
           $scope.status = "author";
-          PaperService.joinPaper(paper_id).then(function (data) {
-            getSynchronizedFiles(function () {
+          getSynchronizedFiles(function () {
               initMobWrite();
-            });
+              PaperService.joinPaper(paper_id,peerId);
           });
           getCompilerInfo();
           getResources();
