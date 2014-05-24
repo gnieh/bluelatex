@@ -1,0 +1,42 @@
+{{=<% %>=}}
+\documentclass{beamer}
+
+\usepackage[T1]{fontenc} %% to get Type 1 fonts
+\usepackage[utf8]{inputenc} %% to enable non ASCII characters
+
+\title{<% title %>}
+
+\institute{%
+  \inst{1}%
+  <% email %>\\
+  <% affiliation %>
+}
+
+\author{<% author %>\inst{1}}
+
+\subject{\LaTeX}
+
+\AtBeginSection[]{
+  \begin{frame}
+  \frametitle{Table of Contents}
+  \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+
+  \frame{\titlepage}
+
+  \begin{frame}
+    \frametitle{This is the first slide}
+    %Content goes here
+  \end{frame}
+
+  \begin{frame}
+    \frametitle{This is the second slide}
+    \framesubtitle{A bit more information about this}
+    %More content goes here
+  \end{frame}
+
+% etc
+\end{document}

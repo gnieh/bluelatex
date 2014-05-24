@@ -77,24 +77,30 @@ class CreatePaperLet(
             // if the template is not one of the standard styles,
             // then there should be an associated .sty file to be copied in `resources'
             // directory
-            template match {
+            val templateName = template match {
               case "article" | "book" | "report" =>
                 // built-in template, ignore it
+                "generic"
+              case "beamer" =>
+                "beamer"
               case cls if configuration.cls(cls).exists =>
                 // copy the file to the working directory
                 logDebug(s"Copying class ${configuration.cls(cls)} to paper directory ${configuration.paperDir(newId)}")
                 (configuration.cls(cls) #> new File(configuration.paperDir(newId), cls + ".cls")) !
                   CreationProcessLogger
+                cls
               case cls =>
                 // just log that the template was not found. It can however be uploaded later by the user
                 logDebug(s"Class $cls was not found, the user will have to upload it later")
+                "generic"
             }
 
             // write the template to the newly created paper
             for(fw <- managed(new FileWriter(configuration.paperFile(newId)))) {
               fw.write(
                 templates.layout(
-                  s"$template.tex",
+                  s"$templateName.tex",
+                  "class" -> template,
                   "title" -> title,
                   "id" -> newId,
                   "author" -> user.map(_.fullName).getOrElse("Your Name"),

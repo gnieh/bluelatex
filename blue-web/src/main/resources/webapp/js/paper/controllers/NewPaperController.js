@@ -12,7 +12,19 @@ angular.module('bluelatex.Paper.Controllers.NewPaper', ['bluelatex.Shared.Servic
       $scope.templates = {
         "article": {
           "name": "Article",
-          "scope": "Global"
+          "scope": "Built-in"
+        },
+        "report": {
+          "name": "Report",
+          "scope": "Built-in"
+        },
+        "book": {
+          "name": "Book",
+          "scope": "Built-in"
+        },
+        "beamer": {
+          "name": "Beamer",
+          "scope": "Built-in"
         },
         "llncs": {
           "name": "Lecture Notes in Computer Science",
