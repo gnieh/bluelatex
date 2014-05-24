@@ -31,7 +31,7 @@ case class User(name: String,
 
   val _id = "org.couchdb.user:" + name
 
-  val fullName = first_name + " " + last_name
+  def fullName = s"$first_name $last_name"
 
 }
 
