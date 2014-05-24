@@ -59,11 +59,11 @@ class CoreApi(
     case p"papers" =>
       new CreatePaperLet(couch, config, context, templates, logger)
     // join a paper
-    case p"papers/$paperid/join" =>
-      new JoinPaperLet(paperid, system, couch, config, logger)
+    case p"papers/$paperid/join/$peerid" =>
+      new JoinPaperLet(paperid, peerid, system, couch, config, logger)
     // leave a paper
-    case p"papers/$paperid/part" =>
-      new PartPaperLet(paperid, system, couch, config, logger)
+    case p"papers/$paperid/part/$peerid" =>
+      new PartPaperLet(paperid, peerid, system, couch, config, logger)
     // log a user in
     case p"session" =>
       new LoginLet(couch, config, logger)
