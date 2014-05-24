@@ -168,7 +168,8 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           transformResponse: [
             function (data, headersGetter) {
               data = JSON.parse(data);
-              data.header = headersGetter();
+              var header = headersGetter();
+              data.etag = header.etag;
               return data;
             }
           ].concat($http.defaults.transformResponse)
@@ -313,6 +314,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
             info.get({
               paper_id: paper_id
             }).$promise.then(function (data) {
+              delete data.$promise;
               _dataCache.put('/papers/' + paper_id, data);
               deferred.resolve(data);
             }, function (error) {
@@ -324,104 +326,18 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           }
           return promise;
         },
-        modify: function (paper, initial_paper) {
-          var path_json = [];
-          if (paper.title != initial_paper.title) {
-            path_json.push({
-              'op': 'replace',
-              "path": "/title",
-              "value": paper.title
-            });
-          }
-          var reaplce_authors = false;
-          for (var i = 0; i < paper.authors.length; i++) {
-            var author = paper.authors[i];
-            if (initial_paper.authors.indexOf(author) < 0) {
-              reaplce_authors = true;
-              break;
-            }
-          }
-          for (var i = 0; i < initial_paper.authors.length; i++) {
-            var author = initial_paper.authors[i];
-            if (paper.authors.indexOf(author) < 0) {
-              reaplce_authors = true;
-              break;
-            }
-          }
-          if (reaplce_authors) {
-            path_json.push({
-              'op': 'replace',
-              "path": "/authors",
-              "value": paper.authors
-            });
-          }
-          var reaplce_reviewers = false;
-          for (var i = 0; i < paper.reviewers.length; i++) {
-            var reviewer = paper.reviewers[i];
-            if (initial_paper.reviewers.indexOf(reviewer) < 0) {
-              reaplce_reviewers = true;
-              break;
-            }
-          }
-          for (var i = 0; i < initial_paper.reviewers.length; i++) {
-            var reviewer = initial_paper.reviewers[i];
-            if (paper.reviewers.indexOf(reviewer) < 0) {
-              reaplce_reviewers = true;
-              break;
-            }
-          }
-          if (reaplce_reviewers) {
-            path_json.push({
-              'op': 'replace',
-              "path": "/reviewers",
-              "value": paper.reviewers
-            });
-          }
-          var reaplce_tags = false;
-          for (var i = 0; i < paper.tags.length; i++) {
-            var tag = paper.tags[i];
-            if (initial_paper.tags.indexOf(tag) < 0) {
-              reaplce_tags = true;
-              break;
-            }
-          }
-          for (var i = 0; i < initial_paper.tags.length; i++) {
-            var tag = initial_paper.tags[i];
-            if (paper.tags.indexOf(tag) < 0) {
-              reaplce_tags = true;
-              break;
-            }
-          }
-          if (reaplce_tags) {
-            path_json.push({
-              'op': 'replace',
-              "path": "/tags",
-              "value": paper.tags
-            });
-          }
-          if (paper.branch != initial_paper.branch) {
-            path_json.push({
-              'op': 'replace',
-              "path": "/branch",
-              "value": paper.branch
-            });
-          }
-          if (paper.cls != initial_paper.cls) {
-            path_json.push({
-              'op': 'replace',
-              "path": "/cls",
-              "value": paper.cls
-            });
-          }
+        modify: function (paper, oldpaper) {
+          var etag = paper.etag;
+          var path_json = jsonpatch.compare(oldpaper, paper);
           var deferred = $q.defer();
           var promise = deferred.promise;
+          _dataCache.remove('/papers/' + paper.id);
           info.edit({
             paper_id: paper.id
           }, {
-            "etag": paper.etag,
+            "etag": etag,
             path_json: path_json
-          }).$promise.then(function (data) {
-            _dataCache.remove('/papers/' + paper.id);
+          }).$promise.then(function (data) {            
             deferred.resolve(data);
           }, function (error) {
             $log.error(error);
@@ -539,6 +455,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           var deferred = $q.defer();
           var promise = deferred.promise;
           compiler.get({paper_id: paper_id}).$promise.then(function (data) {
+            delete data.$promise;
             deferred.resolve(data);
           }, function (error) {
             deferred.reject(error);
@@ -586,28 +503,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
         editPaperCompiler: function (paper_id, newvalue, oldvalue) {
           var deferred = $q.defer();
 
-          var path_json = [];
-          if (newvalue.interval != oldvalue.interval) {
-            path_json.push({
-              'op': 'replace',
-              "path": "/interval",
-              "value": newvalue.interval
-            });
-          }
-          if (newvalue.synctex != oldvalue.synctex) {
-            path_json.push({
-              'op': 'replace',
-              "path": "/synctex",
-              "value": newvalue.synctex
-            });
-          }
-          if (newvalue.compiler != oldvalue.compiler) {
-            path_json.push({
-              'op': 'replace',
-              "path": "/compiler",
-              "value": newvalue.compiler
-            });
-          }
+          var path_json = jsonpatch.compare(oldvalue, newvalue);
 
           compiler.modify({
             paper_id: paper_id

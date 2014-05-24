@@ -216,7 +216,6 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
         PaperService.getInfo(paper_id).then(function (data) {
           getPages();
           $scope.paper = data;
-          $scope.paper.etag = data.header.etag;
           if(callback) callback($scope.paper);
         }, function (error) {
           MessagesService.clear();
@@ -258,10 +257,7 @@ angular.module('bluelatex.Paper.Controllers.Paper', ['angularFileUpload','bluela
       var getCompilerInfo = function() {
         PaperService.getPaperCompiler(paper_id).then(function (data) {
           $scope.compiler = data;
-          $scope.newcompiler = {};
-          $scope.newcompiler.interval = $scope.compiler.interval;
-          $scope.newcompiler.synctex = $scope.compiler.synctex;
-          $scope.newcompiler.compiler = $scope.compiler.compiler;
+          $scope.newcompiler = JSON.parse(JSON.stringify(data));
         }, function (error) {
           MessagesService.clear();
           MessagesService.error('_Get_compiler_Unable_to_get_compiler_info_');

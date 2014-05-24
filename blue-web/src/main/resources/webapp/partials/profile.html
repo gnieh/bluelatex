@@ -50,7 +50,18 @@
                   ng-show="editProfileForm.email.$error.required" data-i18n="_Required_"></span>
             </div>
         </div>
-        <button type="submit" data-i18n="_Save_">Save</button>
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="affiliation" data-i18n="_Affiliation_">Affiliation</label>
+            </div>
+            <div class="col c2-3 form-group">
+              <input class="form-control" id="affiliation" name="affiliation" type="text"
+                data-i18n-attr="_Affiliation_|placeholder" ng-model="user.affiliation" />
+                <span class="control-label"
+                  ng-show="editPaperForm.affiliation.$error.required" data-i18n="_Required_"></span>
+            </div>
+        </div>
+        <button type="submit" data-i18n="_Save_" ng-click="edit()">Save</button>
     </form>
     <h2 data-i18n="_Reset_password_">Reset Password</h2>
     <button ng-click="resetPassword" data-i18n="_Reset_password_">Reset Password</button>
