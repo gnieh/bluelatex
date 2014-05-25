@@ -6,18 +6,13 @@ angular.module("bluelatex.User.Controllers.Login",['bluelatex.User.Services.Sess
 
       $scope.login = function () {
         MessagesService.clear();
-        SessionService.login(user.username, user.password).then(function (data) {
+        SessionService.login(user.name, user.password).then(function (data) {
           if (data.response == true) {
             UserService.getInfo(user).then(function (data) {
               $sessionStorage.username = user.username;
               $sessionStorage.password = user.password;
-              $rootScope.loggedUser = {
-                name: data.name,
-                first_name: data.first_name,
-                last_name: data.last_name,
-                email: data.email,
-                etag: data.header.etag
-              };
+              $rootScope.loggedUser = data;
+              $rootScope.$apply();
               MessagesService.clear();
               $location.path("/");
             }, function (err) {

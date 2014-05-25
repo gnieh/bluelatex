@@ -35,15 +35,10 @@ angular.module('bluelatex.Shared.Controllers.Main', ['bluelatex.User.Services.Us
         if ($sessionStorage.username && $sessionStorage.password) {
           SessionService.login($sessionStorage.username, $sessionStorage.password).then(function () {
             UserService.getInfo({
-              username: $sessionStorage.username
+              name: $sessionStorage.username
             }).then(function (data) {
-              $rootScope.loggedUser = {
-                name: $sessionStorage.username,
-                first_name: data.first_name,
-                last_name: data.last_name,
-                email: data.email,
-                etag: data.header.etag
-              };
+              $rootScope.loggedUser = data;
+              $rootScope.$apply();
             }, function (error) {
               $rootScope.loggedUser = {};
             });

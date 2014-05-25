@@ -15,7 +15,6 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
       var getPaperInfo = function (paper_id, callback) {
         PaperService.getInfo(paper_id).then(function (data) {
           $scope.paper = data;
-          $scope.paper.etag = data.header.etag;
           $scope.paper.id = paper_id;
           clone_paper = clone($scope.paper);
           if(callback) {

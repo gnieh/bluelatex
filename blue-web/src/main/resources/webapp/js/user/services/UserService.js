@@ -57,16 +57,22 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
 
               function (data, headersGetter) {
                 data = JSON.parse(data);
-                data.header = headersGetter();
+                var headers = headersGetter();
+                data.etag = headers.etag;
                 return data;
               }
             ].concat($http.defaults.transformResponse)
           },
           "modify": {
             'method': 'PATCH',
+            headers: {
+              'Content-Type': 'application/json-patch'
+            },
             transformRequest: [
               function (data, headersGetter) {
-                return data;
+                var header = headersGetter();
+                header['If-Match'] = data.etag;
+                return data.path_json;
               }
             ].concat($http.defaults.transformRequest)
           }
@@ -104,12 +110,12 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
           getInfo: function (user) {
             var deferred = $q.defer();
             var promise = deferred.promise;
-            if (_dataCache.get('/users/' + user.username)) deferred.resolve(_dataCache.get('/users/' + user.username));
+            if (_dataCache.get('/users/' + user.name)) deferred.resolve(_dataCache.get('/users/' + user.name));
             else {
               info.get({
-                username: user.username
+                username: user.name
               }).$promise.then(function (data) {
-                _dataCache.put('/users/' + user.username, data);
+                _dataCache.put('/users/' + user.name, data);
                 deferred.resolve(data);
               }, function (error) {
                 $log.error(error);
@@ -138,13 +144,18 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
             }
             return promise;
           },
-          save: function (user) {
+          save: function (user, olduser) {
+            var etag = olduser.etag;
+            var path_json = jsonpatch.compare(olduser,user);
             var deferred = $q.defer();
             var promise = deferred.promise;
+            _dataCache.remove('/users/' + user.name);
             info.modify({
               username: user.name
-            }, user).$promise.then(function (data) {
-              _dataCache.remove('/users/' + user.name);
+            }, {
+              "etag": etag,
+              path_json: path_json
+            }).$promise.then(function (data) {
               deferred.resolve(data);
             }, function (error) {
               $log.error(error);
