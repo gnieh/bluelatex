@@ -45,17 +45,14 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class DeleteUserLet(username: String, context: BundleContext, val couch: CouchClient, config: Config, recaptcha: ReCaptcha, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
-
-  // TODO logging
-
-  object SingletonSet {
-    def unapply(set: Set[String]): Option[String] =
-      if(set.size == 1)
-        set.headOption
-      else
-        None
-  }
+class DeleteUserLet(
+  username: String,
+  context: BundleContext,
+  val couch: CouchClient,
+  config: Config,
+  recaptcha: ReCaptcha,
+  logger: Logger)
+    extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     if(user.name == username && recaptcha.verify(talk)) {
@@ -63,13 +60,13 @@ class DeleteUserLet(username: String, context: BundleContext, val couch: CouchCl
       val userid = s"org.couchdb.user:$username"
 
       // get the papers in which this user is involved
-      view(blue_papers, "papers", "for").query[String, UserRole, Paper](key = Some(username), include_docs = true) flatMap { res =>
+      view(blue_papers, "papers", "for").query[String, UserRole, PaperRole](key = Some(username), include_docs = true) flatMap { res =>
         val rows = res.rows
 
         // get the papers for which the user is the single author
         val singleAuthor = rows.collect {
-          case Row(_, _, _, Some(Paper(id, _, SingletonSet(name), _, _, _, _, _, _, _))) if name == userid =>
-            id
+          case Row(_, _, _, Some(roles @ SingleAuthor(name))) if name == username =>
+            roles._id
         }
 
         if(singleAuthor.isEmpty) {
@@ -83,15 +80,17 @@ class DeleteUserLet(username: String, context: BundleContext, val couch: CouchCl
               // get all papers in which the user is involved and remove his name
               val newPapers =
                 for(Row(_, _, _, Some(p)) <- rows)
-                  yield p.copy(authors = p.authors - userid, reviewers = p.reviewers - userid).withRev(p._rev)
+                  yield p.copy(authors = p.authors - user, reviewers = p.reviewers - user).withRev(p._rev)
               database(blue_papers).saveDocs(newPapers) map { _ =>
                 import OsgiUtils._
                 // notifiy deletion hooks
                 for(hook <- context.getAll[UserUnregistered])
                   Try(hook.afterUnregister(userid, couchSession))
+
+                talk.writeJson(true)
               }
             case false =>
-              logError(s"Cannot deleted \\BlueLaTeX user $userid")
+              logError(s"Cannot delete \\BlueLaTeX user $userid")
               Success(talk
                 .setStatus(HStatus.InternalServerError)
                 .writeJson(ErrorResponse("cannot_unregister", "Unable to delete user data")))
@@ -107,7 +106,6 @@ class DeleteUserLet(username: String, context: BundleContext, val couch: CouchCl
       }
 
     } else {
-      // TODO log it
       Success(talk
         .setStatus(HStatus.Unauthorized)
         .writeJson(ErrorResponse("not_authorized", "ReCaptcha did not verify")))

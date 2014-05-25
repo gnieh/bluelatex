@@ -67,9 +67,16 @@ class CreatePaperLet(
 
         val configuration = new PaperConfiguration(config)
 
-        // create the paper database
+        val manager = entityManager("blue_papers")
+
         for {
-          _ <- database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template))
+          // create the paper into the database
+          newId <- manager.createSimple()
+          // add the core component which contains the type, the title
+          true <- manager.addComponent(newId, Paper(s"$newId:core", title, None))
+          // add the permissions component to set the creator as author
+          true <- manager.addComponent(newId, PaperRole(s"$newId:roles", UsersGroups(Set(user.name), Set()), UsersGroups(Set(), Set()),
+            UsersGroups(Set(), Set())))
           user <- database("blue_users").getDocById[User](s"org.couchdb.user:${user.name}")
         } yield {
           if(configuration.paperDir(newId).mkdirs) {

@@ -21,6 +21,7 @@ package paper
 import couch._
 import common._
 import http._
+import permission._
 
 import java.util.UUID
 import java.io.{
@@ -58,7 +59,7 @@ class DeletePaperLet(
   logger: Logger)
     extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>
       // only authors may delete a paper
       // first delete the paper files

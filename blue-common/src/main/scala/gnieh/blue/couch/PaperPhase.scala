@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 package gnieh.blue
-package common
+package couch
 
-/** The authorization level for a paper
+import gnieh.sohva.IdRev
+
+import permission.{
+  Phase,
+  Role,
+  Permission
+}
+
+/** Phase component that can be attached to a paper entity.
+ *  It associates the current phase to a paper and the next allowed phases as well
+ *  as the permissions for this phase.
  *
  *  @author Lucas Satabin
- *
  */
-sealed trait PaperRole
-case object Author extends PaperRole
-case object Reviewer extends PaperRole
-case object Other extends PaperRole
+case class PaperPhase(_id: String, phase: String, permissions: Map[Role, List[Permission]], next: Set[Phase]) extends IdRev

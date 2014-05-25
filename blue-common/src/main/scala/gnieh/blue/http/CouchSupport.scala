@@ -22,7 +22,13 @@ import common._
 
 import tiscaf._
 
-import gnieh.sohva.control._
+import gnieh.sohva.control.entities.EntityManager
+import gnieh.sohva.control.{
+  CouchClient,
+  CookieSession,
+  Database,
+  View
+}
 
 import com.typesafe.config.Config
 
@@ -72,6 +78,10 @@ trait CouchSupport {
       val design = db.design(designName)
       design.view(viewName)
   }
+
+  /** Returns the entity manager associated to the given database */
+  def entityManager(dbName: String)(implicit talk: HTalk): EntityManager =
+    new EntityManager(database(dbName))
 
   /** Returns the database object identified by its name */
   def database(name: String)(implicit talk: HTalk): Database =

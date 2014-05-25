@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gnieh.blue.couch
+package gnieh.blue
+package common
 
-import gnieh.sohva.IdRev
+object SingletonSet {
+  def unapply[T](set: Set[T]): Option[T] =
+    if(set.size == 1)
+      set.headOption
+    else
+      None
+}
 
-import java.util.Date
-
-case class Paper(_id: String,
-                 title: String,
-                 last_modification: Option[Date] = None) extends IdRev
+object EmptySet {
+  def unapply[T](set: Set[T]): Option[Unit] =
+    if(set.isEmpty)
+      Some()
+    else
+      None
+}
 

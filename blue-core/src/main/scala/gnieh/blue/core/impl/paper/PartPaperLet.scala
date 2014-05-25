@@ -20,6 +20,7 @@ package paper
 
 import http._
 import common._
+import permission._
 
 import com.typesafe.config.Config
 
@@ -43,7 +44,7 @@ class PartPaperLet(
   config: Config,
   logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = Try {
     role match {
       case Author | Reviewer =>
         // remove this peer from the current session

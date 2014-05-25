@@ -21,6 +21,7 @@ package paper
 import http._
 import couch.Paper
 import common._
+import permission._
 
 import com.typesafe.config.Config
 
@@ -44,7 +45,7 @@ import gnieh.sohva.control.CouchClient
  */
 class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>
       // only authors may modify this list
       (talk.req.octets, talk.req.header("if-match")) match {

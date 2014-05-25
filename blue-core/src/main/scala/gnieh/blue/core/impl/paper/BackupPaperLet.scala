@@ -36,6 +36,7 @@ import resource._
 
 import http._
 import common._
+import permission._
 
 import scala.util.Try
 
@@ -47,7 +48,7 @@ import gnieh.sohva.control.CouchClient
  */
 class BackupPaperLet(format: String, paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
       // only authors may backup the paper sources
       import FileUtils._

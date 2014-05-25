@@ -20,6 +20,7 @@ package let
 
 import http._
 import common._
+import permission._
 
 import tiscaf._
 
@@ -37,7 +38,7 @@ class GetSyncTeXLet(paperId: String, val couch: CouchClient, config: Config, log
 
   import FileUtils._
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>
       val syncTeXFile = configuration.buildDir(paperId) / s"$paperId.synctex.gz"
 

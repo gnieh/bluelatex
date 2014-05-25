@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gnieh.blue.couch
+package gnieh.blue
+package permission
 
-import gnieh.sohva.IdRev
-
-import java.util.Date
-
-case class Paper(_id: String,
-                 title: String,
-                 last_modification: Option[Date] = None) extends IdRev
-
+/** The different roles for a paper:
+ *   - an author is simply an user listed as such for the paper,
+ *   - a reviewer is an user authenticated user listed as such for the paper,
+ *   - other authenticated users have other role,
+ *   - unauthenticated user get the anonymous role.
+ *
+ *  @author Lucas Satabin
+ *
+ */
+sealed trait Role
+case object Author extends Role
+case object Reviewer extends Role
+case object Other extends Role
+case object Guest extends Role
+case object Anonymous extends Role

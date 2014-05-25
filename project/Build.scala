@@ -68,6 +68,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
     "org.fusesource.scalate" %% "scalate-core" % "1.6.1",
     "com.typesafe.akka" %% "akka-osgi" % "2.3.1",
     "org.gnieh" %% "sohva-client" % "1.0.0-SNAPSHOT",
+    "org.gnieh" %% "sohva-entities" % "0.1.0-SNAPSHOT",
     "org.gnieh" %% "diffson" % "0.2",
     "javax.mail" % "mail" % "1.4.7",
     "ch.qos.logback" % "logback-classic" % "1.0.13",
