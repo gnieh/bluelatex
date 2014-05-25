@@ -25,11 +25,11 @@ angular.module("bluelatex.Latex.Services.SyncTexParser", [])
         var offsetPatern = /(X|Y) Offset:([0-9]+)/;
         var openPagePatern = /\{([0-9]+)$/;
         var closePagePatern = /\}([0-9]+)$/;
-        var verticalBlockPatern = /\[([0-9]+),([0-9]+):([0-9]+),([0-9]+):([0-9]+),([0-9]+),([0-9]+)/;
+        var verticalBlockPatern = /\[([0-9]+),([0-9]+):(-?[0-9]+),(-?[0-9]+):(-?[0-9]+),(-?[0-9]+),(-?[0-9]+)/;
         var closeVerticalBlockPatern = /\]$/;
-        var horizontalBlockPatern = /\(([0-9]+),([0-9]+):([0-9]+),([0-9]+):([0-9]+),([0-9]+),([0-9]+)/;
+        var horizontalBlockPatern = /\(([0-9]+),([0-9]+):(-?[0-9]+),(-?[0-9]+):(-?[0-9]+),(-?[0-9]+),(-?[0-9]+)/;
         var closeHorizontalBlockPatern = /\)$/;
-        var elementBlockPatern = /(.)([0-9]+),([0-9]+):([0-9]+),([0-9]+)(:?(-?[0-9]+))?/;
+        var elementBlockPatern = /(.)([0-9]+),([0-9]+):(-?[0-9]+),(-?[0-9]+)(:?(-?[0-9]+))?/;
 
         for (var i = 1; i < lineArray.length; i++) {
           var line = lineArray[i];
