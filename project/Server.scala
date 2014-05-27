@@ -7,6 +7,8 @@ import gnieh.sohva.Configuration
 import gnieh.sohva.testing._
 import scala.util.Properties
 
+import java.io.File
+
 trait Server {
   this: BlueBuild =>
 
@@ -36,7 +38,7 @@ trait Server {
       (artifact, file) <- m.artifacts
       if DependencyFilter.allPass(c.configuration, m.module, artifact)
     } yield file
-    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
+    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(File.pathSeparator)
     if(Properties.isWin) defaultStartPrunOptionsOptions(cp) else defaultStartJsvcOptions(cp)
   }
 
@@ -47,7 +49,7 @@ trait Server {
       (artifact, file) <- m.artifacts
       if DependencyFilter.allPass(c.configuration, m.module, artifact)
     } yield file
-    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
+    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(File.pathSeparator)
     if(Properties.isWin) defaultStartPrunOptionsOptions(cp) else (defaultStartJsvcOptions(cp) ::: List("-stop"))
   }
 
