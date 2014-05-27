@@ -22,6 +22,8 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.
       var _editor;
       var _renderer;
 
+      var _cursors = [];
+
       // ace default settings
       var aceSettings = {
         fontSize: '12px',

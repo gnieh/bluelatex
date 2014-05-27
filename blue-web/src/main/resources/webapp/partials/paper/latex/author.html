@@ -87,6 +87,18 @@
         </div>
       </div>
       <div class="right">
+        <div class="connectedUsers">
+          <div class="connectedUser" ng-repeat="user in connectedUsers" ng-class="user.class+'Bg '+user.forground">
+            <span class="label">{{user.name.charAt(0)}}</span>
+            <div class="subInfos">
+              <div class="name"><span data-i18n="_User_"></span>: {{user.name}}</div>
+              <div class="peer" ng-repeat="peer in user.peer">
+                <div class="file"><span data-i18n="_File_"></span>: {{peer.file}}</div>
+                <div class="line"><span data-i18n="_Line_"></span>: {{peer.getPosition().start.row +1}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="messages" bl-messages></div>
         <div class="pdf_action">
           <div class="scale">
