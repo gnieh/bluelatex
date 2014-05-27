@@ -141,10 +141,12 @@ abstract class SyncBlueLet(config: Config, logger: Logger) extends BlueLet[Try](
       case t =>
         logError("Something went wrong", t)
         Try(
-          talk.writeJson(
-            ErrorResponse(
-              "unexpected_error",
-              "Something went really wrong. If the problem persists contact an administrator")))
+          talk
+            .setStatus(HStatus.InternalServerError)
+            .writeJson(
+              ErrorResponse(
+                "unexpected_error",
+                "Something went really wrong. If the problem persists contact an administrator")))
     })
 
 }
@@ -164,10 +166,12 @@ abstract class AsyncBlueLet(config: Config, logger: Logger) extends BlueLet[Futu
       case t =>
         logError("Something went wrong", t)
         Future(
-          talk.writeJson(
-            ErrorResponse(
-              "unexpected_error",
-              "Something went really wrong. If the problem persists contact an administrator")))
+          talk
+            .setStatus(HStatus.InternalServerError)
+            .writeJson(
+              ErrorResponse(
+                "unexpected_error",
+                "Something went really wrong. If the problem persists contact an administrator")))
     }
 
 }
