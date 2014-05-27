@@ -125,12 +125,14 @@ class SyncActor(
         val commandResponse = commands flatMap {
           case message: Message => {
             processMessage(peerId, message)
+            Nil
           }
           case SyncCommand(filename, revision, action) => {
             applyAction(peerId, filename, revision, action)
           }
         }
-        sender ! SyncSession(peerId, paperId, commandResponse)
+        val bcastMessages = retrieveMessages(peerId, paperId)
+        sender ! SyncSession(peerId, paperId, commandResponse ++ bcastMessages)
       } recover {
         case e: Exception =>
           logError(s"Error while processing synchronization from peer $peerId", e)
@@ -253,24 +255,20 @@ class SyncActor(
     updateLastModificationTime()
   }
 
-  def processMessage(peer: String, message: Message): List[Message] = {
+  def processMessage(peer: String, message: Message): Unit = {
     logDebug(s"Process message: $message")
 
     for {
       p <- messages.keys
       if (p != peer)
     } messages(p).append(message)
-
-    if (message.retrieve)
-      messages.remove(peer) match {
-        case None => Nil
-        case Some(m) => m.result()
-      }
-
-    else
-      Nil
   }
 
+  def retrieveMessages(peer: String, paperId: String): List[Message] =
+    messages.remove(peer) match {
+        case None => Nil
+        case Some(m) => m.toList
+    }
 
   def applyPatches(view: DocumentView, delta: Delta): Unit = {
     // Compute diffs

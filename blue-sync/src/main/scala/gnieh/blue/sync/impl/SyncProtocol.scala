@@ -57,7 +57,7 @@ sealed trait Command
  *
  *  @author Audric Schiltknecht
  */
-final case class Message(from: String, json: JObject, retrieve: Boolean, filename: Option[String]) extends Command
+final case class Message(from: String, json: JObject, filename: Option[String]) extends Command
 
 /** A command to apply on a file from a given peer
  *

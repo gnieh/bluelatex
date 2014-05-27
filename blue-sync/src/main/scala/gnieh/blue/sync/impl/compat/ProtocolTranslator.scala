@@ -130,7 +130,7 @@ object ProtocolTranslator {
         translate(rest, currentPeer, currentFile, currentRevision, commands, sessionsAcc)
 
       case re"(?:m|M):(.*)${obj(content)}" :: rest =>
-        val commands = Message(currentPeer.getOrElse(""), content, true, currentFile) :: commandsAcc
+        val commands = Message(currentPeer.getOrElse(""), content, currentFile) :: commandsAcc
         translate(rest, currentPeer, currentFile, currentRevision, commands, sessionsAcc)
 
       case _ :: rest =>
@@ -182,12 +182,12 @@ object ProtocolTranslator {
                             |N:$filename
                             |""".stripMargin
           }
-        case Message(peerId, obj, reply, Some(file)) =>
+        case Message(peerId, obj, Some(file)) =>
           result ++= s"""U:$peerId
                         |F:$file
                         |M:${compact(render(obj))}
                         |""".stripMargin
-        case Message(peerId, obj, reply, None) =>
+        case Message(peerId, obj, None) =>
           result ++= s"""U:$peerId
                         |M:${compact(render(obj))}
                         |""".stripMargin
