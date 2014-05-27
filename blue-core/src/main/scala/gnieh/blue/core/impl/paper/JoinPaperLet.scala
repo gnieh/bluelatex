@@ -35,12 +35,19 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class JoinPaperLet(paperId: String, system: ActorSystem, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class JoinPaperLet(
+  paperId: String,
+  peerId: String,
+  system: ActorSystem,
+  val couch: CouchClient,
+  config: Config,
+  logger: Logger)
+    extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try {
     role match {
       case Author | Reviewer =>
-        system.eventStream.publish(Join(user.name, paperId))
+        system.eventStream.publish(Join(peerId, paperId))
         talk.writeJson(true)
       case _ =>
         talk
