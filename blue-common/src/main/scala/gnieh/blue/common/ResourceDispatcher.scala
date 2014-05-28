@@ -46,13 +46,16 @@ abstract class ResourceDispatcher extends Actor {
     case join @ Join(username, resourceid) =>
       // create the actor if nobody uses this resource
       if(!users.contains(resourceid) || users(resourceid).size == 0) {
-        for(props <- props(username, resourceid)) {
+        for(props <- props(username, resourceid))
           context.watch(context.actorOf(props, name = resourceid))
-        }
-      } else if(!users(resourceid).contains(username)) {
+        users(resourceid) = Set()
+      }
+
+      if(!users(resourceid).contains(username)) {
         // resent the Join message to the resource
         context.actorSelection(resourceid) ! join
       }
+
       users.addBinding(resourceid, username)
       resources.addBinding(username, resourceid)
 
