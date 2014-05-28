@@ -45,7 +45,7 @@ import gnieh.blue.sync.impl.store._
  *
  *  @author Lucas Satabin
  */
-class SyncDispatcher(bndContext: BundleContext, config: Config, logger: LogService) extends ResourceDispatcher {
+class SyncDispatcher(bndContext: BundleContext, config: Config, val logger: LogService) extends ResourceDispatcher {
 
   private val configuration = new PaperConfiguration(config)
   private val dmp = new DiffMatchPatch
@@ -53,6 +53,19 @@ class SyncDispatcher(bndContext: BundleContext, config: Config, logger: LogServi
 
   def props(username: String, paperId: String): Try[Props] =
     Try(Props(new SyncActor(configuration, paperId, store, dmp, logger)))
+
+  override def unknownReceiver(paperId: String, msg: Any): Unit = msg match {
+    case SyncSession(peerId, paperId, commands) =>
+      sender ! akka.actor.Status.Failure(new SynchroFailureException(s"Nobody is connected to paper $paperId"))
+
+    case PersistPaper(promise) =>
+      promise.complete(Failure(new SynchroFailureException(s"Nobody is connected to paper $paperId")))
+
+    case LastModificationDate(promise) =>
+      promise.complete(Failure(new SynchroFailureException(s"Nobody is connected to paper $paperId")))
+
+  }
+
 }
 
 /** This actor handles synchronisation of documents.
@@ -96,8 +109,11 @@ class SyncActor(
       lastModificationTime = Calendar.getInstance().getTime()
 
   def receive = {
-    case Join(peerId, _) => messages += (peerId -> ListBuffer.empty[Message])
+    case Join(peerId, _) =>
+      logInfo(s"peer $peerId joined paper $paperId")
+      messages += (peerId -> ListBuffer.empty[Message])
     case Part(peerId, _) => {
+      logInfo(s"peer $peerId left paper $paperId")
       for {
         (peer, filepath) <- views.keys
         if peer == peerId
@@ -105,15 +121,21 @@ class SyncActor(
       messages.remove(peerId)
     }
     case SyncSession(peerId, paperId, commands) => {
-      val commandResponse = commands flatMap {
-        case message: Message => {
-          processMessage(peerId, message)
+      Try {
+        val commandResponse = commands flatMap {
+          case message: Message => {
+            processMessage(peerId, message)
+          }
+          case SyncCommand(filename, revision, action) => {
+            applyAction(peerId, filename, revision, action)
+          }
         }
-        case SyncCommand(filename, revision, action) => {
-          applyAction(peerId, filename, revision, action)
-        }
+        sender ! SyncSession(peerId, paperId, commandResponse)
+      } recover {
+        case e: Exception =>
+          logError(s"Error while processing synchronization from peer $peerId", e)
+          sender ! akka.actor.Status.Failure(e)
       }
-      sender ! SyncSession(peerId, paperId, commandResponse)
     }
     case PersistPaper(promise) => {
       promise.complete(persistPapers())
