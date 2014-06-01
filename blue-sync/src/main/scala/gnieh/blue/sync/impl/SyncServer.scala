@@ -30,7 +30,6 @@ import net.liftweb.json.Serialization
 
 import scala.concurrent.{Await, Promise}
 import scala.concurrent.duration._
-import scala.language.postfixOps
 import scala.util.{Try, Success, Failure}
 
 import java.util.Date
@@ -45,7 +44,7 @@ import java.util.Date
  */
 class SyncServer(dispatcher: ActorRef, configuration: Config) extends SynchroServer {
 
-  private implicit val timeout = Timeout(500 millis)
+  private implicit val timeout = Timeout(2.seconds)
 
   protected[impl] implicit val formats =
     DefaultFormats +
@@ -56,12 +55,13 @@ class SyncServer(dispatcher: ActorRef, configuration: Config) extends SynchroSer
 
   def session(data: String): Try[String] = {
     val syncSession = Serialization.read[SyncSession](data)
-    val response = Try(Await.result(dispatcher ? Forward(syncSession.paperId, syncSession),
-                                    timeout.duration).asInstanceOf[SyncSession])
-    response match {
-      case Success(resp) => Success(Serialization.write[SyncSession](resp))
-      case Failure(e) =>
-        Failure(new SynchroFailureException("Unable to get reponse from synchro dispatcher", e))
+    Try {
+      val response = Await.result((dispatcher ? Forward(syncSession.paperId, syncSession)).mapTo[SyncSession],
+        timeout.duration)
+      Serialization.write[SyncSession](response)
+    } recoverWith {
+        case e =>
+          Failure(new SynchroFailureException("Unable to get reponse from synchro dispatcher", e))
     }
   }
 
