@@ -51,8 +51,7 @@ class MessageSerializer extends Serializer[Message] {
       (for {
         JString(from) <- (json \ "from").toOpt
         obj @ JObject(_) <- (json \ "json").toOpt
-        JBool(retrieve) <- (json \ "retrieve").toOpt
-      } yield Message(from, obj, retrieve, (json \ "filename").extractOpt[String])).getOrElse(throw new MappingException(s"Can't convert $json to Message"))
+      } yield Message(from, obj, (json \ "filename").extractOpt[String])).getOrElse(throw new MappingException(s"Can't convert $json to Message"))
   }
 
   def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
@@ -62,7 +61,6 @@ class MessageSerializer extends Serializer[Message] {
       ).getOrElse(Nil)
       JObject(JField("from", JString(x.from)) ::
               JField("json", x.json) ::
-              JField("retrieve", JBool(x.retrieve)) ::
               tail)
     }
   }
