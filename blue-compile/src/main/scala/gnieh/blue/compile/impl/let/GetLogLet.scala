@@ -36,6 +36,14 @@ import resource._
 
 import gnieh.sohva.control.CouchClient
 
+import java.nio.charset.CodingErrorAction
+
+object GetLogLet {
+
+  val codec = Codec.UTF8.onMalformedInput(CodingErrorAction.REPLACE)
+
+}
+
 class GetLogLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
@@ -46,7 +54,7 @@ class GetLogLet(paperId: String, val couch: CouchClient, config: Config, logger:
       val logFile = configuration.buildDir(paperId) / s"$paperId.log"
 
       if(logFile.exists)
-        Try(for(log <- managed(Source.fromFile(logFile)(Codec.UTF8))) {
+        Try(for(log <- managed(Source.fromFile(logFile)(GetLogLet.codec))) {
 
           val text = log.mkString
 
