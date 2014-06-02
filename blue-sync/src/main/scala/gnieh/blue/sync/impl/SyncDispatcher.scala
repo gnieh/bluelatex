@@ -265,9 +265,13 @@ class SyncActor(
   }
 
   def retrieveMessages(peer: String, paperId: String): List[Message] =
-    messages.remove(peer) match {
+    messages.get(peer) match {
         case None => Nil
-        case Some(m) => m.toList
+        case Some(m) =>
+            // when retrieving the pending messages for a peer, we reset
+            // this list to make it empty
+            messages(peer) = ListBuffer.empty[Message]
+            m.toList
     }
 
   def applyPatches(view: DocumentView, delta: Delta): Unit = {
