@@ -56,10 +56,10 @@ class GetLogLet(paperId: String, val couch: CouchClient, config: Config, logger:
       if(logFile.exists)
         Try(for(log <- managed(Source.fromFile(logFile)(GetLogLet.codec))) {
 
-          val text = log.mkString
+          val text = log.mkString.getBytes("UTF-8")
 
-          talk.setContentType(HMime.txt)
-            .setContentLength(text.length)
+          talk.setContentType("${HMime.txt};charset=${talk.encoding}")
+            .setContentLength(text.size)
             .write(text)
         })
       else
