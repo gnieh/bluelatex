@@ -148,7 +148,7 @@ abstract class SyncBlueLet(config: Config, logger: Logger) extends BlueLet[Try](
   final override def aact(talk: HTalk) =
     try2future(act(talk) recoverWith {
       case t =>
-        logError("Something went wrong", t)
+        logError(s"Something went wrong when processing ${talk.req.method} on ${talk.req.uriPath}", t)
         Try(
           talk
             .setStatus(HStatus.InternalServerError)
@@ -173,7 +173,7 @@ abstract class AsyncBlueLet(config: Config, logger: Logger) extends BlueLet[Futu
   final override def aact(talk: HTalk) =
     act(talk) recoverWith {
       case t =>
-        logError("Something went wrong", t)
+        logError(s"Something went wrong when processing ${talk.req.method} on ${talk.req.uriPath}", t)
         Future(
           talk
             .setStatus(HStatus.InternalServerError)
@@ -316,8 +316,7 @@ abstract class PermissionLet(val paperId: String, config: Config, logger: Logger
       case None =>
         for {
           uuid <- manager.database.couch._uuid
-          true <- manager.addComponent(paperId, default(uuid))
-          Some(comp) <- manager.getComponent[T](paperId)
+          comp <- manager.saveComponent(paperId, default(uuid))
         } yield comp
     }
   }

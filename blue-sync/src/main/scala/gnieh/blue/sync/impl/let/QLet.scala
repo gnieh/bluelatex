@@ -61,6 +61,9 @@ class QLet(paperId: String, synchroServer: SynchroServer, val couch: CouchClient
       // only authors may modify the paper content
       talk.req.octets match {
         case Some(octets) => {
+
+          logInfo("mobwrite compatibility let called")
+
           val data = new String(octets, talk.req.contentEncoding)
           val talkValue = new StringBuilder
           // Convert mobwrite protocol to \BlueLaTeX's

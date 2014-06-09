@@ -60,8 +60,6 @@ class CreatePaperLet(
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
     talk.req.param("paper_title") match {
       case Some(title) =>
-        // new paper identifier
-        val newId = "w" + UUID.randomUUID.getMostSignificantBits.toHexString
 
         val template = talk.req.param("template").getOrElse("article")
 
@@ -73,11 +71,11 @@ class CreatePaperLet(
           // create the paper into the database
           newId <- manager.createSimple()
           // add the core component which contains the type, the title
-          true <- manager.addComponent(newId, Paper(s"$newId:core", title, None))
+          paper <- manager.saveComponent(newId, Paper(s"$newId:core", title, None))
           // add the permissions component to set the creator as author
-          true <- manager.addComponent(newId, PaperRole(s"$newId:roles", UsersGroups(Set(user.name), Set()), UsersGroups(Set(), Set()),
+          roles <- manager.saveComponent(newId, PaperRole(s"$newId:roles", UsersGroups(Set(user.name), Set()), UsersGroups(Set(), Set()),
             UsersGroups(Set(), Set())))
-          user <- database("blue_users").getDocById[User](s"org.couchdb.user:${user.name}")
+          user <- entityManager("blue_users").getComponent[User](s"org.couchdb.user:${user.name}")
         } yield {
           if(configuration.paperDir(newId).mkdirs) {
 
@@ -124,7 +122,9 @@ class CreatePaperLet(
 
               // notifiy creation hooks
               for(hook <- context.getAll[PaperCreated])
-                Try(hook.afterCreate(newId, couchSession))
+                Try(hook.afterCreate(newId, manager)) recover {
+                  case e => logError("Error in post paper creation hook", e)
+                }
               talk.setStatus(HStatus.Created).writeJson(newId)
 
           } else {

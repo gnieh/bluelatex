@@ -63,6 +63,8 @@ class DeleteUserLet(
       view(blue_papers, "papers", "for").query[String, UserRole, PaperRole](key = Some(username), include_docs = true) flatMap { res =>
         val rows = res.rows
 
+        val userManager = entityManager("blue_users")
+
         // get the papers for which the user is the single author
         val singleAuthor = rows.collect {
           case Row(_, _, _, Some(roles @ SingleAuthor(name))) if name == username =>
@@ -72,7 +74,7 @@ class DeleteUserLet(
         if(singleAuthor.isEmpty) {
           // ok no paper for which this user is the single author, let's remove him
           // first delete the \BlueLaTeX specific user document
-          database(blue_users).deleteDoc(userid) flatMap {
+          userManager.deleteEntity(userid) flatMap {
             case true =>
               // delete the couchdb user
               couchSession.users.delete(username)
@@ -85,7 +87,7 @@ class DeleteUserLet(
                 import OsgiUtils._
                 // notifiy deletion hooks
                 for(hook <- context.getAll[UserUnregistered])
-                  Try(hook.afterUnregister(userid, couchSession))
+                  Try(hook.afterUnregister(userid, userManager))
 
                 talk.writeJson(true)
               }

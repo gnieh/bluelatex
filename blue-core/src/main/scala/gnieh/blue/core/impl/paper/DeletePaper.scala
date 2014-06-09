@@ -76,11 +76,12 @@ class DeletePaperLet(
       if(continue) {
         import OsgiUtils._
 
-        database("blue_papers").deleteDoc(paperId) map {
+        val manager = entityManager("blue_papers")
+        manager.deleteEntity(paperId) map {
           case true =>
             // notifiy deletion hooks
             for(hook <- context.getAll[PaperDeleted])
-              Try(hook.afterDelete(paperId, couchSession))
+              Try(hook.afterDelete(paperId, entityManager("blue_papers")))
             talk.writeJson(true)
           case false =>
             talk

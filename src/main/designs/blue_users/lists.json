@@ -3,7 +3,7 @@
   "language": "javascript",
   "views": {
     "emails": {
-      "map": "function(doc) { if(doc.email) { emit(doc._id, doc.email); } }"
+      "map": "function(doc) { if(doc.email && doc.name) { emit(doc.name, doc.email); } }"
     }
     "names": {
       "map": "function(doc) { if(doc.name) { emit(doc.name, null); } }"
