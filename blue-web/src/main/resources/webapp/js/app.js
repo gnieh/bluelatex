@@ -3,7 +3,7 @@
 angular.module('bluelatex', [
   'localization',
   'ngRoute',
-  'bluelatex.Shared.Services.Configuration',
+  'bluelatex.Configuration',
   'bluelatex.Paper.Controllers.InitPaper',
   'bluelatex.Paper.Controllers.LatexPaper',
   'bluelatex.Shared.Services.WindowActive',

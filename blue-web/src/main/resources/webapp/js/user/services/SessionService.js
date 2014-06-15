@@ -1,7 +1,7 @@
-angular.module("bluelatex.User.Services.Session", ["ngResource", 'bluelatex.Shared.Services.Configuration'])
-  .factory("SessionService", ['$resource', '$http', '$log', 'apiRootUrl',
-    function ($resource, $http, $log, apiRootUrl) {
-      var session = $resource(apiRootUrl + "/session", null, {
+angular.module("bluelatex.User.Services.Session", ["ngResource", 'bluelatex.Configuration'])
+  .factory("SessionService", ['$resource', '$http', '$log', 'api_prefix',
+    function ($resource, $http, $log, api_prefix) {
+      var session = $resource(api_prefix + "/session", null, {
         "login": {
           method: "POST",
           headers: {

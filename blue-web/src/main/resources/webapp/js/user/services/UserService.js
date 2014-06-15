@@ -1,6 +1,6 @@
-angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-cache', 'bluelatex.Shared.Services.Configuration'])
-  .factory("UserService", ['$resource', '$http', '$log', '$angularCacheFactory', '$q', 'apiRootUrl',
-      function ($resource, $http, $log, $angularCacheFactory, $q, apiRootUrl) {
+angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-cache', 'bluelatex.Configuration'])
+  .factory("UserService", ['$resource', '$http', '$log', '$angularCacheFactory', '$q', 'api_prefix',
+      function ($resource, $http, $log, $angularCacheFactory, $q, api_prefix) {
         // userCache
         var _dataCache = $angularCacheFactory('userCache', {
           maxAge: 300000,
@@ -9,7 +9,7 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
           verifyIntegrity: true
         });
 
-        var password = $resource(apiRootUrl + "/users/:username/reset", {
+        var password = $resource(api_prefix + "/users/:username/reset", {
           username: "@username"
         }, {
           "getToken": {
@@ -27,7 +27,7 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
             }
           }
         });
-        var users = $resource(apiRootUrl + "/users", {}, {
+        var users = $resource(api_prefix + "/users", {}, {
           "get": {
             method: "get",
             format: 'json',
@@ -47,7 +47,7 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
             ].concat($http.defaults.transformResponse)
           }
         });
-        var info = $resource(apiRootUrl + "/users/:username/info", {
+        var info = $resource(api_prefix + "/users/:username/info", {
           username: "@username"
         }, {
           "get": {
@@ -77,7 +77,7 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
             ].concat($http.defaults.transformRequest)
           }
         });
-        var register = $resource(apiRootUrl + "/users", null, {
+        var register = $resource(api_prefix + "/users", null, {
           "register": {
             method: "POST",
             headers: {
@@ -85,7 +85,7 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
             }
           }
         });
-        var removeUser = $resource(apiRootUrl + "/users/:username", {
+        var removeUser = $resource(api_prefix + "/users/:username", {
           username: "@username"
         }, {
           "remove": {
