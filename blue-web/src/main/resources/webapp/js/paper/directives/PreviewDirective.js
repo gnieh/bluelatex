@@ -1,19 +1,19 @@
-angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services.Paper'])
-  .directive('blVignette', ['$rootScope','PaperService','$q', function($rootScope,PaperService,$q) {
+angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.Paper'])
+  .directive('blPreview', ['$rootScope','PaperService','$q', function($rootScope,PaperService,$q) {
     return {
-      'require': 'blVignette',
+      'require': 'blPreview',
       'scope': {
-        'page': "@",
-        'scale': "=scale",
-        'type': "=vignettetype",
-        'pdf': "=pdf",
-        'paperId': "=paperid",
-        'synctex': "=synctex",
-        'revision': "=revision",
-        'currentPage': "=currentpage",
-        'currentLine': "=currentline",
-        'currentFile': "=currentfile",
-        'displaysynctexbox': "@"
+        'scale': '=scale',
+        'type': '=previewtype',
+        'pdf': '=pdf',
+        'paperId': '=paperid',
+        'synctex': '=synctex',
+        'revision': '=revision',
+        'currentPage': '=currentpage',
+        'currentLine': '=currentline',
+        'linePage': '=linepage',
+        'currentFile': '=currentfile',
+        'displaysynctexbox': '@'
       },
       'controller': function($scope) {
         var pdf = null;
@@ -23,37 +23,54 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
 
         $scope.hightlights = [];
 
+        /**
+        * Update the line hightlight
+        */
         var updateHightlight = function(file, line) {
           $scope.hightlights = [];
           (function() {
             var deferred = $q.defer();
             setTimeout(function(file, line) {
               var hightlights = [];
+              // check in the pdf is loaded
               if(!pdfDimension) return;
+              // check of the synctex file is loaded
               if(!$scope.synctex) return;
               if(!$scope.synctex.blockNumberLine) return;
               if(!$scope.synctex.blockNumberLine[file]) return;
               if(!$scope.synctex.blockNumberLine[file][line]) return;
-              var elems = $scope.synctex.blockNumberLine[file][line];
-
+              if(!$scope.synctex.blockNumberLine[file][line][$scope.page]) return;
+              // get all elements of the current line
+              var elems = $scope.synctex.blockNumberLine[file][line][$scope.page];
               if(!isArray(elems) || !elems[0]) return;
 
               var lines = [];
               var cLine = {
-                positionFirst: 0,
-                minLeft: 0,
-                maxLeft: 0,
-                bottom: elems[0].bottom,
-                height: elems[0].height
+                positionFirst: elems.length - 1,
+                minLeft: elems.length - 1,
+                maxLeft: elems.length - 1,
+                bottom: elems[elems.length - 1].bottom,
+                height: elems[elems.length - 1].height
               };
-
-              for (var i = elems.length - 1; i >= 0; i--) {
+              // Create the largest box
+              for (var i = elems.length - 2; i >= 0; i--) {
                 var e=elems[i];
                 if(e.page != $scope.page) continue;
                 if(e.parent.type == "vertical") continue;
-                if(e.type=='k' || e.type=='h') continue;
+                if(e.type=='k') continue;
                 if(e.bottom!=cLine.bottom){
-                  lines.push(cLine);
+                  var toAdd = true;
+                  for (var  j= 0; j < lines.length && toAdd; j++) {
+                    if(cLine.bottom >= lines[j].bottom && 
+                       cLine.height <= lines[j].height  &&
+                       cLine.minLeft >= lines[j].minLeft && 
+                       cLine.maxLeft <= lines[j].maxLeft) {
+                      toAdd = false;
+                    }
+                  };
+                  if(toAdd) {
+                    lines.push(cLine);
+                  }
                   cLine = {
                     positionFirst: i,
                     minLeft: i,
@@ -65,7 +82,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
                 }
                 if(e.left < elems[cLine.minLeft].left) {
                   cLine.minLeft = i;
-                  cLine.positionFirst = i - cLine.positionFirst;
+                  cLine.positionFirst = i;
                 } else if(e.left > elems[cLine.maxLeft].left) {
                   cLine.maxLeft = i;
                 }
@@ -73,13 +90,25 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
                   cLine.height=e.height;
                 }
               }
-              lines.push(cLine);
 
+              var toAdd = true;
+              for (var i = 0; i < lines.length && toAdd; i++) {
+                if(cLine.bottom > lines[i].bottom && 
+                   cLine.height < lines[i].height  &&
+                   cLine.minLeft > lines[i].minLeft && 
+                   cLine.maxLeft < lines[i].maxLeft) {
+                  toAdd = false;
+                }
+              };
+              if(toAdd) {
+                lines.push(cLine);
+              }
+
+              // display all hightlight lines
               for (var i = lines.length - 1; i >= 0; i--) {
                 var line = lines[i];
                 var minPosition = elems[line.minLeft].parent.elements.indexOf(elems[line.minLeft]);
                 var maxPosition = elems[line.minLeft].parent.elements.indexOf(elems[line.maxLeft]);
-                var max = elems[line.minLeft].parent.elements.length -1;
 
                 var left = elems[line.minLeft].left;
                 if(minPosition <= 1) {
@@ -89,15 +118,12 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
                 }
                 var width = elems[line.maxLeft].left-left;
 
-                if(maxPosition<max && elems[line.maxLeft-1]) {
-                  width = elems[line.maxLeft-1].left-left;
-                }
 
                 var s1 = convertToViewportPoint(left, line.bottom, pdfDimension);
                 var s2 = convertToViewportPoint(width, line.height, pdfDimension);
 
                 hightlights.push({
-                  height: (pdfDimension.height-s2[1])+"px",
+                  height: (pdfDimension.height-s2[1])+'px',
                   width: s2[0] + "px",
                   left: s1[0] + "px",
                   top :pdfDimension.height-s1[1]-(pdfDimension.height-s2[1]) + 'px'
@@ -111,25 +137,21 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
             $rootScope.$$phase || $rootScope.$apply();
           });
         };
-
-        $scope.$watch("currentLine", function (line) {
-          if(!line) return;
+        // update the hightlight when the current line change
+        $scope.$watch('currentLine', function (line, oldLine) {
+          if(!line || line == oldLine) return;
           updateHightlight($scope.currentFile.title, line);
         });
-
-        function loadImage (imageURI) {
-
-        }
 
         function renderPdf(p) {
           p.getPage(parseInt($scope.page)).then(renderPage);
         }
-
-        $scope.$watch("pdf", function(pdf) {
+        // update preview when the pdf change
+        $scope.$watch('pdf', function(pdf) {
           if(pdf!=null)
           renderPdf(pdf);
         });
-
+        // create the pdf preview
         function renderPage(page) {
           var parent = element[0];
           var ratio  = Number($scope.scale);
@@ -149,9 +171,9 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           if($scope.synctex)
             updateHightlight($scope.currentFile.title, $scope.currentLine);
           //Set the canvas height and width to the height and width of the viewport
-          var context = canvas.getContext("2d");
-          containerDiv.style.height = viewport.height+"px";
-          containerDiv.style.width = viewport.width+"px";
+          var context = canvas.getContext('2d');
+          containerDiv.style.height = viewport.height+'px';
+          containerDiv.style.width = viewport.width+'px';
           canvas.height = viewport.height;
           canvas.width = viewport.width;
 
@@ -180,34 +202,30 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           if (outputScale.scaled) {
               context.scale(outputScale.sx, outputScale.sy);
           }
-          var renderContext = {
+          // render PDF and text layer
+          page.getTextContent().then(function (textContent) {
+            var textLayer = new TextLayerBuilder({
+              textLayerDiv: textLayerDiv,
+              viewport: viewport,
+              pageIndex: 0
+            });
+            textLayer.setTextContent(textContent);
+
+            var renderContext = {
               canvasContext: context,
               viewport: viewport
-          };
-          page.render(renderContext);
-          /*page.getTextContent().then(function (textContent) {
-              var textLayer = new TextLayerBuilder({
-                  textLayerDiv: textLayerDiv,
-                  pageIndex: 0
-              });
+            };
 
-              textLayer.setTextContent(textContent);
-
-              var renderContext = {
-                  canvasContext: context,
-                  viewport: viewport,
-                  textLayer: textLayer
-              };
-              page.render(renderContext);
-          });*/
+            page.render(renderContext);
+          });
         }
-
+        // resize the preview 
         $scope.resize = function (e) {
           element = e;
           if(pdf) {
             $scope.pdf.getPage($scope.page).then(renderPage);
           } else {
-            var img = element[0].getElementsByTagName("img")[0];
+            var img = element[0].getElementsByTagName('img')[0];
             if(img) {
               element[0] = img.parentElement;
               pdfDimension = {
@@ -226,7 +244,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
 
         $scope.loadImage = function (e) {
           setTimeout(function () {
-            var img = e[0].getElementsByTagName("img")[0];
+            var img = e[0].getElementsByTagName('img')[0];
             img.onload=function (event) {
               pdfDimension = {
                 scale: img.width/(img.naturalWidth*0.72),
@@ -235,6 +253,8 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
             };
           },500);
         };
+
+        // find the line associate to the position of the click event
         var seuil = 2;
         var getCurrentLine = function(event) {
           (function() {
@@ -271,25 +291,32 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
                     var e = hBlock.elements[i];
                     if(e.left >= x && hBlock.elements[i-1].left <= x ) {
                       $scope.currentLine = (i!=(hBlock.elements.length - 3)?hBlock.elements[i+1].line:e.line);
-                      $scope.$parent.$parent.changeFileFromName(hBlock.file.name);
-                      (function(line) {
-                        setTimeout(function(arguments) {
-                          $scope.$parent.$parent.goToLine(line);
-                        }, 750);
-                      })($scope.currentLine);
-                      deferred.resolve($scope.currentLine);
-                      return;
+                      if($scope.currentFile.title != hBlock.file.name) {
+                        $scope.$parent.$parent.changeFileFromName(hBlock.file.name, $scope.currentLine).then(function() {
+                          deferred.resolve($scope.currentLine);
+                        });
+                        return;
+                      } else {
+                        $scope.$parent.$parent.goToLine($scope.currentLine);
+                        deferred.resolve($scope.currentLine);
+                      }
                     }
                   }
                   if(hBlock.elements[1]) {
                     $scope.currentLine = hBlock.elements[1].line;
-                    $scope.$parent.$parent.changeFileFromName(hBlock.file.name);
-                    (function(line) {
-                      setTimeout(function(arguments) {
-                        $scope.$parent.$parent.goToLine(line);
-                      }, 750);
-                    })($scope.currentLine);
-                    deferred.resolve($scope.currentLine);
+                    if($scope.currentFile.title != hBlock.file.name) {
+                      $scope.$parent.$parent.changeFileFromName(hBlock.file.name);
+                      (function(line) {
+                        setTimeout(function(arguments) {
+                          $scope.$parent.$parent.goToLine(line);
+                          deferred.resolve(line);
+                        }, 750);
+                      })($scope.currentLine);
+                    
+                    } else {
+                      $scope.$parent.$parent.goToLine($scope.currentLine);
+                      deferred.resolve($scope.currentLine);
+                    }
                     return;
                   }
                   break;
@@ -302,13 +329,12 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           });
         };
 
-        $scope.getUrlVignette = function () {
+        $scope.getUrlImagePreview = function () {
           return PaperService.getPNGUrl($scope.paperId,$scope.page);
         };
 
         /* DEBUG */
         var createBlock = function (b, page){
-          var previews = element[0].getElementsByClassName('preview_page_container');
           var block = document.createElement('div');
           var s1 = convertToViewportPoint(b.left, b.bottom, pdfDimension);
           var s2 = convertToViewportPoint(b.width, b.height, pdfDimension);
@@ -325,16 +351,15 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           info.innerHTML = '<span class="file">'+b.fileNumber+'</span><span class="line">'+b.line+'</span>';
           block.appendChild(info);
 
-          element[0].appendChild(block);
+          element[0].getElementsByClassName('container')[0].appendChild(block);
         };
 
         var createElem = function (elm ,page){
           //if(elm.type!='x') return;
-          var previews = element[0].getElementsByClassName('preview_page_container');
           var block = document.createElement('div');
 
           if(pdfDimension==null) {
-            var img = previews[page-1].getElementsByTagName('img')[0];
+            var img = element[0].getElementsByTagName('img')[0];
             pdfDimension = {
               scale: img.height/(img.naturalHeight*0.72),
               height: img.height
@@ -361,10 +386,10 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           info.classList.add('info');
           info.innerHTML = '<span class="file">'+elm.fileNumber+'</span><span class="line">'+elm.line+'</span>';
           block.appendChild(info);
-          element[0].appendChild(block);
+          element[0].getElementsByClassName('container')[0].appendChild(block);
         };
 
-        var removeBlocks = function () {
+        $scope.removeBlocks = function () {
           var blocks = element[0].getElementsByClassName('debug_block');
           for (var i = blocks.length - 1; i >= 0; i--) {
             var block = blocks[i];
@@ -388,7 +413,7 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
 
         $scope.displayPages = function (pages) {
           if(pdfDimension== null) return;
-          removeBlocks();
+          $scope.removeBlocks();
           displayBlocks(pages[$scope.page].blocks,$scope.page);
         };
 
@@ -397,13 +422,14 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         var ratio = 1;
         var page = attrs.page;
         var scale = attrs.scale;
+        $scope.page = parseInt(attrs.page);
 
-        if(attrs.vignettetype == "image" ||  attrs.vignettetype == "pdf" ) {
-          $scope.type = attrs.vignettetype;
+        if(attrs.previewType == 'image' ||  attrs.previewType == 'pdf' ) {
+          $scope.type = attrs.previewType;
         }
 
         var timeoutIDscale = null;
-        $scope.$watch("scale", function(val){
+        $scope.$watch('scale', function(val){
           if(!val)return;
           clearTimeout(timeoutIDscale);
           timeoutIDscale = setTimeout(function () {
@@ -411,14 +437,20 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           },500);
         });
 
-        $scope.$watch("currentPage", function (val, oldPage) {
-          if(!val)return;
-          if(val == page && val != oldPage) {
-            element[0].parentElement.scrollTop = element[0].offsetTop -10;
+        $scope.$watch('linePage', function (val, oldPage) {
+          if(!val) return;
+          if(val == page && val != $scope.currentPage) {
+            var autoscroll = attrs.autoscroll;
+            if(autoscroll == null) { 
+              autoscroll = false; 
+            }
+            //if(autoscroll == "true") {
+              element[0].parentElement.scrollTop = element[0].offsetTop - 10;
+            //}
           }
         });
 
-        attrs.$observe("scale", function(val){
+        attrs.$observe('scale', function(val){
           if(!val)return;
           clearTimeout(timeoutIDscale);
           timeoutIDscale = setTimeout(function () {
@@ -426,15 +458,17 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
           },500);
         });
 
-        $scope.$watch("displaysynctexbox", function(val){
+        $scope.$watch('displaysynctexbox', function(val){
           if(val) {
             if($scope.synctex)
               $scope.displayPages($scope.synctex.pages);
+          } else {
+            $scope.removeBlocks();
           }
         });
 
         var timeoutIDResize = null;
-        $scope.$on("windowResize", function (event, data) {
+        $scope.$on('windowResize', function (event, data) {
           clearTimeout(timeoutIDResize);
           timeoutIDResize = setTimeout(function () {
             $scope.resize(element);
@@ -442,12 +476,50 @@ angular.module('bluelatex.Latex.Directives.Vignette', ['bluelatex.Paper.Services
         });
 
         $scope.init(element);
-        if($scope.type == "pdf") {
+        if($scope.type == 'pdf') {
           //$scope.loadPDF(element);
-        } else if($scope.type == "image") {
+        } else if($scope.type == 'image') {
           $scope.loadImage(element);
         }
       },
-      'template': '<div class="container"><img src="{{getUrlVignette()}}&{{revision}}" ng-if="type==\'image\'"><canvas ng-if="type==\'pdf\'"></canvas><div class="textLayer" ng-if="type==\'pdf\'"></div><div class="hightlights" ng-if="synctex"><div class="hightlight_line" ng-repeat="hightlight in hightlights" style="height:{{hightlight.height}};width:{{hightlight.width}};left:{{hightlight.left}};top:{{hightlight.top}}"></div></div></div>'
+      'template': '<div class="container"><img src="{{getUrlImagePreview()}}&{{revision}}" ng-if="type==\'image\'"><canvas ng-if="type==\'pdf\'" height="0"></canvas><div class="textLayer" ng-if="type==\'pdf\'"></div><div class="hightlights" ng-if="synctex"><div class="hightlight_line" ng-repeat="hightlight in hightlights" style="height:{{hightlight.height}};width:{{hightlight.width}};left:{{hightlight.left}};top:{{hightlight.top}}"></div></div></div>'
     };
-  }]);
+  }]).directive('whenScrolled', function() {
+    return function($scope, elm, attr) {
+        var raw = elm[0];
+        var scrollTimeout;
+        elm.bind('scroll', function() {
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(function () {
+            var max = null;
+            var witchMax = 0;
+            var prev = null;
+            for (var i = 0; i < raw.children.length; i++) {
+              var c = raw.children[i];
+              var top = c.offsetTop - raw.scrollTop;
+              var visible = 0;
+              if(top < 0) {
+                visible = c.offsetHeight + top;
+              } else {
+                visible = raw.offsetHeight - top;
+              }
+
+              visible/=c.offsetHeight;
+              if(visible >= max || max == null) {
+                witchMax = i;
+                max = visible;
+                if(max >= 1) {
+                  break;
+                }
+              } else if(prev > visible){
+                break;
+              }
+              prev = visible;
+            }
+            $scope.$apply(function () {
+              $scope.currentPage = (witchMax +1);
+            });
+          }, 10);
+        });
+    };
+});
