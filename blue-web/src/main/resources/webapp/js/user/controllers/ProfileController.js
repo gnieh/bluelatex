@@ -1,13 +1,14 @@
 angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.User'])
   .controller('ProfileController', ['$rootScope', '$scope', 'UserService', '$location', '$log','MessagesService',
     function ($rootScope, $scope, UserService, $location, $log,MessagesService) {
-
+      $scope.requesting = false;
       UserService.getInfo($rootScope.loggedUser).then(function(data) {
         $scope.user = data;
         $scope.$apply();
       });
  
       $scope.remove = function () {
+        $scope.requesting = true;
         MessagesService.clear();
         UserService.remove($scope.user).then(function (data) {
           $rootScope.loggedUser = {};
@@ -29,10 +30,47 @@ angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.Us
           default:
             MessagesService.error('_Remove_user_Something_wrong_happened_',err);
           }
+        }).finally(function() {
+          $scope.requesting = false;
+        });
+      };
+
+      /**
+      * Ask a reset password token
+      */
+      $scope.reset = function () {
+        $scope.requesting = true;
+        MessagesService.clear();
+        UserService.getPasswordToken(user.name).then(function (data) {
+          console.log(data);
+          if (data.response == true) {
+            MessagesService.messageSession('_Reset_Wait_email_confirm_request_');
+          }
+        }, function (err) {
+          $scope.errors = [];
+          switch (err.status) {
+          case 404:
+            MessagesService.error('_Reset_User_not_found',err);
+            break;
+          case 400:
+            MessagesService.error('_Reset_Some_parameters_are_missing_',err);
+            break;
+          case 401:
+            MessagesService.error('_Reset_Wrong_username_and_or_password_',err);
+            break;
+          case 500:
+            MessagesService.error('_Reset_Something_wrong_happened_',err);
+            break;
+          default:
+            MessagesService.error('_Reset_Something_wrong_happened_',err);
+          }
+        }).finally(function() {
+          $scope.requesting = false;
         });
       };
 
       $scope.edit = function () {
+        $scope.requesting = true;
         MessagesService.clear();
         UserService.save($scope.user,$rootScope.loggedUser).then(function (data) {
           MessagesService.messageSession('_Edit_profile_success_',data);
@@ -63,6 +101,8 @@ angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.Us
           default:
             MessagesService.error('_Edit_profile_Something_wrong_happened_',err);
           }
+        }).finally(function() {
+          $scope.requesting = false;
         });
       };
     }

@@ -2,8 +2,10 @@ angular.module("bluelatex.User.Controllers.Register",['bluelatex.User.Services.U
   .controller('RegisterController', ['$scope', 'UserService', '$location', '$log','MessagesService',
     function ($scope, UserService, $location, $log,MessagesService) {
       $scope.user = {};
+      $scope.requesting = false;
 
       $scope.register = function () {
+        $scope.requesting = true;
         UserService.register($scope.user).then(function (data) {
           MessagesService.messageSession('_Registration_Success_');
           $location.path("/login");
@@ -23,6 +25,8 @@ angular.module("bluelatex.User.Controllers.Register",['bluelatex.User.Services.U
           default:
             MessagesService.error('_Registration_Something_wrong_happened_',err);
           }
+        }).finally(function() {
+          $scope.requesting = false;
         });
       };
     }

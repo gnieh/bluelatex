@@ -2,9 +2,12 @@ angular.module("bluelatex.User.Controllers.Login",['bluelatex.User.Services.Sess
   .controller('LoginController', ['$rootScope', '$scope', 'UserService','SessionService', '$location', '$sessionStorage', '$log','MessagesService',
     function ($rootScope, $scope, UserService,SessionService, $location, $sessionStorage, $log,MessagesService) {
       var user = {};
+
+      $scope.loging=false;
       $scope.user = user;
 
       $scope.login = function () {
+        $scope.loging=true;
         MessagesService.clear();
         SessionService.login(user.name, user.password).then(function (data) {
           if (data.response == true) {
@@ -35,6 +38,8 @@ angular.module("bluelatex.User.Controllers.Login",['bluelatex.User.Services.Sess
           default:
             MessagesService.error('_Login_Something_wrong_happened_',err);
           }
+        }).finally(function () {
+          $scope.loging=false;
         });
       };
     }

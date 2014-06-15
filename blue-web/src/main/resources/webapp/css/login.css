@@ -42,6 +42,7 @@
     margin: 2px 0;
     outline: none;
     padding: 10px;
+    position: relative;
 }
 #login_form .logo {
     height: 210px;

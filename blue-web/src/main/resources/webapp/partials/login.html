@@ -1,6 +1,6 @@
 <div id="login_form">
   <div class="logo">
-    <img src="/web/img/login-logo.png" alt="bluelatex">
+    <img src="img/login-logo.png" alt="bluelatex">
   </div>
   <form name="loginForm" novalidate ng-submit="login()">
     <div bl-messages></div>
@@ -20,11 +20,11 @@
     </div>
     <div class="form-group">
       <button type="submit" class="" ng-disabled="!loginForm.$valid"
-        data-i18n-attr="_Login_|value" data-i18n-attr="_Login_|title">
+        data-i18n-attr="_Login_|value  || loging"  ng-class="{'process': loging}" data-i18n-attr="_Login_|title">
         <span data-i18n="_Login_"></span>
       </button>
-      <a class="button" href="#/register" data-i18n="_Register_">Register</a>
-      <a href="#/reset" class="password_lost" data-i18n="_Password_Lost_">Password lost</a>
+      <a class="button" href="#/register" data-i18n="_Register_"></a>
+      <a href="#/reset" class="password_lost" data-i18n="_Password_Lost_"></a>
     </div>
   </form>
 </div>

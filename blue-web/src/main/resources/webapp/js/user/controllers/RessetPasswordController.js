@@ -3,11 +3,14 @@ angular.module("bluelatex.User.Controllers.ResetPassword",['bluelatex.User.Servi
     function ($scope, $routeParams, UserService, $location, $log,MessagesService) {
       var user = {};
       $scope.user = user;
+      $scope.requesting = false;
+
       MessagesService.clear();
       /**
       * Change the password
       */
       $scope.resetPassword = function () {
+        $scope.requesting = true;
         MessagesService.clear();
         UserService.resetPassword($routeParams.username, $routeParams.token, user.new_password, user.new_password_2).then(function (data) {
           if (data.name != 'unable_to_reset') {
@@ -31,6 +34,8 @@ angular.module("bluelatex.User.Controllers.ResetPassword",['bluelatex.User.Servi
           default:
             MessagesService.error('_Reset_password_Something_wrong_happened_',err);
           }
+        }).finally(function() {
+          $scope.requesting = false;
         });
       };
       
@@ -38,6 +43,7 @@ angular.module("bluelatex.User.Controllers.ResetPassword",['bluelatex.User.Servi
       * Get the token
       */
       $scope.reset = function () {
+        $scope.requesting = true;
         MessagesService.clear();
         UserService.getPasswordToken(user.username).then(function (data) {
           console.log(data);
@@ -65,6 +71,8 @@ angular.module("bluelatex.User.Controllers.ResetPassword",['bluelatex.User.Servi
           default:
             MessagesService.error('_Reset_Something_wrong_happened_',err);
           }
+        }).finally(function() {
+          $scope.requesting = false;
         });
       };
     }

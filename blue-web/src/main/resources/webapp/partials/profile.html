@@ -1,5 +1,5 @@
-<div id="manage">
-    <h2 data-i18n="_Edit_profile_">Edit profile</h2>
+<div id="form-page">
+    <h2 data-i18n="_Edit_profile_"></h2>
     <form name="editProfileForm">
         <div bl-messages></div>
         <div class="grid">
@@ -61,8 +61,8 @@
                   ng-show="editPaperForm.affiliation.$error.required" data-i18n="_Required_"></span>
             </div>
         </div>
-        <button type="submit" data-i18n="_Save_" ng-click="edit()">Save</button>
+        <button type="submit" data-i18n="_Save_" ng-click="edit()" ng-disabled="!editProfileForm.$valid || requesting"  ng-class="{'process': requesting}"></button>
     </form>
-    <h2 data-i18n="_Reset_password_">Reset Password</h2>
-    <button ng-click="resetPassword" data-i18n="_Reset_password_">Reset Password</button>
+    <h2 data-i18n="_Reset_password_"></h2>
+    <button ng-click="resetPassword" data-i18n="_Reset_password_" ng-click="reset()" ng-disabled="requesting"  ng-class="{'process': requesting}"></button>
 </div>

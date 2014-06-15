@@ -18,7 +18,7 @@
     </div>
     <div class="center">
       <div class="left">
-        <div class="subOption">
+        <div class="subOption compilerOptions">
           <div class="label">
             <span class="has_sub_label" ng-click="compile()" data-i18n="_Compile_"></span>
             <div class="sub_label">ctrl + s</div>
@@ -58,7 +58,7 @@
             <div ng-click="downloadLog()" data-i18n="_Download_Log_"></div>
           </div>
         </div>
-        <div class="option" ng-click="openItsalltext()" data-i18n="_Emacs_users_"></div>
+        <div class="option itsalltext" ng-click="openItsalltext()" data-i18n="_Emacs_users_"></div>
         <div class="errors subOption" ng-show="logs.errors.length > 0">
           <div class="label">
             <span data-i18n="_Errors_"></span> {{logs.errors.length}}
@@ -102,7 +102,7 @@
           </div>
           <div class="navigation">
             <div class="prevPage icon-prev-page" ng-click="prevPage()">&nbsp;</div>
-            <input type="text" ng-model="currentPage">
+            <input type="number" min="1" max="{{totalPage}}" ng-model="page" ng-change="changePage(page)">
             <span>/</span>
             <div class="totalPage">{{totalPage}}</div>
             <div class="nextPage icon-next-page" ng-click="nextPage()">&nbsp;</div>
@@ -149,7 +149,9 @@
           </div>
       </section>
   </section>
-  <section class="leftCol">
+  <section class="leftCol" ng-class="{close: listType==none, open: listType!=none}">
+    <div class="close icon-close" ng-click="listType=none;"></div>
+    <div class="bg" ng-click="listType=none;"></div>
     <section class="list" ng-switch="listType">
       <div class="toc" ng-switch-when="toc" bl-toc="toc"></div>
       <div class="debug" ng-switch-when="debug">
@@ -169,7 +171,7 @@
               <div class="file" ng-class="" ng-repeat="file in resources | orderBy :'name' : 'false'" ng-class="{current: file==currentFile}">
                 <div class="icon type-{{file.extension}}"></div>
                 <div class="label" ng-click="insertResource(file)">{{file.name}}<span class="extension" ng-if="file.extension">.{{file.extension}}</span></div>
-                <button ng-click="removeResource(file)" class="delete icon-delete"></button>
+                <button ng-click="removeResource(file)" class="icon-delete"></button>
                 <button ng-click="viewResource(file)" class="view icon-view"></button>
                 <button ng-click="downloadResource(file)" class="download icon-download"></button>
                 <div class="clear"></div>
@@ -181,7 +183,7 @@
             <div class="file" ng-repeat="file in synchronizedFiles | orderBy :'name': 'false'" ng-class="{current: file==currentFile}">
               <div class="icon type-{{file.extension}}"></div>
               <div class="label" ng-click="changeFile(file)">{{file.name}}<span class="extension" ng-if="file.extension">.{{file.extension}}</span></div>
-              <button ng-click="removeSynchronisedFile(file)" class="delete icon-delete" ng-if="file.name != $routeParams.id"></button>
+              <button ng-click="removeSynchronisedFile(file)" class="icon-delete" ng-if="file.name != $routeParams.id"></button>
               <div class="clear"></div>
             </div>
             <div class="file" ng-if="synchronizedFiles.length == 0" data-i18n="_No_synchronized_file_found_"></div>

@@ -2,6 +2,7 @@
     <div class="top">
         <h1 data-i18n="_Papers_"></h1>
         <div class="options">
+            <!---
             <div id="display_style">
                 <label>
                     <input type="radio" name="display_style" value="list" ng-model="display_style">
@@ -12,6 +13,7 @@
                     <span class="icon-vignette"></span>
                 </label>
             </div>
+            -->
             <form id="search">
                 <input type="search" data-i18n-attr="_Search..._|placeholder" ng-model="search" autofocus>
             </form>
@@ -20,8 +22,8 @@
                 <select ng-model="predicate">
                     <option value="id" data-i18n="_Id_"></option>
                     <option value="title" data-i18n="_Title_"></option>
-                    <!--<option value="date" data-i18n="_Date_"></option>
-                    <option value="auhtors" data-i18n="_Authors_"></option>-->
+                    <option value="role" data-i18n="_Role_"></option>
+                    <!--<option value="date" data-i18n="_Date_"></option>-->
                 </select>
                 <select ng-model="reverse">
                     <option value="false" data-i18n="_Ascending_"></option>
@@ -101,23 +103,25 @@
         <div id="paper_list" ng-class="display_style">
             <div bl-messages></div>
             <div class="paper header" ng-if="display_style=='list'">
-                <div class="title" data-i18n="_Title_"></div>
-                <!--<div class="date" data-i18n="_Date_"></div>-->
-                <div class="role" data-i18n="_Role_"></div>
+                <div class="title" data-i18n="_Title_"  ng-class="{'predicate': predicate=='title', 'reverse': reverse=='false' || reverse== false}" ng-click="orderBy('title', (reverse=='false' || reverse== false)?true:false)"></div>
+                <!--<div class="date" data-i18n="_Date_" ng-class="{'predicate': predicate=='date', 'reverse': !reverse}" ng-click="orderBy('date', (reverse=='false' || reverse== false)?true:false)"></div>-->
+                <div class="role" data-i18n="_Role_" ng-class="{'predicate': predicate=='role', 'reverse': reverse=='false' || reverse== false}" ng-click="orderBy('role', (reverse=='false' || reverse== false)?true:false)"></div>
                 <!--<div class="tags" data-i18n="_Tags_"></div>-->
                 <div class="options" data-i18n="_Options_"></div>
             </div>
             <div class="paper" ng-repeat="paper in papers | filter:search | filter:dateFilter | filter:roleFilter | orderBy:predicate:reverse">
+                <!---
                 <div class="icon">
                     <a href="#/paper/{{paper.id}}">
-                        <div bl-vignette
-                          data-vignetteType="image"
+                        <div bl-preview
+                          data-previewType="image"
                           data-page="1"
                           data-paperId="paper.id"
                           data-scale="auto">
                         </div>
                     </a>
                 </div>
+                -->
                 <div class="title">
                     <a href="#/paper/{{paper.id}}">{{paper.title}}</a>
                 </div>
@@ -131,8 +135,8 @@
                     <a href="#/paper/{{paper.id}}"><span ng-repeat="tag in paper.tags | orderBy:'label':false"><span class="diskColor" ng-style="{ backgroundColor: tag.color }"></span></span></a>
                 </div>-->
                 <div class="options">
-                    <a class="option rename" href="#/paper/{{paper.id}}/edit" data-i18n="_Options_" ng-if="paper.role == 'author'"></a>
-                    <a class="option detele" ng-click="delete(paper)" data-i18n="_Delete_" ng-if="paper.role == 'author'"></a>
+                    <a class="button option rename" href="#/paper/{{paper.id}}/edit" data-i18n="_Options_" ng-if="paper.role == 'author'"></a>
+                    <button class="option delete" ng-click="delete(paper)" data-i18n="_Delete_" ng-if="paper.role == 'author'"></button>
                 </div>
             </div>
             <div class="no-paper" ng-if="(papers | filter:search | filter:dateFilter | filter:roleFilter).length == 0" data-i18n="_No_paper_found_">No paper found</div>
