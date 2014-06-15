@@ -23,7 +23,7 @@
       </a>
     </div>
     <ul id="menu_options">
-        <li ng-repeat="option in options">
+        <li ng-repeat="option in options[pageName]">
             <a href="{{option.link}}" ng-if="option.type == 'link'">{{option.label}}</a>
             <button class="{{option.class}}" ng-click="action(option)" ng-if="option.type != 'link'">{{option.label}}</button>
             <div class="sub_menu" ng-show="option.display" ng-if="option.type == 'menu'" ng-include src="option.action"></div>

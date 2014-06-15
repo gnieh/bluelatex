@@ -1,6 +1,6 @@
 angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Paper.Services.Paper'])
-  .controller('PapersController', ['$rootScope', '$scope', 'PaperService','$log','MessagesService','$localStorage',
-    function ($rootScope, $scope, PaperService,$log,MessagesService,$localStorage) {
+  .controller('PapersController', ['$rootScope', '$scope', 'PaperService','$log','MessagesService','$localStorage','localize',
+    function ($rootScope, $scope, PaperService,$log,MessagesService,$localStorage,localize) {
       // list of peper
       $scope.papers = [];
 
@@ -147,7 +147,7 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Pap
       * Delete a paper
       */
       $scope.delete = function (paper) {
-        if(!confirm("Are you sure you want to remove the paper: " + paper.title +"?")) return;
+        if(!confirm(localize.getLocalizedString('_Delete_paper_confirm_', paper.title))) return;
         PaperService.delete(paper.id).then(function (data) {
           if (data.response == true) {
             $scope.papers.splice($scope.papers.indexOf(paper), 1);
