@@ -40,7 +40,7 @@ angular.module("bluelatex.User.Controllers.ResetPassword",['bluelatex.User.Servi
       };
       
       /**
-      * Get the token
+      * Ask a reset password token
       */
       $scope.reset = function () {
         $scope.requesting = true;

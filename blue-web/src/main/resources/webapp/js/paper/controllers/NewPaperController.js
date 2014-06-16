@@ -1,10 +1,12 @@
-angular.module('bluelatex.Paper.Controllers.NewPaper', ['bluelatex.Shared.Services.Configuration'])
+angular.module('bluelatex.Paper.Controllers.NewPaper', [])
   .controller('NewPaperController', ['$scope', '$location', 'PaperService', '$log','MessagesService',
     function ($scope, $location, PaperService, $log, MessagesService) {
       var paper = {
         template: "article",
         title: ''
       };
+
+      $scope.saving=false;
 
       $scope.paper = paper;
 
@@ -44,6 +46,8 @@ angular.module('bluelatex.Paper.Controllers.NewPaper', ['bluelatex.Shared.Servic
       * Save the new paper
       */
       $scope.create = function () {
+        $scope.saving=true;
+
         PaperService.create(paper).then(function (data) {
           $location.path("/paper/" + data.id);
         }, function (err) {
@@ -61,6 +65,8 @@ angular.module('bluelatex.Paper.Controllers.NewPaper', ['bluelatex.Shared.Servic
           default:
             MessagesService.error('_New_paper_Something_wrong_happened_',err);
           }
+        }).finally(function () {
+          $scope.saving=false;
         });
       };
 

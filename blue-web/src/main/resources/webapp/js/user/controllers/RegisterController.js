@@ -4,6 +4,9 @@ angular.module("bluelatex.User.Controllers.Register",['bluelatex.User.Services.U
       $scope.user = {};
       $scope.requesting = false;
 
+      /**
+      * Create a new user
+      */
       $scope.register = function () {
         $scope.requesting = true;
         UserService.register($scope.user).then(function (data) {

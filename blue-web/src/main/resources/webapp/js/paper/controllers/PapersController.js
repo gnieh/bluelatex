@@ -1,28 +1,35 @@
 angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Paper.Services.Paper'])
   .controller('PapersController', ['$rootScope', '$scope', 'PaperService','$log','MessagesService','$localStorage',
     function ($rootScope, $scope, PaperService,$log,MessagesService,$localStorage) {
+      // list of peper
       $scope.papers = [];
 
-      if($localStorage.userPaperReverse == null)
+      // load settings from localStorage
+      $scope.reverse = $localStorage.userPaperReverse;
+      if($scope.reverse == null)
         $scope.reverse = false;
-      else
-        $scope.reverse = $localStorage.userPaperReverse;
+
       $scope.$watch("reverse", function(value) {
         $localStorage.reverse = value;
       });
 
-      if($localStorage.userPaperPredicate == null)
+      $scope.predicate = $localStorage.userPaperPredicate;
+      if($scope.predicate == null)
         $scope.predicate = 'title';
-      else
-        $scope.predicate = $localStorage.userPaperPredicate;
+        
       $scope.$watch("predicate", function(value) {
         $localStorage.userPaperPredicate = value;
       });
 
-      if($localStorage.userPaperStyle == null)
+      $scope.orderBy = function(predicate, reverse) {
+        $scope.predicate = predicate;
+        $scope.reverse = reverse;
+      };
+
+      $scope.display_style = $localStorage.userPaperStyle;
+      if($scope.display_style == null)
         $scope.display_style = 'list';
-      else
-        $scope.display_style = $localStorage.userPaperStyle;
+
       $scope.$watch("display_style", function(value) {
         $localStorage.userPaperStyle = value;
       });
@@ -31,13 +38,9 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Pap
       $scope.role_filter = 'all';
       $scope.tag_filter = 'all';
 
+      // get paper of a user
       PaperService.getUserPapers($rootScope.loggedUser).then(function (data) {
-        $scope.papers = [];
-        for (var i = 0; i < data.length; i++) {
-          data[i].date = new Date();
-
-          $scope.papers.push(data[i]);
-        }
+        $scope.papers = data;
       }, function (err) {
         MessagesService.clear();
         switch (err.status) {
@@ -52,6 +55,9 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Pap
         }
       });
 
+      /***************/
+      /* Date Filter */
+      /***************/
       var dateFilterToday = function (paper) {
         var now = new Date();
         return paper.date.getDate() == now.getDate() &&
@@ -59,6 +65,7 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Pap
           paper.date.getFullYear() == now.getFullYear();
       };
       $scope.dateFilterToday = dateFilterToday;
+
       var dateFilterYesterday = function (paper) {
         var yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -67,17 +74,20 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Pap
           paper.date.getFullYear() == yesterday.getFullYear();
       };
       $scope.dateFilterYesterday = dateFilterYesterday;
+
       var dateFilterLWeek = function (paper) {
         var now = new Date();
         return paper.date.getWeek() == now.getWeek() - 1;
       };
       $scope.dateFilterLWeek = dateFilterLWeek;
+
       var dateFilterTWeek = function (paper) {
         var now = new Date();
         return paper.date.getWeek() == now.getWeek() &&
           paper.date.getFullYear() == now.getFullYear();
       };
       $scope.dateFilterTWeek = dateFilterTWeek;
+
       var dateFilterMonth = function (paper) {
         var now = new Date();
         return paper.date.getMonth() == now.getMonth() &&
@@ -109,6 +119,9 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Pap
         }
       };
 
+      /***************/
+      /* Role filter */
+      /***************/
       var roleFilterAuthor = function (paper) {
         return paper.role == 'author';
       };
@@ -130,7 +143,11 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Pap
         }
       };
 
+      /**
+      * Delete a paper
+      */
       $scope.delete = function (paper) {
+        if(!confirm("Are you sure you want to remove the paper: " + paper.title +"?")) return;
         PaperService.delete(paper.id).then(function (data) {
           if (data.response == true) {
             $scope.papers.splice($scope.papers.indexOf(paper), 1);

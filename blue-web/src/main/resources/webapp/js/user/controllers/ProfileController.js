@@ -2,11 +2,17 @@ angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.Us
   .controller('ProfileController', ['$rootScope', '$scope', 'UserService', '$location', '$log','MessagesService',
     function ($rootScope, $scope, UserService, $location, $log,MessagesService) {
       $scope.requesting = false;
+      var user;
+      /**
+      * Get the user data
+      */
       UserService.getInfo($rootScope.loggedUser).then(function(data) {
         $scope.user = data;
-        $scope.$apply();
+        user = clone($scope.user);
       });
- 
+      /**
+      * Remove the user
+      */
       $scope.remove = function () {
         $scope.requesting = true;
         MessagesService.clear();
@@ -68,13 +74,15 @@ angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.Us
           $scope.requesting = false;
         });
       };
-
+      /**
+      * Edit the user profile
+      */
       $scope.edit = function () {
         $scope.requesting = true;
         MessagesService.clear();
-        UserService.save($scope.user,$rootScope.loggedUser).then(function (data) {
+        UserService.save($scope.user,user).then(function (data) {
           MessagesService.messageSession('_Edit_profile_success_',data);
-          UserService.getInfo($rootScope.loggedUser.name).then(function(data) {
+          UserService.getInfo($rootScope.loggedUser).then(function(data) {
             $rootScope.loggedUser = data;
           });
           $location.path("/papers");

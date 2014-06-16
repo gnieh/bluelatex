@@ -68,11 +68,17 @@ angular.module('bluelatex.Shared.Services.Messages', [])
       function warning (m, wra) {
         pushMessage(warnings,m);
       }
+      /*
+      * clear messages
+      */
       function clearNotSession () {
         errors.splice(0,errors.length);
         messages.splice(0,messages.length);
         warnings.splice(0,warnings.length);
       }
+      /*
+      * clear session messages
+      */
       function clearSession () {
         errorsSession.splice(0,errors.length);
         messagesSession.splice(0,errors.length);
