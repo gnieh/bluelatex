@@ -1,16 +1,28 @@
+/**
+* Get the week number of a date
+*/
 Date.prototype.getWeek = function() {
     var onejan = new Date(this.getFullYear(),0,1);
     return Math.ceil((((this - onejan) / 86400000) + onejan.getDay()+1)/7);
 };
+/**
+* Transform json to HTTP POST parameters
+*/
 var jsonToPostParameters = function (json) {
     return Object.keys(json).map(function(k) {
         return encodeURIComponent(k) + '=' + encodeURIComponent(json[k]);
     }).join('&');
 };
+/*
+* Get the file name without the extension
+*/
 function getFileNameExtension(filename) {
     var parts = filename.split('.');
     return parts[parts.length - 1];
 }
+/**
+* Get the file type of the file based on the extension
+*/
 function getFileType(filename) {
     var ext = getFileNameExtension(filename);
     switch (ext.toLowerCase()) {
@@ -32,8 +44,11 @@ function getFileType(filename) {
       case 'tex':
         return 'latex';
     }
-    return 'other';
+    return 'text';
 }
+/**
+* Clone an object
+*/
 function clone(obj) {
     // Handle the 3 simple types, and null or undefined
     if (null == obj || "object" != typeof obj) return obj;
@@ -65,10 +80,9 @@ function clone(obj) {
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
 }
-function get_radom_color () {
-  return (function(m,s,c){return (c ? arguments.callee(m,s,c-1) : '#') +
-  s[m.floor(m.random() * s.length)];})(Math,'0123456789ABCDEF',5);
-}
+/**
+* Get absolute position of an element in the dom
+*/
 function findPosX(obj) {
     var curleft = 0;
     if (obj.offsetParent) {
@@ -84,7 +98,9 @@ function findPosX(obj) {
     }
     return curleft;
 };
-
+/**
+* Get absolute position of an element in the dom
+*/
 function findPosY(obj) {
     var curtop = 0;
     if (obj.offsetParent) {
@@ -100,7 +116,9 @@ function findPosY(obj) {
     }
     return curtop;
 };
-
+/*
+* Convert pdf viewport to pixel
+*/
 var convertToViewportPoint  = function (x, y, dimension) {
     var transform = [
       dimension.scale,
@@ -115,3 +133,26 @@ var convertToViewportPoint  = function (x, y, dimension) {
     var yt = x * transform[1] + y * transform[3] + transform[5];
     return [xt, yt];
 };
+
+/**
+* Create a random hex color
+*/
+function getRadomColor () {
+  return (function(m,s,c){return (c ? arguments.callee(m,s,c-1) : '#') +
+  s[m.floor(m.random() * s.length)];})(Math,'0123456789ABCDEF',5);
+}
+
+/**
+* Define Object.keys if not available
+*/
+if(Object.keys == null) {
+  Object.keys = function (obj) {
+    var r = [];
+    for (var k in obj) {
+        if (!obj.hasOwnProperty(k)) 
+            continue;
+        r.push(k);
+    }
+    return r;
+  }
+}
