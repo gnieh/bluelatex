@@ -1,11 +1,12 @@
-angular.module("bluelatex.User.Controllers.Logout",['bluelatex.User.Services.Session','bluelatex.User.Services.User','ngStorage'])
-  .controller('LogoutController', ['$rootScope', 'SessionService','UserService', '$location', '$sessionStorage','MessagesService',
-    function ($rootScope, SessionService,UserService, $location, $sessionStorage,MessagesService) {
+angular.module("bluelatex.User.Controllers.Logout",['bluelatex.User.Services.Session','bluelatex.User.Services.User'])
+  .controller('LogoutController', ['$rootScope', 'SessionService','UserService', '$location','MessagesService',
+    function ($rootScope, SessionService,UserService, $location,MessagesService) {
       MessagesService.clear();
+      /*
+      * Logout the user
+      */
       SessionService.logout().then(function (data) {
         $rootScope.loggedUser = {};
-        delete $sessionStorage.username;
-        delete $sessionStorage.password;
         UserService.clearCache();
         $location.path("/login");
       }, function (err) {

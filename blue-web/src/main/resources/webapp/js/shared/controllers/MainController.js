@@ -3,9 +3,9 @@
 * The main controller of the website, this controller handle window resize event
 * and retransmit events launched by the menu
 */
-angular.module('bluelatex.Shared.Controllers.Main', ['bluelatex.User.Services.User','bluelatex.User.Services.Session','ngStorage','bluelatex.Paper.Services.Ace'])
-  .controller('MainController', ['$rootScope', '$scope','$window', 'UserService','SessionService', '$route', '$location', '$routeParams', 'AceService', '$sessionStorage', '$log','WindowActiveService',
-    function ($rootScope, $scope,$window, UserService,SessionService, $route, $location, $routeParams, AceService, $sessionStorage, $log,WindowActiveService) {
+angular.module('bluelatex.Shared.Controllers.Main', ['bluelatex.User.Services.User','bluelatex.User.Services.Session','bluelatex.Paper.Services.Ace','bluelatex.Configuration','bluelatex.Shared.Services.WindowActive'])
+  .controller('MainController', ['$rootScope', '$scope','$window', 'UserService','SessionService', '$route', '$location', '$routeParams', 'AceService', '$log','WindowActiveService','ConfigurationService',
+    function ($rootScope, $scope,$window, UserService,SessionService, $route, $location, $routeParams, AceService, $log,WindowActiveService,ConfigurationService) {
       // give access to current route
       $scope.$route = $route;
       // give access to current url
@@ -30,26 +30,35 @@ angular.module('bluelatex.Shared.Controllers.Main', ['bluelatex.User.Services.Us
         $scope.currentRoute = route;
       });
 
+      var getConfiguration =  function() {
+        return ConfigurationService.getConfiguration();
+      }
+
       // login the user with data present in sessionStorage
       var getUserSession = function () {
-        if ($sessionStorage.username && $sessionStorage.password) {
-          SessionService.login($sessionStorage.username, $sessionStorage.password).then(function () {
+        if ($rootScope.loggedUser == null || $rootScope.loggedUser.name ) {
+          SessionService.getSession().then(function (data) {
             UserService.getInfo({
-              name: $sessionStorage.username
+              name: data.name
             }).then(function (data) {
               $rootScope.loggedUser = data;
-              $rootScope.$apply();
+              $rootScope.$$phase || $rootScope.$apply();
             }, function (error) {
               $rootScope.loggedUser = {};
             });
+          }, function (error) {
+            $rootScope.loggedUser = {};
+            $rootScope.$$phase || $rootScope.$apply();
           });
         }
       };
 
       //check user session every  minute
-      var interval = 60 * 1000;
+      var interval = 1 /* min */ * 60 /* sec */ * 1000 /* nano-sec*/;
       var intervalId = setInterval(getUserSession, interval);
-      getUserSession();
+      getConfiguration().then(function (configuration) {
+        getUserSession();
+      });
 
       // don't check session when the page is not active
       WindowActiveService.registerObserverCallback(function () {
