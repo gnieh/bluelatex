@@ -1,4 +1,4 @@
-angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Shared.Directives.Gravatar'])
+angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Gravatar'])
   .controller('MenuController', ['$rootScope', '$scope', '$route',
     function ($rootScope, $scope, $route) {
       $scope.openUserMenu = false;
@@ -7,7 +7,7 @@ angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Shared.Directive
 
       // close the user menu when  the user is not connected
       $rootScope.$watch('loggedUser', function (value) {
-        if (value.name == null) {
+        if (value == null || value.name == null) {
           $scope.openUserMenu = false;
         }
         $scope.user = value;
@@ -18,8 +18,10 @@ angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Shared.Directive
         $scope.menus = [];
         if (route.$$route == null) return;
         for (var i = 0; i < defaulfMenu.length; i++) {
-          defaulfMenu[i].active = route.$$route.options.name == defaulfMenu[i].name;
-          $scope.menus.push(defaulfMenu[i]);
+          if(route.$$route.options != null) {
+            defaulfMenu[i].active = route.$$route.options.name == defaulfMenu[i].name;
+            $scope.menus.push(defaulfMenu[i]);
+          }
         }
         $scope.options = [];
         var _options = optionsPage[route.$$route.options.name];

@@ -12,6 +12,15 @@
   <script type="text/javascript" src="ace/ext-language_tools.js"></script>
 
   <script type="text/javascript">
+
+    var pathname = document.location.pathname;
+
+    if(pathname[pathname.length-1] != '/') {
+      var pathSplit = pathname.split('/');
+      if(pathSplit[pathSplit.length-1] != 'index.html') {
+        document.location = document.location.href+"/";
+      }
+    }
     /*
     * Display the loading label
     */
@@ -61,29 +70,36 @@
       'lib/angular-cache.min.js',
       // mobwrite
       'lib/diff_match_patch_uncompressed.js',
-      'lib/mobwrite_core.js',
+      'lib/angular-mobwrite.js',
 
+      'lib/GravatarDirective'+(debug?'':'.min')+'.js',
+      'lib/angucomplete.js',
       'lib/json-patch-duplex.js',
-      
+
       //blue web
       'js/shared/controllers/MenuController'+(debug?'':'.min')+'.js',
       'js/shared/controllers/MainController'+(debug?'':'.min')+'.js',
       'js/shared/controllers/MessagesController'+(debug?'':'.min')+'.js',
       'js/shared/directives/MenuDirective'+(debug?'':'.min')+'.js',
       'js/shared/directives/AutoFocusDirective'+(debug?'':'.min')+'.js',
-      'js/shared/directives/GravatarDirective'+(debug?'':'.min')+'.js',
       'js/shared/directives/MessagesDirective'+(debug?'':'.min')+'.js',
-      'js/shared/directives/angucomplete.js',
       'js/shared/services/configuration'+(debug?'':'.min')+'.js',
       'js/shared/services/WindowsActiveService'+(debug?'':'.min')+'.js',
       'js/shared/services/MessagesService'+(debug?'':'.min')+'.js',
+
+      'js/paper/controllers/InitPaperController.js',
+      'js/paper/controllers/LatexPaperController.js',
+      'js/paper/services/LatexService.js',
+      
       'js/paper/controllers/EditPaperController'+(debug?'':'.min')+'.js',
       'js/paper/controllers/NewPaperController'+(debug?'':'.min')+'.js',
-      'js/paper/controllers/PaperController'+(debug?'':'.min')+'.js',
       'js/paper/controllers/PapersController'+(debug?'':'.min')+'.js',
+      'js/paper/directives/PreviewDirective'+(debug?'':'.min')+'.js',
       'js/paper/directives/TocDirective'+(debug?'':'.min')+'.js',
+      'js/paper/services/AceMobwriteClient'+(debug?'':'.min')+'.js',
       'js/paper/services/AceService'+(debug?'':'.min')+'.js',
       'js/paper/services/PaperService'+(debug?'':'.min')+'.js',
+      'js/paper/services/SyncTexParserService'+(debug?'':'.min')+'.js',
       'js/user/controllers/LoginUserController'+(debug?'':'.min')+'.js',
       'js/user/controllers/LogoutUserController'+(debug?'':'.min')+'.js',
       'js/user/controllers/ProfileController'+(debug?'':'.min')+'.js',
@@ -91,8 +107,6 @@
       'js/user/controllers/RessetPasswordController'+(debug?'':'.min')+'.js',
       'js/user/services/SessionService'+(debug?'':'.min')+'.js',
       'js/user/services/UserService'+(debug?'':'.min')+'.js',
-      'js/latex/services/SyncTexParserService'+(debug?'':'.min')+'.js',
-      'js/latex/directives/VignetteDirective'+(debug?'':'.min')+'.js',
       'js/app'+(debug?'':'.min')+'.js',
       'js/utilities'+(debug?'':'.min')+'.js'
     ], function() {
@@ -126,7 +140,7 @@
   <style>
     html{-ms-touch-action:none;height:100%;width:100%;overflow-x:hidden;overflow-y:auto;position:relative}body{position:relative;font-family:Helvetica,Arial,sans-serif;background-color:#eee;color:#333;font-size:13pt;padding:0;height:100%;width:100%;font-weight:100;margin:0}header{position:absolute;width:100%;background:#373942;box-shadow:0 1px 3px rgba(0,0,0,.2);font-weight:700;height:42px;z-index:195}header .logo{padding:0 10px;float:left}header .logo img{height:42px}.fatal-error{position:relative;top:70px;font-size:44px;text-align:center;background:#fff;width:480px;margin:auto;padding:40px;line-height:82px;box-shadow:0 0 3px rgba(0,0,0,.2)}.ng-hide{display:none;}
   </style>
-  <title ng-bind="$route.current.$$route.options.title">\BlueLatex</title>
+  <title ng-bind="pageTitle">\BlueLatex</title>
 </head>
 <body>
   <header ng-controller="MenuController">
@@ -151,19 +165,18 @@
     </div>
     <nav bl-menu ng-class="{'show': isMenuOpen, 'hide': !isMenuOpen}"></nav>
   </header>
-  <div ng-view>
-    <div id="loading-label" style="display: none;">
+  <div id="page" ng-view>
+    <div id="fatal-error" style="display: none;">
       Loading...
     </div>
     <noscript>
-      <div class="noscript">
+      <div class="fatal-error">
       \BlueLaTeX needs JavaScript !
       </div>
     </noscript>
   </div>
   <link rel="stylesheet" href="css/css.css">
   <link rel="stylesheet" href="css/font-type.css">
-  <link rel="stylesheet" href="css/register.css">
   <link rel="stylesheet" href="css/login.css">
   <link rel="stylesheet" href="css/paper.css">
   <link rel="stylesheet" href="css/papers.css">

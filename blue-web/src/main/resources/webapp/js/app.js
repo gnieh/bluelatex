@@ -15,15 +15,19 @@ angular.module('bluelatex', [
   'bluelatex.Shared.Directives.Menu',
   'bluelatex.Shared.Directives.Messages',
   'bluelatex.Shared.Controllers.Messages',
+  'bluelatex.Shared.Directives.Autofocus',
   'bluelatex.User.Controllers.Login',
   'bluelatex.User.Controllers.Logout',
   'bluelatex.User.Controllers.Profile',
   'bluelatex.User.Controllers.Register',
   'bluelatex.User.Controllers.ResetPassword',
-  'bluelatex.Latex.Directives.Vignette',
+  'bluelatex.Latex.Directives.Preview',
   'bluelatex.Latex.Services.SyncTexParser'
 ]).config(['$routeProvider',
   function ($routeProvider) {
+    /******************/
+    /* Route settings */
+    /******************/
     $routeProvider.when('/login', {
       templateUrl: 'partials/login.html',
       controller: 'LoginController',
@@ -116,7 +120,7 @@ angular.module('bluelatex', [
     });
     $routeProvider.when('/paper/:id/?', {
       templateUrl: 'partials/paper.html',
-      controller: 'PaperController',
+      controller: 'InitPaperController',
       options: {
         name: 'paper',
         connected: true,
@@ -145,10 +149,10 @@ angular.module('bluelatex', [
   }
 ]).run(['$rootScope', '$location', '$route', '$window','$log','WindowActiveService',
   function ($rootScope, $location, $route, $window,$log,WindowActiveService) {
-    $rootScope.loggedUser = {};
+    $rootScope.loggedUser = null;
     var prev_page = null;
     $rootScope.$watch('loggedUser', function (value) {
-      if ($rootScope.loggedUser.name == null && $route.current != null && !$route.current.$$route.options.unconnected) {
+      if (($rootScope.loggedUser == null || $rootScope.loggedUser.name == null) && $route.current != null && !$route.current.$$route.options.unconnected) {
         // no logged user, we should be going to #login
         if ($route.current.$$route.options.name == "login") {
           // already going to #login, no redirect needed
@@ -157,7 +161,7 @@ angular.module('bluelatex', [
           // not going to #login, we should redirect now
           $location.path("/login");
         }
-      } else if ($route.current != null && $route.current.$$route.options.connected == false && $rootScope.loggedUser.name != null) {
+      } else if ($route.current != null && $route.current.$$route.options.connected == false && $rootScope.loggedUser != null  && $rootScope.loggedUser.name != null) {
         if (prev_page != null && prev_page != '/login') {
           $location.path(prev_page);
         } else {
@@ -167,7 +171,7 @@ angular.module('bluelatex', [
     });
     // register listener to watch route changes
     $rootScope.$on("$routeChangeStart", function (event, next, current) {
-      if ($rootScope.loggedUser.name == null && next.$$route != null && !next.$$route.options.unconnected) {
+      if (($rootScope.loggedUser == null || $rootScope.loggedUser.name == null) && next.$$route != null && !next.$$route.options.unconnected) {
         // no logged user, we should be going to #login
         if (next.$$route.options.name == "login") {
           // already going to #login, no redirect needed
@@ -176,12 +180,18 @@ angular.module('bluelatex', [
           // not going to #login, we should redirect now
           $location.path("/login");
         }
-      } else if (next.$$route != null && next.$$route.options.connected == false && $rootScope.loggedUser.name != null) {
+      } else if (next.$$route != null && next.$$route.options.connected == false && $rootScope.loggedUser != null && $rootScope.loggedUser.name != null) {
         if (prev_page != null && prev_page != '/login') {
           $location.path(prev_page);
         } else {
           $location.path("/");
         }
+      }
+    });
+    $rootScope.$on("$routeChangeStart", function (event, current, previous) {
+      // change the title of the page
+      if(current.$$route.options != null) {
+        $rootScope.pageTitle = current.$$route.options.title;
       }
     });
   }
