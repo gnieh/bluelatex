@@ -102,7 +102,7 @@
           </div>
           <div class="navigation">
             <div class="prevPage icon-prev-page" ng-click="prevPage()">&nbsp;</div>
-            <input type="number" min="1" max="{{totalPage}}" ng-model="page" ng-change="changePage(page)">
+            <input type="number" max="{{totalPage}}" ng-model="page" ng-change="changePage(page)">
             <span>/</span>
             <div class="totalPage">{{totalPage}}</div>
             <div class="nextPage icon-next-page" ng-click="nextPage()">&nbsp;</div>
@@ -156,10 +156,11 @@
       <div class="toc" ng-switch-when="toc" bl-toc="toc"></div>
       <div class="debug" ng-switch-when="debug">
         <h2>Debug</h2>
-        File: {{currentFile.name}}<br>
+        File: {{currentFile.title}}<br>
         currentLine: {{currentLine}}<br>
         currentPage: {{currentPage}}<br>
         linePage: {{linePage}}<br>
+        page: {{page}}<br>
         <button ng-click="displaySyncTex()">Display SyncTex data view</button>
       </div>
       <div class="files" ng-switch-when="files">

@@ -459,7 +459,7 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
         });
 
         $scope.$watch('displaysynctexbox', function(val){
-          if(val) {
+          if(val == true || val == 'true') {
             if($scope.synctex)
               $scope.displayPages($scope.synctex.pages);
           } else {

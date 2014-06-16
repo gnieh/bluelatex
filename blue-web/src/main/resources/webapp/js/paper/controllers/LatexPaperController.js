@@ -11,6 +11,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       $scope.currentLine = 0;
       $scope.currentPage = 0;
       $scope.linePage = 0;
+      $scope.page = 0;
       
       // list of resources
       $scope.resources = [];
@@ -27,7 +28,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       // synctex data
       $scope.synctex = null;
       // display synctex debug data
-      $scope.displaySyncTexBox = true;
+      $scope.displaySyncTexBox = false;
       // latex compiler logs
       $scope.logs = [];
       // the number of page
@@ -63,11 +64,8 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       var exitPaper = function () {
         pageActive = false;
         WindowActiveService.removeObserverCallback(windowStatusCallback);
-        if($scope.paper.authors &&
-           $scope.paper.authors.indexOf($rootScope.loggedUser.name) >= 0) {
-          stopMobWrite();
-          PaperService.leavePaper($scope.paperId, peerId);
-        }
+        stopMobWrite();
+        PaperService.leavePaper($scope.paperId, peerId);
       };
       
       window.onbeforeunload = function () {
@@ -88,7 +86,11 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       * Start mobWrite
       */
       var initMobWrite = function () {
-        return MobWriteService.share({paper_id: $scope.paperId,file:$scope.currentFile.title});
+        return MobWriteService.share({paper_id: $scope.paperId,file:$scope.currentFile.title}).then(function (){
+          displayAnnotation();
+          $scope.toc = LatexService.parseTOC(AceService.getContent());
+          AceService.getEditor().focus();
+        })
       };
 
       /**
@@ -114,7 +116,11 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       * Display synctex debug data
       */
       $scope.displaySyncTex = function() {
-        $scope.displaySyncTexBox = !$scope.displaySyncTexBox;
+        if($scope.displaySyncTexBox == false || $scope.displaySyncTexBox == 'false') {
+          $scope.displaySyncTexBox = true;
+        } else {
+          $scope.displaySyncTexBox = false;
+        }
       };
 
       /**
@@ -123,8 +129,11 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       var getPages = function () {
         PaperService.getPages($scope.paperId).then(function (data) {
           $scope.totalPage = data.response;
-          if($scope.currentPage == 0)
+          if($scope.currentPage == 0) {
             $scope.currentPage = 1;
+            $scope.linePage = 1;
+            $scope.page = 1;
+          }
         });
       };
 
@@ -200,9 +209,14 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       };
 
       $scope.removeSynchronisedFile = function(file) {
+        if(file == $scope.currentFile) {
+          MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title});
+        }
         PaperService.deleteSynchronizedFile($rootScope.loggedUser, $scope.paperId, file.title).then(function() {
-          getSynchronizedFiles();
           $scope.synchronizedFiles = [];
+          getSynchronizedFiles().then(function(){
+            initMobWrite();
+          });
         });
       };
 
@@ -402,13 +416,12 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       $scope.changeFile = function (file, line) {
         if($scope.currentFile == file) return;
         stopMobWrite();
+        MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title});
         $scope.currentFile = file;
         $scope.content = '';
         AceService.setContent($scope.content);
         AceService.getEditor().focus();
         return initMobWrite().then(function (data) {
-          displayAnnotation();
-          $scope.toc = LatexService.parseTOC(AceService.getContent());
           if(line) {
             $scope.goToLine(line);
           }
@@ -629,10 +642,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
             getSynchronizedFiles(),
             promiseJoin
           ]).then(function () {
-            initMobWrite().then(function () {
-              $scope.toc = LatexService.parseTOC(AceService.getContent());
-              displayAnnotation();
-            });
+            initMobWrite();
           });
           getSyncTex();
           getCompilerInfo();
