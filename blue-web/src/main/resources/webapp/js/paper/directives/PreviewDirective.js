@@ -16,7 +16,6 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
         'displaysynctexbox': '@'
       },
       'controller': function($scope) {
-        var pdf = null;
         var element;
         var viewport;
         var pdfDimension;
@@ -149,7 +148,7 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
         // update preview when the pdf change
         $scope.$watch('pdf', function(pdf) {
           if(pdf!=null)
-          renderPdf(pdf);
+            renderPdf(pdf);
         });
         // create the pdf preview
         function renderPage(page) {
@@ -222,7 +221,7 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
         // resize the preview 
         $scope.resize = function (e) {
           element = e;
-          if(pdf) {
+          if($scope.pdf) {
             $scope.pdf.getPage($scope.page).then(renderPage);
           } else {
             var img = element[0].getElementsByTagName('img')[0];
