@@ -680,7 +680,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       };
 
       //action listener: action in the menu
-      $scope.$on('handleAction', function (event, data) {
+      $rootScope.$on('handleMenuAction', function (event, data) {
         if ($scope[data]) {
           $scope[data]();
         }

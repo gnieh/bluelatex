@@ -17,13 +17,8 @@ angular.module('bluelatex.Shared.Controllers.Main', ['bluelatex.User.Services.Us
 
       // retransmits window resize event
       $window.onresize = function (event) {
-        $scope.$broadcast('windowResize', event);
+        $rootScope.$broadcast('windowResize', event);
       };
-
-      // transfert the menu event
-      $scope.$on('handleTopAction', function (event, data) {
-        $scope.$broadcast('handleAction', data);
-      });
 
       //
       $scope.$on("$routeChangeSuccess", function (event, route) {

@@ -468,7 +468,7 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
         });
 
         var timeoutIDResize = null;
-        $scope.$on('windowResize', function (event, data) {
+        $rootScope.$on('windowResize', function (event, data) {
           clearTimeout(timeoutIDResize);
           timeoutIDResize = setTimeout(function () {
             $scope.resize(element);
