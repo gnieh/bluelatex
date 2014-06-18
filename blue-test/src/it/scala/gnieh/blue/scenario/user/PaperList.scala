@@ -22,7 +22,6 @@ import org.scalatest._
 import gnieh.sohva.UserInfo
 
 import http.ErrorResponse
-import couch._
 
 /** Scenarios to test user papers listing:
  *   - listing for authenticated user with several papers

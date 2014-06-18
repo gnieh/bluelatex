@@ -48,9 +48,21 @@ trait SomeUsers extends BeforeAndAfterEach {
     super.beforeEach()
   } finally {
     // save the couchdb users
-    try { couch.database("_users").saveDocs(couchUsers) } catch { case e: Exception => e.printStackTrace }
+    try {
+      couch.database("_users").saveDocs(couchUsers)
+    } catch {
+      case e: Exception => e.printStackTrace
+    }
     // save the \Blue users
-    try { couch.database("blue_users").saveDocs(blueUsers) } catch { case e: Exception => e.printStackTrace }
+    try {
+      for(user <- blueUsers) {
+        val userid = s"org.couchdb.user:${user.name}"
+        userManager.create(userid, None)
+        userManager.saveComponent(userid, user)
+      }
+    } catch {
+      case e: Exception => e.printStackTrace
+    }
   }
 
   override def afterEach(): Unit = try {
@@ -58,8 +70,9 @@ trait SomeUsers extends BeforeAndAfterEach {
   } finally {
     // delete the couchdb users
     couch.database("_users").deleteDocs(couchUsers map (_._id))
-    // save the \Blue users
-    couch.database("blue_users").deleteDocs(blueUsers map (_._id))
+    // delete the \Blue users
+    for(user <- blueUsers)
+      userManager.deleteEntity(s"org.couchdb.user:${user.name}")
   }
 
 }

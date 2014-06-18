@@ -16,9 +16,13 @@
 package gnieh.blue
 package scenario
 
-import org.scalatest._
+import couch.{
+  Paper => BluePaper,
+  PaperRole,
+  UsersGroups
+}
 
-import couch.Paper
+import org.scalatest._
 
 import gnieh.sohva.CouchUser
 
@@ -30,8 +34,8 @@ import gnieh.sohva.CouchUser
 trait SomePapers extends BeforeAndAfterEach {
   this: BlueScenario =>
 
-  val paper1 = Paper("paper1", "Some Paper", Set("glambert"), Set(), "article")
-  val paper2 = Paper("paper2", "Some Other Paper", Set("toto"), Set("glambert"), "article")
+  val paper1 = Paper("paper1", "Some Paper", Set("glambert"), Set())
+  val paper2 = Paper("paper2", "Some Other Paper", Set("toto"), Set("glambert"))
 
   val predefinedPapers: List[Paper]
 
@@ -39,14 +43,28 @@ trait SomePapers extends BeforeAndAfterEach {
     super.beforeEach()
   } finally {
     // save the papers into the database
-    try { couch.database("blue_papers").saveDocs(predefinedPapers) } catch { case e: Exception => e.printStackTrace }
+    try {
+      for(paper <- predefinedPapers) {
+        paperManager.create(paper._id, None)
+        paperManager.saveComponent(paper._id, BluePaper(s"${paper._id}:core", paper.title))
+        paperManager.saveComponent(paper._id,
+          PaperRole(
+            s"${paper._id}:roles",
+            UsersGroups(paper.authors, Set()),
+            UsersGroups(paper.reviewers, Set()),
+            UsersGroups(Set(), Set())))
+      }
+    } catch {
+      case e: Exception => e.printStackTrace
+    }
   }
 
   override def afterEach(): Unit = try {
     super.afterEach()
   } finally {
     // save the papers
-    couch.database("blue_papers").deleteDocs(predefinedPapers map (_._id))
+    for(Paper(id, _, _, _) <- predefinedPapers)
+      paperManager.deleteEntity(id)
   }
 
 }

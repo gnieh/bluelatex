@@ -15,12 +15,4 @@
  */
 package gnieh.blue
 
-import gnieh.sohva.IdRev
-
-case class Paper(_id: String,
-                 title: String,
-                 authors: Set[String],
-                 reviewers: Set[String]) extends IdRev
-
-case class PaperInfo(title: String, authors: Set[String], reviewers: Set[String])
-
+case class UserRole(id: String, title: String, role: String)
