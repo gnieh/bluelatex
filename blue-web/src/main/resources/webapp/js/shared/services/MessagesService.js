@@ -1,3 +1,19 @@
+/*
+ * This file is part of the \BlueLaTeX project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
 'use strict';
 angular.module('bluelatex.Shared.Services.Messages', [])
   .factory("MessagesService", ['$rootScope','localize','$sce',
@@ -68,11 +84,17 @@ angular.module('bluelatex.Shared.Services.Messages', [])
       function warning (m, wra) {
         pushMessage(warnings,m);
       }
+      /*
+      * clear messages
+      */
       function clearNotSession () {
         errors.splice(0,errors.length);
         messages.splice(0,messages.length);
         warnings.splice(0,warnings.length);
       }
+      /*
+      * clear session messages
+      */
       function clearSession () {
         errorsSession.splice(0,errors.length);
         messagesSession.splice(0,errors.length);

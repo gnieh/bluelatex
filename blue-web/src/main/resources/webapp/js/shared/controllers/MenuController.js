@@ -1,13 +1,30 @@
-angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Shared.Directives.Gravatar'])
-  .controller('MenuController', ['$rootScope', '$scope', '$route',
-    function ($rootScope, $scope, $route) {
+/*
+ * This file is part of the \BlueLaTeX project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Gravatar'])
+  .controller('MenuController', ['$rootScope', '$scope','localize',
+    function ($rootScope, $scope,localize) {
       $scope.openUserMenu = false;
       $scope.menus = [];
-      $scope.options = [];
+      $scope.options = {};
+      $scope.pageName = null;
 
       // close the user menu when  the user is not connected
       $rootScope.$watch('loggedUser', function (value) {
-        if (value.name == null) {
+        if (value == null || value.name == null) {
           $scope.openUserMenu = false;
         }
         $scope.user = value;
@@ -15,43 +32,35 @@ angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Shared.Directive
 
       // change the menu when the page changes
       $scope.$on("$routeChangeSuccess", function (event, route) {
-        $scope.menus = [];
-        if (route.$$route == null) return;
-        for (var i = 0; i < defaulfMenu.length; i++) {
-          defaulfMenu[i].active = route.$$route.options.name == defaulfMenu[i].name;
-          $scope.menus.push(defaulfMenu[i]);
+        if (route.$$route == null || route.$$route.options == null) return;
+        for (var i = 0; i < $scope.menus.length; i++) {
+          $scope.menus[i].active = route.$$route.options.name == $scope.menus[i].name;
+          $scope.pageName = route.$$route.options.name;
         }
-        $scope.options = [];
-        var _options = optionsPage[route.$$route.options.name];
-        if (_options != null)
-          for (var i = 0; i < _options.length; i++) {
-            $scope.options.push(_options[i]);
-          }
       });
-
-      var defaulfMenu = [{
-        label: 'New Paper',
+      $scope.menus = [{
+        label: '_New_paper_',
         link: '#/paper/new',
         name: 'new_paper',
         connected: true,
         unconnected: false,
         active: false
       }, {
-        label: 'Papers',
+        label: '_Papers_',
         link: '#/papers',
         name: 'papers',
         connected: true,
         unconnected: false,
         active: false
       }, {
-        label: 'Login',
+        label: '_LoginTitle_',
         link: '#/login',
         name: 'login',
         connected: false,
         unconnected: true,
         active: false
       }, {
-        label: 'Register',
+        label: '_Register_',
         link: '#/register',
         name: 'register',
         connected: false,
@@ -59,34 +68,45 @@ angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Shared.Directive
         active: false
       }];
 
-      var optionsPage = {
-      'papers': [
-      ],
-      'paper': [
-        {
-          label: 'Share',
-          type: 'menu',
-          class: '',
-          icon: null,
-          action: 'partials/paper_share_menu.html'
-        }, {
-          label: 'Send to Arxiv',
-          type: 'action',
-          class: '',
-          icon: null,
-          action: 'arxiv'
-        }, {
-          label: 'Settings',
-          type: 'menu',
-          class: '',
-          icon: null,
-          action: 'partials/paper_settings.html'
-        }]
+      $scope.options = {
+        'papers': [
+        ],
+        'paper': [
+          {
+            label: '_Share_',
+            type: 'menu',
+            class: '',
+            icon: null,
+            action: 'partials/paper_share_menu.html'
+          }, {
+            label: '_Send_to_Arxiv_',
+            type: 'action',
+            class: '',
+            icon: null,
+            action: 'arxiv'
+          }, {
+            label: '_Settings_',
+            type: 'menu',
+            class: '',
+            icon: null,
+            action: 'partials/paper_settings.html'
+          }
+        ]
       };
+      $rootScope.$on('localizeResourcesUpdated', function () {
+        for (var i = $scope.menus.length - 1; i >= 0; i--) {
+          $scope.menus[i].label = localize.getLocalizedString($scope.menus[i].label);
+        };
+        for(var i in $scope.options) {
+          for (var j = $scope.options[i].length - 1; j >= 0; j--) {
+            $scope.options[i][j].label = localize.getLocalizedString($scope.options[i][j].label);
+          };
+        }
+      });
 
       $scope.action = function (option) {
         if (option.type == 'action') {
-          $scope.$emit('handleTopAction', option.action);
+          $rootScope.$emit('handleMenuAction', option.action);
         } else if (option.type == 'menu') {
           option.display = !option.display;
         }

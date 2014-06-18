@@ -1,3 +1,19 @@
+/*
+ * This file is part of the \BlueLaTeX project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
 @media only screen and (max-width : 478px) {
   #menu_user {
     display: none;
@@ -14,7 +30,9 @@
     position: relative;
     background: transparent;
     padding: 0;
-  }
+  
+    width: 100%;
+}
   #menu_user_mobile .submenu a {
     color: #fff;
     padding-left: 60px;
@@ -45,6 +63,12 @@
   #register_form button,#register_form .button, #reset_form button, #reset_form .button, #reset_password_form button, #reset_password_form .button {
     width: 49%;
   }
+  .compilerOptions {
+    display: none;
+  }
+  .pdf_action .scale {
+    display: none;
+  }
 }
 @media only screen and (max-width : 768px) {
   nav {
@@ -56,6 +80,16 @@
       background: #373942;
       width: 250px;
       margin-top: 42px;
+  
+      box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+}
+  nav.show .bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
   }
   nav.show, nav.hide {
     -moz-transition:left .5s;
@@ -148,44 +182,80 @@
   }
 
   #paper .leftCol {
-    display: none;
+    /* display: none; */
   }
   #paper .top.options .center {
-    left: 0;
+    left: 25px;
   }
-  #paper .top> .left {
+  #paper .top.options > .left {
+    margin-top: 40px;
+    padding-top: 40px;
+    width: 39px!important;
+  
+    height: 100%;
+    position: fixed;
+    background: #FAFAFA;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.2);
+  }
+  #paper .leftCol .close {
+    display: block;
+  }
+  #paper .leftCol {
+    left: 40px;
+  }
+  #paper .leftCol.close, #paper .leftCol.open {
+    -moz-transition:left .5s;
+    -o-transition:left .5s;
+    -webkit-transition:left .5s;
+    transition:left .5s;
+  }
+  #paper .leftCol.close {
+    left: -300px;
+  }
+  #paper .leftCol .bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
+  #paper .leftCol.close .bg { 
     display: none;
   }
   #paper .centerRightCol {
-    padding-left: 0!important;
+    padding-left: 40px!important;
   }
-  #manage {
+  #form-page {
     width: 100%;
     min-height: 0;
   }
-  #manage .col {
+  #form-page .col {
     width: 100%;
   }
-  #manage label {
+  #form-page label {
     margin: 0;
     background: #E9E9E9;
   }
-  #manage input {
+  #form-page input {
     margin: 0;
     width: 100%;
   }
-  #manage .new input {
+  #form-page .new input {
     width: 66.666%;
     margin:0 ;
   }
-  #manage  .new .button {
+  #form-page  .new .button {
     position: absolute;
     right: 10px;
     margin:0 ;
     margin-left: 15px;
   }
-  #manage .grid {
+  #form-page .grid {
     margin-bottom: 17px;
+  }
+  .itsalltext {
+    display: none;
   }
 }
 @media only screen and (max-width : 900px) {
@@ -196,5 +266,8 @@
 @media only screen and (max-width : 1000px) {
   #paper_list.list .paper .tags {
     display: none!important;
+  }
+  #menu_options {
+    display: none;
   }
 }

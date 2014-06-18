@@ -1,3 +1,19 @@
+/*
+ * This file is part of the \BlueLaTeX project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
 #paper {
     position: absolute;
     left:0;
@@ -13,12 +29,21 @@
 #paper .listType input {
     visibility: hidden;
     width: 0;
+    float: left;
+    margin: 0;
+    padding: 0;
 }
 #paper .listType span {
+    display: inline-block;
     font-size: 20px;
     color: #444;
-    line-height: 45px;
+    line-height: 34px;
     cursor: pointer;
+    padding: 9px;
+    height: 36px;
+}
+#paper .listType span:hover {
+  color: #025097;
 }
 #paper .listType input:checked + span {
     color: #025097;
@@ -26,24 +51,28 @@
 #paper .listType {
     position: relative;
     text-align: center;
-    height: 37px;
     z-index: 4;
-    width: 215px;
+    width: 100%;
     float: left;
 }
 #paper .leftCol .list {
-    position: absolute;
+    /* position: absolute; */
     height: 100%;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    padding-top: 0px;
+    padding-top: 4px;
     padding-left: 0px;
 }
 #paper .leftCol .list > div{
     overflow: auto;
     height: 100%;
+}
+#paper .leftCol .close {
+    position: absolute;
+    right: 3px;
+    font-size: 22px;
+    top: 3px;
+    display: none;
+    z-index: 9;
+    cursor: pointer;
 }
 #paper .toc {
     padding-left: 18px;}
@@ -54,9 +83,9 @@
 #paper .leftCol .toc ul li {
     list-style: none;
 }
-#paper .leftCol .toc ul,#paper .leftCol .list ol {
-    margin-left: 0;
+#paper .leftCol .toc ul,#paper .leftCol .toc ol {
     padding-left: 10px;
+    margin: 0;
 }
 #paper .toc .current {
   font-weight: bold;
@@ -76,9 +105,8 @@
 #paper .leftCol {
     position: absolute;
     width: 215px;
-    float: left;
     top: 82px;
-    margin-right: 3px;
+    left: 0;
     bottom: 0;
     background: #fff;
     box-shadow: 2px 0px 3px rgba(0, 0, 0, 0.2);
@@ -160,10 +188,22 @@
   position: relative;
   background: #fff;
   margin: auto;
+  display: block;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+#preview div.preview_page_container .container .hightlights {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: block;
 }
 #preview div.preview_page_container canvas{
   position: relative;
+  min-height: 0;
+  display: block;
 }
 div.preview_page_container img {
     width: 100%;
@@ -236,15 +276,22 @@ div.preview_page_container img {
     left: 215px;
     right: 0;
 }
-#paper .top.options .center .left,#paper .top.options .center .right  {
+#paper .top.options .center > div  {
     position: relative;
-    width: 50%;
-    float: left;
     height: 100%;
+}
+#paper .top.options .center .right {
+  width: 50%;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 #paper .messages {
     position: absolute;
     width: 100%;
+}
+#paper .messagesPanel .error, .messagesPanel .warning, .messagesPanel .message {
+  line-height: 20px;
 }
 .subOption {
     position: relative;
@@ -306,7 +353,11 @@ div.subOptions > div:last-child {
 }
 .subOption > label {
     cursor: pointer;
-    padding: 12px 0px;
+    padding: 0;
+    margin: 0;
+    display: inline-block;
+    height: 100%;
+    padding-top: 2px;
 }
 .subOption > label:hover {
     background: rgba(0,0,0,0.2);
@@ -354,7 +405,7 @@ div.subOptions > div:last-child {
 }
 .pdf_action .navigation input {
     float: left;
-    width: 25px;
+    width: 20px;
     min-width: 35px;
     padding: 3px;
     text-align: center;
@@ -446,19 +497,20 @@ div.subOptions > div:last-child {
 #file_list {
 
 }
-#file_list .file.current {
+#file_list .file.current .label {
     border-left-color:#025097;
+    background: #F3F3F3;
 }
 #file_list .file{
     position: relative;
     border-bottom: 1px solid #ddd;
-    border-left: 2px solid transparent;
+    /* border-left: 4px solid rgba(0, 0, 0, 0); */
 }
 #file_list .file .icon {
     font-size: 24px;
     position: absolute;
     color: #555;
-    left: -5px;
+    left: 0px;
 }
 #file_list .folder {
     margin-bottom: 15px;
@@ -471,10 +523,11 @@ div.subOptions > div:last-child {
 }
 #file_list .file .label {
     display: inline-block;
-    width: 80%;
+    width: 100%;
     line-height: 24px;
-    margin-left: 20px;
+    padding-left: 16px;
     cursor: pointer;
+    border-left: 4px solid rgba(0, 0, 0, 0);
 }
 #file_list .file .label .extension {
     color: #999;
@@ -485,7 +538,7 @@ div.subOptions > div:last-child {
 }
 #file_list .file button {
     position: absolute;
-    right: 5px;
+    right: 0;
     background: #fff;
     color: #333;
     font-size: 17px;
@@ -498,6 +551,10 @@ div.subOptions > div:last-child {
     height: 25px;
     overflow: hidden;
 }
+#file_list .file.current button {
+  background: #F3F3F3;
+}
+
 #file_list .file .delete {
     right: 0px;
 }

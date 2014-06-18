@@ -1,3 +1,4 @@
+<div class="bg" ng-click="isMenuOpen=false;"></div>
 <div>
     <div id="menu_user_mobile" class="menu_user" ng-show="loggedUser.name" class="ng-hide">
       <label>
@@ -12,7 +13,7 @@
       </div>
     </div>
     <div id="git">
-      <a href="https://github.com/gnieh/bluelatex/issues/new" target="_blank">
+      <a href="https://github.com/gnieh/bluelatex/" target="_blank">
         <span class="icon icon-fork"></span>
         <span data-i18n="_Clone_me_"></span>
       </a> 
@@ -22,7 +23,7 @@
       </a>
     </div>
     <ul id="menu_options">
-        <li ng-repeat="option in options">
+        <li ng-repeat="option in options[pageName]">
             <a href="{{option.link}}" ng-if="option.type == 'link'">{{option.label}}</a>
             <button class="{{option.class}}" ng-click="action(option)" ng-if="option.type != 'link'">{{option.label}}</button>
             <div class="sub_menu" ng-show="option.display" ng-if="option.type == 'menu'" ng-include src="option.action"></div>

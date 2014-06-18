@@ -12,6 +12,15 @@
   <script type="text/javascript" src="ace/ext-language_tools.js"></script>
 
   <script type="text/javascript">
+
+    var pathname = document.location.pathname;
+
+    if(pathname[pathname.length-1] != '/') {
+      var pathSplit = pathname.split('/');
+      if(pathSplit[pathSplit.length-1] != 'index.html') {
+        document.location = document.location.href+"/";
+      }
+    }
     /*
     * Display the loading label
     */
@@ -61,29 +70,36 @@
       'lib/angular-cache.min.js',
       // mobwrite
       'lib/diff_match_patch_uncompressed.js',
-      'lib/mobwrite_core.js',
+      'lib/angular-mobwrite.js',
 
+      'lib/GravatarDirective'+(debug?'':'.min')+'.js',
+      'lib/angucomplete.js',
       'lib/json-patch-duplex.js',
-      
+
       //blue web
       'js/shared/controllers/MenuController'+(debug?'':'.min')+'.js',
       'js/shared/controllers/MainController'+(debug?'':'.min')+'.js',
       'js/shared/controllers/MessagesController'+(debug?'':'.min')+'.js',
       'js/shared/directives/MenuDirective'+(debug?'':'.min')+'.js',
       'js/shared/directives/AutoFocusDirective'+(debug?'':'.min')+'.js',
-      'js/shared/directives/GravatarDirective'+(debug?'':'.min')+'.js',
       'js/shared/directives/MessagesDirective'+(debug?'':'.min')+'.js',
-      'js/shared/directives/angucomplete.js',
       'js/shared/services/configuration'+(debug?'':'.min')+'.js',
       'js/shared/services/WindowsActiveService'+(debug?'':'.min')+'.js',
       'js/shared/services/MessagesService'+(debug?'':'.min')+'.js',
+
+      'js/paper/controllers/InitPaperController.js',
+      'js/paper/controllers/LatexPaperController.js',
+      'js/paper/services/LatexService.js',
+      
       'js/paper/controllers/EditPaperController'+(debug?'':'.min')+'.js',
       'js/paper/controllers/NewPaperController'+(debug?'':'.min')+'.js',
-      'js/paper/controllers/PaperController'+(debug?'':'.min')+'.js',
       'js/paper/controllers/PapersController'+(debug?'':'.min')+'.js',
+      'js/paper/directives/PreviewDirective'+(debug?'':'.min')+'.js',
       'js/paper/directives/TocDirective'+(debug?'':'.min')+'.js',
+      'js/paper/services/AceMobwriteClient'+(debug?'':'.min')+'.js',
       'js/paper/services/AceService'+(debug?'':'.min')+'.js',
       'js/paper/services/PaperService'+(debug?'':'.min')+'.js',
+      'js/paper/services/SyncTexParserService'+(debug?'':'.min')+'.js',
       'js/user/controllers/LoginUserController'+(debug?'':'.min')+'.js',
       'js/user/controllers/LogoutUserController'+(debug?'':'.min')+'.js',
       'js/user/controllers/ProfileController'+(debug?'':'.min')+'.js',
@@ -91,8 +107,6 @@
       'js/user/controllers/RessetPasswordController'+(debug?'':'.min')+'.js',
       'js/user/services/SessionService'+(debug?'':'.min')+'.js',
       'js/user/services/UserService'+(debug?'':'.min')+'.js',
-      'js/latex/services/SyncTexParserService'+(debug?'':'.min')+'.js',
-      'js/latex/directives/VignetteDirective'+(debug?'':'.min')+'.js',
       'js/app'+(debug?'':'.min')+'.js',
       'js/utilities'+(debug?'':'.min')+'.js'
     ], function() {
@@ -114,8 +128,6 @@
   <script type="text/javascript" src="lib/pdfjs/src/display/pattern_helper.js"></script>
   <script type="text/javascript" src="lib/pdfjs/src/display/font_loader.js"></script>
 
-  <script type="text/javascript" src="lib/pdfjs/web/pdf_find_bar.js"></script>
-  <script type="text/javascript" src="lib/pdfjs/web/pdf_find_controller.js"></script>
   <script type="text/javascript" src="lib/pdfjs/web/ui_utils.js"></script>
   <script type="text/javascript" src="lib/pdfjs/web/text_layer_builder.js"></script>
   <script type="text/javascript">
@@ -126,9 +138,9 @@
   </script>
 
   <style>
-    html{-ms-touch-action:none;height:100%;width:100%;overflow-x:hidden;overflow-y:auto;position:relative}body{position:relative;font-family:Helvetica,Arial,sans-serif;background-color:#eee;color:#333;font-size:13pt;padding:0;height:100%;width:100%;font-weight:100;margin:0}header{position:absolute;width:100%;background:#373942;box-shadow:0 1px 3px rgba(0,0,0,.2);font-weight:700;height:42px;z-index:195}.menu_user{position:relative;float:right;color:#fff;margin-left:auto}.menu_user label{color:#fff;position:relative;display:block;line-height:34px;padding:0 27px;padding-left:30px;cursor:pointer}.menu_user input{visibility:hidden;width:0;float:right;margin:0}.menu_user .submenu{position:absolute;background:#373942;padding:7px;color:#fff;width:170px;overflow:auto;right:0}.menu_user .submenu ul{list-style:none;margin:0;padding:0}.menu_user a{color:#F3F3F3!important;font-size:14px;white-space:nowrap;display:block;line-height:25px}.menu_user label .icon{width:33px;height:33px;overflow:hidden;display:inline-block;float:left;border-radius:50%;margin-right:15px;box-shadow:0 0 #FFF,0 0 0 0 #eee,0 0 0 2px rgba(0,0,0,.2)}.menu_user label .icon img{width:100%}header .logo{padding:0 10px;float:left}header .logo img{height:42px}.noscript,#loading-label{position:relative;top:70px;font-size:44px;text-align:center;background:#fff;width:480px;margin:auto;padding:40px;line-height:82px;box-shadow:0 0 3px rgba(0,0,0,.2)}
+    html{-ms-touch-action:none;height:100%;width:100%;overflow-x:hidden;overflow-y:auto;position:relative}body{position:relative;font-family:Helvetica,Arial,sans-serif;background-color:#eee;color:#333;font-size:13pt;padding:0;height:100%;width:100%;font-weight:100;margin:0}header{position:absolute;width:100%;background:#373942;box-shadow:0 1px 3px rgba(0,0,0,.2);font-weight:700;height:42px;z-index:195}header .logo{padding:0 10px;float:left}header .logo img{height:42px}.fatal-error{position:relative;top:70px;font-size:44px;text-align:center;background:#fff;width:480px;margin:auto;padding:40px;line-height:82px;box-shadow:0 0 3px rgba(0,0,0,.2)}.ng-hide{display:none;}
   </style>
-  <title ng-bind="$route.current.$$route.options.title">\BlueLatex</title>
+  <title ng-bind="pageTitle">\BlueLatex</title>
 </head>
 <body>
   <header ng-controller="MenuController">
@@ -137,13 +149,14 @@
       <a href="#/"><img src="img/logo.png" alt="\BlueLatex"></a>
     </div>
     <label href="#" id="pull" class="icon-menu"><input type="checkbox" ng-model="isMenuOpen"></label>
-    <div id="menu_user" ng-show="loggedUser.name" class="ng-hide menu_user">
+    <div id="menu_user" ng-show="loggedUser.name" class="ng-hide menu_user subOption">
       <label>
         <input type="checkbox" ng-model="openUserMenu">
         <span class="icon" bl-gravatar data-email="loggedUser.email"></span>
-        <span ng-bind="loggedUser.first_name"></span>
+        {{loggedUser.first_name}}
       </label>
-      <div class="submenu" ng-show="openUserMenu">
+      <div class="subOptions" ng-show="openUserMenu">
+        <label class="bg"><input type="checkbox" name="compilerOptions" ng-model="openUserMenu"></label>
         <ul>
           <li><a ng-href="#/profile" data-i18n="_Profile_"></a></li>
           <li><a ng-href="#/logout" ng-click="logout" data-i18n="_Logout_"></a></li>
@@ -152,24 +165,22 @@
     </div>
     <nav bl-menu ng-class="{'show': isMenuOpen, 'hide': !isMenuOpen}"></nav>
   </header>
-  <div ng-view>
-    <div id="loading-label" style="display: none;">
+  <div id="page" ng-view>
+    <div id="fatal-error" style="display: none;">
       Loading...
     </div>
     <noscript>
-      <div class="noscript">
+      <div class="fatal-error">
       \BlueLaTeX needs JavaScript !
       </div>
     </noscript>
   </div>
   <link rel="stylesheet" href="css/css.css">
   <link rel="stylesheet" href="css/font-type.css">
-  <link rel="stylesheet" href="css/register.css">
   <link rel="stylesheet" href="css/login.css">
   <link rel="stylesheet" href="css/paper.css">
   <link rel="stylesheet" href="css/papers.css">
-  <link rel="stylesheet" href="css/manage.css">
+  <link rel="stylesheet" href="css/formPage.css">
   <link rel="stylesheet" href="css/mobile.css">
-  <!--<link rel="stylesheet" href="css/css.min.css">-->
 </body>
 </html>

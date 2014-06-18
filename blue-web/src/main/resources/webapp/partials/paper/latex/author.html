@@ -1,0 +1,218 @@
+<div ng-controller="LatexPaperController">
+  <div class="top options">
+    <div class="left">
+      <div class="btn-group listType">
+        <label class="btn btn-default"  ng-class="{'active': listType=='files'}" for="files">
+            <input type="radio" name="listType" value="files" id="files" ng-model="listType">
+            <span class="icon-file"></span>
+        </label>
+        <label class="btn btn-default" ng-class="{'active': listType=='toc'}" for="toc">
+            <input type="radio" name="listType" value="toc" id="toc" ng-model="listType">
+            <span class="icon-list" ></span>
+        </label>
+        <label class="btn btn-default" ng-class="{'active': listType=='debug'}" for="debug">
+            <input type="radio" name="listType" value="debug" id="debug" checked="true" ng-model="listType">
+            <span class="icon-bug"></span>
+        </label>
+      </div>
+    </div>
+    <div class="center">
+      <div class="left">
+        <div class="subOption compilerOptions">
+          <div class="label">
+            <span class="has_sub_label" ng-click="compile()" data-i18n="_Compile_"></span>
+            <div class="sub_label">ctrl + s</div>
+          </div>
+          <label><input type="checkbox" name="compilerOptions" ng-model="compilerOptions">
+            <span class="icon-down-empty"></span></label>
+          <div class="subOptions" ng-show="compilerOptions">
+            <label class="bg"><input type="checkbox" name="compilerOptions" ng-model="compilerOptions"></label>
+            <label data-i18n="_Compiler_"></label>
+            <div class="compilers">
+            <label ng-repeat="c in compilers">
+              <input type="radio" name="compiler" value="{{c}}" ng-model="newcompiler.compiler" ng-change="modifyCompiler()">
+              {{c}}
+            </label>
+            </div>
+            <div>
+              <label>
+                <span data-i18n="_Interval_"></span> <input type="number" ng-model="newcompiler.interval" ng-change="modifyCompiler()">
+              </label>
+            </div>
+            <div>
+              <label>
+                <span>Synctex</span> <input type="checkbox" ng-model="newcompiler.synctex" ng-change="modifyCompiler()">
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="subOption">
+          <div class="label">
+            <span ng-click="downloadPDF()" data-i18n="_Download_"></span>
+          </div>
+          <label><input type="checkbox" name="downloadOptions" ng-model="downloadOptions"><span class="icon-down-empty"></span></label>
+          <div class="subOptions" ng-show="downloadOptions">
+            <label class="bg"><input type="checkbox" name="downloadOptions" ng-model="downloadOptions"></label>
+            <div ng-click="downloadPDF()" data-i18n="_Download_PDF_"></div>
+            <div ng-click="downloadZip()" data-i18n="_Download_ZIP_"></div>
+            <div ng-click="downloadLog()" data-i18n="_Download_Log_"></div>
+          </div>
+        </div>
+        <div class="option itsalltext" ng-click="openItsalltext()" data-i18n="_Emacs_users_"></div>
+        <div class="errors subOption" ng-show="logs.errors.length > 0">
+          <div class="label">
+            <span data-i18n="_Errors_"></span> {{logs.errors.length}}
+          </div>
+          <label><input type="checkbox" name="errors" ng-model="errorsList"><span class="icon-down-empty"></span></label>
+          <div class="subOptions" ng-show="errorsList">
+            <label class="bg"><input type="checkbox" name="errors" ng-model="errorsList"></label>
+            <div class="error" ng-repeat="log in logs.errors">
+              <div class="file" ng-if="log.filename"><span class="filename">{{log.filename}}</span> <span class="line" ng-if="log.line">line: {{log.line}}</span></div>
+              <div class="message">{{log.message}}</div>
+            </div>
+          </div>
+        </div>
+        <div class="warnings subOption" ng-show="logs.warnings.length > 0">
+          <div class="label">
+            <span data-i18n="_Warnings_"></span> {{logs.warnings.length}}
+          </div>
+          <label><input type="checkbox" name="warnings" ng-model="warningsList"><span class="icon-down-empty"></span></label>
+          <div class="subOptions" ng-show="warningsList">
+            <label class="bg"><input type="checkbox" name="warnings" ng-model="warningsList"></label>
+            <div class="warning" ng-repeat="log in logs.warnings">
+              <div class="file" ng-if="log.filename"><span class="filename">{{log.filename}}</span> <span class="line" ng-if="log.line">line: {{log.line}}</span></div>
+              <div class="message">{{log.message}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right">
+        <div class="messages" bl-messages></div>
+        <div class="pdf_action">
+          <div class="scale">
+            <select ng-model="scale">
+              <option value="auto">Auto</option>
+              <option value="0.5">50%</option>
+              <option value="0.75">75%</option>
+              <option value="1">100%</option>
+              <option value="1.25">125%</option>
+              <option value="1.50">150%</option>
+              <option value="2">200%</option>
+            </select>
+          </div>
+          <div class="navigation">
+            <div class="prevPage icon-prev-page" ng-click="prevPage()">&nbsp;</div>
+            <input type="number" max="{{totalPage}}" ng-model="page" ng-change="changePage(page)">
+            <span>/</span>
+            <div class="totalPage">{{totalPage}}</div>
+            <div class="nextPage icon-next-page" ng-click="nextPage()">&nbsp;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <section class="centerRightCol">
+    <div ng-if="displayResourceViewer" class="resourceViewer">
+      <div class="close icon-close" ng-click="closeResourceViewer()"></div>
+      <div class="container">
+        <img src="{{resourceURL}}">
+      </div>
+    </div>
+      <section class="centerCol">
+          <div ui-ace="{
+            useWrapMode : true,
+            showGutter: true,
+            mode: 'latex',
+            onLoad: aceLoaded,
+            onChange: aceChanged
+          }" ng-model="content"></div>
+          <textarea class="itsalltext" style="display:none;" ng-model="content"
+                    itsalltext-control="content"
+                    itsalltext-extension=".tex"></textarea>
+      </section>
+      <section class="rightCol">
+          <div id="preview" when-scrolled>
+            <div ng-repeat="n in range(totalPage) track by $index" class="preview_page_container" bl-preview
+            data-synctex="synctex"
+            data-currentPage="currentPage"
+            data-linePage="linePage"
+            data-currentLine="currentLine"
+            data-currentFile="currentFile"
+            data-previewType="previewType"
+            data-pdf="pdf"
+            data-autoscroll="{{autoscroll}}"
+            data-page="{{$index+1}}"
+            data-paperId="paperId"
+            data-revision="revision"
+            data-displaySyncTexBox="{{displaySyncTexBox}}"
+            data-scale="scale"></div>
+          </div>
+      </section>
+  </section>
+  <section class="leftCol" ng-class="{close: listType==none, open: listType!=none}">
+    <div class="close icon-close" ng-click="listType=none;"></div>
+    <div class="bg" ng-click="listType=none;"></div>
+    <section class="list" ng-switch="listType">
+      <div class="toc" ng-switch-when="toc" bl-toc="toc"></div>
+      <div class="debug" ng-switch-when="debug">
+        <h2>Debug</h2>
+        File: {{currentFile.title}}<br>
+        currentLine: {{currentLine}}<br>
+        currentPage: {{currentPage}}<br>
+        linePage: {{linePage}}<br>
+        page: {{page}}<br>
+        <button ng-click="displaySyncTex()">Display SyncTex data view</button>
+      </div>
+      <div class="files" ng-switch-when="files">
+        <div id="file_list">
+          <div class="folder open">
+            <span class="icon icon-folder-open"></span>
+            <div class="folder_name" data-i18n="_Resources_"></div>
+            <div class="files">
+              <div class="file" ng-class="" ng-repeat="file in resources | orderBy :'name' : 'false'" ng-class="{current: file==currentFile}">
+                <div class="icon type-{{file.extension}}"></div>
+                <div class="label" ng-click="insertResource(file)">{{file.name}}<span class="extension" ng-if="file.extension">.{{file.extension}}</span></div>
+                <button ng-click="removeResource(file)" class="icon-delete"></button>
+                <button ng-click="viewResource(file)" class="view icon-view"></button>
+                <button ng-click="downloadResource(file)" class="download icon-download"></button>
+                <div class="clear"></div>
+              </div>
+              <div class="file" ng-if="resources.length == 0" data-i18n="_No_resource_found_"></div>
+            </div>
+          </div>
+          <div class="files">
+            <div class="file" ng-repeat="file in synchronizedFiles | orderBy :'name': 'false'" ng-class="{current: file==currentFile}">
+              <div class="icon type-{{file.extension}}"></div>
+              <div class="label" ng-click="changeFile(file)">{{file.name}}<span class="extension" ng-if="file.extension">.{{file.extension}}</span></div>
+              <button ng-click="removeSynchronisedFile(file)" class="icon-delete" ng-if="file.name != $routeParams.id"></button>
+              <div class="clear"></div>
+            </div>
+            <div class="file" ng-if="synchronizedFiles.length == 0" data-i18n="_No_synchronized_file_found_"></div>
+          </div>
+        </div>
+        <section id="new_file">
+          <h3 data-i18n="_New_file_"></h3>
+          <label id="new_file">
+            <input type="text" ng-model="new_file_name" data-i18n-attr="_Filename_|placeholder">
+            <select ng-model="new_file_extension">
+              <option value=".tex" selected>.tex</option>
+              <option value=".bib">.bib</option>
+            </select>
+            <button class="button" ng-disabled="new_file_name==null || new_file_name==''" ng-click="newFile(new_file_name+new_file_extension)" data-i18n="_New_file_"></button>
+          </label>
+        </section>
+        <section id="upload_resource" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="file-hover">
+          <h3 data-i18n="_New_resource_"></h3>
+          <label id="new_file">
+            <span class="icon type-{{new_file.extension}}"></span>
+            <div class="label" ng-hide="new_file.title==null" ng-click="insertResource(file)">{{new_file.name}}<span class="extension">.{{new_file.extension}}</span></div>
+            <span ng-hide="new_file.title!=null"><span data-i18n="_Select_a_file_"></span> <span ng-file-drop-available="dropSupported==true" ng-show="!dropSupported" data-i18n="_or_drag_a_file_"></span></span>
+            <input type="file" ng-file-select="onFileSelect($files)">
+          </label>
+          <button ng-click="uploadResource()" ng-disabled="new_file.title==null" data-i18n="_Upload_"></button>
+          <button ng-click="cancelUploadResource()" ng-disabled="new_file.title==null" data-i18n="_Cancel_upload_"></button>
+        </section>
+      </div>
+    </section>
+  </section>
+</div>
