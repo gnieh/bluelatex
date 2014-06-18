@@ -12,7 +12,7 @@ object BlueBuild extends BlueBuild
 
 class BlueBuild extends Build with Pack with Server with Tests {
 
-  val blueVersion = "1.0.0-M1"
+  val blueVersion = "1.0.0-SNAPSHOT"
 
   lazy val bluelatex = (Project(id = "bluelatex",
     base = file(".")) settings (
