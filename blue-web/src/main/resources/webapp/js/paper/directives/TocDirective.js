@@ -14,12 +14,12 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
           var line = toc[i];
           //create a new ul/ol
           if (current == null) {
-            var l = $document[0].createElement(line.level < 3 ? 'ol' : 'ul');
+            var l = $document[0].createElement(line.level < 4 ? 'ol' : 'ul');
             current = l;
             top = current;
           } else if (line.restart == true) {
             var j = currentlevel;
-            for (; j >= line.level; j--) {
+            for (; j >= line.level &&  current.parentElement != null; j--) {
               current = current.parentElement;
             }
             var l = $document[0].createElement('ul');
@@ -28,13 +28,13 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
           } else if (currentlevel < line.level) {
             var j = line.level;
             for (; j > currentlevel; j--) {
-              var t = $document[0].createElement(j < 3 ? 'ol' : 'ul');
+              var t = $document[0].createElement(j < 4 ? 'ol' : 'ul');
               current.appendChild(t);
               current = t;
             }
           } else if (currentlevel > line.level) {
             var j = currentlevel;
-            for (; j > line.level; j--) {
+            for (; j > line.level &&  current.parentElement != null; j--) {
               current = current.parentElement;
             }
           }
