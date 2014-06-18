@@ -289,7 +289,7 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
                   for (var i = hBlock.elements.length - 1; i >= 1; i--) {
                     var e = hBlock.elements[i];
                     if(e.left >= x && hBlock.elements[i-1].left <= x ) {
-                      $scope.currentLine = (i!=(hBlock.elements.length - 3)?hBlock.elements[i+1].line:e.line);
+                      $scope.currentLine = (i<=(hBlock.elements.length - 3)?hBlock.elements[i+1].line:e.line);
                       if($scope.currentFile.title != hBlock.file.name) {
                         $scope.$parent.$parent.changeFileFromName(hBlock.file.name, $scope.currentLine).then(function() {
                           deferred.resolve($scope.currentLine);
@@ -438,7 +438,7 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
 
         $scope.$watch('linePage', function (val, oldPage) {
           if(!val) return;
-          if(val == page && val != $scope.currentPage) {
+          if(val == page && val != $scope.currentPage && oldPage == $scope.currentPage) {
             var autoscroll = attrs.autoscroll;
             if(autoscroll == null) { 
               autoscroll = false; 

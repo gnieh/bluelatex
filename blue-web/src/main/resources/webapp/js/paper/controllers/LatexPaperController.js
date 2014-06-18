@@ -10,8 +10,8 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
 
       $scope.currentLine = 0;
       $scope.currentPage = 0;
-      $scope.linePage = 0;
-      $scope.page = 0;
+      $scope.linePage = 1;
+      $scope.page = 1;
       
       // list of resources
       $scope.resources = [];
@@ -443,7 +443,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       * Go to the next page
       */
       $scope.nextPage = function () {
-        $scope.changePage(parseInt($scope.linePage)+1);
+        $scope.changePage(parseInt($scope.currentPage)+1);
       };
 
       /**
@@ -457,22 +457,15 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       * Go to the page: page
       */
       $scope.changePage = function (page) {
+        page = parseInt(page);
         if(page > 0 && page <= $scope.totalPage ) {
           $scope.linePage = page;
-
-          for(var i in $scope.synctex.blockNumberLine) {
-            if($scope.synctex.blockNumberLine[i][page]) {
-              $scope.goToLine(parseInt(i));
-              return;
-            }
-          }
         }
       };
 
-      $scope.$watch('currentPage', function(value) {
-        $scope.currentPage = parseInt(value);
+      $scope.$watch('currentPage', function(val) {
+        $scope.page = val;
       });
-
       /**
       * Go to the line: line
       */
