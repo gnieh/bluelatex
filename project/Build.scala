@@ -76,7 +76,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
     "org.osgi" % "org.osgi.core" % "4.3.0" % "provided",
     "org.osgi" % "org.osgi.compendium" % "4.3.0" % "provided",
     "com.typesafe" % "config" % "1.0.2",
-    "org.scalatest" %% "scalatest" % "2.0.M6" % "test",
+    "org.scalatest" %% "scalatest" % "2.2.0" % "test",
     "com.typesafe.akka" %% "akka-testkit" % "2.3.1" % "test"
   )
 
