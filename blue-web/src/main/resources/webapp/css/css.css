@@ -142,7 +142,7 @@
 	background: #A6CBF3; /* Safari */
 	}
 ::-moz-selection {
-	background: #ffb7b7; /* Firefox */
+	background: #A6CBF3; /* Firefox */
 }
 input[type='number'] {
     -moz-appearance:textfield;
@@ -273,8 +273,7 @@ header {
   display: inline-block;
   position: relative;
   color:#F3F3F3;
-  padding: 4px;
-  top: -2px;
+  padding: 0 4px;
   line-height: 36px;
   font-size: 14px;
 }

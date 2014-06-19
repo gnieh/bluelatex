@@ -15,8 +15,9 @@
  */
  
 angular.module('bluelatex.Paper', ['MobWrite','bluelatex.Configuration','bluelatex.Paper.Services.Ace'])
-  .factory("AceMobWriteClient", ['MobWriteService','MobWriteConfig','AceService','api_prefix','$log',
-    function (MobWriteService, MobWriteConfig,AceService,api_prefix,$log) {
+  .factory("AceMobWriteClient", ['$rootScope','MobWriteService','MobWriteConfig','AceService','api_prefix','$log',
+    function ($rootScope,MobWriteService, MobWriteConfig,AceService,api_prefix,$log) {
+      var message = null;
       /**
       * Constructor of shared object representing a text field.
       * @param {Node} node A textarea, text or password input.
@@ -362,6 +363,32 @@ angular.module('bluelatex.Paper', ['MobWrite','bluelatex.Configuration','bluelat
         AceService.getSession().setScrollLeft(cursor.scrollLeft);
       };
 
+      shareAceObj.prototype.messages = function () {
+        var json = message;
+        if(json == null) return;
+
+        if(json.type == 'cursor') {
+          json.cursor = this.captureCursor_();
+        }
+        message = null;
+        return {
+          from: MobWriteService.syncUsername,
+          filename: this.file,
+          json: json
+        };
+      };
+      var _cursors = [];
+
+      shareAceObj.prototype.onMessage = function (message) {
+        if(message.json.type == "cursor") {
+          var self = this;
+          message.json.getPosition = function () {
+            return self.getCursorPosition(message.json.cursor); 
+          } 
+        }
+        $rootScope.$broadcast('MobWriteMessage', message);
+      };
+
       /**
        * Ensure that all linebreaks are LF
        * @param {string} text Text with unknown line breaks
@@ -392,7 +419,10 @@ angular.module('bluelatex.Paper', ['MobWrite','bluelatex.Configuration','bluelat
       MobWriteService.shareHandlers.push(shareAceObj.shareHandler);
 
       return {
-        shareAceObj: shareAceObj
+        shareAceObj: shareAceObj,
+        message: function(m) {
+          message = m;
+        }
       };
     }
   ]);

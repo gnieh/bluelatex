@@ -172,3 +172,61 @@ if(Object.keys == null) {
     return r;
   }
 }
+
+/**
+* Get the color of a string
+*/
+var stringToColour = function(str) {
+    var golden_ratio_conjugate = 0.618033988749895;
+    // str to hash
+    for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
+
+    hash = Math.abs(hash);
+    hash /= Math.pow(10,(""+hash).length);
+    hash = (hash+golden_ratio_conjugate)%1;
+    return rgbToHex(HSVtoRGB(hash, 0.6, 0.95));
+}
+
+/*
+* Convert hex color to rgb color
+*/
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
+/*
+* Convert rgb color to hex color
+*/
+function rgbToHex(rgb) {
+    return "#" + ((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1);
+}
+
+function HSVtoRGB(h, s, v) {
+    var r, g, b, i, f, p, q, t;
+    if (h && s === undefined && v === undefined) {
+        s = h.s, v = h.v, h = h.h;
+    }
+    i = Math.floor(h * 6);
+    f = h * 6 - i;
+    p = v * (1 - s);
+    q = v * (1 - f * s);
+    t = v * (1 - (1 - f) * s);
+    switch (i % 6) {
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
+    }
+    return {
+        r: Math.floor(r * 255),
+        g: Math.floor(g * 255),
+        b: Math.floor(b * 255)
+    };
+}

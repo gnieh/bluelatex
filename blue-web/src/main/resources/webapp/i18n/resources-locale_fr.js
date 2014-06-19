@@ -305,6 +305,11 @@
         "description":"Author"
     },
     {
+        "key":"_User_",
+        "value":"Utilisteur",
+        "description":"User"
+    },
+    {
         "key":"_No_author_",
         "value":"Aucun auteur",
         "description":"No author"
@@ -478,6 +483,21 @@
         "key":"_Resources_",
         "value":"Ressources",
         "description":"Resources"
+    },
+    {
+        "key":"_Resource_",
+        "value":"Ressource",
+        "description":"Resource"
+    },
+    {
+        "key":"_File_",
+        "value":"Fichier",
+        "description":"File"
+    },
+    {
+        "key":"_Line_",
+        "value":"Ligne",
+        "description":"Line"
     },
     {
         "key":"_No_resource_found_",

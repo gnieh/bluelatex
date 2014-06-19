@@ -80,6 +80,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       var exitPaper = function () {
         pageActive = false;
         WindowActiveService.removeObserverCallback(windowStatusCallback);
+        AceMobWriteClient.message({ type: 'leave', 'user': $rootScope.loggedUser.name });
         stopMobWrite();
         PaperService.leavePaper($scope.paperId, peerId);
       };
@@ -102,6 +103,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       * Start mobWrite
       */
       var initMobWrite = function () {
+        AceMobWriteClient.message({ type: 'cursor', 'user': $rootScope.loggedUser.name });
         return MobWriteService.share({paper_id: $scope.paperId,file:$scope.currentFile.title}).then(function (){
           displayAnnotation();
           $scope.toc = LatexService.parseTOC(AceService.getContent());
@@ -113,7 +115,6 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       * Stop sharing file
       */
       var stopMobWrite = function () {
-        MobWriteService.unload_();
         MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title});
       };
 
@@ -431,12 +432,12 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       */
       $scope.changeFile = function (file, line) {
         if($scope.currentFile == file) return;
-        stopMobWrite();
         MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title});
         $scope.currentFile = file;
         $scope.content = '';
         AceService.setContent($scope.content);
         AceService.getEditor().focus();
+        displayCursors();
         return initMobWrite().then(function (data) {
           if(line) {
             $scope.goToLine(line);
@@ -630,6 +631,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
               }
           });
           AceService.getEditor().selection.on("changeCursor", function(){
+            AceMobWriteClient.message({ type: 'cursor', 'user': $rootScope.loggedUser.name });
             $scope.currentLine = parseInt(_editor.selection.getCursor().row)+1;
             $rootScope.$$phase || $rootScope.$apply();
             if(!$scope.synctex) return;
@@ -663,6 +665,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
           },1500);
           getLog();
           AceService.getSession().on("change", function () {
+            displayCursors();
             $scope.toc = LatexService.parseTOC($scope.content);
           });
           _editor.focus();
@@ -692,6 +695,80 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       $rootScope.$on('handleMenuAction', function (event, data) {
         if ($scope[data]) {
           $scope[data]();
+        }
+      });
+
+      $scope.connectedUsers = {};
+      var userStyle = document.createElement('style');
+      userStyle.type = 'text/css';
+      document.getElementsByTagName('head')[0].appendChild(userStyle);
+      var createUserStyle = function () {
+        
+        userStyle.innerHTML = '';
+        var userKeys = Object.keys($scope.connectedUsers);
+        for(var user in $scope.connectedUsers) {
+          userStyle.innerHTML += '.'+$scope.connectedUsers[user].class+'Color {color: '+$scope.connectedUsers[user].color+'!important;}';
+          userStyle.innerHTML += '.'+$scope.connectedUsers[user].class+'Bg {background-color: '+$scope.connectedUsers[user].color+'!important;}';
+        }
+      };
+
+      var displayCursors = function () {
+        var Range = ace.require('ace/range').Range;
+        for(var user in $scope.connectedUsers) {
+          for(var peer in $scope.connectedUsers[user].peer){
+            if($scope.connectedUsers[user].peer[peer].range) {
+              AceService.getSession().removeMarker($scope.connectedUsers[user].peer[peer].range);
+              $scope.connectedUsers[user].peer[peer].range == null;
+            }
+            if($scope.connectedUsers[user].peer[peer].file == $scope.currentFile.title) {
+              var cursor = $scope.connectedUsers[user].peer[peer].getPosition();
+              var cursorClass= "ace_cursor "+$scope.connectedUsers[user].class+"Color";
+              if(cursor.start.row != cursor.end.row || cursor.start.column != cursor.end.column) {
+                cursorClass= "ace_selection "+$scope.connectedUsers[user].class+"Bg";
+              }
+              var range = new Range(cursor.start.row,cursor.start.column,cursor.end.row,cursor.end.column + 1);
+              $scope.connectedUsers[user].peer[peer].range = AceService.getSession().addMarker(range, cursorClass, "line"); 
+            }
+          }
+        }
+      };
+      //action listener: action in the menu
+      $rootScope.$on('MobWriteMessage', function (event, message) {
+        if(message.json.type == 'leave') {
+          if(!$scope.connectedUsers[message.json.user]) return;
+          if($scope.connectedUsers[message.json.user].peer[message.from]){
+            AceService.getSession().removeMarker($scope.connectedUsers[message.json.user].peer[message.from].range);
+            delete $scope.connectedUsers[message.json.user].peer[message.from];
+          }
+          if(Object.keys($scope.connectedUsers[message.json.user].peer).length == 0) {
+            delete $scope.connectedUsers[message.json.user];
+          }
+        } else if(message.json.type == "cursor") {
+          if(!$scope.connectedUsers[message.json.user]) {
+            var color = stringToColour(message.json.user);
+            var rgb = hexToRgb(color);
+            var fColor = Math.round(((rgb.r * 299) + (rgb.g * 587) + (rgb.b * 114)) /1000) > 128?'black':'white';
+            $scope.connectedUsers[message.json.user] = {
+              peer: {},
+              color: color,
+              name: message.json.user,
+              class: message.json.user.replace(/\./g,'').replace(/ /g,'-'),
+              forground: fColor
+            };
+          }
+          if($scope.connectedUsers[message.json.user].peer[message.from]){
+            AceService.getSession().removeMarker($scope.connectedUsers[message.json.user].peer[message.from].range);
+          } else {
+            AceMobWriteClient.message({ type: 'cursor', 'user': $rootScope.loggedUser.name });
+          }
+          $scope.connectedUsers[message.json.user].peer[message.from] = {
+            getPosition: message.json.getPosition,
+            range: null,
+            file: message.filename
+          };
+          createUserStyle();
+
+          displayCursors();
         }
       });
 
