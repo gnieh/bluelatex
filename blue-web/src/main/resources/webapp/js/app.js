@@ -19,9 +19,9 @@
 angular.module('bluelatex', [
   'localization',
   'ngRoute',
-  'bluelatex.Configuration',
   'bluelatex.Paper.Controllers.InitPaper',
   'bluelatex.Paper.Controllers.LatexPaper',
+  'reCAPTCHA',
   'bluelatex.Shared.Services.WindowActive',
   'bluelatex.Paper.Controllers.EditPaper',
   'bluelatex.Paper.Controllers.NewPaper',
