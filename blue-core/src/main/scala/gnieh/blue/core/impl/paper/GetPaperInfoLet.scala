@@ -61,8 +61,8 @@ class GetPaperInfoLet(paperid: String, val couch: CouchClient, config: Config, l
       roles <- manager.getComponent[PaperRole](paperid)
     } yield (paper, roles) match {
       // we are sure that the paper has a revision because it comes from the database
-      case (Some(Paper(_, title, _)), Some(roles)) =>
-        talk.writeJson(Map("title" -> title, "authors" -> roles.authors.users, "reviewers" -> roles.reviewers.users), roles._rev.get)
+      case (Some(Paper(_, name, created)), Some(roles)) =>
+        talk.writeJson(Map("name" -> name, "creation_date" -> created, "authors" -> roles.authors.users, "reviewers" -> roles.reviewers.users), roles._rev.get)
       case (_, _) =>
         talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"Paper $paperid not found"))
     }

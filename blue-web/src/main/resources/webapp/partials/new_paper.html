@@ -4,13 +4,25 @@
         <div bl-messages></div>
         <div class="grid">
             <div class="col c1-3">
+                <label for="name" data-i18n="_Name_">Title</label>
+                <span class="control-label"
+                  ng-show="newPaperForm.name.$error.required" data-i18n="_Required_"></span>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': newPaperForm.name.$invalid}">
+              <input class="form-control" id="name" name="name" type="text" autofocus
+                data-i18n-attr="_Name_|placeholder" required ng-model="paper.paper_name" />
+            </div>
+        </div>
+        <div class="grid">
+            <div class="col c1-3">
                 <label for="title" data-i18n="_Title_">Title</label>
                 <span class="control-label"
                   ng-show="newPaperForm.title.$error.required" data-i18n="_Required_"></span>
             </div>
             <div class="col c2-3 form-group"
               ng-class="{'has-error': newPaperForm.title.$invalid}">
-              <input class="form-control" id="title" name="title" type="text" autofocus
+              <input class="form-control" id="title" name="title" type="text"
                 data-i18n-attr="_Title_|placeholder" required ng-model="paper.paper_title" />
             </div>
         </div>

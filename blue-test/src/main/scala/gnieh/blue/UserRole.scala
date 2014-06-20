@@ -15,4 +15,4 @@
  */
 package gnieh.blue
 
-case class UserRole(id: String, title: String, role: String)
+case class UserRole(id: String, name: String, role: String)

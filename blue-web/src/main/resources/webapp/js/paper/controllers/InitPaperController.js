@@ -53,7 +53,7 @@ angular.module('bluelatex.Paper.Controllers.InitPaper', ['bluelatex.Paper.Servic
       */
       getPaperInfo().then(function(paper) {
         // change the title of the page
-        $rootScope.pageTitle = "Paper - " + paper.title;
+        $rootScope.pageTitle = "Paper - " + paper.name;
 
         // change the type of paper
         $scope.paperType = "latex";

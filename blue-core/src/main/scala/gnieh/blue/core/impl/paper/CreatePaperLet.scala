@@ -22,7 +22,7 @@ import http._
 import couch._
 import common._
 
-import java.util.UUID
+import java.util.Date
 import java.io.{
   File,
   FileWriter
@@ -58,8 +58,8 @@ class CreatePaperLet(
     extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
-    talk.req.param("paper_title") match {
-      case Some(title) =>
+    (talk.req.param("paper_name"), talk.req.param("paper_title")) match {
+      case (Some(name), Some(title)) =>
 
         val template = talk.req.param("template").getOrElse("article")
 
@@ -71,7 +71,7 @@ class CreatePaperLet(
           // create the paper into the database
           newId <- manager.createSimple()
           // add the core component which contains the type, the title
-          paper <- manager.saveComponent(newId, Paper(s"$newId:core", title, None))
+          paper <- manager.saveComponent(newId, Paper(s"$newId:core", name, new Date))
           // add the permissions component to set the creator as author
           roles <- manager.saveComponent(newId, PaperRole(s"$newId:roles", UsersGroups(Set(user.name), Set()), UsersGroups(Set(), Set()),
             UsersGroups(Set(), Set())))
@@ -135,7 +135,7 @@ class CreatePaperLet(
           }
         }
 
-      case None =>
+      case (_, _) =>
         // missing parameter
         Success(
           talk

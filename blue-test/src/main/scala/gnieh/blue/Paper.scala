@@ -17,10 +17,13 @@ package gnieh.blue
 
 import gnieh.sohva.IdRev
 
-case class Paper(_id: String,
-                 title: String,
-                 authors: Set[String],
-                 reviewers: Set[String]) extends IdRev
+import java.util.Date
 
-case class PaperInfo(title: String, authors: Set[String], reviewers: Set[String])
+case class Paper(_id: String,
+                 name: String,
+                 authors: Set[String],
+                 reviewers: Set[String],
+                 creation_date: Date) extends IdRev
+
+case class PaperInfo(name: String, authors: Set[String], reviewers: Set[String], creation_date: Date)
 

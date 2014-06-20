@@ -120,20 +120,6 @@ class CompilationActor(
           // clean the generated png files when compilation succeeded
           for(file <- configuration.buildDir(paperId).filter(_.extension == ".png"))
             file.delete
-          // extract the paper title and update it if necessary
-          // i.e. if it changes since the last version saved in the database
-          val pdfFile = configuration.buildDir(paperId) / s"$paperId.pdf"
-          couchConfig.asAdmin(couch) { session =>
-            val manager = new EntityManager(session.database(couchConfig.database("blue_papers")))
-            for {
-              paper <- manager.getComponent[Paper](paperId)
-              newTitle <- texTitle(paperId)
-              newClass <- documentClass(paperId)
-              p <- paper
-              if p.title != newTitle || p.last_modification != Some(lastModificationDate)
-              _ <- manager.saveComponent(paperId, p.copy(title = newTitle, last_modification = Some(lastModificationDate)).withRev(p._rev))
-            } ()
-          }
 
           if(res)
             CompilationSucceeded

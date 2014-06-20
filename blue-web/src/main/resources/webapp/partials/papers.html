@@ -21,7 +21,7 @@
                 <span data-i18n="_Sort_by_"></span>
                 <select ng-model="predicate">
                     <option value="id" data-i18n="_Id_"></option>
-                    <option value="title" data-i18n="_Title_"></option>
+                    <option value="name" data-i18n="_Name_"></option>
                     <option value="role" data-i18n="_Role_"></option>
                     <!--<option value="date" data-i18n="_Date_"></option>-->
                 </select>
@@ -103,7 +103,7 @@
         <div id="paper_list" ng-class="display_style">
             <div bl-messages></div>
             <div class="paper header" ng-if="display_style=='list'">
-                <div class="title" data-i18n="_Title_"  ng-class="{'predicate': predicate=='title', 'reverse': reverse=='false' || reverse== false}" ng-click="orderBy('title', (reverse=='false' || reverse== false)?true:false)"></div>
+                <div class="name" data-i18n="_Name_"  ng-class="{'predicate': predicate=='name', 'reverse': reverse=='false' || reverse== false}" ng-click="orderBy('name', (reverse=='false' || reverse== false)?true:false)"></div>
                 <!--<div class="date" data-i18n="_Date_" ng-class="{'predicate': predicate=='date', 'reverse': !reverse}" ng-click="orderBy('date', (reverse=='false' || reverse== false)?true:false)"></div>-->
                 <div class="role" data-i18n="_Role_" ng-class="{'predicate': predicate=='role', 'reverse': reverse=='false' || reverse== false}" ng-click="orderBy('role', (reverse=='false' || reverse== false)?true:false)"></div>
                 <!--<div class="tags" data-i18n="_Tags_"></div>-->
@@ -122,8 +122,8 @@
                     </a>
                 </div>
                 -->
-                <div class="title">
-                    <a href="#/paper/{{paper.id}}">{{paper.title}}</a>
+                <div class="name">
+                    <a href="#/paper/{{paper.id}}">{{paper.name}}</a>
                 </div>
                 <!--<div class="date">
                     <a href="#/paper/{{paper.id}}">{{paper.date | date:'MM/dd/yyyy'}}</a>

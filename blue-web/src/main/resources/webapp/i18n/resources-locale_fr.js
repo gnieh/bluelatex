@@ -170,6 +170,11 @@
         "description":"Title"
     },
     {
+        "key":"_Name_",
+        "value":"Nom",
+        "description":"Name"
+    },
+    {
         "key":"_Template_",
         "value":"Modèle",
         "description":"Template"
