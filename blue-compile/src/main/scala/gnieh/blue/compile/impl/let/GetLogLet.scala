@@ -61,6 +61,7 @@ class GetLogLet(paperId: String, val couch: CouchClient, config: Config, logger:
 
           talk.setContentType("${HMime.txt};charset=${talk.encoding}")
             .setContentLength(text.size)
+            .setFilename(logFile.getName)
             .write(text)
         })
       else

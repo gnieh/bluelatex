@@ -51,6 +51,8 @@ import scala.language.implicitConversions
 
 import scala.collection.JavaConverters._
 
+import java.net.URLEncoder
+
 object BlueLet {
 
   /** The formats to (de)serialize json objects. You may override it if you need specific serializers */
@@ -77,6 +79,10 @@ object BlueLet {
         case _                         => false
       }
     }
+
+    /** Sets the correct `Content-Disposition` header with suggested filename for the client */
+    def setFilename(name: String): HTalk =
+      talk.setHeader("Content-Disposition", s"""attachment; filename="$name"; filename*=utf-8''${URLEncoder.encode(name, "UTF-8")}""")
 
     /** Serializes the value to its json representation and writes the response to the client,
      *  corrrectly setting the result type and length */
