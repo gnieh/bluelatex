@@ -38,7 +38,8 @@ import java.util.concurrent.TimeUnit
 
 import com.typesafe.config._
 
-import gnieh.sohva.control._
+import gnieh.sohva.control.CouchClient
+import gnieh.sohva.control.entities.EntityManager
 
 /** Register the configuration loader service that is used by everybody
  *
@@ -82,13 +83,19 @@ class BlueCommonActivator extends ActorSystemActivator {
       context.registerService(classOf[CouchClient], client, null)
 
       // create the database, etc...
-      dbManager = Some(new DbManager(client, new CouchConfiguration(config), logger))
+      val couchConfig = new CouchConfiguration(config)
+      dbManager = Some(new DbManager(client, couchConfig, logger))
       dbManager.foreach(_.start())
+      // force the creation of design documents for entities if they don't exist
+      couchConfig.asAdmin(client) { session =>
+        new EntityManager(session.database(couchConfig.database("blue_papers"))).entities("")
+        new EntityManager(session.database(couchConfig.database("blue_users"))).entities("")
+      }
 
       val configuration = new BlueConfiguration(config)
 
       // register the mail agent client
-      val mailAgent = new MailAgentImpl(client, configuration)
+      val mailAgent = new MailAgentImpl(client, configuration, logger)
       context.registerService(classOf[MailAgent], mailAgent, null)
 
       // register the recaptcha service

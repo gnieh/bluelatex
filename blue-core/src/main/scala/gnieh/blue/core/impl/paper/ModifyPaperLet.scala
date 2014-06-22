@@ -19,8 +19,9 @@ package impl
 package paper
 
 import http._
-import couch.Paper
+import couch.PaperRole
 import common._
+import permission._
 
 import com.typesafe.config.Config
 
@@ -44,25 +45,29 @@ import gnieh.sohva.control.CouchClient
  */
 class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>
       // only authors may modify this list
       (talk.req.octets, talk.req.header("if-match")) match {
         case (Some(octets), knownRev @ Some(_)) =>
-          val db = database(blue_papers)
+          val manager = entityManager("blue_papers")
           // the modification must be sent as a JSON Patch document
           // retrieve the paper object from the database
-          db.getDocById[Paper](paperId) flatMap {
-            case Some(paper) if paper._rev == knownRev =>
+          manager.getComponent[PaperRole](paperId) flatMap {
+            case Some(roles) if roles._rev == knownRev =>
               talk.readJson[JsonPatch] match {
                 case Some(patch) =>
                   // the revision matches, we can apply the patch
-                  val paper1 = patch(paper).withRev(knownRev)
+                  val roles1 = patch(Map("authors" -> roles.authors.users, "reviewers" -> roles.reviewers.users))
+                  val roles2 =
+                    roles.copy(
+                      authors = roles.authors.copy(users = roles1("authors")),
+                      reviewers = roles.reviewers.copy(users = roles1("reviewers"))).withRev(knownRev)
                   // and save the new paper data
-                  for(p <- db.saveDoc(paper1))
+                  for(r <- manager.saveComponent(paperId, roles2))
                     // save successfully, return ok with the new ETag
                     // we are sure that the revision is not empty because it comes from the database
-                    yield talk.writeJson(true, p._rev.get)
+                    yield talk.writeJson(true, r._rev.get)
                 case None =>
                   // nothing to do
                   Success(

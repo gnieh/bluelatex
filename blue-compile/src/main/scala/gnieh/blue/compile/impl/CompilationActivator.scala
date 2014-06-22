@@ -91,8 +91,6 @@ class CompilationActivator extends BundleActivator {
       // register the paper services
       services +=
         context.registerService(classOf[PaperCreated], new CreateSettingsHook(config, logger), null)
-      services +=
-        context.registerService(classOf[PaperDeleted], new DeleteSettingsHook(config, logger), null)
 
       // register the compiler services
       services +=

@@ -91,7 +91,7 @@ trait Server {
           if(Properties.isWin)
             None
           else
-            Some(new CouchInstance(t / "couchdb", false, true, "1.4.0", Configuration(Map("log" -> Map("level" -> "debug")))))
+            Some(new CouchInstance(t / "couchdb", false, true, "1.4.0", Configuration(Map("couchdb" -> Map("delayed_commits" -> "false"), "log" -> Map("level" -> "debug")))))
       ),
       launchExe := (if(Properties.isWin) "prunsrv" else "jsvc"),
       startOptions <<= (update in blueLauncher, packageBin in (blueLauncher, Compile)) map (defaultStartOptions _),

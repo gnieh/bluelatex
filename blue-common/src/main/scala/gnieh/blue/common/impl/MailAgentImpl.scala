@@ -37,7 +37,7 @@ import gnieh.sohva.control._
  *
  * @author Lucas Satabin
  */
-class MailAgentImpl(couch: CouchClient, configuration: BlueConfiguration) extends MailAgent {
+class MailAgentImpl(couch: CouchClient, configuration: BlueConfiguration, val logger: Logger) extends MailAgent with Logging {
 
   /** Returns the list of all email addresses */
   private def retrieveEmail(username: String): Option[String] = {
@@ -45,7 +45,7 @@ class MailAgentImpl(couch: CouchClient, configuration: BlueConfiguration) extend
     couch.database(couchConf.database("blue_users"))
       .design("lists")
       .view("emails")
-      .query[String, String, Nothing](key = Some(s"org.couchdb.user:$username")) match {
+      .query[String, String, Nothing](key = Some(username)) match {
         case Success(result) =>
           result.rows
             .headOption

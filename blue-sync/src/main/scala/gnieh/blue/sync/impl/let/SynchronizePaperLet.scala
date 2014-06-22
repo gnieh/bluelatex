@@ -20,6 +20,7 @@ package let
 
 import common._
 import http._
+import permission._
 
 import com.typesafe.config.Config
 
@@ -38,7 +39,7 @@ import gnieh.sohva.control.CouchClient
 class SynchronizePaperLet(paperId: String, synchroServer: SynchroServer, val couch: CouchClient, config: Config, logger: Logger)
     extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
       // only authors may modify the paper content
       talk.req.octets match {

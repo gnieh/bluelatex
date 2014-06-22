@@ -18,13 +18,28 @@ package core
 package impl
 package paper
 
-import http._
-import couch.Paper
-import common._
+import http.{
+  SyncBlueLet,
+  SyncAuthenticatedLet,
+  ErrorResponse
+}
+
+import common.{
+  Logger,
+  UserInfo
+}
+
+import couch.{
+  Paper,
+  PaperRole
+}
 
 import com.typesafe.config.Config
 
-import tiscaf._
+import tiscaf.{
+  HTalk,
+  HStatus
+}
 
 import scala.io.Source
 
@@ -40,10 +55,16 @@ class GetPaperInfoLet(paperid: String, val couch: CouchClient, config: Config, l
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] = {
     // only authenticated users may see other people information
-    database(blue_papers).getDocById[Paper](paperid) map {
+    val manager = entityManager("blue_papers")
+    for {
+      paper <- manager.getComponent[Paper](paperid)
+      roles <- manager.getComponent[PaperRole](paperid)
+    } yield (paper, roles) match {
       // we are sure that the paper has a revision because it comes from the database
-      case Some(paper) => talk.writeJson(paper, paper._rev.get)
-      case None       => talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"Paper $paperid not found"))
+      case (Some(Paper(_, title, _)), Some(roles)) =>
+        talk.writeJson(Map("title" -> title, "authors" -> roles.authors.users, "reviewers" -> roles.reviewers.users), roles._rev.get)
+      case (_, _) =>
+        talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"Paper $paperid not found"))
     }
   }
 

@@ -36,6 +36,7 @@ import org.osgi.framework.BundleContext
 import org.osgi.service.log.LogService
 
 import gnieh.sohva.control.CouchClient
+import gnieh.sohva.control.entities.EntityManager
 
 /** The compilation system actor is responsible for managing
  *  the compilation actor for each paper
@@ -58,12 +59,12 @@ class CompilationDispatcher(
   def props(username: String, paperId: String) = asAdmin(couch) { session =>
     // get the compiler settings
     val db = session.database(database("blue_papers"))
-    for(settings <- getOrCreateSettings(paperId, db))
+    for(settings <- getOrCreateSettings(paperId, new EntityManager(db)))
       yield Props(new CompilationActor(bndContext, synchro, configuration, couchConf, paperId, settings, logger))
   }
 
-  def getOrCreateSettings(paperId: String, db: Database): Try[CompilerSettings] =
-    db.getDocById[CompilerSettings](s"$paperId:compiler").flatMap {
+  def getOrCreateSettings(paperId: String, manager: EntityManager): Try[CompilerSettings] =
+    manager.getComponent[CompilerSettings](paperId).flatMap {
       case Some(settings) =>
         Success(settings)
       case None =>
@@ -71,7 +72,7 @@ class CompilationDispatcher(
         // create the settings in the database and returns it
         // by default we compile with pdflatex with a timeout of 30 seconds and an interval of 15 seconds
         val settings = CompilerSettings(s"$paperId:compiler", "pdflatex", false, 30, 15)
-        for(settings <- db.saveDoc(settings))
+        for(settings <- manager.saveComponent(paperId, settings))
           // the get method will throw an exception if `None` is returned,
           // this will be catched and transformed into a `Try` instance.
           // `None` means that the settings could not be saved, obviously something is going really wrong

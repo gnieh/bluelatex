@@ -44,6 +44,7 @@ import common._
 import couch.Paper
 
 import gnieh.sohva.control._
+import gnieh.sohva.control.entities.EntityManager
 
 /** This actor handles compilation of a paper.
  *  An instance of this actor is not eternally resident, if no
@@ -123,14 +124,15 @@ class CompilationActor(
           // i.e. if it changes since the last version saved in the database
           val pdfFile = configuration.buildDir(paperId) / s"$paperId.pdf"
           couchConfig.asAdmin(couch) { session =>
-            val db = session.database(couchConfig.database("blue_papers"))
+            val manager = new EntityManager(session.database(couchConfig.database("blue_papers")))
             for {
-              paper <- db.getDocById[Paper](paperId)
+              paper <- manager.getComponent[Paper](paperId)
               newTitle <- texTitle(paperId)
               newClass <- documentClass(paperId)
               p <- paper
-              if p.title != newTitle || p.cls != newClass || p.last_modification != Some(lastModificationDate)
-            } db.saveDoc(p.copy(title = newTitle, cls = newClass, last_modification = Some(lastModificationDate)).withRev(p._rev))
+              if p.title != newTitle || p.last_modification != Some(lastModificationDate)
+              _ <- manager.saveComponent(paperId, p.copy(title = newTitle, last_modification = Some(lastModificationDate)).withRev(p._rev))
+            } ()
           }
 
           if(res)

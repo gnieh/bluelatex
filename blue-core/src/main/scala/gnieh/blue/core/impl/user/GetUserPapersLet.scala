@@ -21,7 +21,8 @@ package user
 import http._
 import couch.{
   User,
-  UserRole
+  UserRole,
+  Paper
 }
 import common._
 
@@ -43,11 +44,17 @@ class GetUserPapersLet(username: String, val couch: CouchClient, config: Config,
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     // only authenticated users may see other people information
-    view(blue_papers, "papers", "for").query[String, UserRole, Any](key = Some(username)) map { res =>
+    view(blue_papers, "papers", "for").query[String, UserRole, Any](key = Some(username)) flatMap { res =>
       val roles = res.values
-      val result = (for((_, userRole) <- roles)
-        yield userRole).toList
-      talk.writeJson(result)
+      val result =
+        (for {
+          (_, UserRole(id, role)) <- roles
+        } yield (id, role)).toList
+
+      for(papers <- database(blue_papers).getDocsById[Paper](result.map(id => s"${id._1}:core")))
+        yield talk.writeJson((result zip papers) map {
+          case ((id, role), Paper(_, title, _)) => Map("id" -> id, "role" -> role, "title" -> title) 
+        })
     }
 
 }

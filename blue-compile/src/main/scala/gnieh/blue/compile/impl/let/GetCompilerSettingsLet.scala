@@ -20,6 +20,7 @@ package let
 
 import http._
 import common._
+import permission._
 
 import tiscaf._
 
@@ -39,15 +40,19 @@ import gnieh.sohva.control.CouchClient
  */
 class GetCompilerSettingsLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>
       // only authors users may see other compiler settings
-      database(blue_papers).getDocById[CompilerSettings](s"$paperId:compiler") map {
+      entityManager("blue_papers").getComponent[CompilerSettings](paperId) map {
         // we are sure that the settings has a revision because it comes from the database
         case Some(settings) =>
           talk.writeJson(settings, settings._rev.get)
         case None =>
           talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"No compiler for paper $paperId found"))
+      } recover {
+        case e =>
+          logError(s"Error while retrieving compiler settings for paper $paperId", e)
+          talk.setStatus(HStatus.InternalServerError).writeJson(ErrorResponse("cannot_get_compiler", s"No compiler for paper $paperId found"))
       }
 
     case _ =>

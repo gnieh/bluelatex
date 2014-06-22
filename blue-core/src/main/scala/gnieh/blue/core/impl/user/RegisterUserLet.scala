@@ -36,7 +36,10 @@ import scala.util.{
   Random
 }
 
-import gnieh.sohva.control.CouchClient
+import gnieh.sohva.control.{
+  CouchClient,
+  Session
+}
 import gnieh.sohva.{
   SohvaException,
   ConflictException
@@ -62,47 +65,31 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
         email <- talk.req.param("email_address")
         affiliation = talk.req.param("affiliation")
       } yield {
+        implicit val t = talk
         couchConfig.asAdmin(couch) { session =>
           // generate a random password
           val password = session._uuid.getOrElse(Random.nextString(20))
           // first save the standard couchdb user
           session.users.add(username, password, couchConfig.defaultRoles) flatMap {
             case true =>
+              val manager = entityManager("blue_users")
               // now the user is registered as standard couchdb user, we can add the \BlueLaTeX specific data
+              val userid = s"org.couchdb.user:$username"
               val user = User(username, firstName, lastName, email, affiliation)
-              val db = session.database(blue_users)
-              db.saveDoc(user) flatMap { user =>
-                  // the user is now registered
-                  // generate the password reset token
-                  val cal = Calendar.getInstance
-                  cal.add(Calendar.SECOND, couchConfig.tokenValidity)
-                  session.users.generateResetToken(username, cal.getTime) map { token =>
-                    // send the confirmation email
-                    val email = templates.layout("emails/register",
-                      "firstName" -> firstName,
-                      "baseUrl" -> config.getString("blue.base-url"),
-                      "name" -> username,
-                      "token" -> token,
-                      "validity" -> (couchConfig.tokenValidity / 24 / 3600))
-                    mailAgent.send(username, "Welcome to \\BlueLaTeX", email)
+              (for {
+                () <- manager.create(userid, Some("blue-user"))
+                user <- manager.saveComponent(userid, user)
+                _ <- sendEmail(user, session)
+              } yield {
+                import OsgiUtils._
+                // notifiy creation hooks
+                couchConfig.asAdmin(couch) { session =>
+                  for(hook <- context.getAll[UserRegistered])
+                    Try(hook.afterRegister(user.name, manager))
+                }
 
-                    import OsgiUtils._
-                    // notifiy creation hooks
-                    couchConfig.asAdmin(couch) { session =>
-                      for(hook <- context.getAll[UserRegistered])
-                        Try(hook.afterRegister(username, session))
-                    }
-
-                    (HStatus.Created, true)
-                  } recover {
-                    case e =>
-                      logWarn(s"Unable to generate password reset token for user $username")
-                      Try(session.users.delete(username))
-                      Try(db.deleteDoc(user._id))
-                      (HStatus.InternalServerError,
-                        ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry"))
-                  }
-              } recoverWith {
+                (HStatus.Created, true)
+              }) recoverWith {
                 case e =>
                   logWarn(s"Unable to create \\BlueLaTeX user $username")
                   // somehow we couldn't save it
@@ -134,6 +121,24 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
       Success(talk
         .setStatus(HStatus.Unauthorized)
         .writeJson(ErrorResponse("not_authorized", "ReCaptcha did not verify")))
+    }
+
+    private def sendEmail(user: User, session: Session) = {
+      // the user is now registered
+      // generate the password reset token
+      val cal = Calendar.getInstance
+      cal.add(Calendar.SECOND, couchConfig.tokenValidity)
+      session.users.generateResetToken(user.name, cal.getTime) map { token =>
+        logDebug(s"Sending confirmation email to ${user.email}")
+        // send the confirmation email
+        val email = templates.layout("emails/register",
+          "firstName" -> user.first_name,
+          "baseUrl" -> config.getString("blue.base-url"),
+          "name" -> user.name,
+          "token" -> token,
+          "validity" -> (couchConfig.tokenValidity / 24 / 3600))
+        mailAgent.send(user.name, "Welcome to \\BlueLaTeX", email)
+      }
     }
 
 }

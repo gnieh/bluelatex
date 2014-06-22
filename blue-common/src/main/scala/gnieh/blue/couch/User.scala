@@ -29,10 +29,10 @@ case class User(name: String,
                 email: String,
                 affiliation: Option[String] = None) extends IdRev {
 
-  val _id = "org.couchdb.user:" + name
+  val _id = s"org.couchdb.user:$name:blue"
 
   def fullName = s"$first_name $last_name"
 
 }
 
-case class UserRole(id: String, title: String, role: String)
+case class UserRole(id: String, role: String)

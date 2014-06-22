@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gnieh.blue.couch
+package gnieh.blue
+package permission
 
 import gnieh.sohva.IdRev
 
-import java.util.Date
-
-case class Paper(_id: String,
-                 title: String,
-                 last_modification: Option[Date] = None) extends IdRev
-
+/** A `Phase` defines the different permission for each role that are allowed.
+ *  By putting a paper into a specific phase, one can restrict allowed operations.
+ *
+ *  @author Lucas Satabin
+ */
+case class Phase(_id: String, name: String, permissions: Map[Role, Set[Permission]]) extends IdRev

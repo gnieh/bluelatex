@@ -40,7 +40,7 @@ class GetUserInfoLet(username: String, val couch: CouchClient, config: Config, l
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
     // only authenticated users may see other people information
-    database(blue_users).getDocById[User](s"org.couchdb.user:$username") map {
+    entityManager("blue_users").getComponent[User](s"org.couchdb.user:$username") map {
       // we are sure that the user has a revision because it comes from the database
       case Some(user) => talk.writeJson(user, user._rev.get)
       case None       => talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"No user named $username found"))

@@ -23,7 +23,7 @@ import akka.pattern.ask
 
 import http._
 import common._
-
+import permission._
 
 import tiscaf._
 
@@ -35,7 +35,7 @@ import gnieh.sohva.control.CouchClient
 
 class CompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef, config: Config, logger: Logger) extends AsyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Future[Any] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Future[Any] = role match {
     case Author =>
       val promise = Promise[CompilationStatus]()
 

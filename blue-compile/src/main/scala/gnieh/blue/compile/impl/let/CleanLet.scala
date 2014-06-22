@@ -19,6 +19,7 @@ package impl
 
 import http._
 import common._
+import permission._
 
 import tiscaf._
 
@@ -35,7 +36,7 @@ import gnieh.sohva.control.CouchClient
  */
 class CleanLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>
 
       import FileUtils._

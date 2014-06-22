@@ -13,13 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gnieh.blue.couch
+package gnieh.blue
 
-import gnieh.sohva.IdRev
-
-import java.util.Date
-
-case class Paper(_id: String,
-                 title: String,
-                 last_modification: Option[Date] = None) extends IdRev
-
+case class UserRole(id: String, title: String, role: String)

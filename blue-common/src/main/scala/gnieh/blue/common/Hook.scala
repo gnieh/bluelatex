@@ -16,21 +16,21 @@
 package gnieh.blue
 package common
 
-import gnieh.sohva.control.CookieSession
+import gnieh.sohva.control.entities.EntityManager
 
 trait PaperCreated {
-  def afterCreate(paperId: String, session: CookieSession): Unit
+  def afterCreate(paperId: String, manager: EntityManager): Unit
 }
 
 trait PaperDeleted {
-  def afterDelete(paperId: String, session: CookieSession): Unit
+  def afterDelete(paperId: String, manager: EntityManager): Unit
 }
 
 trait UserRegistered {
-  def afterRegister(username: String, session: CookieSession): Unit
+  def afterRegister(username: String, manager: EntityManager): Unit
 }
 
 trait UserUnregistered {
-  def afterUnregister(username: String, session: CookieSession): Unit
+  def afterUnregister(username: String, manager: EntityManager): Unit
 }
 

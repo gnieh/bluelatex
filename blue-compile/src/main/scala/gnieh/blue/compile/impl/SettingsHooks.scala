@@ -19,7 +19,7 @@ package impl
 
 import common._
 
-import gnieh.sohva.control.CookieSession
+import gnieh.sohva.control.entities.EntityManager
 
 import org.osgi.service.log.LogService
 
@@ -35,8 +35,8 @@ class CreateSettingsHook(config: Config, logger: Logger) extends PaperCreated {
 
   val couchConfig = new CouchConfiguration(config)
 
-  def defaultSettings(paperId: String) =
-    new CompilerSettings(
+  def defaultSettings(paperId: String): CompilerSettings =
+    CompilerSettings(
       s"$paperId:compiler",
       config.getString("compiler.default"),
       config.getBoolean("compiler.synctex"),
@@ -44,33 +44,12 @@ class CreateSettingsHook(config: Config, logger: Logger) extends PaperCreated {
       config.getDuration("compiler.interval", TimeUnit.SECONDS).toInt
     )
 
-  def afterCreate(paperId: String, session: CookieSession): Unit = {
+  def afterCreate(paperId: String, manager: EntityManager): Unit = {
     // after creation of a paper, save default settings
-    val db = session.database(couchConfig.database("blue_papers"))
-    db.saveDoc(defaultSettings(paperId)) recover {
+    manager.saveComponent(paperId, defaultSettings(paperId)) recover {
       case t =>
         logger.log(LogService.LOG_ERROR, s"Unable to create paper settings for paper $paperId", t)
     }
   }
 
 }
-
-/** This hooks deletes the compiler settings when a paper is deleted
- *
- *  @author Lucas Satabin
- */
-class DeleteSettingsHook(config: Config, logger: Logger) extends PaperDeleted {
-
-  val couchConfig = new CouchConfiguration(config)
-
-  def afterDelete(paperId: String, session: CookieSession): Unit = {
-    // after creation of a paper, save default settings
-    val db = session.database(couchConfig.database("blue_papers"))
-    db.deleteDoc(s"$paperId:compiler") recover {
-      case t =>
-        logger.log(LogService.LOG_ERROR, s"Unable to delete paper settings for paper $paperId", t)
-    }
-  }
-
-}
-

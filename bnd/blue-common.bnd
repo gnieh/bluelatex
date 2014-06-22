@@ -5,5 +5,5 @@ Bundle-Name: Common bundle allowing other bundles to load configuration, log eve
 Private-Package=gnieh.blue.common.impl, gnieh.blue.couch.impl, gnieh.blue.http.impl
 Import-Package=*
 
-Export-Package=gnieh.blue.common, gnieh.blue.couch, gnieh.blue.http
+Export-Package=gnieh.blue.common, gnieh.blue.couch, gnieh.blue.http, gnieh.blue.permission
 

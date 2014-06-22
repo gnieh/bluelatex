@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gnieh.blue.couch
+package gnieh.blue
+package permission
 
 import gnieh.sohva.IdRev
 
-import java.util.Date
-
-case class Paper(_id: String,
-                 title: String,
-                 last_modification: Option[Date] = None) extends IdRev
-
+/** A group of users may be created to factorize some permissions.
+ *
+ *  @author Lucas Satabin
+ */
+case class Group(_id: String, name: String, users: List[String]) extends IdRev

@@ -21,6 +21,7 @@ package paper
 import couch._
 import common._
 import http._
+import permission._
 
 import java.util.UUID
 import java.io.{
@@ -58,7 +59,7 @@ class DeletePaperLet(
   logger: Logger)
     extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>
       // only authors may delete a paper
       // first delete the paper files
@@ -75,11 +76,12 @@ class DeletePaperLet(
       if(continue) {
         import OsgiUtils._
 
-        database("blue_papers").deleteDoc(paperId) map {
+        val manager = entityManager("blue_papers")
+        manager.deleteEntity(paperId) map {
           case true =>
             // notifiy deletion hooks
             for(hook <- context.getAll[PaperDeleted])
-              Try(hook.afterDelete(paperId, couchSession))
+              Try(hook.afterDelete(paperId, entityManager("blue_papers")))
             talk.writeJson(true)
           case false =>
             talk
