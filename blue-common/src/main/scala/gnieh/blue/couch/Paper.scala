@@ -20,6 +20,6 @@ import gnieh.sohva.IdRev
 import java.util.Date
 
 case class Paper(_id: String,
-                 title: String,
-                 last_modification: Option[Date] = None) extends IdRev
+                 name: String,
+                 creation_date: Date) extends IdRev
 

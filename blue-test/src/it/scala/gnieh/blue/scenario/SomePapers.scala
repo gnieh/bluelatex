@@ -22,6 +22,8 @@ import couch.{
   UsersGroups
 }
 
+import java.util.Date
+
 import org.scalatest._
 
 import gnieh.sohva.CouchUser
@@ -34,8 +36,8 @@ import gnieh.sohva.CouchUser
 trait SomePapers extends BeforeAndAfterEach {
   this: BlueScenario =>
 
-  val paper1 = Paper("paper1", "Some Paper", Set("glambert"), Set())
-  val paper2 = Paper("paper2", "Some Other Paper", Set("toto"), Set("glambert"))
+  val paper1 = Paper("paper1", "Some Paper", Set("glambert"), Set(), new Date)
+  val paper2 = Paper("paper2", "Some Other Paper", Set("toto"), Set("glambert"), new Date)
 
   val predefinedPapers: List[Paper]
 
@@ -46,7 +48,7 @@ trait SomePapers extends BeforeAndAfterEach {
     try {
       for(paper <- predefinedPapers) {
         paperManager.create(paper._id, None)
-        paperManager.saveComponent(paper._id, BluePaper(s"${paper._id}:core", paper.title))
+        paperManager.saveComponent(paper._id, BluePaper(s"${paper._id}:core", paper.name, paper.creation_date))
         paperManager.saveComponent(paper._id,
           PaperRole(
             s"${paper._id}:roles",
@@ -63,7 +65,7 @@ trait SomePapers extends BeforeAndAfterEach {
     super.afterEach()
   } finally {
     // save the papers
-    for(Paper(id, _, _, _) <- predefinedPapers)
+    for(Paper(id, _, _, _, _) <- predefinedPapers)
       paperManager.deleteEntity(id)
   }
 

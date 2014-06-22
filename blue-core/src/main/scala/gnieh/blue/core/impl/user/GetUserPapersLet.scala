@@ -53,7 +53,7 @@ class GetUserPapersLet(username: String, val couch: CouchClient, config: Config,
 
       for(papers <- database(blue_papers).getDocsById[Paper](result.map(id => s"${id._1}:core")))
         yield talk.writeJson((result zip papers) map {
-          case ((id, role), Paper(_, title, _)) => Map("id" -> id, "role" -> role, "title" -> title) 
+          case ((id, role), Paper(_, name, created)) => Map("id" -> id, "role" -> role, "name" -> name, "creation_date" -> created)
         })
     }
 

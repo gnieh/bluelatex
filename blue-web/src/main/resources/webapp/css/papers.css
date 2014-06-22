@@ -123,7 +123,7 @@
     height: 34px;
     padding: 7px;
 }
-#paper_list.list .paper .title, #paper_list.list .paper .date, #paper_list.list .paper .options, #paper_list.list .paper .tags, #paper_list.list .paper .role {
+#paper_list.list .paper .name, #paper_list.list .paper .date, #paper_list.list .paper .options, #paper_list.list .paper .tags, #paper_list.list .paper .role {
     position: relative;
     display: table-cell;
     vertical-align: middle;
@@ -131,7 +131,7 @@
     border-left: 1px solid #ddd;
     min-height: 34px;
 }
-#paper_list.list .paper .title{
+#paper_list.list .paper .name{
     border-left: 0;
 }
 #paper_list.list .paper .date {
@@ -187,7 +187,7 @@
 #paper_list.vignette .paper img {
     width: 100%;
 }
-#paper_list.vignette .paper .title,#paper_list.vignette .paper .date, #paper_list.vignette .paper .tags, #paper_list.vignette .paper .options {
+#paper_list.vignette .paper .name,#paper_list.vignette .paper .date, #paper_list.vignette .paper .tags, #paper_list.vignette .paper .options {
     position: absolute;
     bottom: 0;
     background: #025097;
@@ -203,7 +203,7 @@
     -o-transition: bottom 0.2s;
     transition: bottom 0.2s;
 }
-#paper_list.vignette .paper:hover .title {
+#paper_list.vignette .paper:hover .name {
     bottom: 33px;
 }
 #paper_list.vignette .paper .tags {

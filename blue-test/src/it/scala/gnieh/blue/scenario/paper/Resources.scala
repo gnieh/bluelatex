@@ -45,7 +45,7 @@ class SaveResource extends BlueScenario with SomeUsers {
 
       When("he creates a new paper")
       val title = "On Writing Tests"
-      val (paperid, _) = post[String](List("papers"), Map("paper_title" -> title))
+      val (paperid, _) = post[String](List("papers"), Map("paper_name" -> title, "paper_title" -> title))
 
       val hddFile = new File("src/it/resources/resource.txt")
 

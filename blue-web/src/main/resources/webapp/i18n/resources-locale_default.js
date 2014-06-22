@@ -175,6 +175,11 @@
         "description":"Title"
     },
     {
+        "key":"_Name_",
+        "value":"Name",
+        "description":"Name"
+    },
+    {
         "key":"_Template_",
         "value":"Template",
         "description":"Template"

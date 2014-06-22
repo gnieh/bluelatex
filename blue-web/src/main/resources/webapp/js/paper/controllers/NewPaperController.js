@@ -19,14 +19,15 @@ angular.module('bluelatex.Paper.Controllers.NewPaper', [])
     function ($scope, $location, PaperService, $log, MessagesService) {
       var paper = {
         template: "article",
-        title: ''
+        title: '',
+        name: ''
       };
 
       $scope.saving=false;
 
       $scope.paper = paper;
 
-      /* Hard-coded for now, but will be dynamically loaded  later */
+      /* Hard-coded for now, but will be dynamically loaded later */
       $scope.templates = {
         "article": {
           "name": "Article",
