@@ -47,20 +47,20 @@ import scala.util.Try
 
 import gnieh.sohva.control.CouchClient
 
-/** Returns the paper data
+/** Returns the paper roles
  *
  *  @author Lucas Satabin
  */
-class GetPaperInfoLet(paperid: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class GetPaperRolesLet(paperid: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] = {
     // only authenticated users may see other people information
     val manager = entityManager("blue_papers")
-    for(paper <- manager.getComponent[Paper](paperid))
-      yield paper match {
+    for(roles <- manager.getComponent[PaperRole](paperid))
+      yield roles match {
         // we are sure that the paper has a revision because it comes from the database
-        case Some(paper) =>
-          talk.writeJson(paper, paper._rev.get)
+        case Some(roles) =>
+          talk.writeJson(Map("authors" -> roles.authors.users, "reviewers" -> roles.reviewers.users), roles._rev.get)
         case None =>
           talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"Paper $paperid not found"))
       }

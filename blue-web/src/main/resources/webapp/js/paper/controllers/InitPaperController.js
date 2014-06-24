@@ -31,7 +31,7 @@ angular.module('bluelatex.Paper.Controllers.InitPaper', ['bluelatex.Paper.Servic
           deferred.resolve(data);
         }, function (err) {
           MessagesService.clear();
-          switch (error.status) {
+          switch (err.status) {
           case 404:
             MessagesService.error('_Get_info_paper_Paper_not_found_',err);
             break;
@@ -48,6 +48,34 @@ angular.module('bluelatex.Paper.Controllers.InitPaper', ['bluelatex.Paper.Servic
         });
         return deferred.promise;
       };
+
+      /**
+      * Get the paper roles
+      */
+      var getPaperRoles = function () {
+        var deferred = $q.defer();
+        PaperService.getRoles(paperId).then(function (data) {
+          deferred.resolve(data);
+        }, function (err) {
+          MessagesService.clear();
+          switch (err.status) {
+          case 404:
+            MessagesService.error('_Get_roles_paper_Paper_not_found_',err);
+            break;
+          case 401:
+            MessagesService.error('_Get_roles_paper_Not_connected_',err);
+            break;
+          case 500:
+            MessagesService.error('_Get_roles_paper_Something_wrong_happened_',err);
+            break;
+          default:
+            MessagesService.error('_Get_roles_paper_Something_wrong_happened_',err);
+          }
+          deferred.reject(err);
+        });
+        return deferred.promise;
+      };
+
       /**
       * Get the paper info and load the correct page
       */
@@ -58,15 +86,17 @@ angular.module('bluelatex.Paper.Controllers.InitPaper', ['bluelatex.Paper.Servic
         // change the type of paper
         $scope.paperType = "latex";
         //$scope.paperType = "markdown";
-
-        // change the status of the page
-        if(paper.authors.indexOf($rootScope.loggedUser.name) >= 0) {
-          $scope.status = "author";
-        } else if(paper.reviewers.indexOf($rootScope.loggedUser.name) >= 0) {
-          $scope.status = "reviewer";
-        } else {
-          $scope.status = "error";
-        }
+      }).then(function() {
+        getPaperRoles().then(function(roles) {
+          // change the status of the page
+          if(roles.authors.indexOf($rootScope.loggedUser.name) >= 0) {
+            $scope.status = "author";
+          } else if(roles.reviewers.indexOf($rootScope.loggedUser.name) >= 0) {
+            $scope.status = "reviewer";
+          } else {
+            $scope.status = "error";
+          }
+        });
       });
     }
   ]);

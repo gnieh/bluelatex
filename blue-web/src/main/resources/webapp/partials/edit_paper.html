@@ -7,7 +7,7 @@
                 <label for="name" data-i18n="_Name_">Title</label>
             </div>
             <div class="col c2-3 form-group">
-              <input class="form-control" id="name" disabled="disabled" name="name" type="text" autofocus
+              <input class="form-control" id="name" name="name" type="text" autofocus
                 data-i18n-attr="_Name_|placeholder" required ng-model="paper.name" />
                 <span class="control-label"
                   ng-show="editPaperForm.name.$error.required" data-i18n="_Required_"></span>
@@ -19,12 +19,12 @@
             </div>
             <div class="col c2-3 form-group">
               <div class="authors">
-                <div class="author" ng-repeat="author in paper.authors">
+                <div class="author" ng-repeat="author in paperRoles.authors">
                   <input type="hidden" ng-model="author">
                   <div class="label">{{author}}</div>
                   <a ng-click="removeAuthor(author)" class="button icon-delete"></a>
                 </div>
-                <div class="author" ng-if="paper.authors.length == 0">
+                <div class="author" ng-if="paperRoles.authors.length == 0">
                   <div class="label" data-i18n="_No_author_"></div>
                 </div>
                 <div class="clear"></div>
@@ -49,12 +49,12 @@
             </div>
             <div class="col c2-3 form-group">
               <div class="reviewers">
-                <div class="reviewer" ng-repeat="reviewer in paper.reviewers">
+                <div class="reviewer" ng-repeat="reviewer in paperRoles.reviewers">
                   <input type="hidden" ng-model="reviewer">
                   <div class="label">{{reviewer}}</div>
                   <a ng-click="removeReviewer(reviewer)" class="button icon-delete"></a>
                 </div>
-                <div class="reviewer" ng-if="paper.reviewers.length == 0">
+                <div class="reviewer" ng-if="paperRoles.reviewers.length == 0">
                   <div class="label" data-i18n="_No_reviewer_"></div>
                 </div>
                 <div class="clear"></div>

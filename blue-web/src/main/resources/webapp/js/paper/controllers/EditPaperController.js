@@ -26,6 +26,7 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
       var paperId = $routeParams.id;
 
       var clone_paper = {};
+      var clone_paperRoles = {};
 
       $scope.users = [];
       $scope.newAuthor = '';
@@ -64,8 +65,39 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
         return deferred.promise;
       };
 
+      /**
+      * Get paper roles
+      */
+      var getPaperRoles = function (paperId) {
+        var deferred = $q.defer();
+        PaperService.getRoles(paperId).then(function (data) {
+          $scope.paperRoles = data;
+          $scope.paperRoles.id = paperId;
+          clone_paperRoles = clone($scope.paperRoles);
+          deferred.resolve($scope.paperRoles);
+        }, function (err) {
+          MessagesService.clear();
+          switch (err.status) {
+          case 401:
+            MessagesService.error('_Get_roles_paper_Not_connected_',err);
+            break;
+          case 404:
+            MessagesService.error('_Get_roles_paper_Paper_not_found_',err);
+            break;
+          case 500:
+            MessagesService.error('_Get_roles_paper_Something_wrong_happened_',err);
+            break;
+          default:
+            MessagesService.error('_Get_roles_paper_Something_wrong_happened_',err);
+          }
+          deferred.reject(err);
+        });
+        return deferred.promise;
+      };
+
       // Get paper info
       getPaperInfo(paperId).then(function (paper) {
+        getPaperRoles(paperId);
         // get all users for autocompletion
         getUsers();
       });
@@ -133,13 +165,13 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
       * Remove an author
       */
       $scope.removeAuthor = function (author) {
-        $scope.paper.authors.splice($scope.paper.authors.indexOf(author), 1);
+        $scope.paperRoles.authors.splice($scope.paperRoles.authors.indexOf(author), 1);
       };
       /**
       * Remove a reviewer
       */
       $scope.removeReviewer = function (reviewer) {
-        $scope.paper.reviewers.splice($scope.paper.reviewers.indexOf(reviewer), 1);
+        $scope.paperRoles.reviewers.splice($scope.paperRoles.reviewers.indexOf(reviewer), 1);
       };
       /**
       * Remove a tag
@@ -153,8 +185,8 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
       $scope.addAuthor = function () {
         var author = $scope.newAuthor;
         if(!author.title) return;
-        if ($scope.paper.authors.indexOf(author.title) < 0)
-          $scope.paper.authors.push(author.title);
+        if ($scope.paperRoles.authors.indexOf(author.title) < 0)
+          $scope.paperRoles.authors.push(author.title);
         $scope.newAuthor = '';
       };
       /**
@@ -163,8 +195,8 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
       $scope.addReviewer = function () {
         var reviewer = $scope.newReviewer;
         if(!reviewer.title)return;
-        if ($scope.paper.reviewers.indexOf(reviewer.title) < 0)
-          $scope.paper.reviewers.push(reviewer.title);
+        if ($scope.paperRoles.reviewers.indexOf(reviewer.title) < 0)
+          $scope.paperRoles.reviewers.push(reviewer.title);
         $scope.newReviewer = '';
       };
       /**
@@ -206,9 +238,11 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
           }
         });
 
+        var promiseRoles = PaperService.modifyRoles($scope.paperRoles, clone_paperRoles);
         var promiseCompiler = modifyCompiler();
 
         promises.push(promisePaper);
+        promises.push(promiseRoles);
         promises.push(promiseCompiler);
 
         return $q.all(promises).finally(function () {

@@ -22,7 +22,10 @@ import http._
 import couch._
 import common._
 
-import java.util.Date
+import java.util.{
+  Date,
+  UUID
+}
 import java.io.{
   File,
   FileWriter
@@ -67,9 +70,11 @@ class CreatePaperLet(
 
         val manager = entityManager("blue_papers")
 
+        val newId = s"x${UUID.randomUUID.getMostSignificantBits.toHexString}"
+
         for {
           // create the paper into the database
-          newId <- manager.createSimple()
+          () <- manager.create(newId, None)
           // add the core component which contains the type, the title
           paper <- manager.saveComponent(newId, Paper(s"$newId:core", name, new Date))
           // add the permissions component to set the creator as author

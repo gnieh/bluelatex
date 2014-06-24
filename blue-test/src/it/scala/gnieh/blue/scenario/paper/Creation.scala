@@ -46,8 +46,11 @@ class PaperCreationSpec extends BlueScenario with SomeUsers {
       val (paper, _) = get[PaperInfo](List("papers", id, "info"))
 
       paper.name should be(title)
-      paper.authors should be(Set(rene.username))
-      paper.reviewers should be('empty)
+
+      val (roles, _) = get[PaperRole](List("papers", id, "roles"))
+
+      roles.authors should be(Set(rene.username))
+      roles.reviewers should be('empty)
 
     }
 
