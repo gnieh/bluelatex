@@ -19,9 +19,10 @@
 angular.module('bluelatex', [
   'localization',
   'ngRoute',
+  'ngInputDate',
+  'reCAPTCHA',
   'bluelatex.Paper.Controllers.InitPaper',
   'bluelatex.Paper.Controllers.LatexPaper',
-  'reCAPTCHA',
   'bluelatex.Shared.Services.WindowActive',
   'bluelatex.Paper.Controllers.EditPaper',
   'bluelatex.Paper.Controllers.NewPaper',
@@ -168,7 +169,7 @@ angular.module('bluelatex', [
     $rootScope.loggedUser = null;
     var prev_page = null;
     $rootScope.$watch('loggedUser', function (value) {
-      if (($rootScope.loggedUser == null || $rootScope.loggedUser.name == null) && $route.current != null && !$route.current.$$route.options.unconnected) {
+      if (($rootScope.loggedUser == null || $rootScope.loggedUser.name == null) && $route.current != null && $route.current.$$route.options && !$route.current.$$route.options.unconnected) {
         // no logged user, we should be going to #login
         if ($route.current.$$route.options.name == "login") {
           // already going to #login, no redirect needed
@@ -187,7 +188,7 @@ angular.module('bluelatex', [
     });
     // register listener to watch route changes
     $rootScope.$on("$routeChangeStart", function (event, next, current) {
-      if (($rootScope.loggedUser == null || $rootScope.loggedUser.name == null) && next.$$route != null && !next.$$route.options.unconnected) {
+      if (($rootScope.loggedUser == null || $rootScope.loggedUser.name == null) && next.$$route != null && next.$$route.options && !next.$$route.options.unconnected) {
         // no logged user, we should be going to #login
         if (next.$$route.options.name == "login") {
           // already going to #login, no redirect needed
@@ -196,7 +197,7 @@ angular.module('bluelatex', [
           // not going to #login, we should redirect now
           $location.path("/login");
         }
-      } else if (next.$$route != null && next.$$route.options.connected == false && $rootScope.loggedUser != null && $rootScope.loggedUser.name != null) {
+      } else if (next.$$route != null && next.$$route.options && next.$$route.options.connected == false && $rootScope.loggedUser != null && $rootScope.loggedUser.name != null) {
         if (prev_page != null && prev_page != '/login') {
           $location.path(prev_page);
         } else {

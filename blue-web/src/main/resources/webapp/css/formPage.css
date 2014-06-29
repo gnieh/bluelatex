@@ -43,6 +43,7 @@
 #form-page select {
     height: 38px;
     margin: 4px 0;
+    padding: 9px 4px;
     width: 100%;
     background: #ECF2F4;
     display: inline-block;
