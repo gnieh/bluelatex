@@ -138,24 +138,24 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Pap
       /***************/
       /* Role filter */
       /***************/
-      var roleFilterAuthor = function (paper) {
-        return paper.role == 'author';
+      var roleFilterAuthor = function (paperRoles) {
+        return paperRoles.role == 'author';
       };
 
       $scope.roleFilterAuthor = roleFilterAuthor;
-      var roleFilterReviewer = function (paper) {
-        return paper.role == 'reviewer';
+      var roleFilterReviewer = function (paperRoles) {
+        return paperRoles.role == 'reviewer';
       };
 
       $scope.roleFilterReviewer = roleFilterReviewer;
-      $scope.roleFilter = function (paper) {
+      $scope.roleFilter = function (paperRoles) {
         switch ($scope.role_filter) {
         case 'all':
           return true;
         case 'author':
-          return roleFilterAuthor(paper);
+          return roleFilterAuthor(paperRoles);
         case 'reviewer':
-          return roleFilterReviewer(paper);
+          return roleFilterReviewer(paperRoles);
         }
       };
 

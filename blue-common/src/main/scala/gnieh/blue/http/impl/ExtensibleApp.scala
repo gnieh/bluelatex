@@ -69,6 +69,7 @@ class ExtensibleApp(config: Config, system: ActorSystem) extends HApp {
   override def tracking = HTracking.Cookie
   override def sessionTimeoutMinutes = config.getDuration("blue.session-timeout", TimeUnit.MINUTES).toInt
   override def cookieKey = "BLUE_SESSIONID"
+  override def keepAlive = false
 
   override def onSessionInvalidate(sid: String, data: Map[Any, Any]) {
 

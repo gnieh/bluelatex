@@ -27,3 +27,5 @@ case class Paper(_id: String,
 
 case class PaperInfo(name: String, authors: Set[String], reviewers: Set[String], creation_date: Date)
 
+case class PaperRole(authors: Set[String], reviewers: Set[String])
+

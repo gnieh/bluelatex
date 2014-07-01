@@ -108,7 +108,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
           displayAnnotation();
           $scope.toc = LatexService.parseTOC(AceService.getContent());
           AceService.getEditor().focus();
-        })
+        });
       };
 
       /**

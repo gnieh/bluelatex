@@ -607,6 +607,22 @@
         "description":"Unable to get paper info"
     },
 
+    {
+        "key":"_Get_roles_paper_Not_connected_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_Get_roles_paper_Paper_not_found_",
+        "value":"Paper not found",
+        "description":"Paper not found"
+    },
+    {
+        "key":"_Get_roles_paper_Something_wrong_happened_",
+        "value":"Unable to get paper roles",
+        "description":"Unable to get paper roles"
+    },
+
 
     {
         "key":"_Get_users_Not_connected_",
