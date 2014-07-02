@@ -81,6 +81,8 @@ abstract class ResourceDispatcher extends Actor {
       context.become(stopping)
       // dispatch the Stop message to all managed actors
       context.actorSelection("*") ! Stop
+      // and stop the managed actors
+      context.actorSelection("*") ! PoisonPill
 
     case Terminated(actor) =>
       // a managed actor was terminated, remove it from the set of managed resources
