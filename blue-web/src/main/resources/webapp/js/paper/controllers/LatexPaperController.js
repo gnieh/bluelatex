@@ -193,7 +193,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
         return PaperService.getSynchronized($scope.paperId).then(function (data) {
           $scope.synchronizedFiles = data;
           for (var i = 0; i < $scope.synchronizedFiles.length; i++) {
-            if($scope.synchronizedFiles[i].title == $scope.paperId + ".tex") {
+            if($scope.synchronizedFiles[i].title == "main.tex") {
               $scope.currentFile = $scope.synchronizedFiles[i];
               break;
             }

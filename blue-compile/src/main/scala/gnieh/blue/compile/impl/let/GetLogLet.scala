@@ -52,7 +52,7 @@ class GetLogLet(paperId: String, val couch: CouchClient, config: Config, logger:
 
       import FileUtils._
 
-      val logFile = configuration.buildDir(paperId) / s"$paperId.log"
+      val logFile = configuration.buildDir(paperId) / s"main.log"
 
       if(logFile.exists)
         Try(for(log <- managed(Source.fromFile(logFile)(GetLogLet.codec))) {

@@ -40,7 +40,7 @@ class GetSyncTeXLet(paperId: String, val couch: CouchClient, config: Config, log
 
   def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>
-      val syncTeXFile = configuration.buildDir(paperId) / s"$paperId.synctex.gz"
+      val syncTeXFile = configuration.buildDir(paperId) / s"main.synctex.gz"
 
       if (!syncTeXFile.exists)
         Try(

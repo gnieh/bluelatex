@@ -50,7 +50,7 @@ class GetPagesLet(paperId: String, val couch: CouchClient, config: Config, logge
     case Author | Reviewer =>
 
       // the generated pdf file
-      val pdfFile = configuration.buildDir(paperId) / s"$paperId.pdf"
+      val pdfFile = configuration.buildDir(paperId) / s"main.pdf"
 
       if(pdfFile.exists) {
 

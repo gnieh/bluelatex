@@ -52,7 +52,7 @@ class GetPngLet(paperId: String, page: Int, val couch: CouchClient, config: Conf
 
         // the generated pdf file
         val paperDir = configuration.buildDir(paperId)
-        val pdfFile = paperDir / s"$paperId.pdf"
+        val pdfFile = paperDir / s"main.pdf"
 
         if (pdfFile.exists) {
 
