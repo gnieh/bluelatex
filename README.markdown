@@ -19,25 +19,23 @@ It is still under heavy development but our goals are the following:
 
 We are actively looking for contributors, please contact us and send pull requests if you are interested!
 
-Developers
-----------
+Repository Layout
+-----------------
 
-The \BlueLaTeX server is developed in [Scala](http://scala-lang.org/) and uses [sbt](http://www.scala-sbt.org/) as build tool and dependency manager.
-You will also need to install [java](http://java.com) (version 1.6 or higher), [couchdb](http://couchdb.apache.org/) (version 1.2 or higher) and [jsvc](http://commons.apache.org/proper/commons-daemon/jsvc.html) to start the test server.
-Once all requirements are installed, a good starting point is to start sbt by typing `sbt` in your shell. You will get a running sbt console from which you can execute some command.
-Try to type `compile` for example and it will compile the entire project.
-
-If you want to start a test server, just type `blueStart` in the sbt console. To stop it (it is quite easy to infer actually...), type `blueStop`.
-
-The project is structured as follows:
- - `blue-commons` contains the commons utilities and registsers global services. This includes logging service, configuration loader, actor system, ...
- - `blue-core` contains the core server features, such as the Http server, the core Rest Api to manage users, sessions and paper synchronization,
+\BlueLaTeX is composed of several modules that are distributed over several folders:
+ - `blue-common` contains the commons utilities and registers global services. This includes the Http server, the logging service, configuration loader, actor system, ...
+ - `blue-core` contains the core server features, such as the core Rest Api to manage users, sessions and paper synchronization,
  - `blue-compile` contains the compilation server features,
  - `blue-sync` contains the scala implementation of the synchronization server,
  - `blue-mobwrite` contains the mobwrite binding to provide the synchronization implementation that simply delegates all requests to a running mobwrite daemon,
  - `blue-launcher` contains only the blue daemon launcher class (used to launch the test server),
- - `blue-test` contains the high level scenarii,
- - `src` contains the test configuration and data used by the test server and the test scenarii.
+ - `blue-test` contains the high level scenarios,
+ - `blue-web` contains the web client for \BlueLaTeX,
+ - `src` contains the test configuration and data used by the test server and the test scenarios.
 
-If you have troubles or want to ask us questions, join us on IRC on channel `#bluelatex` on freenode.
+Building \BlueLaTeX
+-------------------
 
+\BlueLaTeX uses [sbt](http://scala-sbt.org) as build system and dependency manager. Building \BlueLaTeX can be done by simply typing `sbt compile` in a console.
+
+For more details, if you have problems to install dependencies or to build and package \BlueLaTeX, please refer to [the documentation](http://bluelatex.gnieh.org/developers/)
