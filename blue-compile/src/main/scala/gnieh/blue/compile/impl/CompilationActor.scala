@@ -164,16 +164,7 @@ class CompilationActor(
 
   }
 
-  def texTitle(paperId: String) =
-    configuration.paperFile(paperId)
-      .extractFirst("\\\\title.([^}]+)".r)
-
-  def documentClass(paperId: String) =
-    configuration.paperFile(paperId)
-      .extractFirst("""\\documentclass(?:\[[^\[]*\])?.([^}]+)""".r)
-
 }
 
 case object Compile
 case class Register(username: String, response: Promise[CompilationStatus])
-

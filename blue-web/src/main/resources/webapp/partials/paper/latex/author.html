@@ -196,7 +196,7 @@
             <div class="file" ng-repeat="file in synchronizedFiles | orderBy :'name': 'false'" ng-class="{current: file==currentFile}">
               <div class="icon type-{{file.extension}}"></div>
               <div class="label" ng-click="changeFile(file)">{{file.name}}<span class="extension" ng-if="file.extension">.{{file.extension}}</span></div>
-              <button ng-click="removeSynchronisedFile(file)" class="icon-delete" ng-if="file.name != $routeParams.id"></button>
+              <button ng-click="removeSynchronisedFile(file)" class="icon-delete" ng-if="file.name != 'main' && file.name != $routeParams.id"></button>
               <div class="clear"></div>
             </div>
             <div class="file" ng-if="synchronizedFiles.length == 0" data-i18n="_No_synchronized_file_found_"></div>

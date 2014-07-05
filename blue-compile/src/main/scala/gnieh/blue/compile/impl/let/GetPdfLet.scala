@@ -41,7 +41,7 @@ class GetPdfLet(paperId: String, val couch: CouchClient, config: Config, logger:
 
       import FileUtils._
 
-      val pdfFile = configuration.buildDir(paperId) / s"$paperId.pdf"
+      val pdfFile = configuration.buildDir(paperId) / s"main.pdf"
 
       if(pdfFile.exists)
         Try(for(pdf <- managed(new FileInputStream(pdfFile))) {

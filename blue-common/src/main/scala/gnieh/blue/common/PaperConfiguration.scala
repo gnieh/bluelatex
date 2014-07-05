@@ -28,13 +28,13 @@ class PaperConfiguration(val config: Config) {
     new File(config.getString("blue.paper.directory")) / paperId
 
   def paperFile(paperId: String): File =
-    paperDir(paperId) / s"$paperId.tex"
+    paperDir(paperId) / "main.tex"
 
   def resource(paperId: String, resourceName: String): File =
     paperDir(paperId) / resourceName
 
   def bibFile(paperId: String): File =
-    paperDir(paperId) / s"$paperId.bib"
+    paperDir(paperId) / "references.bib"
 
   def clsDir: File =
     new File(config.getString("blue.paper.classes"))
