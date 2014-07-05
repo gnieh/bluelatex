@@ -9,6 +9,9 @@ import scala.util.Properties
 
 import java.io.File
 
+import sbtassembly.Plugin._
+import AssemblyKeys._
+
 trait Server {
   this: BlueBuild =>
 
@@ -65,6 +68,8 @@ trait Server {
         "org.apache.felix" % "org.apache.felix.main" % "4.2.1",
         "commons-daemon" % "commons-daemon" % "1.0.15"
       )
+    ) settings(assemblySettings: _*) settings (
+      jarName in assembly := "blue-launcher.jar"
     )
 
   val launchExe =
