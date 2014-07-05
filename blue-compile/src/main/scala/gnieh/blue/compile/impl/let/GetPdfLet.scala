@@ -50,6 +50,7 @@ class GetPdfLet(paperId: String, val couch: CouchClient, config: Config, logger:
 
           talk.setContentType(HMime.pdf)
             .setContentLength(array.length)
+            .setFilename(pdfFile.getName)
             .write(array)
         })
       else
