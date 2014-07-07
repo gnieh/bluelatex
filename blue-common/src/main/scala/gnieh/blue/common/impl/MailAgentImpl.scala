@@ -41,25 +41,28 @@ class MailAgentImpl(couch: CouchClient, configuration: BlueConfiguration, val lo
 
   /** Returns the list of all email addresses */
   private def retrieveEmail(username: String): Option[String] = {
+    logDebug(s"Looking for email for $username")
     val couchConf = configuration.couch
     couch.database(couchConf.database("blue_users"))
       .design("lists")
       .view("emails")
       .query[String, String, Nothing](key = Some(username)) match {
         case Success(result) =>
+          logDebug(s"Found email addresses: ${result.rows}")
           result.rows
             .headOption
             .map(_.value)
         case Failure(e) =>
-          e.printStackTrace
-          // TODO log
+          logError(s"Something wrong happened when retrieving email for $username", e)
           None
       }
   }
 
   def send(username: String, subject: String, text: String): Unit =
-    for(to <- retrieveEmail(username)) {
+    for(to <- retrieveEmail(username)) try {
       val from = new InternetAddress(configuration.emailConf.getProperty("mail.from"))
+
+      logDebug(s"Sending confirmation email to ${new InternetAddress(to)}")
 
       val message = newMessage
       message.setFrom(from)
@@ -68,6 +71,10 @@ class MailAgentImpl(couch: CouchClient, configuration: BlueConfiguration, val lo
       message.setText(text, "utf-8")
 
       Transport.send(message)
+    } catch {
+      case e: Exception =>
+        logError("Unable to send mail", e)
+        throw e
     }
 
   private def newMessage = {

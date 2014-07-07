@@ -91,7 +91,8 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
                 (HStatus.Created, true)
               }) recoverWith {
                 case e =>
-                  logWarn(s"Unable to create \\BlueLaTeX user $username")
+                  //logWarn(s"Unable to create \\BlueLaTeX user $username")
+                  logError(s"Unable to create \\BlueLaTeX user $username", e)
                   // somehow we couldn't save it
                   // remove the couchdb user from database
                   Try(session.users.delete(username))
@@ -137,7 +138,11 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
           "name" -> user.name,
           "token" -> token,
           "validity" -> (couchConfig.tokenValidity / 24 / 3600))
+        logDebug(s"Registration email: $email")
         mailAgent.send(user.name, "Welcome to \\BlueLaTeX", email)
+      } recover {
+        case e =>
+          logError(s"Unable to generate confirmation token for user ${user.name}", e)
       }
     }
 
