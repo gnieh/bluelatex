@@ -35,14 +35,14 @@ class WebApp(context: BundleContext, config: Config) extends HApp {
 
   private val prefix = config.getString("blue.client.path-prefix") match {
     case Prefix(prefix) => prefix
-    case _              => "web"
+    case _              => ""
   }
 
   private val configLet = new ConfigLet(context, config)
   private val webLet = new WebLet(context, prefix)
 
   private val configPath =
-    s"${prefix}/configuration"
+    s"${if(prefix.nonEmpty) prefix + "/" else ""}configuration"
 
   def resolve(req: HReqData) =
     if(req.uriPath == configPath)
