@@ -438,15 +438,17 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       syncActor ! Serialization.read[SyncSession](user2)
 
       Then("the actor should send all queued messages to the second user")
-      expectMsg(SyncSession("user2", "paperId", List(Message("11th",
-                                                             JObject(List(JField("content",
-                                                                                JString("Fish fingers and custard")))),
-                                                              None),
-                                                      Message("10th",
-                                                              JObject(List(JField("content",
-                                                                                  JString("Always bring a banana to a party")))),
-                                                              None))))
-
+      val response = expectMsgClass(classOf[SyncSession])
+      response.peerId should be ("user2")
+      response.paperId should be ("paperId")
+      response.commands should contain only (Message("11th",
+                                                     JObject(List(JField("content",
+                                                                         JString("Fish fingers and custard")))),
+                                                     None),
+                                             Message("10th",
+                                                     JObject(List(JField("content",
+                                                                         JString("Always bring a banana to a party")))),
+                                                     None))
     }
 
     scenario("broadcast messages and synchronization commands interlaced") {
@@ -640,4 +642,3 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
   }
 
 }
-
