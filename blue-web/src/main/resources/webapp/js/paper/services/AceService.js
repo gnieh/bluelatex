@@ -14,9 +14,9 @@
  * limitations under the License.
  */
  
-angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace','bluelatex.Configuration'])
-  .factory("AceService", ['$localStorage','$log','api_prefix','$q','$http',
-    function ($localStorage,$log,api_prefix,$q,$http) {
+angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace'])
+  .factory("AceService", ['$localStorage','$log','$q','$http',
+    function ($localStorage,$log,$q,$http) {
       var content;
       var _session;
       var _editor;

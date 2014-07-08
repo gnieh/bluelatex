@@ -15,8 +15,8 @@
  */
  
 angular.module("bluelatex.User.Controllers.Register",['bluelatex.User.Services.User','reCAPTCHA'])
-  .controller('RegisterController', ['$scope', 'UserService', '$location', '$log','MessagesService','ConfigurationService','reCAPTCHA',
-    function ($scope, UserService, $location, $log,MessagesService,ConfigurationService,reCAPTCHA) {
+  .controller('RegisterController', ['$scope', 'UserService', '$location', '$log','MessagesService','reCAPTCHA','recaptcha_public_key',
+    function ($scope, UserService, $location, $log,MessagesService,reCAPTCHA,recaptcha_public_key) {
       $scope.user = {};
       $scope.requesting = false;
 
@@ -24,10 +24,8 @@ angular.module("bluelatex.User.Controllers.Register",['bluelatex.User.Services.U
          theme: 'clean'
       });
 
-      ConfigurationService.getConfiguration().then(function(data) {
-        $scope.displayCaptcha = data.recaptcha_public_key != null;
-        reCAPTCHA.setPublicKey(data.recaptcha_public_key);
-      });
+      $scope.displayCaptcha = recaptcha_public_key != null;
+      reCAPTCHA.setPublicKey(recaptcha_public_key);
       
       /**
       * Create a new user
@@ -38,7 +36,6 @@ angular.module("bluelatex.User.Controllers.Register",['bluelatex.User.Services.U
           $scope.user.recaptcha_response_field = reCAPTCHA.response();
           $scope.user.recaptcha_challenge_field = reCAPTCHA.challenge();
         }
-        console.log($scope.user);
         UserService.register($scope.user).then(function (data) {
           MessagesService.messageSession('_Registration_Success_');
           $location.path("/login");

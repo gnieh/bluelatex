@@ -16,34 +16,5 @@
  
 angular.module('bluelatex.Configuration',[])
   // the rest api root
-  .constant('api_prefix','')
-  .constant('recaptcha_public_key', null)
-  .factory("ConfigurationService", ['$http','$q','api_prefix','recaptcha_public_key', 
-    function ($http, $q,api_prefix,recaptcha_public_key) {
-    var confPromise;
-    var configuration;
-    var confLoaded = false;
-  	return {
-  		getConfiguration: function  () {
-        if(confPromise && !confLoaded) return confPromise;
-  		  var deferred = $q.defer();
-        if(confLoaded) {
-          deferred.resolve(configuration);
-          return deferred.promise;
-        }
-        $http({method:'get',url:  "configuration"}).then(function (data) {
-          confLoaded = true;
-          configuration = data.data;
-          api_prefix = configuration['api_prefix'];
-          recaptcha_public_key = configuration['recaptcha_public_key'];
-          deferred.resolve(configuration);
-        }, function (error) {
-          deferred.reject(error);
-        }, function (progress) {
-          deferred.notify(progress);
-        });
-        confPromise = deferred.promise;
-        return confPromise;
-  		}
-  	}
-  }]);
+  .constant('api_prefix',window.blue_config.api_prefix)
+  .constant('recaptcha_public_key', window.blue_config.recaptcha_public_key);

@@ -15,8 +15,8 @@
  */
  
 angular.module("bluelatex.Latex.Services.SyncTexParser", [])
-  .factory("SyncTexParserService", ['$log','$q','$http',
-    function ($log,$q,$http) {
+  .factory("SyncTexParserService", ['$log','$q',
+    function ($log,$q) {
       // convert Latx unit
       var unit = 65781.76;
 

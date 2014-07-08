@@ -127,7 +127,7 @@ abstract class BlueScenario extends FeatureSpec
 
   type Result[T] = Either[(Int, ErrorResponse), (T, Map[String, List[String]])]
 
-  val PasswordResetRegex = s"(?s).*http://localhost:$bluePort/web/index\\.html#/([^/]+)/reset/(\\S+).*".r
+  val PasswordResetRegex = s"(?s).*http://localhost:$bluePort/index\\.html#/([^/]+)/reset/(\\S+).*".r
 
   case class BlueErrorException(status: Int, error: ErrorResponse) extends Exception {
     override def toString  = s"error: $status, message: $error"
@@ -136,7 +136,7 @@ abstract class BlueScenario extends FeatureSpec
   implicit val formats = DefaultFormats + JsonPatchSerializer
 
   private def request(path: List[String]) =
-    path.foldLeft(:/("localhost", bluePort)) { (acc, p) => acc / p }
+    path.foldLeft(:/("localhost", bluePort) / "api") { (acc, p) => acc / p }
 
   private def serialize(obj: Any): String = pretty(render(obj match {
     case i: Int => JInt(i)
