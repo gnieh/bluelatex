@@ -49,7 +49,9 @@ class UserRegistrationSpec extends BlueScenario with SomeUsers {
       val email = mailbox.lastMailFor(person.email_address).getOrElse(fail("No email received"))
       val token = email match {
         case PasswordResetRegex(name, token) if name == person.username => token
-        case _                                                          => fail("Received an invalid validation email")
+        case e                                                          =>
+          println(e)
+          fail("Received an invalid validation email")
       }
 
       And("must validate her account by reseting her password")

@@ -16,12 +16,27 @@
 package gnieh.blue
 package compile
 
-import common._
+import common.{
+  Logger,
+  Logging
+}
 
-import akka.actor.Actor
+import akka.actor.{
+  Actor,
+  Status
+}
 import akka.util.Timeout
 
-import scala.sys.process._
+import scala.sys.process.{
+  ProcessLogger,
+  Process,
+  ProcessBuilder
+}
+
+import scala.concurrent.{
+  future,
+  Await
+}
 
 import java.io.File
 
@@ -32,8 +47,7 @@ import java.io.File
  */
 class SystemCommandActor(val logger: Logger) extends Actor with Logging {
 
-  private def timeoutPrefix(timeout: Timeout) =
-    "timeout -s 9 " + timeout.duration.toSeconds + "s "
+  private implicit def executionContext = context.system.dispatcher
 
   private object SystemProcessLogger extends ProcessLogger {
     def out(s: => String) = logInfo(s)
@@ -41,11 +55,32 @@ class SystemCommandActor(val logger: Logger) extends Actor with Logging {
     def buffer[T](f: => T) = f
   }
 
-  private def exec(process: ProcessBuilder) = process ! SystemProcessLogger
+  /* Execute the process with timeout.
+   * Timeout management is purely done in scala and doesn't use any
+   * system command for this.
+   * It the process did not return within the given timeout, it is killed and
+   * an exception is routed to the caller
+   */
+  private def exec(timeout: Timeout, process: ProcessBuilder) = {
+
+    val proc = process.run(SystemProcessLogger)
+    val res = future {
+      proc.exitValue()
+    }
+    try {
+      Await.result(res, timeout.duration)
+    } catch {
+      case e: Exception =>
+        // kill the process
+        proc.destroy()
+        // notify the caller
+        sender ! Status.Failure(e)
+    }
+  }
 
   def receive = {
     case SystemCommand(command, workingDir, env, timeout) =>
-      sender ! exec(Process(timeoutPrefix(timeout) + command, workingDir, env: _*))
+      sender ! exec(timeout, Process(command, workingDir, env: _*))
   }
 
 }

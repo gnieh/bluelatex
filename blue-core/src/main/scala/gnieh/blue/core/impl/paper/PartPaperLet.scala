@@ -20,6 +20,7 @@ package paper
 
 import http._
 import common._
+import permission._
 
 import com.typesafe.config.Config
 
@@ -35,12 +36,22 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class PartPaperLet(paperId: String, system: ActorSystem, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class PartPaperLet(
+  paperId: String,
+  peerId: String,
+  system: ActorSystem,
+  val couch: CouchClient,
+  config: Config,
+  logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = Try {
     role match {
       case Author | Reviewer =>
-        system.eventStream.publish(Part(user.name, Some(paperId)))
+        // remove this peer from the current session
+        for(peers <- SessionKeys.get[Set[String]](SessionKeys.Peers))
+          talk.ses(SessionKeys.Peers) = peers - peerId
+
+        system.eventStream.publish(Part(peerId, Some(paperId)))
         talk.writeJson(true)
       case _ =>
         talk

@@ -52,43 +52,21 @@ class ModifyUserLet(username: String, val couch: CouchClient, config: Config, lo
           val db = database(blue_users)
           // the modification must be sent as a JSON Patch document
           // retrieve the user object from the database
-          db.getDocById[User](s"org.couchdb.user:$username") flatMap {
+          val manager = entityManager("blue_users")
+          val userid = s"org.couchdb.user:$username"
+          manager.getComponent[User](userid) flatMap {
             case Some(user) if user._rev == knownRev =>
-              talk.readJson[JsonPatch] match {
-                case Some(patch) =>
-                  // the revision matches, we can apply the patch
-                  val user1 = patch(user).withRev(knownRev)
-                  // and save the new paper data
-                  db.saveDoc(user1) map {
-                    case Some(u) =>
-                      // save successfully, return ok with the new ETag
-                      // we are sure that the revision is not empty because it comes from the database
-                      talk.writeJson(true, u._rev.get)
-                    case None =>
-                      // something went wrong
-                      talk
-                        .setStatus(HStatus.InternalServerError)
-                        .writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
-                  }
-                case None =>
-                  // nothing to do
-                  Success(
-                    talk
-                      .setStatus(HStatus.NotModified)
-                      .writeJson(ErrorResponse("nothing_to_do", "No changes sent")))
-              }
+              patchAndSave(userid, user, knownRev)
+
             case Some(user) =>
               // old revision sent
               Success(
                 talk
                   .setStatus(HStatus.Conflict)
                   .writeJson(ErrorResponse("conflict", "Old user revision provided")))
+
             case None =>
-              // unknown paper
-              Success(
-                talk
-                  .setStatus(HStatus.NotFound)
-                  .writeJson(ErrorResponse("nothing_to_do", s"Unknown user $username")))
+              patchAndSave(userid, defaultUser(user), None)
           }
 
         case (None, _) =>
@@ -111,6 +89,34 @@ class ModifyUserLet(username: String, val couch: CouchClient, config: Config, lo
           .setStatus(HStatus.Forbidden)
           .writeJson(ErrorResponse("no_sufficient_rights", "A user can only modify his own data")))
     }
+
+    private def defaultUser(user: UserInfo) = User(user.name, "New", "User", s"${user.name}@fake.bluelatex.org")
+
+    private def patchAndSave(userid: String, user: User, knownRev: Option[String])(implicit talk: HTalk) =
+      talk.readJson[JsonPatch] match {
+        case Some(patch) =>
+          // the revision matches, we can apply the patch
+          val user1 = patch(user).withRev(knownRev)
+          // and save the new paper data
+          (for(u <- entityManager("blue_users").saveComponent(userid, user1))
+            yield {
+                // save successfully, return ok with the new ETag
+                // we are sure that the revision is not empty because it comes from the database
+                talk.writeJson(true, u._rev.get)
+            }) recover {
+              case e =>
+                logError(s"Unable to save new user data for user $userid", e)
+                talk
+                  .setStatus(HStatus.NotModified)
+                  .writeJson(ErrorResponse("cannot_save_data", "The changes could not be saved, please retry"))
+            }
+        case None =>
+          // nothing to do
+          Success(
+            talk
+              .setStatus(HStatus.NotModified)
+              .writeJson(ErrorResponse("nothing_to_do", "No changes sent")))
+      }
 
 }
 

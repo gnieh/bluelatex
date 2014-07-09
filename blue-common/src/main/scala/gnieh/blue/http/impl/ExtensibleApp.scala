@@ -69,16 +69,22 @@ class ExtensibleApp(config: Config, system: ActorSystem) extends HApp {
   override def tracking = HTracking.Cookie
   override def sessionTimeoutMinutes = config.getDuration("blue.session-timeout", TimeUnit.MINUTES).toInt
   override def cookieKey = "BLUE_SESSIONID"
+  override def keepAlive = false
 
   override def onSessionInvalidate(sid: String, data: Map[Any, Any]) {
+
+    def get[T: Manifest](key: String): Option[T] =
+      data.get(key).collect { case v: T => v }
+
     // logout the couchdb session if any
-    for(session <- data.get(SessionKeys.Couch).collect { case s: CookieSession => s}) {
+    for(session <- get[CookieSession](SessionKeys.Couch))
       session.logout
-    }
-    // notify dispatchers that the user left
-    for(username <- data.get(SessionKeys.Username).collect { case s: String => s }) {
-      system.eventStream.publish(Part(username, None))
-    }
+
+    // notify dispatchers that the user left by parting all connected peers for this session
+    for {
+      peers <- get[Set[String]](SessionKeys.Peers)
+      peer <- peers
+    } system.eventStream.publish(Part(peer, None))
   }
 
   final override def resolve(req: HReqData) = {

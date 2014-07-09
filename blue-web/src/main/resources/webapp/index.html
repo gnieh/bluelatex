@@ -12,6 +12,55 @@
   <script type="text/javascript" src="ace/ext-language_tools.js"></script>
 
   <script type="text/javascript">
+
+    var pathname = document.location.pathname;
+
+    if(pathname[pathname.length-1] != '/') {
+      var pathSplit = pathname.split('/');
+      if(pathSplit[pathSplit.length-1] != 'index.html') {
+        document.location = document.location.href+"/";
+      }
+    }
+    /*
+    * Display the loading label
+    */
+    var displayLoadingLabel = function () {
+      var loadinglabel = document.getElementById("fatal-error");
+      if(loadinglabel != null ) {
+        loadinglabel.style.display="block";
+      }
+    };
+    window.onload = displayLoadingLabel;
+
+
+    function loadConfig(callback, error) {
+      var xmlhttp;
+
+      if (window.XMLHttpRequest) {
+          // code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp = new XMLHttpRequest();
+      } else {
+          // code for IE6, IE5
+          xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+
+      xmlhttp.onreadystatechange = function() {
+          if (xmlhttp.readyState == 4 ) {
+             if(xmlhttp.status == 200){
+                 window.blue_config = JSON.parse(xmlhttp.responseText);
+                 if(callback){
+                   callback(window.blue_config);
+                 }
+                 return;
+             }
+             if(error) error();
+          }
+      }
+
+      xmlhttp.open("GET", "configuration", true);
+      xmlhttp.send();
+    }
+
     // include angular loader, which allows the files to load in any order
     /*
      AngularJS v1.2.6
@@ -34,58 +83,75 @@
     !function(a,b,c){function t(a,c){var e=b.createElement("script"),f=j;e.onload=e.onerror=e[o]=function(){e[m]&&!/^c|loade/.test(e[m])||f||(e.onload=e[o]=null,f=1,c())},e.async=1,e.src=a,d.insertBefore(e,d.firstChild)}function q(a,b){p(a,function(a){return!b(a)})}var d=b.getElementsByTagName("head")[0],e={},f={},g={},h={},i="string",j=!1,k="push",l="DOMContentLoaded",m="readyState",n="addEventListener",o="onreadystatechange",p=function(a,b){for(var c=0,d=a.length;c<d;++c)if(!b(a[c]))return j;return 1};!b[m]&&b[n]&&(b[n](l,function r(){b.removeEventListener(l,r,j),b[m]="complete"},j),b[m]="loading");var s=function(a,b,d){function o(){if(!--m){e[l]=1,j&&j();for(var a in g)p(a.split("|"),n)&&!q(g[a],n)&&(g[a]=[])}}function n(a){return a.call?a():e[a]}a=a[k]?a:[a];var i=b&&b.call,j=i?b:d,l=i?a.join(""):b,m=a.length;c(function(){q(a,function(a){h[a]?(l&&(f[l]=1),o()):(h[a]=1,l&&(f[l]=1),t(s.path?s.path+a+".js":a,o))})},0);return s};s.get=t,s.ready=function(a,b,c){a=a[k]?a:[a];var d=[];!q(a,function(a){e[a]||d[k](a)})&&p(a,function(a){return e[a]})?b():!function(a){g[a]=g[a]||[],g[a][k](b),c&&c(d)}(a.join("|"));return s};var u=a.$script;s.noConflict=function(){a.$script=u;return this},typeof module!="undefined"&&module.exports?module.exports=s:a.$script=s}(this,document,setTimeout)
 
     var debug = true;
+    loadConfig(function(config) {
+      $script([
+        'lib/ui-ace.min.js',
+        // latex log parser
+        'lib/latex-log-parser.min.js',
+        //angularjs
+        'lib/angular/angular.min.js',
+        'lib/angular/angular-resource.min.js',
+        'lib/angular/angular-route.min.js',
+        'lib/angular-md5.js',
+        'lib/angular-file-upload.min.js',
+        'lib/ngStorage.min.js',
+        'lib/localize.min.js',
+        'lib/angular-cache.min.js',
+        'lib/angular-re-captcha.js',
+        'lib/angular-input-date.js',
+        
+        // mobwrite
+        'lib/diff_match_patch_uncompressed.js',
+        'lib/angular-mobwrite.js',
 
-    $script([
-      'lib/ui-ace.min.js',
-      // latex log parser
-      'lib/latex-log-parser.min.js',
-      //angularjs
-      'lib/angular/angular.min.js',
-      'lib/angular/angular-resource.min.js',
-      'lib/angular/angular-route.min.js',
-      'lib/angular-md5.js',
-      'lib/angular-file-upload.min.js',
-      'lib/ngStorage.min.js',
-      'lib/localize.min.js',
-      'lib/angular-cache.min.js',
-      // mobwrite
-      'lib/diff_match_patch_uncompressed.js',
-      'lib/mobwrite_core.js',
-      //blue web
-      'js/shared/controllers/MenuController'+(debug?'':'.min')+'.js',
-      'js/shared/controllers/MainController'+(debug?'':'.min')+'.js',
-      'js/shared/controllers/MessagesController'+(debug?'':'.min')+'.js',
-      'js/shared/directives/MenuDirective'+(debug?'':'.min')+'.js',
-      'js/shared/directives/AutoFocusDirective'+(debug?'':'.min')+'.js',
-      'js/shared/directives/GravatarDirective'+(debug?'':'.min')+'.js',
-      'js/shared/directives/MessagesDirective'+(debug?'':'.min')+'.js',
-      'js/shared/directives/angucomplete.js',
-      'js/shared/services/configuration'+(debug?'':'.min')+'.js',
-      'js/shared/services/WindowsActiveService'+(debug?'':'.min')+'.js',
-      'js/shared/services/MessagesService'+(debug?'':'.min')+'.js',
-      'js/paper/controllers/EditPaperController'+(debug?'':'.min')+'.js',
-      'js/paper/controllers/NewPaperController'+(debug?'':'.min')+'.js',
-      'js/paper/controllers/PaperController'+(debug?'':'.min')+'.js',
-      'js/paper/controllers/PapersController'+(debug?'':'.min')+'.js',
-      'js/paper/directives/TocDirective'+(debug?'':'.min')+'.js',
-      'js/paper/services/AceService'+(debug?'':'.min')+'.js',
-      'js/paper/services/PaperService'+(debug?'':'.min')+'.js',
-      'js/user/controllers/LoginUserController'+(debug?'':'.min')+'.js',
-      'js/user/controllers/LogoutUserController'+(debug?'':'.min')+'.js',
-      'js/user/controllers/ProfileController'+(debug?'':'.min')+'.js',
-      'js/user/controllers/RegisterController'+(debug?'':'.min')+'.js',
-      'js/user/controllers/RessetPasswordController'+(debug?'':'.min')+'.js',
-      'js/user/services/SessionService'+(debug?'':'.min')+'.js',
-      'js/user/services/UserService'+(debug?'':'.min')+'.js',
-      'js/latex/services/SyncTexParserService'+(debug?'':'.min')+'.js',
-      'js/latex/directives/VignetteDirective'+(debug?'':'.min')+'.js',
-      'js/app'+(debug?'':'.min')+'.js',
-      'js/utilities'+(debug?'':'.min')+'.js'
-    ], function() {
-      ace.require("ace/ext/language_tools");
+        'lib/GravatarDirective'+(debug?'':'.min')+'.js',
+        'lib/angucomplete.js',
+        'lib/json-patch-duplex.js',
 
-      // when all is done, execute bootstrap angular application
-      angular.bootstrap(document, ['bluelatex']);
+        //blue web
+        'js/shared/controllers/MenuController'+(debug?'':'.min')+'.js',
+        'js/shared/controllers/MainController'+(debug?'':'.min')+'.js',
+        'js/shared/controllers/MessagesController'+(debug?'':'.min')+'.js',
+        'js/shared/directives/MenuDirective'+(debug?'':'.min')+'.js',
+        'js/shared/directives/AutoFocusDirective'+(debug?'':'.min')+'.js',
+        'js/shared/directives/MessagesDirective'+(debug?'':'.min')+'.js',
+        'js/shared/services/configuration'+(debug?'':'.min')+'.js',
+        'js/shared/services/WindowsActiveService'+(debug?'':'.min')+'.js',
+        'js/shared/services/MessagesService'+(debug?'':'.min')+'.js',
+
+        'js/paper/controllers/InitPaperController.js',
+        'js/paper/controllers/LatexPaperController.js',
+        'js/paper/services/LatexService.js',
+        
+        'js/paper/controllers/EditPaperController'+(debug?'':'.min')+'.js',
+        'js/paper/controllers/NewPaperController'+(debug?'':'.min')+'.js',
+        'js/paper/controllers/PapersController'+(debug?'':'.min')+'.js',
+        'js/paper/directives/PreviewDirective'+(debug?'':'.min')+'.js',
+        'js/paper/directives/TocDirective'+(debug?'':'.min')+'.js',
+        'js/paper/services/AceMobwriteClient'+(debug?'':'.min')+'.js',
+        'js/paper/services/AceService'+(debug?'':'.min')+'.js',
+        'js/paper/services/PaperService'+(debug?'':'.min')+'.js',
+        'js/paper/services/SyncTexParserService'+(debug?'':'.min')+'.js',
+        'js/user/controllers/LoginUserController'+(debug?'':'.min')+'.js',
+        'js/user/controllers/LogoutUserController'+(debug?'':'.min')+'.js',
+        'js/user/controllers/ProfileController'+(debug?'':'.min')+'.js',
+        'js/user/controllers/RegisterController'+(debug?'':'.min')+'.js',
+        'js/user/controllers/RessetPasswordController'+(debug?'':'.min')+'.js',
+        'js/user/services/SessionService'+(debug?'':'.min')+'.js',
+        'js/user/services/UserService'+(debug?'':'.min')+'.js',
+        'js/app'+(debug?'':'.min')+'.js',
+        'js/utilities'+(debug?'':'.min')+'.js'
+      ], function() {
+        ace.require("ace/ext/language_tools");
+          // when all is done, execute bootstrap angular application
+          angular.bootstrap(document, ['bluelatex']);
+      });
+    }, function () {
+      var loadinglabel = document.getElementById("fatal-error");
+      if(loadinglabel != null ) {
+        loadinglabel.innerText = 'Error... Please contact the administrator'
+        loadinglabel.style.display="block";
+      }
     });
   </script>
 
@@ -100,8 +166,6 @@
   <script type="text/javascript" src="lib/pdfjs/src/display/pattern_helper.js"></script>
   <script type="text/javascript" src="lib/pdfjs/src/display/font_loader.js"></script>
 
-  <script type="text/javascript" src="lib/pdfjs/web/pdf_find_bar.js"></script>
-  <script type="text/javascript" src="lib/pdfjs/web/pdf_find_controller.js"></script>
   <script type="text/javascript" src="lib/pdfjs/web/ui_utils.js"></script>
   <script type="text/javascript" src="lib/pdfjs/web/text_layer_builder.js"></script>
   <script type="text/javascript">
@@ -112,9 +176,9 @@
   </script>
 
   <style>
-    html{-ms-touch-action:none;height:100%;width:100%;overflow-x:hidden;overflow-y:auto;position:relative}body{position:relative;font-family:Helvetica,Arial,sans-serif;background-color:#eee;color:#333;font-size:13pt;padding:0;height:100%;width:100%;font-weight:100;margin:0}header{position:absolute;width:100%;background:#373942;box-shadow:0 1px 3px rgba(0,0,0,.2);font-weight:700;height:42px;z-index:195}.menu_user{position:relative;float:right;color:#fff;margin-left:auto}.menu_user label{color:#fff;position:relative;display:block;line-height:34px;padding:0 27px;padding-left:30px;cursor:pointer}.menu_user input{visibility:hidden;width:0;float:right;margin:0}.menu_user .submenu{position:absolute;background:#373942;padding:7px;color:#fff;width:170px;overflow:auto;right:0}.menu_user .submenu ul{list-style:none;margin:0;padding:0}.menu_user a{color:#F3F3F3!important;font-size:14px;white-space:nowrap;display:block;line-height:25px}.menu_user label .icon{width:33px;height:33px;overflow:hidden;display:inline-block;float:left;border-radius:50%;margin-right:15px;box-shadow:0 0 #FFF,0 0 0 0 #eee,0 0 0 2px rgba(0,0,0,.2)}.menu_user label .icon img{width:100%}header .logo{padding:0 10px;float:left}header .logo img{height:42px}
+    html{-ms-touch-action:none;height:100%;width:100%;overflow-x:hidden;overflow-y:auto;position:relative}body{position:relative;font-family:Helvetica,Arial,sans-serif;background-color:#eee;color:#333;font-size:13pt;padding:0;height:100%;width:100%;font-weight:100;margin:0}header{position:absolute;width:100%;background:#373942;box-shadow:0 1px 3px rgba(0,0,0,.2);font-weight:700;height:42px;z-index:195}header .logo{padding:0 10px;float:left}header .logo img{height:42px}.fatal-error{position:relative;top:70px;font-size:44px;text-align:center;background:#fff;width:480px;margin:auto;padding:40px;line-height:82px;box-shadow:0 0 3px rgba(0,0,0,.2)}.ng-hide{display:none;}
   </style>
-  <title ng-bind="$route.current.$$route.options.title">\BlueLatex</title>
+  <title ng-bind="pageTitle">\BlueLatex</title>
 </head>
 <body>
   <header ng-controller="MenuController">
@@ -123,13 +187,14 @@
       <a href="#/"><img src="img/logo.png" alt="\BlueLatex"></a>
     </div>
     <label href="#" id="pull" class="icon-menu"><input type="checkbox" ng-model="isMenuOpen"></label>
-    <div id="menu_user" ng-show="loggedUser.name" class="ng-hide menu_user">
+    <div id="menu_user" ng-show="loggedUser.name" class="ng-hide menu_user subOption">
       <label>
         <input type="checkbox" ng-model="openUserMenu">
         <span class="icon" bl-gravatar data-email="loggedUser.email"></span>
-        <span ng-bind="loggedUser.first_name"></span>
+        {{loggedUser.first_name}}
       </label>
-      <div class="submenu" ng-show="openUserMenu">
+      <div class="subOptions" ng-show="openUserMenu">
+        <label class="bg"><input type="checkbox" name="compilerOptions" ng-model="openUserMenu"></label>
         <ul>
           <li><a ng-href="#/profile" data-i18n="_Profile_"></a></li>
           <li><a ng-href="#/logout" ng-click="logout" data-i18n="_Logout_"></a></li>
@@ -138,15 +203,22 @@
     </div>
     <nav bl-menu ng-class="{'show': isMenuOpen, 'hide': !isMenuOpen}"></nav>
   </header>
-  <div ng-view></div>
+  <div id="page" ng-view>
+    <div id="fatal-error" class="fatal-error" style="display: none;">
+      Loading...
+    </div>
+    <noscript>
+      <div class="fatal-error">
+      \BlueLaTeX needs JavaScript !
+      </div>
+    </noscript>
+  </div>
   <link rel="stylesheet" href="css/css.css">
   <link rel="stylesheet" href="css/font-type.css">
-  <link rel="stylesheet" href="css/mobile.css">
-  <link rel="stylesheet" href="css/register.css">
   <link rel="stylesheet" href="css/login.css">
   <link rel="stylesheet" href="css/paper.css">
   <link rel="stylesheet" href="css/papers.css">
-  <link rel="stylesheet" href="css/manage.css">
-  <!--<link rel="stylesheet" href="css/css.min.css">-->
+  <link rel="stylesheet" href="css/formPage.css">
+  <link rel="stylesheet" href="css/mobile.css">
 </body>
 </html>

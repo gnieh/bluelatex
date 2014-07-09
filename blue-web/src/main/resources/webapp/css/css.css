@@ -1,4 +1,21 @@
+/*
+ * This file is part of the \BlueLaTeX project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
 @charset "UTF-8";
+
 @font-face {
   font-family: "bluelatexicon";
   src:url("fonts/bluelatexicon.eot");
@@ -91,8 +108,17 @@
 .icon-folder-open:before {
   content: "r";
 }
-.icon-github:before {
+.icon-fork:before {
+  content: "t";
+}
+.icon-exclamation:before {
   content: "s";
+}
+.icon-bug:before {
+  content: "u";
+}
+.icon-up:before {
+  content: "v";
 }
 
 * {
@@ -111,6 +137,20 @@
 } /* for the future */
 :-ms-input-placeholder {
     color: #999 !important; text-overflow: ellipsis;
+}
+::selection {
+	background: #A6CBF3; /* Safari */
+	}
+::-moz-selection {
+	background: #A6CBF3; /* Firefox */
+}
+input[type='number'] {
+    -moz-appearance:textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
 }
 html {
   -ms-touch-action: none;
@@ -133,7 +173,7 @@ body {
   font-weight:100;
   margin:0;
 }
-body > div {
+body #page {
     position: relative;
     height: 100%;
     overflow: auto;
@@ -146,30 +186,27 @@ header {
     font-weight: bold;
     height: 42px;
     z-index: 195;
+    color: #fff;
 }
-.menu_user {
+#menu_user {
     position: relative;
     float: right;
     color: #fff;
     margin-left: auto;
+    height: 100%;
+    /* overflow: hidden; */
 }
-.menu_user label{
+#menu_user > label{
     color: #fff;
     position: relative;
-    display: block;
-    line-height: 34px;
     padding-right: 27px;
     padding-left: 8px;
-    cursor: pointer;
+    line-height: 42px;
+    overflow: hidden;
 }
-.menu_user input {
-    visibility: hidden;
-    width: 0;
-    float: right;
-    margin: 0;
-}
-.menu_user .submenu {
+#menu_user .subOptions {
     position: absolute;
+    top: 42px;
     background: #373942;
     padding: 7px;
     color: #fff;
@@ -177,19 +214,19 @@ header {
     overflow: auto;
     right: 0;
 }
-.menu_user .submenu ul {
+#menu_user .subOptions ul {
     list-style: none;
     margin: 0;
     padding: 0;
 }
-.menu_user a {
+#menu_user a {
     color: #F3F3F3!important;
     font-size: 14px;
     white-space: nowrap;
     display: block;
     line-height: 25px;
 }
-.menu_user label .icon {
+#menu_user label .icon {
     width: 33px;
     height: 33px;
     overflow: hidden;
@@ -197,9 +234,10 @@ header {
     float: left;
     border-radius: 50%;
     margin-right: 15px;
+    margin-top: -4px;
     box-shadow: 0 0 0 0px #FFF, 0 0 0 0px #eee, 0 0px 0px 2px rgba(0, 0, 0, 0.2);
 }
-.menu_user label .icon img {
+#menu_user label .icon img {
   width:100%;
 }
 #menu_navigation{
@@ -222,23 +260,22 @@ header {
   float: right;
   height: 0;
 }
-#github {
+#git {
   float: right;
 }
-#github > span {
+#git .icon  {
   position: relative;
-  color: #F3F3F3;
-  font-size: 28px;
+  font-size: 24px;
   top: 5px;
+  line-height: 26px;
 }
-#github > a {
+#git > a {
   display: inline-block;
   position: relative;
   color:#F3F3F3;
-  padding: 4px;
-  top: -2px;
-  /* padding-right: 11px; */
-  line-height: 40px;
+  padding: 0 4px;
+  line-height: 36px;
+  font-size: 14px;
 }
 header .logo{
     padding: 0 10px;
@@ -281,16 +318,17 @@ nav ul li button:hover {
     opacity: 1;
 }
 nav > div > ul li a,nav > div > ul li a:visited,nav > div > ul li a:focus,nav > div > ul li a:active {
-    color: #f3f3f3;
+    color: #F3F3F3;
     font-size: 14px;
     font-weight: bold;
     white-space: nowrap;
     padding: 0 10px;
     display: block;
 }
-nav > div > ul li a:hover,nav > div > ul li a.current {
+nav a:hover,nav > div > ul li a.current {
     background: #046DCC;
     background: rgba(0,0,0,0.15);
+    color: #f3f3f3;
     opacity: 1;
     text-decoration: none;
 }
@@ -474,14 +512,14 @@ a:hover {
     -o-user-select: none;
     user-select: none;
 }
-.button.start{
+button.start,.button.start{
     background: #5F7C3A!important;
 }
-.button.delete,.button.stop{
-    background: #E2391B!important;
+button.delete,button.stop,.button.delete,.button.stop{
+    background: #BB4545!important;
 }
-.button:focus,.button:hover {
-    color: #d2d2d2;
+button:focus,button:hover,.button:focus,.button:hover {
+    background: #5B6477;
 }
 
 .colRight {
@@ -511,6 +549,7 @@ a:hover {
     line-height: 16px;
     padding: 10px;
     font-size: 15px;
+    position: relative;
 }
 .messagesPanel .warning {
     background: #D68100;
@@ -519,7 +558,10 @@ a:hover {
     background: #6E99F5;
 }
 .messagesPanel .error .close,.messagesPanel .warning .close,.messagesPanel .message .close {
-    float: right;
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    margin-top: -7px;
     cursor: pointer;
 }
 
@@ -599,4 +641,33 @@ label.error {
     -moz-border-radius:4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
+}
+
+.debug_block {
+  position: absolute;
+  padding-top: 1px;
+  margin-bottom: -1px;
+  margin-left: -1px;
+}
+.debug_block.k {
+  background: green;
+}
+.debug_block .info {
+  display: none;
+  position: absolute;
+}
+.debug_block:hover .info {
+  display: block;
+}
+.debug_block.x {
+  background: red
+}
+.debug_block.horizontal{
+  border: 1px solid blue;
+}
+.debug_block.vertical{
+  border: 1px solid orange;
+}
+.hidden {
+  display: none;
 }

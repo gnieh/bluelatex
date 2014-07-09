@@ -1,16 +1,16 @@
-<div id="manage">
+<div id="form-page">
     <h1 data-i18n="_Edit_paper_"></h1>
     <form name="editPaperForm">
         <div bl-messages></div>
         <div class="grid">
             <div class="col c1-3">
-                <label for="title" data-i18n="_Title_">Title</label>
+                <label for="name" data-i18n="_Name_">Title</label>
             </div>
             <div class="col c2-3 form-group">
-              <input class="form-control" id="title" disabled="disabled" name="title" type="text" autofocus
-                data-i18n-attr="_Title_|placeholder" required ng-model="paper.title" />
+              <input class="form-control" id="name" name="name" type="text" autofocus
+                data-i18n-attr="_Name_|placeholder" required ng-model="paper.name" />
                 <span class="control-label"
-                  ng-show="editPaperForm.title.$error.required" data-i18n="_Required_"></span>
+                  ng-show="editPaperForm.name.$error.required" data-i18n="_Required_"></span>
             </div>
         </div>
         <div class="grid">
@@ -19,10 +19,13 @@
             </div>
             <div class="col c2-3 form-group">
               <div class="authors">
-                <div class="author" ng-repeat="author in paper.authors">
+                <div class="author" ng-repeat="author in paperRoles.authors">
                   <input type="hidden" ng-model="author">
                   <div class="label">{{author}}</div>
                   <a ng-click="removeAuthor(author)" class="button icon-delete"></a>
+                </div>
+                <div class="author" ng-if="paperRoles.authors.length == 0">
+                  <div class="label" data-i18n="_No_author_"></div>
                 </div>
                 <div class="clear"></div>
               </div>
@@ -30,7 +33,7 @@
                 <angucomplete id="new_author"
                   placeholder="New author"
                   pause="100"
-                  selectedobject="new_author"
+                  selectedobject="newAuthor"
                   localdata="users"
                   searchfields="name"
                   titlefield="name"
@@ -46,10 +49,13 @@
             </div>
             <div class="col c2-3 form-group">
               <div class="reviewers">
-                <div class="reviewer" ng-repeat="reviewer in paper.reviewers">
+                <div class="reviewer" ng-repeat="reviewer in paperRoles.reviewers">
                   <input type="hidden" ng-model="reviewer">
                   <div class="label">{{reviewer}}</div>
                   <a ng-click="removeReviewer(reviewer)" class="button icon-delete"></a>
+                </div>
+                <div class="reviewer" ng-if="paperRoles.reviewers.length == 0">
+                  <div class="label" data-i18n="_No_reviewer_"></div>
                 </div>
                 <div class="clear"></div>
               </div>
@@ -57,7 +63,7 @@
                 <angucomplete id="new_reviewer"
                   placeholder="New reviewer"
                   pause="100"
-                  selectedobject="new_reviewer"
+                  selectedobject="newReviewer"
                   localdata="users"
                   searchfields="name"
                   titlefield="name"
@@ -69,11 +75,11 @@
         </div>
         <!--<div class="grid">
             <div class="col c1-3">
-                <label for="reviewers" data-i18n="_Tags_"></label>
+                <label for="tags" data-i18n="_Tags_"></label>
             </div>
             <div class="col c2-3 form-group">
-              <div class="reviewers">
-                <div class="reviewer" ng-repeat="tag in paper.tags">
+              <div class="tags">
+                <div class="tag" ng-repeat="tag in paper.tags">
                   <input type="hidden" ng-model="tag">
                   <div class="label">{{tag}}</div>
                   <a ng-click="removeTag(tag)" class="button icon-delete"></a>
@@ -81,12 +87,53 @@
                 <div class="clear"></div>
               </div>
               <div class="new">
-                <input type="text" ng-model="new_tag" placeholder="New tag">
+                <input id="tags" type="text" ng-model="newTag" placeholder="New tag">
                 <a ng-click="addTag()" class="button icon-add"></a>
               </div>
             </div>
         </div>-->
-        <a class="button" ng-disabled="!editPaperForm.$valid" data-i18n="_Edit_" ng-click="modify()"></a>
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="compiler" data-i18n="_Compiler_"></label>
+                <span class="control-label"
+                  ng-show="editPaperForm.compiler.$error.required" data-i18n="_Required_"></span>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': editPaperForm.compiler.$invalid}">
+              <select class="form-control" id="compiler" name="compiler"
+                data-i18n-attr="_Compiler_|placeholder" ng-model="compilerSettings.compiler"
+                ng-options="compiler for compiler in compilers" required>
+                <option value="">-- choose compiler --</option>
+              </select>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="interval" data-i18n="_Compiler_Interval_"></label>
+                <span class="control-label"
+                  ng-show="editPaperForm.interval.$error.required" data-i18n="_Required_"></span>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': editPaperForm.interval.$invalid}">
+              <input type="number" id="interval" name="interval" required ng-model="compilerSettings.interval">
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="synctex">SyncTex</label>
+                <span class="control-label"
+                  ng-show="editPaperForm.synctex.$error.required" data-i18n="_Required_"></span>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': editPaperForm.synctex.$invalid}">
+              <input id="synctex" name="synctex" type="checkbox" ng-model="compilerSettings.synctex" style="display: none">
+              <label for="synctex" ng-if="compilerSettings.synctex" data-i18n="_On_"></label>
+              <label for="synctex" ng-if="!compilerSettings.synctex" data-i18n="_Off_"></label>
+            </div>
+        </div>
         <a class="button" href="#/papers" data-i18n="_Cancel_"></a>
+        <button type="sumbit" ng-disabled="!editPaperForm.$valid || saving" data-i18n="_Edit_" ng-click="modify()" ng-class="{'process': saving}">></button>
     </form>
 </div>

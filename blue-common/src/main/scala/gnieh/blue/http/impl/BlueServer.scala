@@ -38,6 +38,9 @@ class BlueServer(context: BundleContext, system: ActorSystem, configuration: Con
   protected val ports =
     Set(configuration.getInt("http.port"))
 
+  protected override val bindHost =
+    configuration.getString("http.host")
+
   private val extApp =
     new ExtensibleApp(configuration, system)
 

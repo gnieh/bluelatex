@@ -20,6 +20,7 @@ package let
 
 import http._
 import common._
+import permission._
 
 import tiscaf._
 
@@ -27,28 +28,40 @@ import com.typesafe.config.Config
 
 import scala.util.Try
 
-import scala.io.Source
+import scala.io.{
+  Source,
+  Codec
+}
 
 import resource._
 
 import gnieh.sohva.control.CouchClient
 
+import java.nio.charset.CodingErrorAction
+
+object GetLogLet {
+
+  val codec = Codec.UTF8.onMalformedInput(CodingErrorAction.REPLACE)
+
+}
+
 class GetLogLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>
 
       import FileUtils._
 
-      val logFile = configuration.buildDir(paperId) / s"$paperId.log"
+      val logFile = configuration.buildDir(paperId) / s"main.log"
 
       if(logFile.exists)
-        Try(for(log <- managed(Source.fromFile(logFile))) {
+        Try(for(log <- managed(Source.fromFile(logFile)(GetLogLet.codec))) {
 
-          val text = log.mkString
+          val text = log.mkString.getBytes("UTF-8")
 
-          talk.setContentType(HMime.txt)
-            .setContentLength(text.length)
+          talk.setContentType("${HMime.txt};charset=${talk.encoding}")
+            .setContentLength(text.size)
+            .setFilename(logFile.getName)
             .write(text)
         })
       else

@@ -20,6 +20,7 @@ package let
 
 import http._
 import common._
+import permission._
 
 import tiscaf._
 
@@ -42,7 +43,7 @@ class GetPngLet(paperId: String, page: Int, val couch: CouchClient, config: Conf
 
   import FileUtils._
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
     case Author | Reviewer =>
       val pngPage = paperId + "-" + page + ".png"
       val pngFile = configuration.buildDir(paperId) / pngPage
@@ -51,7 +52,7 @@ class GetPngLet(paperId: String, page: Int, val couch: CouchClient, config: Conf
 
         // the generated pdf file
         val paperDir = configuration.buildDir(paperId)
-        val pdfFile = paperDir / s"$paperId.pdf"
+        val pdfFile = paperDir / s"main.pdf"
 
         if (pdfFile.exists) {
 

@@ -21,6 +21,7 @@ package paper
 import http._
 import couch.Paper
 import common._
+import permission._
 
 import com.typesafe.config.Config
 
@@ -37,39 +38,31 @@ import scala.util.{
 
 import gnieh.sohva.control.CouchClient
 
-/** Handle JSON Patches that add/remove/modify people involved in the given paper, tags,
- *  branches, ...
+/** Handle JSON Patches that modify paper data such as paper name
  *
  *  @author Lucas Satabin
  */
 class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>
       // only authors may modify this list
       (talk.req.octets, talk.req.header("if-match")) match {
         case (Some(octets), knownRev @ Some(_)) =>
-          val db = database(blue_papers)
+          val manager = entityManager("blue_papers")
           // the modification must be sent as a JSON Patch document
           // retrieve the paper object from the database
-          db.getDocById[Paper](paperId) flatMap {
+          manager.getComponent[Paper](paperId) flatMap {
             case Some(paper) if paper._rev == knownRev =>
               talk.readJson[JsonPatch] match {
                 case Some(patch) =>
                   // the revision matches, we can apply the patch
                   val paper1 = patch(paper).withRev(knownRev)
                   // and save the new paper data
-                  db.saveDoc(paper1) map {
-                    case Some(p) =>
-                      // save successfully, return ok with the new ETag
-                      // we are sure that the revision is not empty because it comes from the database
-                      talk.writeJson(true, p._rev.get)
-                    case None =>
-                      // something went wrong
-                      talk
-                        .setStatus(HStatus.InternalServerError)
-                        .writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
-                  }
+                  for(p <- manager.saveComponent(paperId, paper1))
+                    // save successfully, return ok with the new ETag
+                    // we are sure that the revision is not empty because it comes from the database
+                    yield talk.writeJson(true, p._rev.get)
                 case None =>
                   // nothing to do
                   Success(
@@ -77,6 +70,14 @@ class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, lo
                       .setStatus(HStatus.NotModified)
                       .writeJson(ErrorResponse("nothing_to_do", "No changes sent")))
               }
+
+            case Some(_) =>
+              // nothing to do
+              Success(
+                talk
+                  .setStatus(HStatus.Conflict)
+                  .writeJson(ErrorResponse("conflict", "Old paper info revision provided")))
+
             case None =>
               // unknown paper
               Success(
@@ -104,7 +105,7 @@ class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, lo
       Success(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may modify the list of involved people")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may modify the paper data")))
   }
 
 }

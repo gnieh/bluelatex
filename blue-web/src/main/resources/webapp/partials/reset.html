@@ -1,21 +1,28 @@
-<div id="register_form">
+<div id="form-page">
   <h1 data-i18n="_ResetTitle_"></h1>
+
+  <p>
+    To reset your password, enter the username you use to sign in.
+  </p> 
   <form name="resetForm" novalidate ng-submit="reset()">
     <div bl-messages></div>
-    <div class="form-group"
-      ng-class="{'has-error': resetForm.username.$invalid}">
-      <label class="form-label" for="rest_username" data-i18n="_Username_"></label>
-      <input class="form-control" id="rest_username" name="username" type="text" autofocus
-        data-i18n-attr="_Username_|placeholder" required ng-model="user.username" />
+    <div class="grid">
+      <div class="col c1-3">
+        <label for="rest_username" data-i18n="_Username_"></label>
         <span class="control-label"
-          ng-show="resetForm.username.$error.required" data-i18n="_Required_"></span>
+            ng-show="resetForm.username.$error.required" data-i18n="_Required_"></span>
+      </div>
+      <div class="col c2-3 form-group"
+        ng-class="{'has-error': resetForm.username.$invalid}">
+        <input class="form-control" id="rest_username" name="username" type="text" autofocus
+        data-i18n-attr="_Username_|placeholder" required ng-model="user.username" />
+      </div>
     </div>
     <div class="form-group">
-      <button type="submit" class="btn btn-primary pull-right" ng-disabled="!resetForm.$valid"
-        data-i18n-attr="_Submit_|value" data-i18n-attr="_Submit_|title">
-        <span data-i18n="_Submit_"></span>
+      <a class="button" href="#/login" data-i18n="_Cancel_"></a>
+      <button type="submit" ng-disabled="!resetForm.$valid || requesting"  ng-class="{'process': requesting}" data-i18n-attr="_Reset_|value" disabled="disabled">
+        <span data-i18n="_Reset_"></span>
       </button>
-      <a class="button" href="#/" data-i18n="_Cancel_">Cancal</a>
     </div>
   </form>
 </div>

@@ -23,6 +23,8 @@ import org.scalatest._
 import dispatch._
 
 import gnieh.sohva.sync._
+import gnieh.sohva.sync.entities.EntityManager
+
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -76,26 +78,29 @@ abstract class BlueScenario extends FeatureSpec
     sess
   }
 
+  lazy val paperManager = new EntityManager(couch.database("blue_papers"))
+  lazy val userManager = new EntityManager(couch.database("blue_users"))
+
   object mailbox extends Mailbox
 
   override def beforeAll(config: ConfigMap): Unit =  try {
     super.beforeAll(config)
   } finally {
-    assume(config.isDefinedAt("couchPort"), "couchPort must be provided")
-    assume(config.isDefinedAt("admin"), "admin must be provided")
-    assume(config.isDefinedAt("password"), "password must be provided")
     try {
+      assume(config.isDefinedAt("couchPort"), "couchPort must be provided")
+      assume(config.isDefinedAt("admin"), "admin must be provided")
+      assume(config.isDefinedAt("password"), "password must be provided")
       couchPort = config.getRequired[String]("couchPort").toInt
       admin = config.getRequired[String]("admin")
       password = config.getRequired[String]("password")
+      mailbox.start()
+      // ensure the databases exist
+      couch.database("blue_users").create
+      couch.database("blue_papers").create
     } catch {
       case e: Exception =>
         e.printStackTrace
     }
-    mailbox.start()
-    // ensure the databases exist
-    couch.database("blue_users").create
-    couch.database("blue_papers").create
   }
 
   override def afterAll(config: ConfigMap): Unit = try {
@@ -122,7 +127,7 @@ abstract class BlueScenario extends FeatureSpec
 
   type Result[T] = Either[(Int, ErrorResponse), (T, Map[String, List[String]])]
 
-  val PasswordResetRegex = s"(?s).*http://localhost:$bluePort/web/index\\.html#/([^/]+)/reset/(\\S+).*".r
+  val PasswordResetRegex = s"(?s).*http://localhost:$bluePort/index\\.html#/([^/]+)/reset/(\\S+).*".r
 
   case class BlueErrorException(status: Int, error: ErrorResponse) extends Exception {
     override def toString  = s"error: $status, message: $error"
@@ -131,7 +136,7 @@ abstract class BlueScenario extends FeatureSpec
   implicit val formats = DefaultFormats + JsonPatchSerializer
 
   private def request(path: List[String]) =
-    path.foldLeft(:/("localhost", bluePort)) { (acc, p) => acc / p }
+    path.foldLeft(:/("localhost", bluePort) / "api") { (acc, p) => acc / p }
 
   private def serialize(obj: Any): String = pretty(render(obj match {
     case i: Int => JInt(i)

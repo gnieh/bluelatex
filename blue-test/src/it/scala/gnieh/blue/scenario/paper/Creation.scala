@@ -40,15 +40,17 @@ class PaperCreationSpec extends BlueScenario with SomeUsers {
 
       When("he creates a new paper")
       val title = "On Writing Tests"
-      val (id, _) = post[String](List("papers"), Map("paper_title" -> title))
+      val (id, _) = post[String](List("papers"), Map("paper_name" -> title, "paper_title" -> title))
 
       Then("the paper can be retrieved from the service")
-      val (paper, _) = get[Paper](List("papers", id, "info"))
+      val (paper, _) = get[PaperInfo](List("papers", id, "info"))
 
-      paper.title should be(title)
-      paper.cls should be("article")
-      paper.authors should be(Set(rene.username))
-      paper.reviewers should be('empty)
+      paper.name should be(title)
+
+      val (roles, _) = get[PaperRole](List("papers", id, "roles"))
+
+      roles.authors should be(Set(rene.username))
+      roles.reviewers should be('empty)
 
     }
 

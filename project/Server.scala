@@ -7,6 +7,11 @@ import gnieh.sohva.Configuration
 import gnieh.sohva.testing._
 import scala.util.Properties
 
+import java.io.File
+
+import sbtassembly.Plugin._
+import AssemblyKeys._
+
 trait Server {
   this: BlueBuild =>
 
@@ -36,7 +41,7 @@ trait Server {
       (artifact, file) <- m.artifacts
       if DependencyFilter.allPass(c.configuration, m.module, artifact)
     } yield file
-    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
+    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(File.pathSeparator)
     if(Properties.isWin) defaultStartPrunOptionsOptions(cp) else defaultStartJsvcOptions(cp)
   }
 
@@ -47,7 +52,7 @@ trait Server {
       (artifact, file) <- m.artifacts
       if DependencyFilter.allPass(c.configuration, m.module, artifact)
     } yield file
-    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(":")
+    val cp = ((jar +: jars).map(_.getCanonicalPath)).mkString(File.pathSeparator)
     if(Properties.isWin) defaultStartPrunOptionsOptions(cp) else (defaultStartJsvcOptions(cp) ::: List("-stop"))
   }
 
@@ -63,6 +68,8 @@ trait Server {
         "org.apache.felix" % "org.apache.felix.main" % "4.2.1",
         "commons-daemon" % "commons-daemon" % "1.0.15"
       )
+    ) settings(assemblySettings: _*) settings (
+      jarName in assembly := "blue-launcher.jar"
     )
 
   val launchExe =
@@ -89,7 +96,7 @@ trait Server {
           if(Properties.isWin)
             None
           else
-            Some(new CouchInstance(t / "couchdb", false, true, "1.4.0", Configuration(Map("log" -> Map("level" -> "debug")))))
+            Some(new CouchInstance(t / "couchdb", false, true, "1.4.0", Configuration(Map("couchdb" -> Map("delayed_commits" -> "false"), "log" -> Map("level" -> "debug")))))
       ),
       launchExe := (if(Properties.isWin) "prunsrv" else "jsvc"),
       startOptions <<= (update in blueLauncher, packageBin in (blueLauncher, Compile)) map (defaultStartOptions _),

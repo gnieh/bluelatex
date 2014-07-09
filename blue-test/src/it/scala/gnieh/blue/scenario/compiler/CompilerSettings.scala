@@ -47,7 +47,7 @@ class CompilerSettingsSpec extends BlueScenario with SomeUsers {
 
       When("he creates a new paper")
       val title = "Some Test Paper"
-      val (paperId, _) = post[String](List("papers"), Map("paper_title" -> title))
+      val (paperId, _) = post[String](List("papers"), Map("paper_name" -> title, "paper_title" -> title))
 
       Then("settings are created for the newly created paper")
       val (compilerSettings, headers) = get[CompilerSettings](List("papers", paperId, "compiler"))

@@ -22,7 +22,10 @@ import http._
 import couch._
 import common._
 
-import java.util.UUID
+import java.util.{
+  Date,
+  UUID
+}
 import java.io.{
   File,
   FileWriter
@@ -49,54 +52,95 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class CreatePaperLet(val couch: CouchClient, config: Config, context: BundleContext, templates: Templates, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class CreatePaperLet(
+  val couch: CouchClient,
+  config: Config,
+  context: BundleContext,
+  templates: Templates,
+  logger: Logger)
+    extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
-    talk.req.param("paper_title") match {
-      case Some(title) =>
-        // new paper identifier
-        val newId = "w" + UUID.randomUUID.getMostSignificantBits.toHexString
+    (talk.req.param("paper_name"), talk.req.param("paper_title")) match {
+      case (Some(name), Some(title)) =>
 
         val template = talk.req.param("template").getOrElse("article")
 
         val configuration = new PaperConfiguration(config)
 
-        // if the template is not one of the standard styles,
-        // then there should be an associated .sty file to be copied in `resources'
-        // directory
-        val clazz = template match {
-          case "article" | "book" | "report" =>
-            // built-in template, ignore it
-          case cls if configuration.cls(cls).exists =>
-            // copy the file to the working directory
-            (configuration.cls(cls) #> new File(configuration.paperDir(newId), cls + ".cls")) !
-              CreationProcessLogger
-          case cls =>
-            // TODO just log that the template was not found. It can however be uploaded later by the user
-        }
+        val manager = entityManager("blue_papers")
 
-        configuration.paperDir(newId).mkdirs
+        val newId = s"x${UUID.randomUUID.getMostSignificantBits.toHexString}"
 
-        // write the template to the newly created paper
-        for(fw <- managed(new FileWriter(configuration.paperFile(newId)))) {
-          fw.write(templates.layout(s"$template.tex", "title" -> title, "id" -> newId))
-        }
+        for {
+          // create the paper into the database
+          () <- manager.create(newId, None)
+          // add the core component which contains the type, the title
+          paper <- manager.saveComponent(newId, Paper(s"$newId:core", name, new Date))
+          // add the permissions component to set the creator as author
+          roles <- manager.saveComponent(newId, PaperRole(s"$newId:roles", UsersGroups(Set(user.name), Set()), UsersGroups(Set(), Set()),
+            UsersGroups(Set(), Set())))
+          user <- entityManager("blue_users").getComponent[User](s"org.couchdb.user:${user.name}")
+        } yield {
+          if(configuration.paperDir(newId).mkdirs) {
 
-        // create empty bibfile
-        configuration.bibFile(newId).createNewFile
+            // if the template is not one of the standard styles,
+            // then there should be an associated .sty file to be copied in `resources'
+            // directory
+            val templateName = template match {
+              case "article" | "book" | "report" =>
+                // built-in template, ignore it
+                "generic"
+              case "beamer" =>
+                "beamer"
+              case cls if configuration.cls(cls).exists =>
+                // copy the file to the working directory
+                logDebug(s"Copying class ${configuration.cls(cls)} to paper directory ${configuration.paperDir(newId)}")
+                (configuration.cls(cls) #> new File(configuration.paperDir(newId), cls + ".cls")) !
+                  CreationProcessLogger
+                cls
+              case cls =>
+                // just log that the template was not found. It can however be uploaded later by the user
+                logDebug(s"Class $cls was not found, the user will have to upload it later")
+                "generic"
+            }
 
-        import OsgiUtils._
+            // write the template to the newly created paper
+            for(fw <- managed(new FileWriter(configuration.paperFile(newId)))) {
+              fw.write(
+                templates.layout(
+                  s"$templateName.tex",
+                  "class" -> template,
+                  "title" -> title,
+                  "id" -> newId,
+                  "author" -> user.map(_.fullName).getOrElse("Your Name"),
+                  "email" -> user.map(_.email).getOrElse("your@email.com"),
+                  "affiliation" -> user.flatMap(_.affiliation).getOrElse("Institute")
+                )
+              )
+            }
 
-        // create the paper database
-        for(_ <- database("blue_papers").saveDoc(Paper(newId, title, Set(user.name), Set(), template)))
-          yield {
-            // notifiy creation hooks
-            for(hook <- context.getAll[PaperCreated])
-              Try(hook.afterCreate(newId, couchSession))
-            talk.setStatus(HStatus.Created).writeJson(newId)
+            // create empty bibfile
+            configuration.bibFile(newId).createNewFile
+
+            import OsgiUtils._
+
+              // notifiy creation hooks
+              for(hook <- context.getAll[PaperCreated])
+                Try(hook.afterCreate(newId, manager)) recover {
+                  case e => logError("Error in post paper creation hook", e)
+                }
+              talk.setStatus(HStatus.Created).writeJson(newId)
+
+          } else {
+            logError(s"Unable to create the paper directory: ${configuration.paperDir(newId)}")
+            talk
+              .setStatus(HStatus.InternalServerError)
+              .writeJson(ErrorResponse("cannot_create_paper", "Something went wrong on the server side"))
           }
+        }
 
-      case None =>
+      case (_, _) =>
         // missing parameter
         Success(
           talk
@@ -106,8 +150,10 @@ class CreatePaperLet(val couch: CouchClient, config: Config, context: BundleCont
     }
 
   object CreationProcessLogger extends ProcessLogger {
-    def out(s: => String) = ???
-    def err(s: => String) = ???
+    def out(s: => String) =
+      logInfo(s)
+    def err(s: => String) =
+      logError(s)
     def buffer[T](f: => T) = f
   }
 

@@ -36,6 +36,9 @@ import resource._
 
 import http._
 import common._
+import permission._
+
+import couch.Paper
 
 import scala.util.Try
 
@@ -47,48 +50,53 @@ import gnieh.sohva.control.CouchClient
  */
 class BackupPaperLet(format: String, paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = role match {
     case Author =>
-      // only authors may backup the paper sources
-      import FileUtils._
-      val toZip =
-        configuration.paperDir(paperId).filter(f => !f.isDirectory && !f.isHidden && !f.isTeXTemporary).toArray
+      entityManager("blue_papers").getComponent[Paper](paperId) map {
+        case Some(Paper(_, name, _)) =>
+          // only authors may backup the paper sources
+          import FileUtils._
+          val toZip =
+            configuration.paperDir(paperId).filter(f => !f.isDirectory && !f.isHidden && !f.isTeXTemporary).toArray
 
-      //logger.debug("Files to zip: " + toZip.mkString(", "))
-
-      for(os <- managed(new ByteArrayOutputStream);
-          zip <- managed(new ZipOutputStream(os))) {
-        for (file <- toZip) {
-          for(fis <- managed(new FileInputStream(file))) {
-            try {
-              // create a new entry
-              zip.putNextEntry(new ZipEntry(file.getName))
-              // write into this entry
-              val length = fis.available
-              for (i <- 0 until length)
-                zip.write(fis.read)
-              // close the entry which was just written
-              zip.closeEntry
-            } catch {
-              case e: ZipException =>
-                //logger.error("unable to add entry "
-                //  + file.getName + " to zipn archive for paper "
-                //  + paperId + ". Skipping it...", e)
+          for(os <- managed(new ByteArrayOutputStream);
+              zip <- managed(new ZipOutputStream(os))) {
+            for (file <- toZip) {
+              for(fis <- managed(new FileInputStream(file))) {
+                try {
+                  // create a new entry
+                  zip.putNextEntry(new ZipEntry(file.getName))
+                  // write into this entry
+                  val length = fis.available
+                  for (i <- 0 until length)
+                    zip.write(fis.read)
+                  // close the entry which was just written
+                  zip.closeEntry
+                } catch {
+                  case e: ZipException =>
+                }
+              }
             }
+
+            zip.finish
+
+            talk.setContentType(HMime.zip)
+              .setContentLength(os.size)
+              .setFilename(s"$name.$format")
+              .write(os.toByteArray)
           }
-        }
 
-        zip.finish
+        case None =>
 
-        talk.setContentType(HMime.zip)
-          .setContentLength(os.size)
-          .write(os.toByteArray)
+          talk
+            .setStatus(HStatus.NotFound)
+            .writeJson(ErrorResponse("not_found", s"No paper data for paper $paperId"))
       }
 
     case _ =>
-      talk
+      Try(talk
         .setStatus(HStatus.Forbidden)
-        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may backup the paper sources"))
-  })
+        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may backup the paper sources")))
+  }
 
 }

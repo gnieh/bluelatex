@@ -60,6 +60,11 @@
         "description":"Affiliation"
     },
     {
+        "key":"_Registration_Success_",
+        "value":"You are now registred please check your email to define your password.",
+        "description":"Registration success"
+    },
+    {
         "key":"_Registration_Some_parameters_are_missing_",
         "value":"Some parameters are missing",
         "description":"Error registration"
@@ -83,6 +88,11 @@
         "key":"_Login_Some_parameters_are_missing_",
         "value":"Some parameters are missing",
         "description":"Login error"
+    },
+    {
+        "key":"_Reset_Wait_email_confirm_request_",
+        "value":"Please ckeck your email",
+        "description":"Reset password succed"
     },
     {
         "key":"_Login_Wrong_username_and_or_password_",
@@ -116,7 +126,7 @@
     },
     {
         "key":"_ResetTitle_",
-        "value":"Reset",
+        "value":"Forgot your password?",
         "description":"Reset page title"
     },
     {
@@ -135,6 +145,26 @@
         "description":"Reset a form"
     },
     {
+        "key":"_Yes_",
+        "value":"Yes",
+        "description":"Yes"
+    },
+    {
+        "key":"_No_",
+        "value":"No",
+        "description":"No"
+    },
+    {
+        "key":"_On_",
+        "value":"On",
+        "description":"On"
+    },
+    {
+        "key":"_Off_",
+        "value":"Off",
+        "description":"Off"
+    },
+    {
         "key":"_New_paper_",
         "value":"New paper",
         "description":"New paper"
@@ -143,6 +173,11 @@
         "key":"_Title_",
         "value":"Title",
         "description":"Title"
+    },
+    {
+        "key":"_Name_",
+        "value":"Name",
+        "description":"Name"
     },
     {
         "key":"_Template_",
@@ -270,6 +305,11 @@
         "description":"Date"
     },
     {
+        "key":"_Creation_date_",
+        "value":"Creation date",
+        "description":"Creation date"
+    },
+    {
         "key":"_Authors_",
         "value":"Authors",
         "description":"Authors"
@@ -280,6 +320,16 @@
         "description":"Author"
     },
     {
+        "key":"_User_",
+        "value":"User",
+        "description":"User"
+    },
+    {
+        "key":"_No_author_",
+        "value":"No author",
+        "description":"No author"
+    },
+    {
         "key":"_Sort_by_",
         "value":"Sort by",
         "description":"Sort by"
@@ -288,6 +338,11 @@
         "key":"_Delete_",
         "value":"Delete",
         "description":"Delete"
+    },
+    {
+        "key":"_Delete_paper_confirm_",
+        "value":"Are you sure you want to remove the paper: \"\\s\"?",
+        "description":"Delete paper confirmation"
     },
     {
         "key":"_Ascending_",
@@ -365,6 +420,11 @@
         "description":"Reviewer"
     },
     {
+        "key":"_No_reviewer_",
+        "value":"No reviewer",
+        "description":"No reviewer"
+    },
+    {
         "key":"_Reviewers_",
         "value":"Reviewers",
         "description":"Reviewers"
@@ -440,6 +500,21 @@
         "description":"Resources"
     },
     {
+        "key":"_Resource_",
+        "value":"Resource",
+        "description":"Resource"
+    },
+    {
+        "key":"_File_",
+        "value":"File",
+        "description":"File"
+    },
+    {
+        "key":"_Line_",
+        "value":"Line",
+        "description":"Line"
+    },
+    {
         "key":"_No_resource_found_",
         "value":"No resource found",
         "description":"No resource found"
@@ -483,6 +558,11 @@
         "key":"_Interval_",
         "value":"Interval",
         "description":"Interval"
+    },
+    {
+        "key":"_Compiler_Interval_",
+        "value":"Compiler interval",
+        "description":"Compiler Interval"
     },
     {
         "key":"_Upload_",
@@ -530,6 +610,22 @@
         "key":"_Get_info_paper_Something_wrong_happened_",
         "value":"Unable to get paper info",
         "description":"Unable to get paper info"
+    },
+
+    {
+        "key":"_Get_roles_paper_Not_connected_",
+        "value":"Your are not connected",
+        "description":"User not connected"
+    },
+    {
+        "key":"_Get_roles_paper_Paper_not_found_",
+        "value":"Paper not found",
+        "description":"Paper not found"
+    },
+    {
+        "key":"_Get_roles_paper_Something_wrong_happened_",
+        "value":"Unable to get paper roles",
+        "description":"Unable to get paper roles"
     },
 
 
@@ -585,6 +681,10 @@
 
 
     {
+        "key":"_No_synchronized_file_found_",
+        "value":"No synchronized file found",
+        "description":"No synchronized file found"
+    },{
         "key":"_Get_synchronized_resource_Not_connected_",
         "value":"Your are not connected",
         "description":"User not connected"
@@ -743,5 +843,20 @@
         "key":"_Warnings_",
         "value":"Warnings",
         "description":"Warnings"
+    },
+    {
+        "key":"_Clone_me_",
+        "value":"Clone me!",
+        "description":"Clone me in the header"
+    },
+    {
+        "key":"_Report_an_issue_",
+        "value":"Report an issue!",
+        "description":"Report an issue in the header"
+    },
+    {
+        "key":"_Captcha_",
+        "value":"Captcha",
+        "description":"Registration captcha label"
     }
 ]

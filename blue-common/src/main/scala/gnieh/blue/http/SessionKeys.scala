@@ -16,6 +16,8 @@
 package gnieh.blue
 package http
 
+import tiscaf.HTalk
+
 /** Keys of object stored in the session
  *
  *  @author Lucas Satabin
@@ -25,9 +27,15 @@ object SessionKeys {
 
   val Username = "username"
 
+  val Peers = "peers"
+
   val Couch = "couch"
 
   val Git = "git"
+
+  /** Gets the value of the given type in the session if it exists */
+  def get[T: Manifest](key: String)(implicit talk: HTalk): Option[T] =
+    talk.ses.get(key).collect { case v: T => v }
 
 }
 

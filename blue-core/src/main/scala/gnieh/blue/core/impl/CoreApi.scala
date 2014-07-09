@@ -40,7 +40,7 @@ import gnieh.sohva.control.CouchClient
  */
 class CoreApi(
   couch: CouchClient,
-  config: Config,
+  val config: Config,
   system: ActorSystem,
   context: BundleContext,
   templates: Templates,
@@ -59,11 +59,11 @@ class CoreApi(
     case p"papers" =>
       new CreatePaperLet(couch, config, context, templates, logger)
     // join a paper
-    case p"papers/$paperid/join" =>
-      new JoinPaperLet(paperid, system, couch, config, logger)
+    case p"papers/$paperid/join/$peerid" =>
+      new JoinPaperLet(paperid, peerid, system, couch, config, logger)
     // leave a paper
-    case p"papers/$paperid/part" =>
-      new PartPaperLet(paperid, system, couch, config, logger)
+    case p"papers/$paperid/part/$peerid" =>
+      new PartPaperLet(paperid, peerid, system, couch, config, logger)
     // log a user in
     case p"session" =>
       new LoginLet(couch, config, logger)
@@ -76,9 +76,12 @@ class CoreApi(
     // save the data for the authenticated user
     case p"users/$username/info" =>
       new ModifyUserLet(username, couch, config, logger)
-    // add or remove people involved in this paper (authors, reviewers), change modules, tag, branch, ...
+    // modify paper information such as paper name
     case p"papers/$paperid/info" =>
       new ModifyPaperLet(paperid, couch, config, logger)
+    // add or remove people involved in this paper (authors, reviewers)
+    case p"papers/$paperid/roles" =>
+      new ModifyRolesLet(paperid, couch, config, logger)
   }
 
   private val GetUsersLet = new GetUsersLet(couch, config, logger)
@@ -99,8 +102,10 @@ class CoreApi(
     // gets the currently logged in user information
     case p"session" =>
       new GetSessionDataLet(couch, config, logger)
-    // gets the list of people involved in this paper with their role, the currently
-    // enabled modules, the tags, the branch, ...
+    // gets the list of people involved in this paper with their role
+    case p"papers/$paperid/roles" =>
+      new GetPaperRolesLet(paperid, couch, config, logger)
+    // gets the paper data
     case p"papers/$paperid/info" =>
       new GetPaperInfoLet(paperid, couch, config, logger)
     // downloads a zip archive containing the paper files

@@ -132,7 +132,7 @@ class CompatibilityTests extends FlatSpec with ShouldMatchers {
         "fraser",
         paperId,
         List(
-          Message("fraser", ("toto" -> true) ~ ("gnieh" -> 23) ~ ("plop" -> ("toto" -> "gruik")), true, Some("file1")),
+          Message("fraser", ("toto" -> true) ~ ("gnieh" -> 23) ~ ("plop" -> ("toto" -> "gruik")), Some("file1")),
           SyncCommand("file", -1, Nullify)
         )
       ),
@@ -169,7 +169,7 @@ class CompatibilityTests extends FlatSpec with ShouldMatchers {
       "fraser",
       paperId,
       List(
-        Message("fraser", ("toto" -> true) ~ ("gnieh" -> 23) ~ ("plop" -> ("toto" -> "gruik")), true, Some("file1")),
+        Message("fraser", ("toto" -> true) ~ ("gnieh" -> 23) ~ ("plop" -> ("toto" -> "gruik")), Some("file1")),
         SyncCommand("file", -1, Nullify)
       )
     )
@@ -178,7 +178,7 @@ class CompatibilityTests extends FlatSpec with ShouldMatchers {
       "toto",
       paperId,
       List(
-        Message("toto", ("toto" -> true), true, None),
+        Message("toto", ("toto" -> true), None),
         SyncCommand("plop", -1, Nullify)
       )
     )

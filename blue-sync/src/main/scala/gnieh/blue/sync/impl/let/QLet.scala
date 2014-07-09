@@ -22,6 +22,7 @@ import compat.ProtocolTranslator
 
 import common._
 import http._
+import permission._
 
 import tiscaf._
 
@@ -55,11 +56,14 @@ class QLet(paperId: String, synchroServer: SynchroServer, val couch: CouchClient
     new SyncActionSerializer +
     new EditSerializer
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = Try(role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = Try(role match {
     case Author =>
       // only authors may modify the paper content
       talk.req.octets match {
         case Some(octets) => {
+
+          logInfo("mobwrite compatibility let called")
+
           val data = new String(octets, talk.req.contentEncoding)
           val talkValue = new StringBuilder
           // Convert mobwrite protocol to \BlueLaTeX's

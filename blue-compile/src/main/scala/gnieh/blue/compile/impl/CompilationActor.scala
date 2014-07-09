@@ -44,6 +44,7 @@ import common._
 import couch.Paper
 
 import gnieh.sohva.control._
+import gnieh.sohva.control.entities.EntityManager
 
 /** This actor handles compilation of a paper.
  *  An instance of this actor is not eternally resident, if no
@@ -75,7 +76,7 @@ class CompilationActor(
 
   def receive = receiving(Map(), defaultSettings, None)
 
-  def receiving(clients: Map[String, Promise[Boolean]],
+  def receiving(clients: Map[String, Promise[CompilationStatus]],
                 settings: CompilerSettings,
                 lastCompilationDate: Option[Date]): Receive = {
     case Compile =>
@@ -110,7 +111,7 @@ class CompilationActor(
         // occurs on its own compilation server
         // it is also not necessary to run bibtex if no bibliography is to be generated
         // the settings should be able to handle this properly
-        val res = if (!hasBeenModified) Success(false) else for {
+        val res = if (!hasBeenModified) Success(CompilationUnnecessary) else for {
           // if the compiler is defined, we first compile the paper
           res <- compiler.compile(paperId, settings)
           // we run bibtex on it if the compilation succeeded
@@ -119,21 +120,12 @@ class CompilationActor(
           // clean the generated png files when compilation succeeded
           for(file <- configuration.buildDir(paperId).filter(_.extension == ".png"))
             file.delete
-          // extract the paper title and update it if necessary
-          // i.e. if it changes since the last version saved in the database
-          val pdfFile = configuration.buildDir(paperId) / s"$paperId.pdf"
-          couchConfig.asAdmin(couch) { session =>
-            val db = session.database(couchConfig.database("blue_papers"))
-            for {
-              paper <- db.getDocById[Paper](paperId)
-              pdf <- managed(PDDocument.load(pdfFile))
-              newTitle <- Option(pdf.getDocumentInformation.getTitle)
-              p <- paper
-              if p.title != newTitle
-            } db.saveDoc(p.copy(title = newTitle).withRev(p._rev))
-          }
 
-          res
+          if(res)
+            CompilationSucceeded
+          else
+            CompilationFailed
+
         }
 
         // and we send back the answer to the clients
@@ -141,10 +133,10 @@ class CompilationActor(
           client.complete(res)
 
         // if hasBeenModified is false, we are sure that lastCompilationDate is defined
-        val newDate = if (hasBeenModified) lastModificationDate else lastCompilationDate.get
+        val newDate = if (hasBeenModified) Some(lastModificationDate) else lastCompilationDate
 
         // and listen again with an empty list of clients
-        context.become(receiving(Map(), settings, Some(newDate)))
+        context.become(receiving(Map(), settings, newDate))
 
       }
 
@@ -166,7 +158,7 @@ class CompilationActor(
     case Stop =>
 
       for((_, client) <- clients)
-        client.complete(Try(false))
+        client.complete(Try(CompilationAborted))
 
       context.become(receiving(Map(), settings, lastCompilationDate))
 
@@ -175,5 +167,4 @@ class CompilationActor(
 }
 
 case object Compile
-case class Register(username: String, response: Promise[Boolean])
-
+case class Register(username: String, response: Promise[CompilationStatus])

@@ -36,7 +36,14 @@ import scala.util.{
   Random
 }
 
-import gnieh.sohva.control.CouchClient
+import gnieh.sohva.control.{
+  CouchClient,
+  Session
+}
+import gnieh.sohva.{
+  SohvaException,
+  ConflictException
+}
 
 /** Handle registration of a new user into the system.
  *  When a user is created it is created with a randomly generated password and a password reset
@@ -58,49 +65,34 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
         email <- talk.req.param("email_address")
         affiliation = talk.req.param("affiliation")
       } yield {
+        implicit val t = talk
         couchConfig.asAdmin(couch) { session =>
           // generate a random password
           val password = session._uuid.getOrElse(Random.nextString(20))
           // first save the standard couchdb user
           session.users.add(username, password, couchConfig.defaultRoles) flatMap {
             case true =>
+              val manager = entityManager("blue_users")
               // now the user is registered as standard couchdb user, we can add the \BlueLaTeX specific data
+              val userid = s"org.couchdb.user:$username"
               val user = User(username, firstName, lastName, email, affiliation)
-              val db = session.database(blue_users)
-              db.saveDoc(user) flatMap {
-                case Some(user) =>
-                  // the user is now registered
-                  // generate the password reset token
-                  val cal = Calendar.getInstance
-                  cal.add(Calendar.SECOND, couchConfig.tokenValidity)
-                  session.users.generateResetToken(username, cal.getTime) map {
-                    case Some(token) =>
-                      // send the confirmation email
-                      val email = templates.layout("emails/register",
-                        "firstName" -> firstName,
-                        "baseUrl" -> config.getString("blue.base_url"),
-                        "name" -> username,
-                        "token" -> token,
-                        "validity" -> (couchConfig.tokenValidity / 24 / 3600))
-                      mailAgent.send(username, "Welcome to \\BlueLaTeX", email)
+              (for {
+                () <- manager.create(userid, Some("blue-user"))
+                user <- manager.saveComponent(userid, user)
+                _ <- sendEmail(user, session)
+              } yield {
+                import OsgiUtils._
+                // notifiy creation hooks
+                couchConfig.asAdmin(couch) { session =>
+                  for(hook <- context.getAll[UserRegistered])
+                    Try(hook.afterRegister(user.name, manager))
+                }
 
-                      import OsgiUtils._
-                      // notifiy creation hooks
-                      couchConfig.asAdmin(couch) { session =>
-                        for(hook <- context.getAll[UserRegistered])
-                          Try(hook.afterRegister(username, session))
-                      }
-
-                      (HStatus.Created, true)
-                    case None =>
-                      logWarn(s"Unable to generate password reset token for user $username")
-                      Try(session.users.delete(username))
-                      Try(db.deleteDoc(user._id))
-                      (HStatus.InternalServerError,
-                        ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry"))
-                  }
-                case None =>
-                  logWarn(s"Unable to create \\BlueLaTeX user $username")
+                (HStatus.Created, true)
+              }) recoverWith {
+                case e =>
+                  //logWarn(s"Unable to create \\BlueLaTeX user $username")
+                  logError(s"Unable to create \\BlueLaTeX user $username", e)
                   // somehow we couldn't save it
                   // remove the couchdb user from database
                   Try(session.users.delete(username))
@@ -112,12 +104,12 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
               logWarn(s"Unable to create CouchDB user $username")
               Success((HStatus.InternalServerError,
                 ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry")))
-          } recover {
-            case _: gnieh.sohva.ConflictException =>
-              logWarn(s"User $username already exists")
-              (HStatus.Conflict,
-                ErrorResponse("unable_to_register", s"The user $username already exists"))
           }
+        } recover {
+          case SohvaException(_, ConflictException(_)) =>
+            logWarn(s"User $username already exists")
+            (HStatus.Conflict,
+              ErrorResponse("unable_to_register", s"The user $username already exists"))
         }
       }
 
@@ -130,6 +122,28 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
       Success(talk
         .setStatus(HStatus.Unauthorized)
         .writeJson(ErrorResponse("not_authorized", "ReCaptcha did not verify")))
+    }
+
+    private def sendEmail(user: User, session: Session) = {
+      // the user is now registered
+      // generate the password reset token
+      val cal = Calendar.getInstance
+      cal.add(Calendar.SECOND, couchConfig.tokenValidity)
+      session.users.generateResetToken(user.name, cal.getTime) map { token =>
+        logDebug(s"Sending confirmation email to ${user.email}")
+        // send the confirmation email
+        val email = templates.layout("emails/register",
+          "firstName" -> user.first_name,
+          "baseUrl" -> config.getString("blue.base-url"),
+          "name" -> user.name,
+          "token" -> token,
+          "validity" -> (couchConfig.tokenValidity / 24 / 3600))
+        logDebug(s"Registration email: $email")
+        mailAgent.send(user.name, "Welcome to \\BlueLaTeX", email)
+      } recover {
+        case e =>
+          logError(s"Unable to generate confirmation token for user ${user.name}", e)
+      }
     }
 
 }

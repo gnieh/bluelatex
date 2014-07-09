@@ -43,8 +43,8 @@ final case class LastModificationDate(promise: Promise[Date])
  *  @author Audric Schiltknecht
  *  @author Lucas Satabin
  */
-final case class SyncSession(peerId: String,
-                             paperId: String,
+final case class SyncSession(peerId: PeerId,
+                             paperId: PaperId,
                              commands: List[Command])
 
 /** A command to be performed during a Synchronization Session
@@ -57,14 +57,14 @@ sealed trait Command
  *
  *  @author Audric Schiltknecht
  */
-final case class Message(from: String, json: JObject, retrieve: Boolean, filename: Option[String]) extends Command
+final case class Message(from: PeerId, json: JObject, filename: Option[Filepath]) extends Command
 
 /** A command to apply on a file from a given peer
  *
  *  @author Audric Schiltknecht
  *  @author Lucas Satabin
  */
-final case class SyncCommand(filename: String, revision: Long, action: SyncAction) extends Command
+final case class SyncCommand(filename: Filepath, revision: Long, action: SyncAction) extends Command
 
 /** An action to apply on a file from a given peer
  *

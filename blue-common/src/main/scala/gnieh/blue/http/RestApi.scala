@@ -29,6 +29,8 @@ import scala.annotation.tailrec
 
 import java.text.{ SimpleDateFormat, ParseException }
 
+import com.typesafe.config.Config
+
 /** The rest interface may be extended by \BlueLaTeX modules.
  *  Theses module simply need to register services implementing this trait
  *  to make the new interface available.
@@ -40,6 +42,23 @@ import java.text.{ SimpleDateFormat, ParseException }
  *  @author Lucas Satabin
  */
 trait RestApi {
+
+  val config: Config
+
+  // the path prefix that must be stripped and represents the path
+  // where this instance is installed
+  lazy val pathPrefix = {
+    val prefix1 = config.getString("blue.api.path-prefix")
+    val prefix2 =
+      if(prefix1.isEmpty || prefix1.endsWith("/"))
+        prefix1
+      else
+        prefix1 + "/"
+    if(prefix2.startsWith("/"))
+      prefix2.substring(1)
+    else
+      prefix2
+  }
 
   private[http] val posts = ListBuffer.empty[PartialFunction[HReqData, HLet]]
   private[http] val puts = ListBuffer.empty[PartialFunction[HReqData, HLet]]
@@ -124,7 +143,7 @@ trait RestApi {
     /** Allows people to pattern match against some URL and bind values when needed */
     object p {
 
-      val regex = sc.parts.map(scala.util.matching.Regex.quoteReplacement).mkString("([^/]+)").r
+      val regex = sc.parts.map(scala.util.matching.Regex.quoteReplacement).mkString(pathPrefix, "([^/]+)", "").r
 
       def unapplySeq(s: String): Option[Seq[String]] =
         regex.unapplySeq(s)

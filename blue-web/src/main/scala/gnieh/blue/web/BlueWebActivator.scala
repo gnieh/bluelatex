@@ -20,15 +20,27 @@ import org.osgi.framework._
 
 import tiscaf._
 
+import com.typesafe.config.Config
+
+import common.{
+  ConfigurationLoader,
+  OsgiUtils
+}
+
 /** The `BlueWebActivator` registers the HLet that serves the blue web client
  *
  *  @author Lucas Satabin
  */
 class BlueWebActivator extends BundleActivator {
 
+  import OsgiUtils._
+
   def start(context: BundleContext): Unit =
-    // register the web application
-    context.registerService(classOf[HApp], new WebApp(context), null)
+    for(loader <- context.get[ConfigurationLoader]) {
+      val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
+      // register the web application
+      context.registerService(classOf[HApp], new WebApp(context, config), null)
+    }
 
   def stop(context: BundleContext): Unit = {
   }

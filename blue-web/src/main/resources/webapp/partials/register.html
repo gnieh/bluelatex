@@ -1,55 +1,92 @@
-<div id="register_form">
+<div id="form-page">
   <h1 data-i18n="_RegisterTitle_"></h1>
-  <form name="registerForm" novalidate ng-submit="register()">
+  <form name="registerForm" ng-submit="register()">
     <div bl-messages></div>
-    <div class="form-group"
-      ng-class="{'has-error': registerForm.username.$invalid}">
-      <label class="form-label" for="register_username" data-i18n="_Username_"></label>
-      <input class="form-control" id="register_username" name="username" type="text" autofocus
-        data-i18n-attr="_Username_|placeholder" required ng-model="user.username" />
+    <div class="grid">
+      <div class="col c1-3">
+        <label for="register_username" data-i18n="_Username_"></label>
         <span class="control-label"
-          ng-show="registerForm.username.$error.required" data-i18n="_Required_"></span>
+            ng-show="registerForm.username.$error.required" data-i18n="_Required_"></span>
+      </div>
+      <div class="col c2-3 form-group"
+        ng-class="{'has-error': registerForm.username.$invalid}">
+        <input class="form-control" id="register_username" name="username" type="text" autofocus
+          data-i18n-attr="_Username_|placeholder" required ng-model="user.username" />
+      </div>
     </div>
-    <div class="form-group"
-      ng-class="{'has-error': registerForm.firstname.$invalid}">
-      <label class="form-label" for="register_firstname" data-i18n="_FirstName_"></label>
-      <input class="form-control" id="register_firstname" name="firstname" type="text"
-        data-i18n-attr="_FirstName_|placeholder" required ng-model="user.first_name" />
+
+    <div class="grid">
+      <div class="col c1-3">
+        <label for="register_firstname" data-i18n="_FirstName_"></label>
         <span class="control-label"
-          ng-show="registerForm.firstname.$error.required" data-i18n="_Required_"></span>
+            ng-show="registerForm.firstname.$error.required" data-i18n="_Required_"></span>
+      </div>
+      <div class="col c2-3 form-group"
+        ng-class="{'has-error': registerForm.firstname.$invalid}">
+        <input class="form-control" id="register_firstname" name="firstname" type="text"
+          data-i18n-attr="_FirstName_|placeholder" required ng-model="user.first_name" />
+      </div>
     </div>
-    <div class="form-group"
-      ng-class="{'has-error': registerForm.lastname.$invalid}">
-      <label class="form-label" for="register_lastname" data-i18n="_LastName_"></label>
-      <input class="form-control" id="register_lastname" name="lastname" type="text"
-        data-i18n-attr="_LastName_|placeholder" required ng-model="user.last_name" />
+
+    <div class="grid">
+      <div class="col c1-3">
+        <label for="register_lastname" data-i18n="_LastName_"></label>
         <span class="control-label"
-          ng-show="registerForm.lastname.$error.required" data-i18n="_Required_"></span>
+            ng-show="registerForm.lastname.$error.required" data-i18n="_Required_"></span>
+      </div>
+      <div class="col c2-3 form-group"
+        ng-class="{'has-error': registerForm.lastname.$invalid}">
+        <input class="form-control" id="register_lastname" name="lastname" type="text"
+          data-i18n-attr="_LastName_|placeholder" required ng-model="user.last_name" />
+      </div>
     </div>
-    <div class="form-group"
-      ng-class="{'has-error': registerForm.email.$invalid}">
-      <label class="form-label" for="register_email" data-i18n="_Email_"></label>
-      <input class="form-control" id="register_email" name="email" type="email"
-        data-i18n-attr="_Email_|placeholder" required ng-model="user.email_address" />
+
+    <div class="grid">
+      <div class="col c1-3">
+        <label for="register_email" data-i18n="_Email_"></label>
         <span class="control-label"
-          ng-show="registerForm.email.$error.required" data-i18n="_Required_"></span>
+            ng-show="registerForm.email.$error.required" data-i18n="_Required_"></span>
         <span class="control-label"
           ng-show="registerForm.email.$error.email" data-i18n="_Error_format_"></span>
+      </div>
+      <div class="col c2-3 form-group"
+        ng-class="{'has-error': registerForm.email.$invalid}">
+        <input class="form-control" id="register_email" name="email" type="email"
+          data-i18n-attr="_Email_|placeholder" required ng-model="user.email_address" />
+      </div>
     </div>
-    <div class="form-group"
-      ng-class="{'has-error': registerForm.affiliation.$invalid}">
-      <label class="form-label" for="register_affiliation" data-i18n="_Affiliation_"></label>
-      <input class="form-control" id="register_affiliation" name="affiliation" type="text"
-        data-i18n-attr="_Affiliation_|placeholder" ng-model="user.affiliation" />
+
+    <div class="grid">
+      <div class="col c1-3">
+        <label for="register_affiliation" data-i18n="_Affiliation_"></label>
         <span class="control-label"
-          ng-show="registerForm.affiliation.$error.required" data-i18n="_Required_"></span>
+            ng-show="registerForm.affiliation.$error.required" data-i18n="_Required_"></span>
+      </div>
+      <div class="col c2-3 form-group"
+        ng-class="{'has-error': registerForm.affiliation.$invalid}">
+        <input class="form-control" id="register_affiliation" name="affiliation" type="text"
+          data-i18n-attr="_Affiliation_|placeholder" ng-model="user.affiliation" />
+      </div>
     </div>
+
+    <div class="grid" ng-if="displayCaptcha">
+      <div class="col c1-3">
+        <label for="recaptcha_response_field" data-i18n="_Captcha_"></label>
+        <span class="control-label"
+            ng-show="registerForm.recaptcha_response_field.$error.required" data-i18n="_Required_"></span>
+      </div>
+      <div class="col c2-3 form-group"
+        ng-class="{'has-error': registerForm.recaptcha_response_field.$invalid}">
+        <div re-captcha required class="captcha"></div>
+      </div>
+    </div>
+    
     <div class="form-group">
       <button type="reset" class="btn btn-primary pull-right"
         data-i18n-attr="_Cancel_|value" data-i18n-attr="_Cancel_|title">
         <span data-i18n="_Cancel_"></span>
       </button>
-      <button type="submit" class="btn btn-primary pull-right" ng-disabled="!registerForm.$valid"
+      <button type="submit" class="btn btn-primary pull-right" ng-disabled="!registerForm.$valid || requesting"  ng-class="{'process': requesting}"
         data-i18n-attr="_Register_|value" data-i18n-attr="_Register_|title">
         <span data-i18n="_Register_"></span>
       </button>

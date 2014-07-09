@@ -20,6 +20,7 @@ package let
 
 import http._
 import common._
+import permission._
 
 import tiscaf._
 
@@ -41,31 +42,25 @@ import gnieh.diffson.JsonPatch
  */
 class ModifyCompilerLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>
       (talk.req.octets, talk.req.header("if-match")) match {
         case (Some(octets), knownRev @ Some(_)) =>
-          val db = database(blue_papers)
+          val manager = entityManager("blue_papers")
           // the modification must be sent as a JSON Patch document
           // retrieve the settings object from the database
-          db.getDocById[CompilerSettings](s"$paperId:compiler") flatMap {
+          manager.getComponent[CompilerSettings](paperId) flatMap {
             case Some(settings) if settings._rev == knownRev =>
               talk.readJson[JsonPatch] match {
                 case Some(patch) =>
                   // the revision matches, we can apply the patch
                   val settings1 = patch(settings).withRev(knownRev)
                   // and save the new compiler data
-                  db.saveDoc(settings1) map {
-                    case Some(s) =>
+                  for(s <- manager.saveComponent(paperId, settings1))
+                    yield
                       // save successfully, return ok with the new ETag
                       // we are sure that the revision is not empty because it comes from the database
                       talk.writeJson(true, s._rev.get)
-                    case None =>
-                      // something went wrong
-                      talk
-                        .setStatus(HStatus.InternalServerError)
-                        .writeJson(ErrorResponse("unknown_error", "An unknown error occured"))
-                  }
                 case None =>
                   // nothing to do
                   Success(

@@ -24,6 +24,7 @@ import tiscaf._
 
 import http._
 import common._
+import permission._
 
 import scala.io.Source
 
@@ -37,7 +38,7 @@ import gnieh.sohva.control.CouchClient
  */
 class NonSynchronizedResourcesLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
       // only authors may get the list of synchronized resources
       import FileUtils._

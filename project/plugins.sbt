@@ -8,3 +8,4 @@ libraryDependencies += "org.gnieh" %% "sohva-testing" % "0.4"
 
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.2.5")
 
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.11.2")

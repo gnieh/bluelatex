@@ -46,13 +46,16 @@ abstract class ResourceDispatcher extends Actor {
     case join @ Join(username, resourceid) =>
       // create the actor if nobody uses this resource
       if(!users.contains(resourceid) || users(resourceid).size == 0) {
-        for(props <- props(username, resourceid)) {
+        for(props <- props(username, resourceid))
           context.watch(context.actorOf(props, name = resourceid))
-        }
-      } else if(!users(resourceid).contains(username)) {
+        users(resourceid) = Set()
+      }
+
+      if(!users(resourceid).contains(username)) {
         // resent the Join message to the resource
         context.actorSelection(resourceid) ! join
       }
+
       users.addBinding(resourceid, username)
       resources.addBinding(username, resourceid)
 
@@ -78,6 +81,8 @@ abstract class ResourceDispatcher extends Actor {
       context.become(stopping)
       // dispatch the Stop message to all managed actors
       context.actorSelection("*") ! Stop
+      // and stop the managed actors
+      context.actorSelection("*") ! PoisonPill
 
     case Terminated(actor) =>
       // a managed actor was terminated, remove it from the set of managed resources

@@ -17,13 +17,9 @@ package gnieh.blue.couch
 
 import gnieh.sohva.IdRev
 
+import java.util.Date
+
 case class Paper(_id: String,
-                 title: String,
-                 authors: Set[String],
-                 reviewers: Set[String],
-                 cls: String,
-                 references: List[String] = Nil,
-                 enabled_modules: List[String] = Nil,
-                 tags: List[String] = Nil,
-                 branch: String = "master") extends IdRev
+                 name: String,
+                 creation_date: Date) extends IdRev
 

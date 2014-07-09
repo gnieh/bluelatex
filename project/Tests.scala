@@ -33,7 +33,7 @@ trait Tests {
     "org.subethamail" % "subethasmtp" % "3.1.7",
     "org.scala-stm" %% "scala-stm" % "0.7",
     "net.databinder.dispatch" %% "dispatch-core" % "0.11.0",
-    "org.scalatest" %% "scalatest" % "2.0" % "scenario,test,it"
+    "org.scalatest" %% "scalatest" % "2.2.0" % "scenario,test,it"
   )
 
 }

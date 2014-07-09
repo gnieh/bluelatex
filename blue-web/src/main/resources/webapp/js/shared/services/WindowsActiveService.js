@@ -1,3 +1,19 @@
+/*
+ * This file is part of the \BlueLaTeX project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
 'use strict';
 /**
 * A simple module that launch event when the page is out of fucus et on focus
@@ -11,6 +27,10 @@ angular.module('bluelatex.Shared.Services.WindowActive', [])
       //register an observer
       var registerObserverCallback = function(callback){
         observerCallbacks.push(callback);
+      };
+
+      var removeObserverCallback = function(callback){
+        observerCallbacks.splice(observerCallbacks.indexOf(callback), 1);
       };
 
       //call this when you know 'foo' has been changed
@@ -64,7 +84,8 @@ angular.module('bluelatex.Shared.Services.WindowActive', [])
         isActiveWindow: function () {
           return windowActive;
         },
-        registerObserverCallback: registerObserverCallback
+        registerObserverCallback: registerObserverCallback,
+        removeObserverCallback: removeObserverCallback
       };
     }
   ]);

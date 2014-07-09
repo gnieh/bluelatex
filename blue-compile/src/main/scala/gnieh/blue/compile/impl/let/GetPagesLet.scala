@@ -20,6 +20,7 @@ package let
 
 import http._
 import common._
+import permission._
 
 import tiscaf._
 
@@ -45,11 +46,11 @@ class GetPagesLet(paperId: String, val couch: CouchClient, config: Config, logge
 
   import FileUtils._
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any] = role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
     case Author | Reviewer =>
 
       // the generated pdf file
-      val pdfFile = configuration.buildDir(paperId) / s"$paperId.pdf"
+      val pdfFile = configuration.buildDir(paperId) / s"main.pdf"
 
       if(pdfFile.exists) {
 

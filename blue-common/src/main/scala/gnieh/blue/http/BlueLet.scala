@@ -21,9 +21,16 @@ import tiscaf._
 import gnieh.diffson._
 
 
-import couch.Paper
+import couch.{
+  Paper,
+  PaperRole,
+  PaperPhase
+}
+
+import gnieh.sohva.IdRev
 
 import common._
+import permission._
 
 import com.typesafe.config.Config
 
@@ -42,6 +49,10 @@ import scala.util.{
 import scala.language.higherKinds
 import scala.language.implicitConversions
 
+import scala.collection.JavaConverters._
+
+import java.net.URLEncoder
+
 object BlueLet {
 
   /** The formats to (de)serialize json objects. You may override it if you need specific serializers */
@@ -51,7 +62,7 @@ object BlueLet {
    *
    *  @author Lucas Satabin
    */
-  class RichTalk(val talk: HTalk) {
+  implicit class RichTalk(val talk: HTalk) extends AnyVal {
 
     def serialize(obj: Any): JValue = obj match {
       case i: Int => JInt(i)
@@ -68,6 +79,10 @@ object BlueLet {
         case _                         => false
       }
     }
+
+    /** Sets the correct `Content-Disposition` header with suggested filename for the client */
+    def setFilename(name: String): HTalk =
+      talk.setHeader("Content-Disposition", s"""attachment; filename="$name"; filename*=utf-8''${URLEncoder.encode(name, "UTF-8")}""")
 
     /** Serializes the value to its json representation and writes the response to the client,
      *  corrrectly setting the result type and length */
@@ -139,8 +154,14 @@ abstract class SyncBlueLet(config: Config, logger: Logger) extends BlueLet[Try](
   final override def aact(talk: HTalk) =
     try2future(act(talk) recoverWith {
       case t =>
-        logError("Something went wrong", t)
-        Failure(t)
+        logError(s"Something went wrong when processing ${talk.req.method} on ${talk.req.uriPath}", t)
+        Try(
+          talk
+            .setStatus(HStatus.InternalServerError)
+            .writeJson(
+              ErrorResponse(
+                "unexpected_error",
+                "Something went really wrong. If the problem persists contact an administrator")))
     })
 
 }
@@ -158,8 +179,14 @@ abstract class AsyncBlueLet(config: Config, logger: Logger) extends BlueLet[Futu
   final override def aact(talk: HTalk) =
     act(talk) recoverWith {
       case t =>
-        logError("Something went wrong", t)
-        Future.failed(t)
+        logError(s"Something went wrong when processing ${talk.req.method} on ${talk.req.uriPath}", t)
+        Future(
+          talk
+            .setStatus(HStatus.InternalServerError)
+            .writeJson(
+              ErrorResponse(
+                "unexpected_error",
+                "Something went really wrong. If the problem persists contact an administrator")))
     }
 
 }
@@ -227,25 +254,22 @@ trait AsyncAuthenticatedLet {
  */
 abstract class SyncRoleLet(val paperId: String, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
-  private def roles(implicit talk: HTalk): Try[Map[String, PaperRole]] =
-    couchSession.database(couchConfig.database("blue_papers")).getDocById[Paper](paperId) map {
-      case Some(Paper(_, _, authors, reviewers, _, _, _, _, _)) =>
-        (authors.map(id => (id, Author)) ++
-          reviewers.map(id => (id, Reviewer))).toMap.withDefaultValue(Other)
-      case None =>
-        Map().withDefaultValue(Other)
-    }
+  private def roles(user: UserInfo)(implicit talk: HTalk): Try[Role] = {
+    val manager = entityManager("blue_papers")
+    for(Some(roles) <- manager.getComponent[PaperRole](paperId))
+      yield roles.roleOf(Some(user))
+  }
 
   final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
-    roles(talk) flatMap { m =>
-      roleAct(user, m(user.name))
+    roles(user)(talk) flatMap { role =>
+      roleAct(user, role)
     }
 
   /** Implement this method that can behave differently depending on the user
    *  role for the current paper.
    *  It is only called when the user is authenticated
    */
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Any]
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any]
 
 }
 
@@ -256,26 +280,65 @@ abstract class SyncRoleLet(val paperId: String, config: Config, logger: Logger) 
  */
 abstract class AsyncRoleLet(val paperId: String, config: Config, logger: Logger) extends AsyncBlueLet(config, logger) with AsyncAuthenticatedLet {
 
-  private def roles(implicit talk: HTalk): Try[Map[String, PaperRole]] =
-    couchSession.database(couchConfig.database("blue_papers")).getDocById[Paper](paperId) map {
-      case Some(Paper(_, _, authors, reviewers, _, _, _, _, _)) =>
-        (authors.map(id => (id, Author)) ++
-          reviewers.map(id => (id, Reviewer))).toMap.withDefaultValue(Other)
-      case None =>
-        Map().withDefaultValue(Other)
-    }
-
+  private def roles(user: UserInfo)(implicit talk: HTalk): Try[Role] = {
+    val manager = entityManager("blue_papers")
+    for(Some(roles) <- manager.getComponent[PaperRole](paperId))
+      yield roles.roleOf(Some(user))
+  }
   final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Future[Any] =
-    roles(talk) match {
-      case Success(m) => roleAct(user, m(user.name))
-      case Failure(t) => Future.failed(t)
+    roles(user)(talk) match {
+      case Success(role) => roleAct(user, role)
+      case Failure(t)    => Future.failed(t)
     }
 
   /** Implement this method that can behave differently depending on the user
    *  role for the current paper.
    *  It is only called when the user is authenticated
    */
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Future[Any]
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Future[Any]
 
 }
 
+abstract class PermissionLet(val paperId: String, config: Config, logger: Logger) extends BlueLet[Try](config, logger) {
+
+  /** Override this to enable your custom execution context if needed */
+  implicit val executionContext = ExecutionContext.Implicits.global
+
+  /** Returns the role and associated permissions for the user of this request */
+  private def permissions(implicit talk: HTalk): Try[(Role, List[Permission])] =
+    for {
+      user <- couchSession.currentUser
+      manager = entityManager("blue_papers")
+      Some(roles) <- manager.getComponent[PaperRole](paperId)
+      PaperPhase(_, _, permissions, _) <- ensureComponent[PaperPhase](defaultPhase)
+      role = roles.roleOf(user)
+    } yield (role, permissions(role))
+
+  private def ensureComponent[T <: IdRev: Manifest](default: String => T)(implicit talk: HTalk): Try[T] = {
+    val manager =  entityManager("blue_papers")
+    manager.getComponent[T](paperId).flatMap {
+      case Some(comp) =>
+        Success(comp)
+      case None =>
+        for {
+          uuid <- manager.database.couch._uuid
+          comp <- manager.saveComponent(paperId, default(uuid))
+        } yield comp
+    }
+  }
+
+  private val defaultRoles = {
+    val defaultConfig = config.getConfig("blue.permissions.private-defaults")
+    Map[Role,List[Permission]](
+      Author -> defaultConfig.getStringList("author").asScala.flatMap(name => Permission(name)).toList,
+      Reviewer -> defaultConfig.getStringList("reviewer").asScala.flatMap(name => Permission(name)).toList,
+      Guest -> defaultConfig.getStringList("guest").asScala.flatMap(name => Permission(name)).toList,
+      Other -> defaultConfig.getStringList("other").asScala.flatMap(name => Permission(name)).toList,
+      Anonymous -> defaultConfig.getStringList("anonymous").asScala.flatMap(name => Permission(name)).toList
+    )
+  }
+
+  private def defaultPhase(id: String) =
+    PaperPhase(id, "default-phase", defaultRoles, Set())
+
+}

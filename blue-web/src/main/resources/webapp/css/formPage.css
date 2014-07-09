@@ -1,0 +1,164 @@
+/*
+ * This file is part of the \BlueLaTeX project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+#form-page {
+    background: #fff;
+    position: relative;
+    width: 724px;
+    margin: auto;
+    padding: 10px;
+    padding-top: 50px;
+    min-height: 100%;
+    box-shadow: 0 0 3px rgba(0,0,0,0.2);
+}
+#form-page h1 {
+    margin-top: 1px;
+    margin-bottom: 10px;
+}
+#form-page .col {
+    position: relative;
+}
+#form-page label {
+    margin-right: 4px;
+    display: block;
+    background: #eee;
+    padding: 4px;
+    line-height: 30px;
+    outline: none;
+    -webkit-user-select: none;
+}
+#form-page select {
+    height: 38px;
+    margin: 4px 0;
+    padding: 9px 4px;
+    width: 100%;
+    background: #ECF2F4;
+    display: inline-block;
+}
+#form-page input{
+    padding: 10px;
+    background: #ECF2F4;
+    border: 0;
+    margin: 4px 0;
+    outline: none;
+    width: 100%;
+    display: inline-block;
+}
+#form-page .has-error input,#form-page .has-error select {
+    background: #F5EAEA;
+}
+#form-page .control-label {
+    position: absolute;
+    left: 6px;
+    bottom: 3px;
+    font-size: 11px;
+    color: #999;
+}
+#form-page button,#form-page .button {
+    display: inline-block;
+    width:33%;
+    border-radius: 0;
+    margin: 2px 0;
+    outline: none;
+    padding: 10px;
+    position: relative;
+}
+button.process::after {
+content: "";
+background-image: url(../img/spin.gif);
+width: 16px;
+display: block;
+height: 16px;
+position: absolute;
+top: 11px;
+right: 8px;
+background-repeat: no-repeat;
+}
+
+#form-page .authors,#form-page .reviewers {
+}
+#form-page .authors .author,#form-page .reviewers .reviewer {
+    background: #eee;
+    float:left;
+    margin-top: 4px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+#form-page .authors .author .label, #form-page .reviewers .reviewer .label {
+    display: inline;
+    line-height: 22px;
+    padding: 8px;
+    float: left;
+}
+#form-page .authors .author .button, #form-page .reviewers .reviewer .button {
+    margin: 0;
+    background: transparent;
+    color: #4D4D4D;
+    padding: 0 5px;
+    padding-top: 9px;
+    font-size: 21px;
+    width: auto;
+}
+#form-page .new input {
+    width: 250px;
+}
+
+.angucomplete-holder {
+    display: inline;
+    position: relative;
+}
+
+.angucomplete-dropdown {
+    width: 250px;
+    padding: 0;
+    cursor: pointer;
+    z-index: 9999;
+    position: absolute;
+    margin-top: -6px;
+    background-color: #68738A;
+
+}
+
+.angucomplete-searching {
+    color: #FAFAFA;
+    font-size: 14px;
+    padding: 5px;
+}
+
+.angucomplete-row {
+    padding: 5px;
+    color: #fff;
+    border-bottom: 1px solid #ddd;
+
+}
+
+.angucomplete-selected-row, .angucomplete-row:hover {
+    background-color: #025097;
+    color: #ffffff;
+}
+
+.captcha {
+    display: inline-block;
+    line-height: 15px;
+    position: relative;
+}
+#recaptcha_table {
+    border: 0!important;
+    line-height: normal;
+}
+#recaptcha_image {
+    border: 0!important;
+}

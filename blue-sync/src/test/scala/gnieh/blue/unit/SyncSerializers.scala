@@ -155,15 +155,13 @@ class SyncSerializerParsersSpec extends FeatureSpec
                     |      "from": "someone",
                     |      "json": {
                     |        "content": "Hello all"
-                    |      },
-                    |      "retrieve": false
+                    |      }
                     |    },
                     |    {
                     |      "from": "whale",
                     |      "json": {
                     |        "content": "Thanks for the fish"
-                    |      },
-                    |      "retrieve": true
+                    |      }
                     |    }
                     |  ]
                     |}""".stripMargin
@@ -176,11 +174,11 @@ class SyncSerializerParsersSpec extends FeatureSpec
                                          List(Message("someone",
                                                       JObject(List(JField("content",
                                                                           JString("Hello all")))),
-                                                      false, None),
+                                                      None),
                                               Message("whale",
                                                       JObject(List(JField("content",
                                                                           JString("Thanks for the fish")))),
-                                                      true, None))))
+                                                      None))))
     }
 
     scenario("Broadcast messages with filename") {
@@ -194,7 +192,6 @@ class SyncSerializerParsersSpec extends FeatureSpec
                     |      "json": {
                     |        "content": "I'm not a psychopath, I'm a high-functioning sociopath"
                     |      },
-                    |      "retrieve": false,
                     |      "filename": "quote.tex"
                     |    }
                     |  ]
@@ -208,7 +205,7 @@ class SyncSerializerParsersSpec extends FeatureSpec
                                          List(Message("Sherlock",
                                                       JObject(List(JField("content",
                                                                           JString("I'm not a psychopath, I'm a high-functioning sociopath")))),
-                                                      false, Some("quote.tex")))))
+                                                      Some("quote.tex")))))
     }
   }
 
@@ -265,11 +262,11 @@ class SyncSerializerParsersSpec extends FeatureSpec
                                     List(Message("someone",
                                                  JObject(List(JField("content",
                                                                      JString("Hello all")))),
-                                                 false, None),
+                                                 None),
                                          Message("whale",
                                                  JObject(List(JField("content",
                                                                      JString("Thanks for the fish")))),
-                                                 true, None)))
+                                                 None)))
 
       When("serialized to a JSON message")
       val serializedSyncSession = Serialization.write(syncSession)
@@ -283,15 +280,13 @@ class SyncSerializerParsersSpec extends FeatureSpec
                     |      "from": "someone",
                     |      "json": {
                     |        "content": "Hello all"
-                    |      },
-                    |      "retrieve": false
+                    |      }
                     |    },
                     |    {
                     |      "from": "whale",
                     |      "json": {
                     |        "content": "Thanks for the fish"
-                    |      },
-                    |      "retrieve": true
+                    |      }
                     |    }
                     |  ]
                     |}""".stripMargin
@@ -305,7 +300,7 @@ class SyncSerializerParsersSpec extends FeatureSpec
                                     List(Message("Sherlock",
                                                  JObject(List(JField("content",
                                                                      JString("I'm not a psychopath, I'm a high-functioning sociopath")))),
-                                                 false, Some("quote.tex"))))
+                                                 Some("quote.tex"))))
 
       When("serialized to a JSON message")
       val serializedSyncSession = Serialization.write(syncSession)
@@ -320,7 +315,6 @@ class SyncSerializerParsersSpec extends FeatureSpec
                     |      "json": {
                     |        "content": "I'm not a psychopath, I'm a high-functioning sociopath"
                     |      },
-                    |      "retrieve": false,
                     |      "filename": "quote.tex"
                     |    }
                     |  ]

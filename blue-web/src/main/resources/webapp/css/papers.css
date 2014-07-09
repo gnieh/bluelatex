@@ -1,3 +1,19 @@
+/*
+ * This file is part of the \BlueLaTeX project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
 #papers {
     position: absolute;
     bottom: 0;
@@ -64,6 +80,27 @@
 #search {
     float: right;
 }
+.predicate:after {
+    font-family: "bluelatexicon" !important;
+    font-style: normal !important;
+    font-weight: normal !important;
+    font-variant: normal !important;
+    text-transform: none !important;
+    speak: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    content: "g";
+    position: absolute;
+    width: 17px;
+    height: 16px;
+    color: #333;
+    padding-top: 4px;
+    padding-left: 4px;
+}
+.predicate.reverse:after {
+    content: "v";
+}
 #paper_list {
     margin: 10px;
 }
@@ -86,7 +123,7 @@
     height: 34px;
     padding: 7px;
 }
-#paper_list.list .paper .title, #paper_list.list .paper .date, #paper_list.list .paper .options, #paper_list.list .paper .tags, #paper_list.list .paper .role {
+#paper_list.list .paper .name, #paper_list.list .paper .date, #paper_list.list .paper .options, #paper_list.list .paper .tags, #paper_list.list .paper .role {
     position: relative;
     display: table-cell;
     vertical-align: middle;
@@ -94,7 +131,7 @@
     border-left: 1px solid #ddd;
     min-height: 34px;
 }
-#paper_list.list .paper .title{
+#paper_list.list .paper .name{
     border-left: 0;
 }
 #paper_list.list .paper .date {
@@ -113,18 +150,10 @@
     padding: 1px 0 1px 12px;
 }
 #paper_list.list .paper .options .option {
-    display: inline;
-    color: #fff;
     background: #025097;
     padding: 4px 7px;
-    border-radius: 2px;
-    margin: 2px 2px;
-    cursor: pointer;
-    border: 0;
-    outline: none;
-    font-size: 17px;
-    overflow: hidden;
-    height: 27px;
+    margin: 0;
+    display: inline;
 }
 #paper_list.list .icon {
     position: relative;
@@ -158,7 +187,7 @@
 #paper_list.vignette .paper img {
     width: 100%;
 }
-#paper_list.vignette .paper .title,#paper_list.vignette .paper .date, #paper_list.vignette .paper .tags, #paper_list.vignette .paper .options {
+#paper_list.vignette .paper .name,#paper_list.vignette .paper .date, #paper_list.vignette .paper .tags, #paper_list.vignette .paper .options {
     position: absolute;
     bottom: 0;
     background: #025097;
@@ -174,7 +203,7 @@
     -o-transition: bottom 0.2s;
     transition: bottom 0.2s;
 }
-#paper_list.vignette .paper:hover .title {
+#paper_list.vignette .paper:hover .name {
     bottom: 33px;
 }
 #paper_list.vignette .paper .tags {
@@ -269,7 +298,7 @@
     margin: 0;
     padding: 0;
 }
-#papers .left label input {
+#papers .left label input.hidden {
     position: absolute;
     top: -100px;
     visibility: hidden;
@@ -298,6 +327,7 @@
 }
 #papers .left label input:checked + .label {
     border-left: 3px solid #025097;
+    background: #F3F3F3;
 }
 #papers .left label .nb {
     position: absolute;

@@ -31,6 +31,7 @@ import resource._
 
 import http._
 import common._
+import permission._
 
 import scala.util.Try
 
@@ -67,7 +68,7 @@ class SaveResourceLet(paperId: String, resourceName: String, val couch: CouchCli
 
   private var image: Option[Array[Byte]] = None
 
-  def roleAct(user: UserInfo, role: PaperRole)(implicit talk: HTalk): Try[Unit] = Try(role match {
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = Try(role match {
     case Author =>
       // only authors may upload a resource
       val data = image.orElse(talk.req.octets)
