@@ -50,13 +50,23 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Pap
         $localStorage.userPaperStyle = value;
       });
 
-      $scope.date_filter = 'all';
+      $scope.from_date = new Date();
+      $scope.to_date = null;
       $scope.role_filter = 'all';
       $scope.tag_filter = 'all';
 
       // get paper of a user
       PaperService.getUserPapers($rootScope.loggedUser).then(function (data) {
         $scope.papers = data;
+        for (var i = $scope.papers.length - 1; i >= 0; i--) {
+          $scope.papers[i].creation_date = new Date($scope.papers[i].creation_date);
+          if($scope.papers[i].creation_date < $scope.from_date) {
+            $scope.from_date = $scope.papers[i].creation_date;
+          }
+          if($scope.to_date == null || $scope.to_date < $scope.papers[i].creation_date) {
+            $scope.to_date = $scope.papers[i].creation_date;
+          }
+        }
       }, function (err) {
         MessagesService.clear();
         switch (err.status) {
@@ -74,65 +84,15 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Pap
       /***************/
       /* Date Filter */
       /***************/
-      var dateFilterToday = function (paper) {
-        var now = new Date();
-        return paper.date.getDate() == now.getDate() &&
-          paper.date.getMonth() == now.getMonth() &&
-          paper.date.getFullYear() == now.getFullYear();
-      };
-      $scope.dateFilterToday = dateFilterToday;
-
-      var dateFilterYesterday = function (paper) {
-        var yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        return paper.date.getDate() == yesterday.getDate() &&
-          paper.date.getMonth() == yesterday.getMonth() &&
-          paper.date.getFullYear() == yesterday.getFullYear();
-      };
-      $scope.dateFilterYesterday = dateFilterYesterday;
-
-      var dateFilterLWeek = function (paper) {
-        var now = new Date();
-        return paper.date.getWeek() == now.getWeek() - 1;
-      };
-      $scope.dateFilterLWeek = dateFilterLWeek;
-
-      var dateFilterTWeek = function (paper) {
-        var now = new Date();
-        return paper.date.getWeek() == now.getWeek() &&
-          paper.date.getFullYear() == now.getFullYear();
-      };
-      $scope.dateFilterTWeek = dateFilterTWeek;
-
-      var dateFilterMonth = function (paper) {
-        var now = new Date();
-        return paper.date.getMonth() == now.getMonth() &&
-          paper.date.getFullYear() == now.getFullYear();
-      };
-      $scope.dateFilterMonth = dateFilterMonth;
-      var dateFilterYear = function (paper) {
-        var now = new Date();
-        return paper.date.getFullYear() == now.getFullYear();
-      };
-      $scope.dateFilterYear = dateFilterYear;
-
+      
       $scope.dateFilter = function (paper) {
-        switch ($scope.date_filter) {
-        case 'all':
-          return true;
-        case 'today':
-          return dateFilterToday(paper);
-        case 'yesterday':
-          return dateFilterYesterday(paper);
-        case 'lweek':
-          return dateFilterLWeek(paper);
-        case 'tweek':
-          return dateFilterTWeek(paper);
-        case 'month':
-          return dateFilterMonth(paper);
-        case 'year':
-          return dateFilterYear(paper);
-        }
+        var from = new Date($scope.from_date);
+        from.setHours(0);
+        from.setMinutes(1);
+        var to = new Date($scope.to_date);
+        to.setHours(23);
+        to.setMinutes(59);
+        return paper.creation_date <= to && paper.creation_date >= from ;
       };
 
       /***************/

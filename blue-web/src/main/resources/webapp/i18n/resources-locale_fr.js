@@ -300,6 +300,11 @@
         "description":"Date"
     },
     {
+        "key":"_Creation_date_",
+        "value":"Date de création",
+        "description":"Creation date"
+    },
+    {
         "key":"_Authors_",
         "value":"Autheurs",
         "description":"Authors"
