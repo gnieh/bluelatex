@@ -64,7 +64,7 @@ class CompilationActivator extends BundleActivator {
       couch <- context.get[CouchClient]
       logger <- context.get[LogService]
     } {
-      val config = loader.load(context.getBundle.getSymbolicName, self.getClass.getClassLoader)
+      val config = loader.load(context.getBundle)
 
       // create the dispatcher actor
       val disp =

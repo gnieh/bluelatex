@@ -23,23 +23,58 @@ import java.net.{
 }
 import java.io.File
 
+import java.util.Enumeration
+
 import com.typesafe.config._
 
-class ConfigurationLoaderImpl(bundleName: String, base: File) extends ConfigurationLoader {
+import org.osgi.framework.Bundle
+import org.osgi.framework.wiring._
 
-  val globalConf = ConfigFactory.load(new URLClassLoader(List(optionalURL(new File(base, bundleName)), optionalURL(base)).flatten.toArray, getClass.getClassLoader))
+import scala.collection.JavaConverters._
 
-  private def optionalURL(f: File) =
-    if(f.exists)
-      Some(f.toURI.toURL)
-    else
-      None
+import scala.annotation.tailrec
 
-  def load(bundleName: String, parent: ClassLoader): Config = {
-    // load configuration from the base configuration directory, the bundle specific directory and the bundle class loader
-    val directories = optionalURL(new File(base, bundleName)).toArray
-    val cl = new URLClassLoader(directories, parent)
-    ConfigFactory.load(cl).withFallback(globalConf)
+class ConfigurationLoaderImpl(commonName: String, base: File) extends ConfigurationLoader {
+
+  import FileUtils._
+
+  def load(bundle: Bundle): Config = {
+    val bundles = transitiveBundles(bundle)
+    val classLoader = new ClassLoader(new URLClassLoader(Array((base / commonName).toURI.toURL, (base / bundle.getSymbolicName).toURI.toURL))) {
+      override def findResource(name: String): URL = {
+        def tryGetResource(bundle: Bundle): Option[URL] =
+          Option(bundle.getResource(name))
+
+        val cls = bundles.foldLeft(None: Option[URL]) { (cls, bundle) => cls orElse tryGetResource(bundle) }
+        cls getOrElse getParent.getResource(name)
+      }
+
+     override def findResources(name: String): Enumeration[URL] = {
+       val resources = bundles.map { bundle => Option(bundle.getResources(name)).map { _.asScala.toList }.getOrElse(Nil) }.flatten
+       java.util.Collections.enumeration(resources.asJava)
+     }
+    }
+    ConfigFactory.load(classLoader)
+  }
+
+  private def transitiveBundles(b: Bundle): Set[Bundle] = {
+    @tailrec
+    def process(processed: Set[Bundle], remaining: Set[Bundle]): Set[Bundle] = {
+      if (remaining.isEmpty) {
+        processed
+      } else {
+        val (bundle, rest) = (remaining.head, remaining.tail)
+        if (processed contains bundle) {
+          process(processed, rest)
+        } else {
+          val wiring = bundle.adapt(classOf[BundleWiring])
+          val requiredWires: List[BundleWire] = wiring.getRequiredWires(BundleRevision.PACKAGE_NAMESPACE).asScala.toList
+          val direct: Set[Bundle] = requiredWires.flatMap { wire => Option(wire.getProviderWiring) map { _.getBundle } }.toSet
+          process(processed + bundle, rest ++ (direct -- processed))
+        }
+      }
+    }
+    process(Set.empty, Set(b))
   }
 
 }

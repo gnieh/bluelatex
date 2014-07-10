@@ -51,7 +51,7 @@ class BlueCoreActivator extends BundleActivator {
       recaptcha <- context.get[ReCaptcha]
     } {
       // load the \BlueLaTeX common configuration
-      val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
+      val config = loader.load(context.getBundle)
       val configuration = new BlueConfiguration(config)
 
       // register the core Rest API
