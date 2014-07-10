@@ -45,7 +45,7 @@ class CompilationApi(context: BundleContext, couch: CouchClient, dispatcher: Act
   PATCH {
     // saves the compilation settings
     case p"papers/$paperid/compiler" =>
-      new ModifyCompilerLet(paperid, couch, config, logger)
+      new ModifyCompilerLet(paperid, couch, dispatcher, config, logger)
   }
 
   GET {

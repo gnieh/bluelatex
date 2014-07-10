@@ -21,6 +21,9 @@ import org.osgi.framework._
 import org.osgi.service.log.LogService
 
 import scala.collection.mutable.ListBuffer
+import scala.collection.JavaConverters._
+
+import scala.sys.process.Process
 
 import akka.actor._
 import akka.routing.{
@@ -93,10 +96,17 @@ class CompilationActivator extends BundleActivator {
         context.registerService(classOf[PaperCreated], new CreateSettingsHook(config, logger), null)
 
       // register the compiler services
-      services +=
-        context.registerService(classOf[Compiler], new PdflatexCompiler(system, config), null)
+      registerCompiler(context, new PdflatexCompiler(system, config))
+      registerCompiler(context, new LatexCompiler(system, config))
+      registerCompiler(context, new XelatexCompiler(system, config))
+      registerCompiler(context, new LualatexCompiler(system, config))
 
     }
+
+  def registerCompiler(context: BundleContext, compiler: Compiler): Unit = {
+    services +=
+      context.registerService(classOf[Compiler], compiler, collection.mutable.Map("name" -> compiler.name).asJavaDictionary)
+  }
 
   def undeploy(context: BundleContext): Unit = {
     dispatcher.foreach(_ ! Stop)

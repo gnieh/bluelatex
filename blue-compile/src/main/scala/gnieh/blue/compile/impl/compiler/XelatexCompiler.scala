@@ -16,32 +16,31 @@
 package gnieh.blue
 package compile
 package impl
-package let
+package compiler
 
-import http._
 import common._
 
-import tiscaf._
+import akka.actor.ActorSystem
+import akka.util.Timeout
 
-import com.typesafe.config.Config
-
-import org.osgi.framework.BundleContext
+import scala.concurrent._
 
 import scala.util.Try
 
-import gnieh.sohva.control.CouchClient
+import java.io.File
 
-/** Returns the list of compilers that are currently available in \BlueLaTeX
- *  and that can be used to compile the papers
+import com.typesafe.config.Config
+
+/** Compiles a project with `xelatex` and `bibtex`
  *
  *  @author Lucas Satabin
  */
-class GetCompilersLet(context: BundleContext, val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class XelatexCompiler(system: ActorSystem, config: Config) extends SystemCompiler(system, config) {
 
-  import OsgiUtils._
+  val name: String = "xelatex"
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
-    Try(talk.writeJson(context.getAll[Compiler].map(_.name).toList.sorted))
+  def compile(paperId: String, settings: CompilerSettings)(implicit timeout: Timeout): Try[Boolean] =
+    exec(s"xelatex -interaction nonstopmode -synctex=${if(settings.synctex) 1 else 0} -output-directory ${buildDir(paperId)} ${paperFile(paperId)}",
+      configuration.paperDir(paperId)) //, List("TEXINPUT" -> ".:tex/:resources/:$TEXINPUTS"))
 
 }
-

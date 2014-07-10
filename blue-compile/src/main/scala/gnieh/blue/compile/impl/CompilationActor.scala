@@ -101,7 +101,7 @@ class CompilationActor(
       logDebug(s"Document needs to be compiled: $hasBeenModified")
 
       for {
-        compiler <- bndContext.get[Compiler]
+        compiler <- bndContext.get[Compiler]("name" -> settings.compiler)
         couch <- bndContext.get[CouchClient]
       } {
 

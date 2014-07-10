@@ -31,16 +31,20 @@ import java.io.File
 
 import com.typesafe.config.Config
 
-/** Compiles a project with `pdflatex` and `bibtex`
+/** Compiles a project with `latex`, `dvipdfm` and `bibtex`
  *
  *  @author Lucas Satabin
  */
-class PdflatexCompiler(system: ActorSystem, config: Config) extends SystemCompiler(system, config) {
+class LatexCompiler(system: ActorSystem, config: Config) extends SystemCompiler(system, config) {
 
-  val name: String = "pdflatex"
+  val name: String = "latex"
 
   def compile(paperId: String, settings: CompilerSettings)(implicit timeout: Timeout): Try[Boolean] =
-    exec(s"pdflatex -interaction nonstopmode -synctex=${if(settings.synctex) 1 else 0} -output-directory ${buildDir(paperId)} ${paperFile(paperId)}",
-      configuration.paperDir(paperId)) //, List("TEXINPUT" -> ".:tex/:resources/:$TEXINPUTS"))
+    for {
+      res1 <-
+        exec(s"latex -interaction nonstopmode -synctex=${if(settings.synctex) 1 else 0} -output-directory ${buildDir(paperId)} ${paperFile(paperId)}",
+          configuration.paperDir(paperId))
+      res2 <- exec(s"dvipdfm main.dvi", configuration.buildDir(paperId))
+    } yield res1 && res2
 
 }

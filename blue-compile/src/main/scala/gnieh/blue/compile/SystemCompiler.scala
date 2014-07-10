@@ -27,11 +27,21 @@ import scala.util.Try
 
 import java.io.File
 
+import com.typesafe.config.Config
+
+import common.{
+  PaperConfiguration,
+  FileUtils
+}
+
+import scala.sys.process._
 /** A LaTeX compiler that calls a compiler installed on the host system.
  *
  *  @author Lucas Satabin
  */
-abstract class SystemCompiler(system: ActorSystem) extends Compiler {
+abstract class SystemCompiler(system: ActorSystem, config: Config) extends Compiler {
+
+  val configuration = new PaperConfiguration(config)
 
   private val systemCommand = system.actorSelection("/user/system-commands")
 
@@ -42,6 +52,23 @@ abstract class SystemCompiler(system: ActorSystem) extends Compiler {
         timeout.duration
       ) == 0
     }
+
+  def bibtex(paperId: String, settings: CompilerSettings)(implicit timeout: Timeout): Try[Boolean] = {
+    // XXX this sucks! we need to copy the bib files to the build directory because bibtex
+    // cannot handle compilation in a different directory correctly
+    // technology from the 80's has limitations...
+    // http://tex.stackexchange.com/questions/12686/how-do-i-run-bibtex-after-using-the-output-directory-flag-with-pdflatex-when-f
+    import FileUtils._
+    for(file <- configuration.paperDir(paperId).filter(_.extension == ".bib")) {
+      val destfile = configuration.buildDir(paperId) / file.getName
+      (file #> destfile).!
+    }
+
+    exec(s"bibtex $paperId", configuration.buildDir(paperId))
+  }
+
+  protected def buildDir(paperId: String) = configuration.buildDir(paperId).getCanonicalPath
+  protected def paperFile(paperId: String) = configuration.paperFile(paperId).getCanonicalPath
 
 }
 

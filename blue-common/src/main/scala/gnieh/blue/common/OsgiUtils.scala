@@ -34,12 +34,24 @@ object OsgiUtils {
 
   implicit class RichContext(val context: BundleContext) extends AnyVal {
 
-    /** Returns a rich version of a service reference */
     def get[T: Manifest]: Option[T] =
       for {
         ref <- Option(context.getServiceReference(implicitly[Manifest[T]].runtimeClass.asInstanceOf[Class[T]]))
         service <- Option(context.getService(ref))
       } yield service
+
+    def get[T: Manifest](filter: (String, Any), filters: (String, Any)*): Option[T] = {
+      val f =
+        if(filters.isEmpty)
+          s"(${filter._1}=${filter._2})"
+        else
+          (filter +: filters).map { case (k, v) => s"($k=$v)" }.mkString("(&", "", ")")
+
+      val refs =
+        context.getServiceReferences(implicitly[Manifest[T]].runtimeClass.asInstanceOf[Class[T]], f)
+
+      refs.asScala.headOption.map(ref => context.getService(ref))
+    }
 
     def getAll[T: Manifest]: Iterable[T] =
       for {
