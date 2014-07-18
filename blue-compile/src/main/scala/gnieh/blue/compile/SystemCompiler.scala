@@ -64,7 +64,7 @@ abstract class SystemCompiler(system: ActorSystem, config: Config) extends Compi
       (file #> destfile).!
     }
 
-    exec(s"bibtex $paperId", configuration.buildDir(paperId))
+    exec(s"bibtex main.aux", configuration.buildDir(paperId))
   }
 
   protected def buildDir(paperId: String) = configuration.buildDir(paperId).getCanonicalPath
