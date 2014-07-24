@@ -37,10 +37,12 @@ class ConfigLet(context: BundleContext, config: Config) extends HSimpleLet {
 
   def act(talk: HTalk): Unit = {
     val recaptcha = Try(config.getString("recaptcha.public-key")).toOption
+    val compilationType = Try(config.getString("compiler.compilation-type")).toOption
     talk.writeJson(
       AppConfig(
         config.getString("blue.api.path-prefix"),
-        recaptcha)
+        recaptcha,
+        compilationType)
     )
    }
 

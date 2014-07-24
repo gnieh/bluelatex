@@ -18,8 +18,8 @@
 * The controller for latex paper 
 */
 angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','bluelatex.Paper.Directives.Toc','bluelatex.Paper.Services.Ace','bluelatex.Paper.Services.Paper','bluelatex.Paper.Services.Ace','bluelatex.Latex.Services.SyncTexParser','bluelatex.Paper.Services.Latex','bluelatex.Shared.Services.WindowActive', 'MobWrite','bluelatex.Paper'])
-  .controller('LatexPaperController', ['$rootScope','$scope', 'localize', '$http', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService','SyncTexParserService','$document','WindowActiveService','LatexService','MobWriteService','AceMobWriteClient','$q',
-    function ($rootScope,$scope, localize, $http, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService,SyncTexParserService,$document,WindowActiveService, LatexService,MobWriteService,AceMobWriteClient, $q) {
+  .controller('LatexPaperController', ['$rootScope','$scope', 'localize', '$http', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService','SyncTexParserService','$document','WindowActiveService','LatexService','MobWriteService','AceMobWriteClient','$q', 'compilation_type',
+    function ($rootScope,$scope, localize, $http, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService,SyncTexParserService,$document,WindowActiveService, LatexService,MobWriteService,AceMobWriteClient, $q, compilation_type) {
       $scope.paperId = $routeParams.id;
       var peerId = MobWriteService.syncUsername;
       var pageActive = true;
@@ -539,13 +539,17 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
             getSyncTex();
             getPages();
           }
-          $scope.compile();
+          if(compilation_type === 'background') {
+            $scope.compile();
+          }
         }, function (err) {
           compileActive = false;
           switch (err.status) {
           // no change
           case 304:
-            $scope.compile();
+            if(compilation_type === 'background') {
+              $scope.compile();
+            }
             break;
           // not conneted
           case 401:
@@ -554,9 +558,11 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
           // other bugs
           default:
             getLog();
-            setTimeout(function() {
-              $scope.compile();
-            }, 3000);
+            if(compilation_type === 'background') {
+              setTimeout(function() {
+                $scope.compile();
+              }, 3000);
+            }
           }
         });
       };

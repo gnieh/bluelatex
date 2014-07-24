@@ -3,3 +3,4 @@ Bundle-SymbolicName: org.gnieh.blue.web
 Bundle-Name: \\BlueLaTeX Web client
 Provide-Capability: org.gnieh.blue.sync
 Private-Package=gnieh.blue.web
+Import-Package=gnieh.blue.common,gnieh.blue.compile,*

@@ -16,4 +16,4 @@
 package gnieh.blue
 package web
 
-case class AppConfig(api_prefix: String, recaptcha_public_key: Option[String])
+case class AppConfig(api_prefix: String, recaptcha_public_key: Option[String], compilation_type: Option[String])
