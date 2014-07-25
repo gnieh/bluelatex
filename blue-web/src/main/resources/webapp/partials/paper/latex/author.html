@@ -29,7 +29,7 @@
             <label class="bg"><input type="checkbox" name="compilerOptions" ng-model="compilerOptions"></label>
             <label data-i18n="_Compiler_"></label>
             <div class="compilers">
-            <label ng-repeat="c in compilers">
+            <label class="compiler" ng-class="{current: c==newcompiler.compiler}" ng-repeat="c in compilers">
               <input type="radio" name="compiler" value="{{c}}" ng-model="newcompiler.compiler" ng-change="modifyCompiler()">
               {{c}}
             </label>
@@ -182,7 +182,7 @@
             <div class="folder_name" data-i18n="_Resources_"></div>
             <div class="files">
               <div class="file" ng-class="" ng-repeat="file in resources | orderBy :'name' : 'false'" ng-class="{current: file==currentFile}">
-                <div class="icon type-{{file.extension}}"></div>
+                <div class="icon icon-file"></div>
                 <div class="label" ng-click="insertResource(file)">{{file.name}}<span class="extension" ng-if="file.extension">.{{file.extension}}</span></div>
                 <button ng-click="removeResource(file)" class="icon-delete"></button>
                 <button ng-click="viewResource(file)" class="view icon-view"></button>
@@ -194,7 +194,7 @@
           </div>
           <div class="files">
             <div class="file" ng-repeat="file in synchronizedFiles | orderBy :'name': 'false'" ng-class="{current: file==currentFile}">
-              <div class="icon type-{{file.extension}}"></div>
+              <div class="icon icon-file"></div>
               <div class="label" ng-click="changeFile(file)">{{file.name}}<span class="extension" ng-if="file.extension">.{{file.extension}}</span></div>
               <button ng-click="removeSynchronisedFile(file)" class="icon-delete" ng-if="file.name != 'main' && file.name != $routeParams.id"></button>
               <div class="clear"></div>

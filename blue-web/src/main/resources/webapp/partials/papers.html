@@ -46,11 +46,11 @@
 			<span class="nb">{{(papers| filter:search | filter:dateFilter | filter:roleFilter ).length }}</span>
 		</label>-->
         <h3 data-i18n="_Date_filter_"></h3>
-        <label>
+        <label class="date">
         	<span class="label" data-i18n="_From_"></span>: 
         	<input type="date" id="from_data" name="from_date" ng-model="from_date" date-model="from_date">
         </label>
-        <label>
+        <label class="date">
         	<span class="label" data-i18n="_To_"></span>: 
         	<input type="date" id="to_date" name="to_date" ng-model="to_date" date-model="to_date">
         </label>

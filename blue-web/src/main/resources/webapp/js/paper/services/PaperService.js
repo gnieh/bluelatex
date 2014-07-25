@@ -14,15 +14,14 @@
  * limitations under the License.
  */
  
-angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-cache','bluelatex.Configuration'])
-  .factory("PaperService", ['$resource', '$http', '$upload', '$q', '$angularCacheFactory', '$log','api_prefix',
-    function ($resource, $http, $upload, $q, $angularCacheFactory, $log,api_prefix) {
+angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'angular-data.DSCacheFactory','bluelatex.Configuration'])
+  .factory("PaperService", ['$resource', '$http', '$upload', '$q', 'DSCacheFactory', '$log','api_prefix',
+    function ($resource, $http, $upload, $q, DSCacheFactory, $log,api_prefix) {
       // create a cache
-      var _dataCache = $angularCacheFactory('paperCache', {
+      var _dataCache = DSCacheFactory('paperCache', {
         maxAge: 300000, // items expire after an hour
         storageMode: 'localStorage',
-        deleteOnExpire: 'aggressive',
-        verifyIntegrity: true
+        deleteOnExpire: 'aggressive'
       });
       
       var join = $resource(api_prefix + "/papers/:paper_id/join/:peer_id", null, {
@@ -663,7 +662,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'jmdobry.angular-
           return deferred.promise;
         },
         clearCache: function() {
-          $angularCacheFactory.clearAll();
+          DSCacheFactory.clearAll();
         }
       };
     }

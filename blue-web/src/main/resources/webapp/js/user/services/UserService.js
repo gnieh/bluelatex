@@ -14,15 +14,14 @@
  * limitations under the License.
  */
  
-angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-cache', 'bluelatex.Configuration'])
-  .factory("UserService", ['$resource', '$http', '$log', '$angularCacheFactory', '$q', 'api_prefix',
-      function ($resource, $http, $log, $angularCacheFactory, $q, api_prefix) {
+angular.module("bluelatex.User.Services.User", ["ngResource", 'angular-data.DSCacheFactory', 'bluelatex.Configuration'])
+  .factory("UserService", ['$resource', '$http', '$log', 'DSCacheFactory', '$q', 'api_prefix',
+      function ($resource, $http, $log, DSCacheFactory, $q, api_prefix) {
         // userCache
-        var _dataCache = $angularCacheFactory('userCache', {
+        var _dataCache = DSCacheFactory('userCache', {
           maxAge: 300000,
           storageMode: 'localStorage',
-          deleteOnExpire: 'aggressive',
-          verifyIntegrity: true
+          deleteOnExpire: 'aggressive'
         });
 
         var password = $resource(api_prefix + "/users/:username/reset", {
@@ -201,7 +200,7 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
             return promise;
           },
           clearCache: function() {
-            $angularCacheFactory.clearAll();
+            DSCacheFactory.clearAll();
           }
         };
       }
