@@ -1287,6 +1287,25 @@ diff_match_patch.prototype.diff_toDelta = function(diffs) {
   return text.join('\t').replace(/\x00/g, '%00').replace(/%20/g, ' ');
 };
 
+diff_match_patch.prototype.diff_toDelta_notEncoded = function(diffs) {
+  var text = [];
+  for (var x = 0; x < diffs.length; x++) {
+    switch (diffs[x][0]) {
+      case DIFF_INSERT:
+        text[x] = '+' + diffs[x][1];
+        break;
+      case DIFF_DELETE:
+        text[x] = '-' + diffs[x][1].length;
+        break;
+      case DIFF_EQUAL:
+        text[x] = '=' + diffs[x][1].length;
+        break;
+    }
+  }
+  // Opera doesn't know how to encode char 0.
+  return text;
+};
+
 
 /**
  * Given the original text1, and an encoded string which describes the
@@ -1336,6 +1355,54 @@ diff_match_patch.prototype.diff_fromDelta = function(text1, delta) {
         if (tokens[x]) {
           throw new Error('Invalid diff operation in diff_fromDelta: ' +
                           tokens[x]);
+        }
+    }
+  }
+  if (pointer != text1.length) {
+    throw new Error('Delta length (' + pointer +
+        ') does not equal source text length (' + text1.length + ').');
+  }
+  return diffs;
+};
+
+diff_match_patch.prototype.diff_fromDelta_notEncoded = function(text1, delta) {
+  var diffs = [];
+  var diffsLength = 0;  // Keeping our own length var is faster in JS.
+  var pointer = 0;  // Cursor in text1
+  // Opera doesn't know how to decode char 0.
+  for (var x = 0; x < delta.length; x++) {
+    // Each token begins with a one character parameter which specifies the
+    // operation of this token (delete, insert, equality).
+    var param = delta[x].substring(1);
+    switch (delta[x].charAt(0)) {
+      case '+':
+        try {
+          diffs[diffsLength++] = [DIFF_INSERT, param];
+        } catch (ex) {
+          // Malformed URI sequence.
+          throw new Error('Illegal escape in diff_fromDelta: ' + param);
+        }
+        break;
+      case '-':
+        // Fall through.
+      case '=':
+        var n = parseInt(param, 10);
+        if (isNaN(n) || n < 0) {
+          throw new Error('Invalid number in diff_fromDelta: ' + param);
+        }
+        var text = text1.substring(pointer, pointer += n);
+        if (delta[x].charAt(0) == '=') {
+          diffs[diffsLength++] = [DIFF_EQUAL, text];
+        } else {
+          diffs[diffsLength++] = [DIFF_DELETE, text];
+        }
+        break;
+      default:
+        // Blank delta are ok (from a trailing \t).
+        // Anything else is an error.
+        if (delta[x]) {
+          throw new Error('Invalid diff operation in diff_fromDelta: ' +
+                          delta[x]);
         }
     }
   }
