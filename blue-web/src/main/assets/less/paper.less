@@ -1,0 +1,636 @@
+/*
+ * This file is part of the \BlueLaTeX project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+#paper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    > div {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+    .listType {
+        position: relative;
+        text-align: center;
+        z-index: 4;
+        width: 100%;
+        float: left;
+        input {
+            visibility: hidden;
+            width: 0;
+            float: left;
+            margin: 0;
+            padding: 0;
+            &:checked + span {
+                color: #025097;
+            }
+        }
+        span {
+            display: inline-block;
+            font-size: 20px;
+            color: #444;
+            line-height: 34px;
+            cursor: pointer;
+            padding: 9px;
+            height: 36px;
+            &:hover {
+                color: #025097;
+            }
+        }
+    }
+    .leftCol {
+        position: absolute;
+        width: 215px;
+        top: 82px;
+        left: 0;
+        bottom: 0;
+        background: @pageBackground;
+        box-shadow: 2px 0px 3px rgba(0,0,0,0.2);
+        z-index: 9;
+        .list {
+            height: 100%;
+            padding-top: 4px;
+            padding-left: 0px;
+            > div {
+                overflow: auto;
+                height: 100%;
+            }
+        }
+        .close {
+            position: absolute;
+            right: 3px;
+            font-size: 22px;
+            top: 3px;
+            display: none;
+            z-index: 9;
+            cursor: pointer;
+        }
+        .preview_page_container {
+            background: #FFF;
+            overflow-x: hidden;
+            box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+            margin-left: 0;
+            cursor: pointer;
+            width: 100%;
+        }
+        img.preview_page {
+            width: 100%;
+            height: auto;
+        }
+    }
+    .toc {
+        padding-left: 18px;
+        a {
+            cursor: pointer;
+            color: #333;
+        }
+        ul, ol {
+            padding-left: 10px;
+            margin: 0;
+        }
+        ul li {
+            list-style: none;
+        }
+        .current {
+            font-weight: bold;
+        }
+    }
+    .figure {
+        position: relative;
+        margin: 4px;
+        .page {
+            position: absolute;
+            top: 1px;
+            right: 1px;
+            background: #fff;
+            border: 1px solid #999;
+            padding: 2px 4px;
+            border-right: 0;
+            border-top: 0;
+        }
+    }
+    .centerRightCol {
+        position: absolute;
+        left: 0;
+        padding-left: 215px;
+        right: 0;
+        bottom: 0;
+        top: 82px;
+    }
+    .centerCol {
+        position: relative;
+        float: left;
+        width: 50%;
+        height: 100%;
+        overflow: hidden;
+    }
+    .rightCol {
+        position: relative;
+        float: left;
+        width: 50%;
+        height: 100%;
+    }
+    .options {
+        position: absolute;
+        top: 42px;
+        height: 40px;
+        width: 100%;
+        color: @topMenuColor;
+        background: @topMenuBackground;
+        z-index: 99;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .top.options {
+        > .left {
+            width: 215px;
+            float: left;
+        }
+        > .center {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 215px;
+            right: 0;
+            > div {
+                position: relative;
+                height: 100%;
+            }
+            .right {
+                width: 50%;
+                position: absolute;
+                right: 0;
+                top: 0;
+            }
+        }
+        .option {
+            position: relative;
+            height: 100%;
+            float: left;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -o-user-select: none;
+            user-select: none;
+            line-height: 40px;
+            padding: 0 6px;
+            cursor: pointer;
+            &:hover {
+                background: rgba(0,0,0,0.2);
+            }
+        }
+    }
+    .messages {
+        position: absolute;
+        width: 100%;
+    }
+    .messagesPanel .error, .messagesPanel .warning, .messagesPanel .message {
+        line-height: 20px;
+    }
+    .resourceViewer {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        left: 0;
+        top: 0px;
+        overflow: auto;
+        .close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 35px;
+            cursor: pointer;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            text-align: center;
+        }
+        img {
+            height: 100%;
+            max-height: 100%;
+            max-width: 100%;
+            border: 0;
+            margin: 0;
+            padding: 0;
+        }
+    }
+    .connectedUsers {
+        float: left;
+        .connectedUser {
+            display: inline-block;
+            margin: 0 2px;
+            &.white {
+                color: #fff;
+            }
+            .label {
+                padding: 0 4px;
+                color: #333;
+                cursor: default;
+                font-size: 29px;
+                text-transform: uppercase;
+                line-height: 40px;
+            }
+            .subInfos {
+                display: none;
+                position: absolute;
+                background: #FAFAFA;
+                box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+                padding: 5px;
+                margin-left: 0px;
+                .name {
+                    text-transform: capitalize;
+                }
+            }
+            &:hover .subInfos {
+                display: block;
+            }
+        }
+    }
+}
+.ace_editor {
+    height: 100%;
+}
+.ace-tm .ace_gutter {
+    background: #EEE;
+}
+#preview {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    overflow-y: scroll;
+    border-left: 3px solid #999;
+    .preview_page_container {
+        position: relative;
+        margin: 10px;
+        img {
+            width: 100%;
+        }
+        .container {
+            position: relative;
+            background: #FFF;
+            margin: auto;
+            display: block;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+            overflow: hidden;
+            .hightlights {
+                position: absolute;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                display: block;
+            }
+            canvas {
+                position: relative;
+                min-height: 0;
+                display: block;
+            }
+        }
+    }
+}
+.reviewer #preview {
+    display: block;
+    padding-top: 85px;
+    border-left: 3px solid #999;
+}
+.textLayer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    color: #000;
+    font-family: sans-serif;
+    overflow: hidden;
+    z-index: 1;
+    > div {
+        color: transparent;
+        position: absolute;
+        line-height: 1;
+        white-space: pre;
+        cursor: text;
+    }
+    .highlight {
+        margin: -1px;
+        padding: 1px;
+        background-color: rgba(180,0,170,0.2);
+        border-radius: 4px;
+        &.begin {
+            border-radius: 4px 0px 0px 4px;
+        }
+        &.end {
+            border-radius: 0px 4px 4px 0px;
+        }
+        &.middle {
+            border-radius: 0px;
+        }
+        &.selected {
+            background-color: rgba(0,100,0,0.2);
+        }
+    }
+}
+.hightlight_line {
+    position: absolute;
+    background: rgba(255,0,0,0.13);
+    z-index: 0;
+}
+.subOption {
+    position: relative;
+    height: 100%;
+    float: left;
+    padding-left: 6px;
+    user-select: none;
+    cursor: pointer;
+    .subOptions {
+        background: @topMenuBackground;
+        margin-left: -7px;
+        position: fixed;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.4);
+        z-index: 0;
+        border-radius: 0 0 2px 2px;
+        > div {
+            padding: 3px 7px;
+            border-bottom: 1px solid #DDD;
+            cursor: pointer;
+            &:last-child {
+                border: 0;
+            }
+            &:hover {
+                background: #DDD;
+            }
+        }
+    }
+    .bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+    .label {
+        position: relative;
+        display: inline-block;
+        > span {
+            line-height: 40px;
+            &.has_sub_label {
+                position: relative;
+                top: -7px;
+            }
+        }
+    }
+    > label {
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        display: inline-block;
+        height: 100%;
+        padding-top: 2px;
+        span {
+            position: relative;
+            font-size: 25px;
+            top: 7px;
+        }
+        input {
+            display: none;
+        }
+        &:hover {
+            background: rgba(0,0,0,0.15);
+        }
+    }
+    &.errors {
+        background: @errorBackground;
+        &:hover {
+            background: darken(@errorBackground,10%);
+        }
+    }
+    &.warnings {
+        background: @warningBackground;
+        &:hover {
+            background: darken(@warningBackground,10%);
+        }
+    }
+    &.errors > .label, &.warnings > .label {
+        color: @messageColor;
+    }
+    &:hover {
+        background: darken(@topMenuBackground,10%);
+    }
+}
+.compilers {
+    padding: 0 !important;
+    .compiler {
+        display: block;
+        border-left: 4px solid transparent;
+        margin: 0;
+        padding: 2px 7px;
+        cursor: pointer;
+        input {
+            display: none;
+        }
+        &.current {
+            border-left-color: #025097;
+            background: #F3F3F3;
+        }
+        &:hover {
+            background: #DDD;
+        }
+    }
+    &:hover {
+        background: transparent!important;
+    }
+}
+.sub_label {
+    position: absolute;
+    bottom: 3px;
+    color: #9E9E9E;
+    font-size: 12px;
+    text-align: center;
+    width: 100%;
+}
+.pdf_action {
+    padding: 6px;
+    .navigation {
+        float: right;
+        input {
+            float: left;
+            width: 20px;
+            min-width: 35px;
+            padding: 3px;
+            text-align: center;
+        }
+        .prevPage, .nextPage, span, .totalPage {
+            float: left;
+            line-height: 30px;
+            user-select: none;
+        }
+    }
+    .scale {
+        float: right;
+        select {
+            width: 100px;
+            min-width: 100px;
+        }
+    }
+}
+#paper_settings {
+    position: absolute;
+    background: @headerBackground;
+    padding: 7px;
+    color: @headerColor;
+    width: 450px;
+    height: 450px;
+    overflow: auto;
+    label {
+        color: @headerColor;
+    }
+    h2, h3 {
+        color: @headerColor;
+        margin: 0;
+    }
+    select {
+        outline: none;
+        border: 0;
+        border-radius: 0;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+    }
+}
+#upload_resource {
+    padding-left: 7px;
+    &.file-hover label {
+        border-color: #ddd;
+        background: #999;
+    }
+    .icon {
+        position: absolute;
+        float: left;
+        padding-top: 2px;
+        top: 0;
+        left: 0;
+        font-size: 37px;
+        color: #555;
+    }
+    input {
+        visibility: hidden;
+        height: 0;
+        float: right;
+    }
+    label {
+        position: relative;
+        display: block;
+        background: #F0F0F0;
+        padding: 7px;
+        margin-right: 7px;
+        cursor: pointer;
+    }
+    .label {
+        margin-left: 30px;
+        .extension {
+            color: #999;
+            font-size: 80%;
+        }
+    }
+}
+#new_file {
+    > input {
+        width: 138px;
+        min-width: 0;
+    }
+    > select {
+        width: 64px;
+        min-width: 0;
+    }
+}
+#file_list {
+    .file {
+        position: relative;
+        border-bottom: 1px solid #ddd;
+        .label {
+            display: inline-block;
+            width: 100%;
+            line-height: 24px;
+            padding-left: 19px;
+            top: 1px;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+            .extension {
+                color: #999;
+                font-size: 80%;
+            }
+        }
+        &.current {
+            .label {
+                border-left-color: #025097;
+                background: #F3F3F3;
+            }
+            button {
+                background: #F3F3F3;
+            }
+        }
+        .icon {
+            font-size: 20px;
+            position: absolute;
+            color: #555;
+            left: 3px;
+            top: 3px;
+        }
+        button {
+            position: absolute;
+            right: 0;
+            background: @pageBackground;
+            text-align: center;
+            color: #333;
+            font-size: 17px;
+            padding: 5px 5px 0px 0px;
+            padding-bottom: 0;
+            margin: 0;
+            display: none;
+            top: 50%;
+            margin-top: -13px;
+            height: 25px;
+            overflow: hidden;
+        }
+        .delete {
+            right: 0px;
+        }
+        .download {
+            right: 27px;
+        }
+        .view {
+            right: 54px;
+        }
+        &:hover > button {
+            display: block;
+        }
+    }
+    .folder {
+        margin-bottom: 15px;
+        > .icon {
+            float: left;
+            font-size: 21px;
+            line-height: 9px;
+            margin-bottom: -1px;
+        }
+    }
+}

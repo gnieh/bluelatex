@@ -1,0 +1,598 @@
+/*
+ * This file is part of the \BlueLaTeX project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+* {
+	box-sizing: border-box;
+}
+
+::-webkit-input-placeholder {
+	color: @placeholderColor !important; text-overflow: ellipsis;
+}
+:-moz-placeholder {
+	color: @placeholderColor !important; text-overflow: ellipsis;
+}
+::-moz-placeholder {
+	color: @placeholderColor !important; text-overflow: ellipsis;
+}
+:-ms-input-placeholder {
+	color: @placeholderColor !important; text-overflow: ellipsis;
+}
+::selection {
+	background: @selectionColor; 
+}
+::-moz-selection {
+	background: @selectionColor;
+}
+input[type='number'] {
+	-moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button,
+input::-webkit-clear-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+html {
+	-ms-touch-action: none;
+	height: 100%;
+	width: 100%;
+	overflow-x:hidden;
+	overflow-y:auto;
+	position:relative;
+}
+
+body {
+	position: relative;
+	font-family: @font;
+	background-color: @backgroundColor;
+	color: @fontColor;
+	font-size: 13pt;
+	padding: 0;
+	height:100%;
+	width:100%;
+	font-weight:100;
+	margin:0;
+
+	> iframe {
+		// hide iframe create by re-captcha
+		display: none;
+	}
+}
+
+#page {
+	position: relative;
+	height: 100%;
+	width: 100%;
+	overflow: auto;
+}
+header {
+	position: absolute;
+	width: 100%;
+	background: @headerBackground;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+	font-weight: bold;
+	height: @headerHeight;
+	z-index: 195;
+	color: @headerColor;
+
+	.logo{
+		padding: 0 10px;
+		float: left;
+
+		img{
+			height: @headerHeight;
+		}
+	}
+}
+#menu_user {
+	position: relative;
+	float: right;
+	color: @headerColor;
+	margin-left: auto;
+	height: 100%;
+
+	.subOptions {
+		position: absolute;
+		top: @headerHeight;
+		background: @headerBackground;
+		padding: 7px;
+		color: @headerColor;
+		width: 170px;
+		overflow: auto;
+		right: 0;
+
+		.bg {
+			input {
+				display: none;
+			}
+		}
+
+		ul {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+	}
+
+	> label{
+		position: relative;
+		display: inline-block;
+		color: @headerColor;
+		padding-right: 27px;
+		padding-left: 8px;
+		line-height: @headerHeight;
+		overflow: hidden;
+		margin: 0;
+
+		@userIconWidth: 33px;
+		.icon {
+			width: @userIconWidth;
+			height: @userIconWidth;
+			overflow: hidden;
+			display: inline-block;
+			float: left;
+			border-radius: 50%;
+			margin-right: 15px;
+			margin-top: -(@headerHeight - @userIconWidth) / 2;
+			box-shadow: 0 0 0 0px #FFF, 0 0 0 0px #eee, 0 0px 0px 2px rgba(0, 0, 0, 0.2);
+
+			img {
+				width:100%;
+			}
+		}
+		&:hover{
+			background: darken(@headerBackground, 5%);
+			color: @headerColor;
+		}
+	}
+	a {
+		color: @headerLinkColor !important;
+		font-size: 14px;
+		white-space: nowrap;
+		display: block;
+		line-height: 25px;
+	}
+	&:hover {
+		background: darken(@headerBackground, 5%);
+	}
+
+}
+
+#menu_navigation {
+	float: right;
+}
+#menu_user_mobile {
+	display: none;
+}
+
+#pull {
+	display: none;
+	color: @headerColor;
+	float: right;
+	font-size: 27px;
+	padding: 4px 14px;
+	cursor: pointer;
+
+	input {
+		visibility: hidden;
+		float: right;
+		width: 0;
+		height: 0;
+	}
+}
+
+#git {
+	float: right;
+	line-height: normal;
+	.icon  {
+		position: relative;
+		font-size: 24px;
+		top: 5px;
+		line-height: 26px;
+	}
+
+	> a {
+		display: inline-block;
+		position: relative;
+		color: @headerLinkColor;
+		padding: 0 6px;
+		line-height: @headerHeight;
+		font-size: 14px;
+
+		&:hover{
+			background: darken(@headerBackground, 5%);
+			color: @headerLinkColor;
+		}
+	}
+}
+
+nav {
+	position: relative;
+	line-height: 41px;
+	margin-left: 205px;
+
+	> div > ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		float: left;
+
+		li {
+			white-space: nowrap;
+			float: left;
+			button {
+				color: @headerLinkColor;
+				font-size: 14px;
+				font-weight: bold;
+				white-space: nowrap;
+				padding: 0 10px;
+				display: block;
+				background: transparent;
+				margin: 0;
+				line-height: 41px;
+				border-radius: 0;
+
+				&:hover {
+				    background: darken(@headerBackground, 5%);
+					color: @headerLinkColor;
+				}
+			}
+			a, a:visited, a:focus, a:active {
+				color: @headerLinkColor;
+				font-size: 14px;
+				font-weight: bold;
+				white-space: nowrap;
+				padding: 0 10px;
+				display: block;
+
+				&.current,&:hover{
+					background: darken(@headerBackground, 5%);
+					color: @headerLinkColor;
+				}
+			}
+		}
+	}
+}
+
+.popup {
+	background: #fff;
+	color: #333;
+	padding: 15px;
+	border-radius: 4px;
+	display:none;
+	padding:20px;
+	min-width:400px;
+	max-width: 600px;
+}
+
+h1, h2, h3, h4, h5 {
+	color: #333;
+	font-family: "Trade Gothic","Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-weight: normal;
+	margin-top: 10px;
+}
+
+h1 {
+	font-size: 44px;
+	line-height: 50px;
+	margin-bottom: 10px;
+}
+
+h2 {
+	font-size: 30px;
+	line-height: 38px;
+}
+
+h3 {
+	font-size: 24px;
+	line-height: 36px;
+	margin-bottom: 10px;
+}
+
+h4 {
+	color: #444;
+	font-size: 20px;
+	font-weight: bold;
+	line-height: 22px;
+	margin-bottom: 10px
+}
+
+h5 {
+	font-size: 14px;
+	line-height: 20px;
+}
+
+h6 {
+	font-size: 12px;
+	line-height: 20px;
+}
+
+img {
+	padding: 0;
+	margin: 0;
+	border: none;
+}
+
+label {
+	font-size: 11pt;
+	margin: 4px 0;
+	line-height: 24px;
+	color: @fontColor;
+}
+
+label.error {
+	color: #fff;
+	margin-left:2px;
+	padding:2px;
+	padding-left:18px;
+	-o-border-radius:4px;
+	-moz-border-radius:4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
+
+@inputBorder: 1px solid #BABABA;
+@inputColor: @fontColor;
+@inputBackground: #FFF;
+input {
+	font-size: 15px;
+	color: @inputColor;
+	border: @inputBorder;
+	background: @inputBackground;
+	padding: 2px 6px 3px;
+	margin: 2px;
+	outline: none;
+
+	&:focus {
+		border-color: #5C5C5C;
+	}
+}
+input[type="checkbox"], input[type="radio"] {
+	background: transparent;
+	border: 0;
+}
+input[type="date"] {
+	
+}
+input[type="text"],input[type="password"],input[type="email"] {
+	min-width: 200px;
+}
+input[disabled],input[disabled]:hover, button[disabled] {
+	background: #EEE !important;
+	color: #D3D3D3 !important;
+	cursor: default;
+	filter: none;
+	text-shadow: none;
+}
+select {
+	&:extend(input);
+	min-width: 214px;
+}
+textarea {
+	font-size: 15px;
+	color: @inputColor;
+	border: @inputBorder;
+	background: @inputBackground;
+	padding: 2px 6px 3px;
+	margin: 2px;
+	width: 355px;
+	&:focus {
+		border-color: #5C5C5C;
+	}
+}
+
+iframe, object {
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+a, a:visited,a:focus,a:active {
+	color: @linkColor;
+	border: 0;
+	text-decoration: none;
+	position: relative;
+
+	&:hover{
+		color: darken(@linkColor, 10%);
+	}
+}
+
+.left {
+	float: left;
+}
+.right {
+	float: right;
+}
+.hidden {
+	display: none;
+}
+.aligRight {
+	text-align: right;
+}
+
+.button,.button:visited, button {
+	font-size: 15px;
+	margin: 2px;
+	cursor: pointer;
+	background: @buttonBackground;
+	color: @buttonColor;
+	border: 0;
+	padding: 7px;
+	text-align: center;
+	display: inline-block;
+	zoom: 1;
+	font-weight: normal;
+	letter-spacing: normal;
+	line-height: normal;
+	border-radius: 1px;
+	outline: none;
+	user-select: none;
+	&.start,&.start{
+		background: @buttonStartBackground;
+		&:hover, &:focus {
+			background: darken(@buttonStartBackground, 10%);
+		}
+	}
+	&.delete,&.stop{
+		background: @buttonDeleteBackground;
+		&:hover, &:focus {
+			background: darken(@buttonDeleteBackground, 10%);
+		}
+	}
+	&:hover, &:focus {
+		background: darken(@buttonBackground, 10%);
+		color: @buttonColor;
+	}
+}
+
+.colRight {
+	margin-left: 240px;
+	margin-right: 7px;
+	margin-bottom: 7px;
+}
+
+.clear {
+	display: block;
+	clear: both;
+	&:after {
+		content: "";
+		display: table;
+		clear: both;
+	}
+}
+.messagesPanel {
+	.message {
+		background: @messageBackground;
+		color: @messageColor;
+		line-height: 16px;
+		padding: 10px;
+		font-size: 15px;
+		position: relative;
+	}
+	> div .close {
+		position: absolute;
+		right: 5px;
+		top: 50%;
+		margin-top: -7px;
+		cursor: pointer;
+	}
+	.error {
+		&:extend(.messagesPanel .message);
+		background: @errorBackground;
+	}
+	.warning {
+		&:extend(.messagesPanel .message);
+		background: @warningBackground;
+	}
+}
+/*cols*/
+.grid {
+	display: block;
+	&:after {
+		&:extend(.clear:after);
+	}
+	.col {
+		float: left;
+
+		&.c4-5 {
+			width: 80%;
+		}
+		&.c1-5 {
+			width: 20%;
+		}
+		&.c2-5 {
+			width: 40%;
+		}
+		&.c3-5 {
+			width: 60%;
+		}
+		&.c2-3 {
+			width: 66.66%;
+		}
+		&.c1-3 {
+			width: 33.33%;
+		}
+		&.c1-2 {
+			width: 50%;
+		}
+		&.c1-4 {
+			width: 25%;
+		}
+		&.c3-4 {
+			width: 75%;
+		}
+
+	}
+	&.pad .col {
+		padding-right: 4px;
+
+		&:last-of-type {
+			padding-right: 0;
+		}
+	}
+}
+
+.tooltip {
+	position: relative;
+	background: rgba(0, 0, 0, 0.4);
+	color: #fff;
+	padding: 4px 7px;
+	border-radius: 2px;
+	z-index: 999999;
+	&:after {
+		right: 100%;
+		top: 50%;
+		border: solid transparent;
+		content: " ";
+		height: 0;
+		width: 0;
+		position: absolute;
+		pointer-events: none;
+		border-color: transparent;
+		border-right-color: rgba(0, 0, 0, 0.4);
+		border-width: 7px;
+		margin-top: -7px;
+	}
+}
+
+.debug_block {
+	position: absolute;
+	padding-top: 1px;
+	margin-bottom: -1px;
+	margin-left: -1px;
+	.info {
+	 	display: none;
+	 	position: absolute;
+	}
+	&:hover .info {
+	 	display: block;
+	}
+}
+.debug_block.k {
+	background: green;
+}
+.debug_block.x {
+	background: red;
+}
+.debug_block.horizontal{
+	border: 1px solid blue;
+}
+.debug_block.vertical{
+	border: 1px solid orange;
+}
