@@ -485,6 +485,10 @@
         "description":"Role"
     },
     {
+        "key":"_Exit_paper_confirm_",
+        "value":"Are you sure you want to exit the paper?",
+        "description":"Exit paper confirm"
+    },{
         "key":"_Install_itsalltext_",
         "value":"Please install <a href='https://addons.mozilla.org/fr/firefox/addon/its-all-text/'>It's all text</a>",
         "description":"itsalltext not present invit to install it"

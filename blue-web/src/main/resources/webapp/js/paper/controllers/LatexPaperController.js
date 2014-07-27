@@ -18,8 +18,8 @@
 * The controller for latex paper 
 */
 angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','bluelatex.Paper.Directives.Toc','bluelatex.Paper.Services.Ace','bluelatex.Paper.Services.Paper','bluelatex.Paper.Services.Ace','bluelatex.Latex.Services.SyncTexParser','bluelatex.Paper.Services.Latex','bluelatex.Shared.Services.WindowActive', 'MobWrite','bluelatex.Paper'])
-  .controller('LatexPaperController', ['$rootScope','$scope', 'localize', '$http', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService','SyncTexParserService','$document','WindowActiveService','LatexService','MobWriteService','AceMobWriteClient','$q', 'compilation_type',
-    function ($rootScope,$scope, localize, $http, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService,SyncTexParserService,$document,WindowActiveService, LatexService,MobWriteService,AceMobWriteClient, $q, compilation_type) {
+  .controller('LatexPaperController', ['$rootScope','$scope', 'localize', '$http', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService','SyncTexParserService','$document','WindowActiveService','LatexService','MobWriteService','AceMobWriteClient', '$q', 'compilation_type','localize',
+    function ($rootScope,$scope, localize, $http, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService,SyncTexParserService,$document,WindowActiveService, LatexService,MobWriteService,AceMobWriteClient, $q,compilation_type, localize) {
       $scope.paperId = $routeParams.id;
       var peerId = MobWriteService.syncUsername;
       var pageActive = true;
@@ -86,6 +86,10 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       };
       
       window.onbeforeunload = function () {
+        return localize.getLocalizedString('_Exit_paper_confirm_');
+      };
+
+      window.onunload = function () {
         exitPaper();
       };
 
@@ -94,6 +98,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       */
       $scope.$on("$destroy", function(){
         exitPaper();
+        window.onunload = window.onbeforeunload = null;
       });
 
       /************/
@@ -115,7 +120,9 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       * Stop sharing file
       */
       var stopMobWrite = function () {
-        MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title});
+        if(AceService.getContent() != '') {
+          MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title});
+        }
       };
 
       /**
