@@ -868,5 +868,141 @@
         "key":"_Captcha_",
         "value":"Captcha",
         "description":"Registration captcha label"
+    },
+    
+
+
+    {
+        "key":"_files_tooltip_",
+        "value":"All files of the paper.",
+        "description":"tooltip paper page: Files tab"
+    },
+    {
+        "key":"_toc_tooltip_",
+        "value":"Table of content of the current file.",
+        "description":"tooltip paper page: TOC tab"
+    },
+    {
+        "key":"_debug_tooltip_",
+        "value":"Debug.",
+        "description":"tooltip paper page: debug tab"
+    },
+    {
+        "key":"_compile_tooltip_",
+        "value":"Compile the document.",
+        "description":"tooltip paper page: compile"
+    },
+    {
+        "key":"_download_pdf_tooltip_",
+        "value":"Download the generated PDF.",
+        "description":"tooltip paper page: download pdf"
+    },
+    {
+        "key":"_download_zip_tooltip_",
+        "value":"Download the document source files as zip archive.",
+        "description":"tooltip paper page: download zip"
+    },
+    {
+        "key":"_download_log_tooltip_",
+        "value":"Download document compilation log.",
+        "description":"tooltip paper page: compile"
+    },
+    {
+        "key":"_scale_tooltip_",
+        "value":"Change the scale factor of the preview.",
+        "description":"tooltip paper page: scale"
+    },
+    {
+        "key":"_new_file_tooltip_",
+        "value":"Create a new synchronized file.",
+        "description":"tooltip paper page: new file"
+    },
+    {
+        "key":"_upload_file_tooltip_",
+        "value":"Upload a resource.",
+        "description":"tooltip paper page: upload resource"
+    },
+    {
+        "key":"_delete_resource_tooltip_",
+        "value":"Delete the resource.",
+        "description":"tooltip paper page: delete resource"
+    },
+    {
+        "key":"_view_resource_tooltip_",
+        "value":"Display the resource.",
+        "description":"tooltip paper page: view resource"
+    },
+    {
+        "key":"_download_resource_tooltip_",
+        "value":"Download the resource.",
+        "description":"tooltip paper page: download resource"
+    },
+    {
+        "key":"_delete_file_tooltip_",
+        "value":"Delete the file.",
+        "description":"tooltip paper page: delete file"
+    },
+
+
+    {
+        "key":"_paper_name_tooltip_",
+        "value":"The paper name allows you to identify it quickly in the paper list.",
+        "description":"tooltip new paper page: paper name"
+    },
+    {
+        "key":"_paper_title_tooltip_",
+        "value":"The title of the paper.",
+        "description":"tooltip new paper page: paper title"
+    },
+    {
+        "key":"_paper_template_tooltip_",
+        "value":"The template of the paper.",
+        "description":"tooltip paper page: paper template"
+    },
+
+
+    {
+        "key":"_email_tooltip_",
+        "value":"The email address used to contact you and notify you about changes.",
+        "description":"tooltip profile: email"
+    },
+    {
+        "key":"_affiliation_tooltip_",
+        "value":"The affiliation is your university/lab or company name.",
+        "description":"tooltip profile: affiliation"
+    },
+
+
+    {
+        "key":"_captcha_tooltip_",
+        "value":"The captcha is used to verify that you are not a robot.",
+        "description":"tooltip register: captcha"
+    },
+
+
+    {
+        "key":"_paper_authors_tooltip_",
+        "value":"Authors are users which are allowed to edit and read the paper.",
+        "description":"tooltip edit paper: authors"
+    },
+    {
+        "key":"_paper_reveiwers_tooltip_",
+        "value":"Reviewers are users which are allowed to read the paper.",
+        "description":"tooltip edit paper: reveiwers"
+    },
+    {
+        "key":"_compiler_type_tooltip_",
+        "value":"The compiler used to compile the paper.",
+        "description":"tooltip edit paper: compiler"
+    },
+    {
+        "key":"_compiler_interval_tooltip_",
+        "value":"The interval between two compilation.",
+        "description":"tooltip edit paper: interval"
+    },
+    {
+        "key":"_synctex_tooltip_",
+        "value":"Whether the compiler generates SyncTeX data.",
+        "description":"tooltip edit paper: affiliation"
     }
 ]

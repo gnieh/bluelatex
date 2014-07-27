@@ -821,17 +821,17 @@
     },
     {
         "key":"_Edit_profile_User_must_be_authenticated_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous!",
         "description":"User not connected"
     },
     {
         "key":"_Edit_profile_Not_authorized_to_modifiy_the_user_data_",
-        "value":"Your are not authorized to modifify the data of this user",
+        "value":"Your are not authorized to modifify the data of this user.",
         "description":"_Edit_profile_Not_authorized_to_modifiy_the_user_data_"
     },
     {
         "key":"_Edit_profile_User_does_not_exist_",
-        "value":"Utilisateur non trouvé",
+        "value":"Utilisateur non trouvé.",
         "description":"User not found"
     },
     {
@@ -851,12 +851,148 @@
     },
     {
         "key":"_Clone_me_",
-        "value":"Cloner me!",
+        "value":"Cloner moi!",
         "description":"Clone me in the header"
     },
     {
         "key":"_Report_an_issue_",
         "value":"Repporter un problème!",
         "description":"Report an issue in the header"
+    },
+    
+
+
+    {
+        "key":"_files_tooltip_",
+        "value":"Tous les fichiers du document.",
+        "description":"tooltip paper page: Files tab"
+    },
+    {
+        "key":"_toc_tooltip_",
+        "value":"Table des matières du fichier courant.",
+        "description":"tooltip paper page: TOC tab"
+    },
+    {
+        "key":"_debug_tooltip_",
+        "value":"Debug.",
+        "description":"tooltip paper page: debug tab"
+    },
+    {
+        "key":"_compile_tooltip_",
+        "value":"Compiler le document.",
+        "description":"tooltip paper page: compile"
+    },
+    {
+        "key":"_download_pdf_tooltip_",
+        "value":"Télécharger les fichiers source du document en tant qu'archive zip.",
+        "description":"tooltip paper page: download pdf"
+    },
+    {
+        "key":"_download_zip_tooltip_",
+        "value":"Télécharger tous les fichiers du document.",
+        "description":"tooltip paper page: download zip"
+    },
+    {
+        "key":"_download_log_tooltip_",
+        "value":"Télécharger les logs de compilation.",
+        "description":"tooltip paper page: compile"
+    },
+    {
+        "key":"_scale_tooltip_",
+        "value":"Changer le niveau de zoom de la prévisualisation.",
+        "description":"tooltip paper page: scale"
+    },
+    {
+        "key":"_new_file_tooltip_",
+        "value":"Créer un nouveau fichier synchronisé.",
+        "description":"tooltip paper page: new file"
+    },
+    {
+        "key":"_upload_file_tooltip_",
+        "value":"Ajouter ou modifier une ressource.",
+        "description":"tooltip paper page: upload resource"
+    },
+    {
+        "key":"_delete_resource_tooltip_",
+        "value":"Supprimer la ressource.",
+        "description":"tooltip paper page: delete resource"
+    },
+    {
+        "key":"_view_resource_tooltip_",
+        "value":"Afficher la ressource.",
+        "description":"tooltip paper page: view resource"
+    },
+    {
+        "key":"_download_resource_tooltip_",
+        "value":"Télécharger la resource.",
+        "description":"tooltip paper page: download resource"
+    },
+    {
+        "key":"_delete_file_tooltip_",
+        "value":"Supprimer le fichier.",
+        "description":"tooltip paper page: delete file"
+    },
+
+
+    {
+        "key":"_paper_name_tooltip_",
+        "value":"Le nom du document permettant de le retrouver facilement dans la liste des documents.",
+        "description":"tooltip new paper page: paper name"
+    },
+    {
+        "key":"_paper_title_tooltip_",
+        "value":"Le titre du document.",
+        "description":"tooltip new paper page: paper title"
+    },
+    {
+        "key":"_paper_template_tooltip_",
+        "value":"Le template du document.",
+        "description":"tooltip paper page: paper template"
+    },
+
+
+    {
+        "key":"_email_tooltip_",
+        "value":"L'adresse email utilisée pour vous contacter ou vous notifier des changements.",
+        "description":"tooltip profile: email"
+    },
+    {
+        "key":"_affiliation_tooltip_",
+        "value":"L'affiliation est le nom de votre université et labo ou de votre entreprise..",
+        "description":"tooltip profile: affiliation"
+    },
+
+
+    {
+        "key":"_captcha_tooltip_",
+        "value":"Le captcha est utilisé pour vérifier que vous n'êtes pas un robot.",
+        "description":"tooltip register: captcha"
+    },
+
+
+    {
+        "key":"_paper_authors_tooltip_",
+        "value":"Les auteurs sont les utilisateurs qui peuvent modifier et lire le document.",
+        "description":"tooltip edit paper: auhtors"
+    },
+    {
+        "key":"_paper_reveiwers_tooltip_",
+        "value":"Les relecteurs sont les utilisateurs qui peuvent lire le document.",
+        "description":"tooltip edit paper: reviewers"
+    },
+    {
+        "key":"_compiler_type_tooltip_",
+        "value":"Le compilateur qui est utilisé pour compiler le doucment.",
+        "description":"tooltip edit paper: compiler"
+    },
+    {
+        "key":"_compiler_interval_tooltip_",
+        "value":"L'intervalle entre deux compilations.",
+        "description":"tooltip edit paper: interval"
+    },
+    {
+        "key":"_synctex_tooltip_",
+        "value":"Déterminer si les données SyncTeX sont générées ou non.",
+        "description":"tooltip edit paper: affiliation"
     }
 ]

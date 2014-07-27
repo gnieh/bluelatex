@@ -2,15 +2,15 @@
   <div class="top options">
     <div class="left">
       <div class="btn-group listType">
-        <label class="btn btn-default"  ng-class="{'active': listType=='files'}" for="files">
+        <label class="btn btn-default"  ng-class="{'active': listType=='files'}" for="files" i18n-Tooltip="_files_tooltip_">
             <input type="radio" name="listType" value="files" id="files" ng-model="listType">
             <span class="icon-file"></span>
         </label>
-        <label class="btn btn-default" ng-class="{'active': listType=='toc'}" for="toc">
+        <label class="btn btn-default" ng-class="{'active': listType=='toc'}" for="toc" i18n-Tooltip="_toc_tooltip_">
             <input type="radio" name="listType" value="toc" id="toc" ng-model="listType">
             <span class="icon-list" ></span>
         </label>
-        <label class="btn btn-default" ng-class="{'active': listType=='debug'}" for="debug">
+        <label class="btn btn-default" ng-class="{'active': listType=='debug'}" for="debug" i18n-Tooltip="_debug_tooltip_">
             <input type="radio" name="listType" value="debug" id="debug" checked="true" ng-model="listType">
             <span class="icon-bug"></span>
         </label>
@@ -18,7 +18,7 @@
     </div>
     <div class="center">
       <div class="left">
-        <div class="subOption compilerOptions">
+        <div class="subOption compilerOptions" i18n-Tooltip="_compile_tooltip_">
           <div class="label">
             <span class="has_sub_label" ng-click="compile()" data-i18n="_Compile_"></span>
             <div class="sub_label">ctrl + s</div>
@@ -48,14 +48,14 @@
         </div>
         <div class="subOption">
           <div class="label">
-            <span ng-click="downloadPDF()" data-i18n="_Download_"></span>
+            <span ng-click="downloadPDF()" data-i18n="_Download_" i18n-Tooltip="_download_pdf_tooltip_"></span>
           </div>
           <label><input type="checkbox" name="downloadOptions" ng-model="downloadOptions"><span class="icon-down-empty"></span></label>
           <div class="subOptions" ng-show="downloadOptions">
             <label class="bg"><input type="checkbox" name="downloadOptions" ng-model="downloadOptions"></label>
-            <div ng-click="downloadPDF()" data-i18n="_Download_PDF_"></div>
-            <div ng-click="downloadZip()" data-i18n="_Download_ZIP_"></div>
-            <div ng-click="downloadLog()" data-i18n="_Download_Log_"></div>
+            <div ng-click="downloadPDF()" data-i18n="_Download_PDF_" i18n-Tooltip="_download_pdf_tooltip_"></div>
+            <div ng-click="downloadZip()" data-i18n="_Download_ZIP_" i18n-Tooltip="_download_zip_tooltip_"></div>
+            <div ng-click="downloadLog()" data-i18n="_Download_Log_" i18n-Tooltip="_download_log_tooltip_"></div>
           </div>
         </div>
         <div class="option itsalltext" ng-click="openItsalltext()" data-i18n="_Emacs_users_"></div>
@@ -101,7 +101,7 @@
         </div>
         <div class="messages" bl-messages></div>
         <div class="pdf_action">
-          <div class="scale">
+          <div class="scale" i18n-Tooltip="_scale_tooltip_">
             <select ng-model="scale">
               <option value="auto">Auto</option>
               <option value="0.5">50%</option>
@@ -184,9 +184,9 @@
               <div class="file" ng-class="" ng-repeat="file in resources | orderBy :'name' : 'false'" ng-class="{current: file==currentFile}">
                 <div class="icon icon-file"></div>
                 <div class="label" ng-click="insertResource(file)">{{file.name}}<span class="extension" ng-if="file.extension">.{{file.extension}}</span></div>
-                <button ng-click="removeResource(file)" class="icon-delete"></button>
-                <button ng-click="viewResource(file)" class="view icon-view"></button>
-                <button ng-click="downloadResource(file)" class="download icon-download"></button>
+                <button ng-click="removeResource(file)" class="icon-delete" i18n-Tooltip="_delete_resource_tooltip_"></button>
+                <button ng-click="viewResource(file)" class="view icon-view" i18n-Tooltip="_view_resource_tooltip_"></button>
+                <button ng-click="downloadResource(file)" class="download icon-download" i18n-Tooltip="_download_resource_tooltip_"></button>
                 <div class="clear"></div>
               </div>
               <div class="file" ng-if="resources.length == 0" data-i18n="_No_resource_found_"></div>
@@ -196,13 +196,13 @@
             <div class="file" ng-repeat="file in synchronizedFiles | orderBy :'name': 'false'" ng-class="{current: file==currentFile}">
               <div class="icon icon-file"></div>
               <div class="label" ng-click="changeFile(file)">{{file.name}}<span class="extension" ng-if="file.extension">.{{file.extension}}</span></div>
-              <button ng-click="removeSynchronisedFile(file)" class="icon-delete" ng-if="file.name != 'main' && file.name != $routeParams.id"></button>
+              <button ng-click="removeSynchronisedFile(file)" class="icon-delete" ng-if="file.name != 'main' && file.name != $routeParams.id" i18n-Tooltip="_delete_file_tooltip_"></button>
               <div class="clear"></div>
             </div>
             <div class="file" ng-if="synchronizedFiles.length == 0" data-i18n="_No_synchronized_file_found_"></div>
           </div>
         </div>
-        <section id="new_file">
+        <section id="new_file" i18n-Tooltip="_new_file_tooltip_">
           <h3 data-i18n="_New_file_"></h3>
           <label id="new_file">
             <input type="text" ng-model="new_file_name" data-i18n-attr="_Filename_|placeholder">
@@ -213,7 +213,7 @@
             <button class="button" ng-disabled="new_file_name==null || new_file_name==''" ng-click="newFile(new_file_name+new_file_extension)" data-i18n="_New_file_"></button>
           </label>
         </section>
-        <section id="upload_resource" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="file-hover">
+        <section id="upload_resource" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="file-hover" i18n-Tooltip="_upload_file_tooltip_">
           <h3 data-i18n="_New_resource_"></h3>
           <label id="new_file">
             <span class="icon type-{{new_file.extension}}"></span>
