@@ -101,7 +101,7 @@
     },
     {
         "key":"_Password_Lost_",
-        "value":"Mot de passe perdu?",
+        "value":"Mot de passe perdu ?",
         "description":"Login page"
     },
     {
@@ -121,7 +121,7 @@
     },
     {
         "key":"_ResetTitle_",
-        "value":"Mot de passe perdu?",
+        "value":"Mot de passe perdu ?",
         "description":"Reset page title"
     },
     {
@@ -346,7 +346,7 @@
     },
     {
         "key":"_Delete_paper_confirm_",
-        "value":"Etes-vous sûr de vouloir supprimer l'article : \"\\s\"?",
+        "value":"Etes-vous sûr de vouloir supprimer l'article : \"\\s\" ?",
         "description":"Delete paper confirmation"
     },
     {
@@ -546,7 +546,7 @@
     },
     {
         "key":"_Emacs_users_",
-        "value":"Utilisateur Emacs?",
+        "value":"Utilisateur Emacs ?",
         "description":"Emacs users"
     },
     {
@@ -779,23 +779,33 @@
 
 
     {
+        "key":"_Delete_account_",
+        "value":"Supprimer son compte",
+        "description":"Delete account"
+    },
+    {
+        "key":"_Delete_account_confirm_",
+        "value":"Etes-vous sûr de vouloir supprimer votre compte ?",
+        "description":"Delete account: confirmation message"
+    },
+    {
         "key":"_Remove_user_Captcha_not_verify_or_user_not_authenticated_",
         "value":"Vous n'êtes pas connecté, reconnectez-vous",
         "description":"User not connected"
     },
     {
         "key":"_Remove_user_The_captcha_did_not_verify_",
-        "value":"Captcha veritication not correct",
+        "value":"Le captcha n'est pas correcte.",
         "description":"Captcha veritication not correct"
     },
     {
         "key":"_Remove_user_The_user_still_owns_papers_",
-        "value":"You can't remove your account because you have still papers",
+        "value":"Vous ne pouvez pas suppimer le compte parce qu'il vous reste des articles.",
         "description":"Remove user: The user still has owns papers"
     },
     {
         "key":"_Remove_user_Something_wrong_happened_",
-        "value":"Unable to remove user",
+        "value":"Impossible de supprimer l'utilisateur.",
         "description":"Unable to remove user"
     },
 

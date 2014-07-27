@@ -784,6 +784,16 @@
 
 
     {
+        "key":"_Delete_account_",
+        "value":"Delete account",
+        "description":"Delete account"
+    },
+    {
+        "key":"_Delete_account_confirm_",
+        "value":"Are you sure you want to delete your account?",
+        "description":"Delete account: confirmation message"
+    },
+    {
         "key":"_Remove_user_Captcha_not_verify_or_user_not_authenticated_",
         "value":"Your are not connected",
         "description":"User not connected"

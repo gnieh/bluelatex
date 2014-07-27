@@ -100,10 +100,10 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'angular-data.DSCa
             }
           }
         });
-        var removeUser = $resource(api_prefix + "/users/:username", {
+        var deleteUser = $resource(api_prefix + "/users/:username", {
           username: "@username"
         }, {
-          "remove": {
+          "delete": {
             'method': 'DELETE'
           }
         });
@@ -183,12 +183,14 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'angular-data.DSCa
           register: function (user) {
             return register.register({}, jsonToPostParameters(user)).$promise;
           },
-          remove: function (user) {
+          delete: function (user) {
             var deferred = $q.defer();
             var promise = deferred.promise;
-            removeUser.remove({
-              username: user.username
-            }, user).$promise.then(function (data) {
+            deleteUser.delete({
+              username: user.name,
+              recaptcha_challenge_field: user.recaptcha_challenge_field,
+              recaptcha_response_field: user.recaptcha_response_field
+            }).$promise.then(function (data) {
               _dataCache.remove('/users/' + user.username);
               deferred.resolve(data);
             }, function (error) {
