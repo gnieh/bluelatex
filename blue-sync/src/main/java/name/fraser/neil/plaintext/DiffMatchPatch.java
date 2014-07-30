@@ -20,8 +20,6 @@
 package name.fraser.neil.plaintext;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1420,44 +1418,6 @@ public class DiffMatchPatch {
   }
 
   /**
-   * Crush the diff into an encoded string which describes the operations
-   * required to transform text1 into text2.
-   * E.g. =3\t-2\t+ing  -> Keep 3 chars, delete 2 chars, insert 'ing'.
-   * Operations are tab-separated.  Inserted text is escaped using %xx notation.
-   * @param diffs Array of Diff objects.
-   * @return Delta text.
-   */
-  public String diff_toDelta(LinkedList<Diff> diffs) {
-    StringBuilder text = new StringBuilder();
-    for (Diff aDiff : diffs) {
-      switch (aDiff.operation) {
-      case INSERT:
-        try {
-          text.append("+").append(URLEncoder.encode(aDiff.text, "UTF-8")
-                                            .replace('+', ' ')).append("\t");
-        } catch (UnsupportedEncodingException e) {
-          // Not likely on modern system.
-          throw new Error("This system does not support UTF-8.", e);
-        }
-        break;
-      case DELETE:
-        text.append("-").append(aDiff.text.length()).append("\t");
-        break;
-      case EQUAL:
-        text.append("=").append(aDiff.text.length()).append("\t");
-        break;
-      }
-    }
-    String delta = text.toString();
-    if (delta.length() != 0) {
-      // Strip off trailing tab character.
-      delta = delta.substring(0, delta.length() - 1);
-      delta = unescapeForEncodeUriCompatability(delta);
-    }
-    return delta;
-  }
-
-  /**
    * Given the original text1, and an encoded string which describes the
    * operations required to transform text1 into text2, compute the full diff.
    * @param text1 Source string for the diff.
@@ -1465,11 +1425,10 @@ public class DiffMatchPatch {
    * @return Array of Diff objects or null if invalid.
    * @throws IllegalArgumentException If invalid input.
    */
-  public LinkedList<Diff> diff_fromDelta(String text1, String delta)
+  public LinkedList<Diff> diff_fromDelta(String text1, List<String> tokens)
       throws IllegalArgumentException {
     LinkedList<Diff> diffs = new LinkedList<Diff>();
     int pointer = 0;  // Cursor in text1
-    String[] tokens = delta.split("\t");
     for (String token : tokens) {
       if (token.length() == 0) {
         // Blank tokens are ok (from a trailing \t).
@@ -1480,18 +1439,6 @@ public class DiffMatchPatch {
       String param = token.substring(1);
       switch (token.charAt(0)) {
       case '+':
-        // decode would change all "+" to " "
-        param = param.replace("+", "%2B");
-        try {
-          param = URLDecoder.decode(param, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-          // Not likely on modern system.
-          throw new Error("This system does not support UTF-8.", e);
-        } catch (IllegalArgumentException e) {
-          // Malformed URI sequence.
-          throw new IllegalArgumentException(
-              "Illegal escape in diff_fromDelta: " + param, e);
-        }
         diffs.add(new Diff(Operation.INSERT, param));
         break;
       case '-':
@@ -2267,17 +2214,6 @@ public class DiffMatchPatch {
           continue;
         }
         line = text.getFirst().substring(1);
-        line = line.replace("+", "%2B");  // decode would change all "+" to " "
-        try {
-          line = URLDecoder.decode(line, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-          // Not likely on modern system.
-          throw new Error("This system does not support UTF-8.", e);
-        } catch (IllegalArgumentException e) {
-          // Malformed URI sequence.
-          throw new IllegalArgumentException(
-              "Illegal escape in patch_fromText: " + line, e);
-        }
         if (sign == '-') {
           // Deletion.
           patch.diffs.add(new Diff(Operation.DELETE, line));
@@ -2435,37 +2371,9 @@ public class DiffMatchPatch {
           text.append(' ');
           break;
         }
-        try {
-          text.append(URLEncoder.encode(aDiff.text, "UTF-8").replace('+', ' '))
-              .append("\n");
-        } catch (UnsupportedEncodingException e) {
-          // Not likely on modern system.
-          throw new Error("This system does not support UTF-8.", e);
-        }
+        text.append(aDiff.text);
       }
-      return unescapeForEncodeUriCompatability(text.toString());
+      return text.toString();
     }
-  }
-
-  /**
-   * Unescape selected chars for compatability with JavaScript's encodeURI.
-   * In speed critical applications this could be dropped since the
-   * receiving application will certainly decode these fine.
-   * Note that this function is case-sensitive.  Thus "%3f" would not be
-   * unescaped.  But this is ok because it is only called with the output of
-   * URLEncoder.encode which returns uppercase hex.
-   *
-   * Example: "%3F" -> "?", "%24" -> "$", etc.
-   *
-   * @param str The string to escape.
-   * @return The escaped string.
-   */
-  private static String unescapeForEncodeUriCompatability(String str) {
-    return str.replace("%21", "!").replace("%7E", "~")
-        .replace("%27", "'").replace("%28", "(").replace("%29", ")")
-        .replace("%3B", ";").replace("%2F", "/").replace("%3F", "?")
-        .replace("%3A", ":").replace("%40", "@").replace("%26", "&")
-        .replace("%3D", "=").replace("%2B", "+").replace("%24", "$")
-        .replace("%2C", ",").replace("%23", "#");
   }
 }
