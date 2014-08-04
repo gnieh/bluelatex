@@ -32,13 +32,17 @@ angular.module('bluelatex.Paper.Services.Latex', [])
         for (var i = 0; i < astring.length; i++) {
           var number = i + 1;
           var line = astring[i];
+          // ignore commented line
+          if(line.charAt(0) == '%'){
+            continue;
+          }
           var result;
           while ((result = reg.exec(line)) !== null) {
             var type = (result[1]);
             toc.push({
               type: type,
               level: keys.indexOf(type),
-              restart: result[2] == '*',
+              ignore: result[2] == '*',
               title: result[3],
               line: number
             });
