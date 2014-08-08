@@ -17,4 +17,5 @@
 angular.module('bluelatex.Configuration',[])
   // the rest api root
   .constant('api_prefix',window.blue_config.api_prefix)
-  .constant('recaptcha_public_key', window.blue_config.recaptcha_public_key);
+  .constant('recaptcha_public_key', window.blue_config.recaptcha_public_key)
+  .constant('compilation_type', window.blue_config.compilation_type);

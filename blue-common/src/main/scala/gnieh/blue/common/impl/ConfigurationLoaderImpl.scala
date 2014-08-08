@@ -40,7 +40,9 @@ class ConfigurationLoaderImpl(commonName: String, base: File) extends Configurat
 
   def load(bundle: Bundle): Config = {
     val bundles = transitiveBundles(bundle)
-    val classLoader = new ClassLoader(new URLClassLoader(Array((base / commonName).toURI.toURL, (base / bundle.getSymbolicName).toURI.toURL))) {
+    val classLoader =
+      new ClassLoader(new URLClassLoader(bundles.map(b =>
+          (base / b.getSymbolicName).toURI.toURL).toArray :+ (base / bundle.getSymbolicName).toURI.toURL)) {
       override def findResource(name: String): URL = {
         def tryGetResource(bundle: Bundle): Option[URL] =
           Option(bundle.getResource(name))
