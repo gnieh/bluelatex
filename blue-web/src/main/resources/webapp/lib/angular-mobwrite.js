@@ -277,7 +277,7 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
           var action = {
             "name": "delta",
             "revision": this.clientVersion,
-            "data": this.dmp.diff_toDelta(diffs).split('\t'),
+            "data": this.dmp.diff_toDelta_notEncoded(diffs),
             "overwrite": !this.mergeChanges
           };
           this.editStack.push(sync);
@@ -493,7 +493,7 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
               // Expand the delta into a diff using the client shadow.
               var diffs;
               try {
-                diffs = file.dmp.diff_fromDelta(file.shadowText, command.action.data.join('\t'));
+                diffs = file.dmp.diff_fromDelta_notEncoded(file.shadowText, command.action.data);
                 file.serverVersion++;
               } catch (ex) {
                 // The delta the server supplied does not fit on our copy of
@@ -760,7 +760,14 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
           if(command.action.name == 'raw') {
             text += encodeURI(command.action.data);
           } else if(command.action.name == 'delta') {
-            text += command.action.data.join('\t');
+            var delta = '';
+            for (var j = 0; j < command.action.data.length; j++) {
+              var d = command.action.data[j];
+              var opt = d.charAt(0);
+              d = d.substring(1)
+              delta += opt + encodeURI(d).replace(/\x00/g, '%00').replace(/%20/g, ' ') + (j<command.action.data.length-1?'\t':'');
+            }
+            text += delta;
           }
           text += '\n';
         }
@@ -823,10 +830,16 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
             // remove revision
             value = value.substring(div + 1);
 
-            if(name == 'd' || name == 'D')
-              action.data = value.split('\t');
-            else 
+            if(name == 'd' || name == 'D') {
+              action.data = value.replace(/%00/g,'\x00').replace(/ /g,'%20').split('\t'); 
+              for (var j = 0; j < action.data.length; j++) {
+                var d = action.data[j];
+                var opt = d.charAt(0);
+                action.data[j] = opt + decodeURI(d.substring(1));
+              }
+            } else {
               action.data = decodeURI(value);
+            }
 
             action.overwrite = name == 'R' || name == 'D';
             if(currentCommand) {
