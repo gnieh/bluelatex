@@ -237,7 +237,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
 
       And("a raw request with accent from user")
-      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "t%C3%AAte", false))))
+      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "tête", false))))
 
       When("he sends the message and persist the file")
       val p = Promise[Unit]()
@@ -262,7 +262,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(5)), false)))))
 
       And("a delta request with accent from user")
-      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(Delete(5), Add("t%C3%AAte")), false))))
+      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(Delete(5), Add("tête")), false))))
 
       When("he sends the message and persist the file")
       val p = Promise[Unit]()
@@ -283,17 +283,17 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
 
       Given("a synchronization actor with an existing paper")
       val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
-      syncActor ! SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "t%C3%AAte", false))))
+      syncActor ! SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "tête", false))))
       expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(4)), false)))))
 
       And("a message with invalid revision for a the paper")
-      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 42, Delta(0, List(Delete(5), Add("t%C3%AAte")), false))))
+      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 42, Delta(0, List(Delete(5), Add("tête")), false))))
 
       When("the message is sent")
       syncActor ! request
 
       Then("the actor should detect the invalid revision and send Raw version")
-      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Raw(1, "t%C3%AAte", true)))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Raw(1, "tête", true)))))
     }
 
     scenario("error during synchronization session for content with space") {
@@ -304,7 +304,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(10)), false)))))
 
       And("a message with invalid revision for a the paper")
-      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 42, Delta(0, List(Delete(5), Add("t%C3%AAte")), false))))
+      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 42, Delta(0, List(Delete(5), Add("tête")), false))))
 
       When("the message is sent")
       syncActor ! request

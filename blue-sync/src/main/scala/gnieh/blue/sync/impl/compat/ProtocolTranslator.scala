@@ -24,6 +24,8 @@ import scala.annotation.tailrec
 
 import scala.util.Try
 
+import java.net.{URLDecoder, URLEncoder}
+
 /** Converts protocols message from and back to mobwrite protocol
  *
  *  @author Lucas Satabin
@@ -80,11 +82,13 @@ object ProtocolTranslator {
       case re"d:(\d+)${long(rev)}:(.*)$delta" :: rest =>
         val commands = (currentFile, currentRevision) match {
           case (Some(file), Some(frev)) =>
-            val edits = EditCommandParsers.parseEdits(delta)
-            SyncCommand(file, frev, Delta(rev, edits, false)) :: commandsAcc
+            val editStrings = delta.split('\t').toList
+            val edits = editStrings map { s => EditCommandParsers.parseEdit(decodeUriCompatibility(s)) }
+            SyncCommand(file, frev, Delta(rev, edits.flatten, false)) :: commandsAcc
           case (Some(file), None) =>
-            val edits = EditCommandParsers.parseEdits(delta)
-            SyncCommand(file, -1, Delta(rev, edits, false)) :: commandsAcc
+            val editStrings = delta.split('\t').toList
+            val edits = editStrings map { s => EditCommandParsers.parseEdit(decodeUriCompatibility(s)) }
+            SyncCommand(file, -1, Delta(rev, edits.flatten, false)) :: commandsAcc
           case _ =>
             commandsAcc
         }
@@ -93,11 +97,13 @@ object ProtocolTranslator {
       case re"D:(\d+)${long(rev)}:(.*)$delta" :: rest =>
         val commands = (currentFile, currentRevision) match {
           case (Some(file), Some(frev)) =>
-            val edits = EditCommandParsers.parseEdits(delta)
-            SyncCommand(file, frev, Delta(rev, edits, true)) :: commandsAcc
+            val editStrings = delta.split('\t').toList
+            val edits = editStrings map { s => EditCommandParsers.parseEdit(decodeUriCompatibility(s)) }
+            SyncCommand(file, frev, Delta(rev, edits.flatten, true)) :: commandsAcc
           case (Some(file), None) =>
-            val edits = EditCommandParsers.parseEdits(delta)
-            SyncCommand(file, -1, Delta(rev, edits, true)) :: commandsAcc
+            val editStrings = delta.split('\t').toList
+            val edits = editStrings map { s => EditCommandParsers.parseEdit(decodeUriCompatibility(s)) }
+            SyncCommand(file, -1, Delta(rev, edits.flatten, true)) :: commandsAcc
           case _ =>
             commandsAcc
         }
@@ -106,9 +112,9 @@ object ProtocolTranslator {
       case re"r:(\d+)${long(rev)}:(.*)$content" :: rest =>
         val commands = (currentFile, currentRevision) match {
           case (Some(file), Some(frev)) =>
-            SyncCommand(file, frev, Raw(rev, content, false)) :: commandsAcc
+            SyncCommand(file, frev, Raw(rev, decodeUriCompatibility(content), false)) :: commandsAcc
           case (Some(file), None) =>
-            SyncCommand(file, -1, Raw(rev, content, false)) :: commandsAcc
+            SyncCommand(file, -1, Raw(rev, decodeUriCompatibility(content), false)) :: commandsAcc
           case _ =>
             commandsAcc
         }
@@ -117,9 +123,9 @@ object ProtocolTranslator {
       case re"R:(\d+)${long(rev)}:(.*)$content" :: rest =>
         val commands = (currentFile, currentRevision) match {
           case (Some(file), Some(frev)) =>
-            SyncCommand(file, frev, Raw(rev, content, true)) :: commandsAcc
+            SyncCommand(file, frev, Raw(rev, decodeUriCompatibility(content), true)) :: commandsAcc
           case (Some(file), None) =>
-            SyncCommand(file, -1, Raw(rev, content, true)) :: commandsAcc
+            SyncCommand(file, -1, Raw(rev, decodeUriCompatibility(content), true)) :: commandsAcc
           case _ =>
             commandsAcc
         }
@@ -160,22 +166,22 @@ object ProtocolTranslator {
             case Delta(newRevision, data, true) =>
               result ++= s"""U:$peerId
                             |F:$lastRevision:$filename
-                            |D:$newRevision:${data.mkString("\t")}
+                            |D:$newRevision:${data.map{d => encodeUriCompatibility(d.toString)}.mkString("\t")}
                             |""".stripMargin
             case Delta(newRevision, data, false) =>
               result ++= s"""U:$peerId
                             |F:$lastRevision:$filename
-                            |d:$newRevision:${data.mkString("\t")}
+                            |d:$newRevision:${data.map{d => encodeUriCompatibility(d.toString)}.mkString("\t")}
                             |""".stripMargin
             case Raw(newRevision, data, true) =>
               result ++= s"""U:$peerId
                             |F:$lastRevision:$filename
-                            |R:$newRevision:$data
+                            |R:$newRevision:${encodeUriCompatibility(data)}
                             |""".stripMargin
             case Raw(newRevision, data, false) =>
               result ++= s"""U:$peerId
                             |F:$lastRevision:$filename
-                            |r:$newRevision:$data
+                            |r:$newRevision:${encodeUriCompatibility(data)}
                             |""".stripMargin
             case Nullify =>
               result ++= s"""U:$peerId
@@ -193,6 +199,37 @@ object ProtocolTranslator {
                         |""".stripMargin
       }
     (paperId, result.toString)
+  }
+
+  /**
+   * Encode selected chars for compatibility with JavaScript's encodeURI.
+   * Taken from "Diff Match Patch" java's implementation by Neil Fraser.
+   * @param str The string to encode.
+   * @return The encoded string.
+   */
+  private def encodeUriCompatibility(str: String): String = {
+    return URLEncoder.encode(str, "UTF-8")
+        .replace('+', ' ').replace("%21", "!").replace("%7E", "~")
+        .replace("%27", "'").replace("%28", "(").replace("%29", ")")
+        .replace("%3B", ";").replace("%2F", "/").replace("%3F", "?")
+        .replace("%3A", ":").replace("%40", "@").replace("%26", "&")
+        .replace("%3D", "=").replace("%2B", "+").replace("%24", "$")
+        .replace("%2C", ",").replace("%23", "#")
+  }
+
+
+  /**
+   * Decode selected chars for compatibility with JavaScript's decodeURI.
+   * Taken from "Diff Match Patch" java's implementation by Neil Fraser.
+   * @param str The string to decode.
+   * @return The decoded string, empty string if `str` is invalid or system does not support UTF-8
+   */
+  private def decodeUriCompatibility(str: String): String = {
+    // decode would change all "+" to " ", and we need to keep them (for Add)
+    val formattedString = str.replace("+", "%2B")
+    Try {
+      URLDecoder.decode(formattedString, "UTF-8")
+    }.getOrElse("")
   }
 
 }
