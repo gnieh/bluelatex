@@ -182,10 +182,6 @@
             position: relative;
             height: 100%;
             float: left;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -o-user-select: none;
             user-select: none;
             line-height: 40px;
             padding: 0 6px;
@@ -396,6 +392,20 @@
                 position: relative;
                 top: -7px;
             }
+        }
+        &.process{
+            margin-right: 25px;
+        }
+        &.process::after {
+            position: absolute;
+            display: block;
+            content: "";
+            background-image: url("@{url_images}/spin.gif");
+            background-repeat: no-repeat;
+            width: 16px;
+            height: 16px;
+            top: 11px;
+            right: -25px;
         }
     }
     > label {
