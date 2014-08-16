@@ -518,9 +518,18 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
 
       var parsePDF = function() {
         if($scope.previewType == "pdf") {
-          PDFJS.getDocument($scope.pdfURL+"?"+$scope.revision).then(function(pdf) {
+          PDFJS.getDocument($scope.pdfURL+"?"+$scope.revision,
+            null, null, function(progress) {
+              $scope.pdfProgress = (progress.loaded / progress.total)*100;
+              if($scope.pdfProgress == 100) {
+                $scope.pdfProgress = 0;
+              }
+              $scope.$$phase || $scope.$apply();
+          }).then(function(pdf) {
             $scope.pdf = pdf;
             $rootScope.$$phase || $rootScope.$apply();
+          }, function(error) {
+            console.error(error);
           });
         }
       };
