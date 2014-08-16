@@ -499,7 +499,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
         if(!$scope.synctex.blockNumberLine[$scope.currentFile.title]) return;
         if(!$scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine]) return;
         var pages = Object.keys($scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine]);
-        if(pages.length < 0) return;
+        if(pages.length < 1) return;
         $scope.linePage = pages[0];
       };
 
@@ -675,7 +675,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
             if(!$scope.synctex.blockNumberLine[$scope.currentFile.title]) return;
             if(!$scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine]) return;
             var pages = Object.keys($scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine]);
-            if(pages.length < 0) return;
+            if(pages.length < 1) return;
             $scope.linePage = pages[0];
           });
           AceService.getEditor().setOptions({

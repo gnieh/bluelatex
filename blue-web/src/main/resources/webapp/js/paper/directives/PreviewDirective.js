@@ -217,6 +217,7 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
           if (outputScale.scaled) {
               context.scale(outputScale.sx, outputScale.sy);
           }
+          /*          
           // render PDF and text layer
           page.getTextContent().then(function (textContent) {
             var textLayer = new TextLayerBuilder({
@@ -232,7 +233,13 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
             };
 
             page.render(renderContext);
-          });
+          });*/
+          var renderContext = {
+            canvasContext: context,
+            viewport: viewport
+          };
+
+          page.render(renderContext);
         }
         // resize the preview 
         $scope.resize = function (e) {
@@ -306,15 +313,15 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
                     var e = hBlock.elements[i];
                     if(e.left >= x && hBlock.elements[i-1].left <= x ) {
                       $scope.currentLine = (i<=(hBlock.elements.length - 3)?hBlock.elements[i+1].line:e.line);
-                      if($scope.currentFile.title != hBlock.file.name) {
-                        $scope.$parent.$parent.changeFileFromName(hBlock.file.name, $scope.currentLine).then(function() {
+                      if($scope.currentFile.title != e.file.name) {
+                        $scope.$parent.$parent.changeFileFromName(e.file.name, $scope.currentLine).then(function() {
                           deferred.resolve($scope.currentLine);
                         });
-                        return;
                       } else {
                         $scope.$parent.$parent.goToLine($scope.currentLine);
                         deferred.resolve($scope.currentLine);
                       }
+                      return;
                     }
                   }
                   if(hBlock.elements[1]) {
