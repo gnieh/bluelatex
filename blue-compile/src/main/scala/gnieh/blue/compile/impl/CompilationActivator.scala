@@ -96,10 +96,10 @@ class CompilationActivator extends BundleActivator {
         context.registerService(classOf[PaperCreated], new CreateSettingsHook(config, logger), null)
 
       // register the compiler services
-      registerCompiler(context, new PdflatexCompiler(system, config))
-      registerCompiler(context, new LatexCompiler(system, config))
-      registerCompiler(context, new XelatexCompiler(system, config))
-      registerCompiler(context, new LualatexCompiler(system, config))
+      registerCompiler(context, new PdflatexCompiler(system, config, loader.base))
+      registerCompiler(context, new LatexCompiler(system, config, loader.base))
+      registerCompiler(context, new XelatexCompiler(system, config, loader.base))
+      registerCompiler(context, new LualatexCompiler(system, config, loader.base))
 
     }
 

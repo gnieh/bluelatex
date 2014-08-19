@@ -20,13 +20,18 @@ import com.typesafe.config.Config
 
 import org.osgi.framework.Bundle
 
+import java.io.File
+
 /** Service that allows bundle to load the configuration of a module given its identifier
  *
  *  @author Lucas Satabin
  */
 trait ConfigurationLoader {
 
-  /** Load the configuration associated to the given module */
+  /** Load the configuration associated to the given bundle */
   def load(bundle: Bundle): Config
+
+  /** Returns the base configuration directory */
+   val base: File
 
 }

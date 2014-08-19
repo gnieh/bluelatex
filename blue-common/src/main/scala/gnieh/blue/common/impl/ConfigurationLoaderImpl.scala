@@ -34,7 +34,7 @@ import scala.collection.JavaConverters._
 
 import scala.annotation.tailrec
 
-class ConfigurationLoaderImpl(commonName: String, base: File) extends ConfigurationLoader {
+class ConfigurationLoaderImpl(commonName: String, val base: File) extends ConfigurationLoader {
 
   import FileUtils._
 
