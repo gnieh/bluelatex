@@ -637,7 +637,12 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       var texCmds = null;
       var texCompleter = {
         getCompletions: function(editor, session, pos, prefix, callback) {
-          var usrCommands = LatexService.parseCommands($scope.content);
+          // list all commands created by the user
+          var usrCommands = LatexService.parseCommands(AceService.getContent());
+          // list all labels used by the user
+          var labels = LatexService.parseLabels(AceService.getContent());
+          usrCommands = usrCommands.concat(labels);
+
           if(texCmds == null ){
             $http.get("resources/texCmds.json").then(function(cmds) {
               texCmds = cmds.data;
@@ -648,7 +653,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
           }
         }
       };
-      langTools.addCompleter(texCompleter);
+      
 
       /**
       * Load ACE editor
@@ -679,9 +684,11 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
             $scope.linePage = pages[0];
           });
           AceService.getEditor().setOptions({
-              enableBasicAutocompletion: true
+              enableBasicAutocompletion: true,
+              enableSnippets: true
           });
-
+          // enable autocompletation
+          _editor.completers[1] = texCompleter;
           var promiseJoin = PaperService.joinPaper($scope.paperId,peerId).then(function () {
             $scope.compile();
           });

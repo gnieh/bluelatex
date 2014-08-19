@@ -70,9 +70,30 @@ angular.module('bluelatex.Paper.Services.Latex', [])
         return commands;
       };
 
+      /**
+      * Search label
+      */
+      var parseLabels = function(content) {
+        //\newcommand*{\private}{../w4f5bc79f34884cbb}
+        var commands = [];
+        var regex = '\\\\label\*{([^}]+)}';
+        var reg = new RegExp(regex, "gi");
+        var result;
+        while ((result = reg.exec(content)) !== null) {
+          var type = (result[1]);
+
+          commands.push({
+            "value":result[1],
+            "meta":"label"
+          });
+        }
+        return commands;
+      };
+
       return {
         parseTOC: parseTOC,
-        parseCommands: parseCommands
+        parseCommands: parseCommands,
+        parseLabels: parseLabels
       };
     }
   ]);
