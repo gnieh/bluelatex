@@ -39,7 +39,7 @@ import scala.sys.process._
  *
  *  @author Lucas Satabin
  */
-abstract class SystemCompiler(system: ActorSystem, config: Config) extends Compiler {
+abstract class SystemCompiler(system: ActorSystem, config: Config, texmfcnf: File) extends Compiler {
 
   val configuration = new PaperConfiguration(config)
 
@@ -48,7 +48,7 @@ abstract class SystemCompiler(system: ActorSystem, config: Config) extends Compi
   protected def exec(command: String, workingDir: File, env: List[(String, String)] = List())(implicit timeout: Timeout) =
     Try {
       Await.result(
-        systemCommand ? SystemCommand(command, workingDir, env, timeout) mapTo manifest[Int],
+        systemCommand ? SystemCommand(command, workingDir, ("TEXMFCNF" -> s"${texmfcnf.getCanonicalPath}:") :: env, timeout) mapTo manifest[Int],
         timeout.duration
       ) == 0
     }
@@ -68,7 +68,7 @@ abstract class SystemCompiler(system: ActorSystem, config: Config) extends Compi
   }
 
   protected def buildDir(paperId: String) = configuration.buildDir(paperId).getCanonicalPath
-  protected def paperFile(paperId: String) = configuration.paperFile(paperId).getCanonicalPath
+  protected def paperFile(paperId: String) = configuration.paperFile(paperId).getName
 
 }
 

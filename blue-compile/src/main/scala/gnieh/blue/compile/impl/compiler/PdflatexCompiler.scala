@@ -35,7 +35,7 @@ import com.typesafe.config.Config
  *
  *  @author Lucas Satabin
  */
-class PdflatexCompiler(system: ActorSystem, config: Config) extends SystemCompiler(system, config) {
+class PdflatexCompiler(system: ActorSystem, config: Config, configDir: File) extends SystemCompiler(system, config, configDir) {
 
   val name: String = "pdflatex"
 

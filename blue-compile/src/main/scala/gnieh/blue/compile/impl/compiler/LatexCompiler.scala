@@ -35,7 +35,7 @@ import com.typesafe.config.Config
  *
  *  @author Lucas Satabin
  */
-class LatexCompiler(system: ActorSystem, config: Config) extends SystemCompiler(system, config) {
+class LatexCompiler(system: ActorSystem, config: Config, configDir: File) extends SystemCompiler(system, config, configDir) {
 
   val name: String = "latex"
 
