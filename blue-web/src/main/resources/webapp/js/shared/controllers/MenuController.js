@@ -72,7 +72,7 @@ angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Gravatar'])
         'papers': [
         ],
         'paper': [
-          {
+          /*{
             label: '_Share_',
             type: 'menu',
             class: '',
@@ -90,7 +90,7 @@ angular.module('bluelatex.Shared.Controllers.Menu', ['bluelatex.Gravatar'])
             class: '',
             icon: null,
             action: 'partials/paper_settings.html'
-          }
+          }*/
         ]
       };
       $rootScope.$on('localizeResourcesUpdated', function () {

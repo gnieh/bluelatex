@@ -18,8 +18,8 @@
 * The controller for latex paper 
 */
 angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','bluelatex.Paper.Directives.Toc','bluelatex.Paper.Services.Ace','bluelatex.Paper.Services.Paper','bluelatex.Paper.Services.Ace','bluelatex.Latex.Services.SyncTexParser','bluelatex.Paper.Services.Latex','bluelatex.Shared.Services.WindowActive', 'MobWrite','bluelatex.Paper'])
-  .controller('LatexPaperController', ['$rootScope','$scope', 'localize', '$http', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService','SyncTexParserService','$document','WindowActiveService','LatexService','MobWriteService','AceMobWriteClient','$q', 'compilation_type',
-    function ($rootScope,$scope, localize, $http, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService,SyncTexParserService,$document,WindowActiveService, LatexService,MobWriteService,AceMobWriteClient, $q, compilation_type) {
+  .controller('LatexPaperController', ['$rootScope','$scope', 'localize', '$http', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService','SyncTexParserService','$document','WindowActiveService','LatexService','MobWriteService','AceMobWriteClient', '$q', 'compilation_type','localize',
+    function ($rootScope,$scope, localize, $http, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService,SyncTexParserService,$document,WindowActiveService, LatexService,MobWriteService,AceMobWriteClient, $q,compilation_type, localize) {
       $scope.paperId = $routeParams.id;
       var peerId = MobWriteService.syncUsername;
       var pageActive = true;
@@ -86,6 +86,10 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       };
       
       window.onbeforeunload = function () {
+        return localize.getLocalizedString('_Exit_paper_confirm_');
+      };
+
+      window.onunload = function () {
         exitPaper();
       };
 
@@ -94,6 +98,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       */
       $scope.$on("$destroy", function(){
         exitPaper();
+        window.onunload = window.onbeforeunload = null;
       });
 
       /************/
@@ -115,7 +120,9 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       * Stop sharing file
       */
       var stopMobWrite = function () {
-        MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title});
+        if(AceService.getContent() != '') {
+          MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title});
+        }
       };
 
       /**
@@ -492,7 +499,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
         if(!$scope.synctex.blockNumberLine[$scope.currentFile.title]) return;
         if(!$scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine]) return;
         var pages = Object.keys($scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine]);
-        if(pages.length < 0) return;
+        if(pages.length < 1) return;
         $scope.linePage = pages[0];
       };
 
@@ -511,9 +518,18 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
 
       var parsePDF = function() {
         if($scope.previewType == "pdf") {
-          PDFJS.getDocument($scope.pdfURL+"?"+$scope.revision).then(function(pdf) {
+          PDFJS.getDocument($scope.pdfURL+"?"+$scope.revision,
+            null, null, function(progress) {
+              $scope.pdfProgress = (progress.loaded / progress.total)*100;
+              if($scope.pdfProgress == 100) {
+                $scope.pdfProgress = 0;
+              }
+              $scope.$$phase || $scope.$apply();
+          }).then(function(pdf) {
             $scope.pdf = pdf;
             $rootScope.$$phase || $rootScope.$apply();
+          }, function(error) {
+            console.error(error);
           });
         }
       };
@@ -526,8 +542,15 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       */
       var compileActive = false;
       $scope.compile = function () {
-        if(!pageActive) return;
-        if(compileActive) return;
+        var deferred = $q.defer();
+        if(!pageActive){
+          deferred.reject("page active");
+          return deferred.promise;
+        } 
+        if(compileActive) {
+          deferred.reject("compile in progress");
+          return deferred.promise;
+        }
 
         compileActive = true;
         PaperService.subscribePaperCompiler($scope.paperId).then(function (data) {
@@ -542,7 +565,9 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
           if(compilation_type === 'background') {
             $scope.compile();
           }
+          deferred.resolve(data);
         }, function (err) {
+          deferred.reject(err);
           compileActive = false;
           switch (err.status) {
           // no change
@@ -565,6 +590,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
             }
           }
         });
+        return deferred.promise;
       };
 
       /*****************/
@@ -611,7 +637,12 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       var texCmds = null;
       var texCompleter = {
         getCompletions: function(editor, session, pos, prefix, callback) {
-          var usrCommands = LatexService.parseCommands($scope.content);
+          // list all commands created by the user
+          var usrCommands = LatexService.parseCommands(AceService.getContent());
+          // list all labels used by the user
+          var labels = LatexService.parseLabels(AceService.getContent());
+          usrCommands = usrCommands.concat(labels);
+
           if(texCmds == null ){
             $http.get("resources/texCmds.json").then(function(cmds) {
               texCmds = cmds.data;
@@ -622,7 +653,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
           }
         }
       };
-      langTools.addCompleter(texCompleter);
+      
 
       /**
       * Load ACE editor
@@ -633,7 +664,12 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
               name: "compile",
               bindKey: {win: "Ctrl-S", mac: "Command-S"},
               exec: function(editor) {
-                $scope.compile();
+                $scope.compileInProgress = true;
+                $scope.$apply();
+                $scope.compile().finally(function() {
+                  $scope.compileInProgress = false;
+                  $scope.$apply();
+                });
               }
           });
           AceService.getEditor().selection.on("changeCursor", function(){
@@ -644,13 +680,15 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
             if(!$scope.synctex.blockNumberLine[$scope.currentFile.title]) return;
             if(!$scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine]) return;
             var pages = Object.keys($scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine]);
-            if(pages.length < 0) return;
+            if(pages.length < 1) return;
             $scope.linePage = pages[0];
           });
           AceService.getEditor().setOptions({
-              enableBasicAutocompletion: true
+              enableBasicAutocompletion: true,
+              enableSnippets: true
           });
-
+          // enable autocompletation
+          _editor.completers[1] = texCompleter;
           var promiseJoin = PaperService.joinPaper($scope.paperId,peerId).then(function () {
             $scope.compile();
           });

@@ -64,7 +64,13 @@ angular.module('bluelatex.Shared.Services.Messages', [])
       * Translate and add the message in the array
       */
       function pushMessage(array, m) {
-        array.push($sce.trustAsHtml(getMessageLocalized(m)));
+        var message = $sce.trustAsHtml(getMessageLocalized(m));
+        for (var i = array.length - 1; i >= 0; i--) {
+          if(array[i].valueOf() == message.valueOf()) {
+            return;
+          }
+        }
+        array.push(message);
       }
       /**
       * Add an error message

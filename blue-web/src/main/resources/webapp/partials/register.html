@@ -4,7 +4,7 @@
     <div bl-messages></div>
     <div class="grid">
       <div class="col c1-3">
-        <label for="register_username" data-i18n="_Username_"></label>
+        <label for="register_username" data-i18n="_Username_" i18n-Tooltip="_username_tooltip_"></label>
         <span class="control-label"
             ng-show="registerForm.username.$error.required" data-i18n="_Required_"></span>
       </div>
@@ -17,7 +17,7 @@
 
     <div class="grid">
       <div class="col c1-3">
-        <label for="register_firstname" data-i18n="_FirstName_"></label>
+        <label for="register_firstname" data-i18n="_FirstName_" i18n-Tooltip="_first_name_tooltip_"></label>
         <span class="control-label"
             ng-show="registerForm.firstname.$error.required" data-i18n="_Required_"></span>
       </div>
@@ -30,7 +30,7 @@
 
     <div class="grid">
       <div class="col c1-3">
-        <label for="register_lastname" data-i18n="_LastName_"></label>
+        <label for="register_lastname" data-i18n="_LastName_" i18n-Tooltip="_last_name_tooltip_"></label>
         <span class="control-label"
             ng-show="registerForm.lastname.$error.required" data-i18n="_Required_"></span>
       </div>
@@ -43,7 +43,7 @@
 
     <div class="grid">
       <div class="col c1-3">
-        <label for="register_email" data-i18n="_Email_"></label>
+        <label for="register_email" data-i18n="_Email_" i18n-Tooltip="_email_tooltip_"></label>
         <span class="control-label"
             ng-show="registerForm.email.$error.required" data-i18n="_Required_"></span>
         <span class="control-label"
@@ -58,7 +58,7 @@
 
     <div class="grid">
       <div class="col c1-3">
-        <label for="register_affiliation" data-i18n="_Affiliation_"></label>
+        <label for="register_affiliation" data-i18n="_Affiliation_" i18n-Tooltip="_affiliation_tooltip_"></label>
         <span class="control-label"
             ng-show="registerForm.affiliation.$error.required" data-i18n="_Required_"></span>
       </div>
@@ -71,7 +71,7 @@
 
     <div class="grid" ng-if="displayCaptcha">
       <div class="col c1-3">
-        <label for="recaptcha_response_field" data-i18n="_Captcha_"></label>
+        <label for="recaptcha_response_field" data-i18n="_Captcha_" i18n-Tooltip="_captcha_tooltip_"></label>
         <span class="control-label"
             ng-show="registerForm.recaptcha_response_field.$error.required" data-i18n="_Required_"></span>
       </div>

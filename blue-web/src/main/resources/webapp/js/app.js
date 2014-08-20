@@ -33,6 +33,7 @@ angular.module('bluelatex', [
   'bluelatex.Shared.Directives.Messages',
   'bluelatex.Shared.Controllers.Messages',
   'bluelatex.Shared.Directives.Autofocus',
+  'bluelatex.Shared.Directives.tooltip',
   'bluelatex.User.Controllers.Login',
   'bluelatex.User.Controllers.Logout',
   'bluelatex.User.Controllers.Profile',

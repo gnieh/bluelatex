@@ -1,10 +1,10 @@
 <div id="form-page">
-    <h1 data-i18n="_New_paper_">New Paper</h1>
+    <h1 data-i18n="_New_paper_"></h1>
     <form name="newPaperForm" ng-submit="create()">
         <div bl-messages></div>
         <div class="grid">
             <div class="col c1-3">
-                <label for="name" data-i18n="_Name_">Title</label>
+                <label for="name" data-i18n="_Name_" i18n-Tooltip="_paper_name_tooltip_"></label>
                 <span class="control-label"
                   ng-show="newPaperForm.name.$error.required" data-i18n="_Required_"></span>
             </div>
@@ -16,7 +16,7 @@
         </div>
         <div class="grid">
             <div class="col c1-3">
-                <label for="title" data-i18n="_Title_">Title</label>
+                <label for="title" data-i18n="_Title_" i18n-Tooltip="_paper_title_tooltip_"></label>
                 <span class="control-label"
                   ng-show="newPaperForm.title.$error.required" data-i18n="_Required_"></span>
             </div>
@@ -28,7 +28,7 @@
         </div>
         <div class="grid">
             <div class="col c1-3">
-                <label for="template" data-i18n="_Template_">Template</label>
+                <label for="template" data-i18n="_Template_" i18n-Tooltip="_paper_template_tooltip_"></label>
                 <span class="control-label"
                   ng-show="newPaperForm.template.$error.required" data-i18n="_Required_"></span>
             </div>
@@ -40,7 +40,7 @@
               </select>
             </div>
         </div>
-        <a class="button" href="#/papers" data-i18n="_Cancel_">Cancel</a>
+        <a class="button" href="#/papers" data-i18n="_Cancel_"></a>
         <button type="submit" ng-disabled="!newPaperForm.$valid || saving"  ng-class="{'process': saving}" data-i18n="_Create_"></button>
     </form>
 </div>

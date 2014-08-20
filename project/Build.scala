@@ -8,6 +8,12 @@ import java.io.File
 
 import sbtbuildinfo.Plugin._
 
+import com.typesafe.sbt.web.SbtWeb
+
+import com.typesafe.sbt.web.SbtWeb.autoImport._ 
+
+import com.typesafe.sbt.less.SbtLess.autoImport._ 
+
 object BlueBuild extends BlueBuild
 
 class BlueBuild extends Build with Pack with Server with Tests {
@@ -106,11 +112,17 @@ class BlueBuild extends Build with Pack with Server with Tests {
     ) dependsOn(blueCommon)
 
   lazy val blueWeb =
-    (Project(id = "blue-web",
-      base = file("blue-web"))
-      settings (
-        libraryDependencies ++= commonDeps
-      )
-    ) dependsOn(blueCommon)
-
+  (Project(id = "blue-web",
+    base = file("blue-web")) 
+    enablePlugins(SbtWeb)
+    settings (
+      libraryDependencies ++= commonDeps,
+      resourceGenerators in Compile += LessKeys.less.taskValue,
+      includeFilter in (Assets, LessKeys.less) := "css.less",
+      (LessKeys.compress in (Compile, LessKeys.less)) := true,
+    (mappings in (Compile, packageBin)) ~= { _ map {
+       case (file, path) => (file, path.replaceAll("^css.css", "webapp/css/css.css"))
+     }}
+    )
+  ) dependsOn(blueCommon)
 }
