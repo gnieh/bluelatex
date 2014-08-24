@@ -28,7 +28,7 @@ trait Distrib {
 
   val blueDistribSettings: Seq[Def.Setting[_]] =
     Seq(
-      blueDistInstallDir := "/opt/bluelatex",
+      blueDistInstallDir <<= version(v => s"/opt/bluelatex-$v"),
       blueDistConfDir := "/etc/opt/bluelatex",
       blueDistDataDir := "/var/opt/bluelatex",
       blueDistLogDir := "/var/log/bluelatex",
