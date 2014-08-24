@@ -21,6 +21,7 @@ package let
 import http._
 import common._
 import permission._
+import couch._
 
 import tiscaf._
 
@@ -44,15 +45,23 @@ class GetPdfLet(paperId: String, val couch: CouchClient, config: Config, logger:
       val pdfFile = configuration.buildDir(paperId) / s"main.pdf"
 
       if(pdfFile.exists)
-        Try(for(pdf <- managed(new FileInputStream(pdfFile))) {
-          val array =
-            Iterator.continually(pdf.read).takeWhile(_ != -1).map(_.toByte).toArray
+        entityManager("blue_papers").getComponent[Paper](paperId) map {
+          case Some(Paper(_, name, _)) =>
+            for(pdf <- managed(new FileInputStream(pdfFile))) {
+              val array =
+                Iterator.continually(pdf.read).takeWhile(_ != -1).map(_.toByte).toArray
 
-          talk.setContentType(HMime.pdf)
-            .setContentLength(array.length)
-            .setFilename(pdfFile.getName)
-            .write(array)
-        })
+              talk.setContentType(HMime.pdf)
+                .setContentLength(array.length)
+                .setFilename(s"$name.pdf")
+                .write(array)
+            }
+          case None =>
+            talk
+              .setStatus(HStatus.NotFound)
+              .writeJson(ErrorResponse("not_found", s"No paper data for paper $paperId"))
+
+        }
       else
         Try(
           talk
