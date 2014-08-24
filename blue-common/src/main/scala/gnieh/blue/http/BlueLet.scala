@@ -81,8 +81,10 @@ object BlueLet {
     }
 
     /** Sets the correct `Content-Disposition` header with suggested filename for the client */
-    def setFilename(name: String): HTalk =
-      talk.setHeader("Content-Disposition", s"""attachment; filename="$name"; filename*=utf-8''${URLEncoder.encode(name, "UTF-8")}""")
+    def setFilename(name: String): HTalk = {
+      val encoded = URLEncoder.encode(name, "UTF-8").replace("+", "%20")
+      talk.setHeader("Content-Disposition", s"""attachment; filename="$encoded"; filename*=utf-8''$encoded""")
+    }
 
     /** Serializes the value to its json representation and writes the response to the client,
      *  corrrectly setting the result type and length */
