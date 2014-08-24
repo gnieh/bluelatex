@@ -44,7 +44,7 @@ class SyncServerActivator extends BundleActivator {
       couch <- context.get[CouchClient]
       logger <- context.get[LogService]
     } {
-      val config = loader.load(context.getBundle.getSymbolicName)
+      val config = loader.load(context.getBundle)
       // create the dispatcher actor
       val dispatcher = system.actorOf(Props(new SyncDispatcher(context, config, logger)), name = "sync-dispatcher")
       // instantiate the sync server as synchronization server

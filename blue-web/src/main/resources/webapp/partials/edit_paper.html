@@ -4,7 +4,7 @@
         <div bl-messages></div>
         <div class="grid">
             <div class="col c1-3">
-                <label for="name" data-i18n="_Name_">Title</label>
+                <label for="name" data-i18n="_Name_" i18n-Tooltip="_paper_name_tooltip_"></label>
             </div>
             <div class="col c2-3 form-group">
               <input class="form-control" id="name" name="name" type="text" autofocus
@@ -15,7 +15,7 @@
         </div>
         <div class="grid">
             <div class="col c1-3">
-                <label for="authors" data-i18n="_Authors_"></label>
+                <label for="authors" data-i18n="_Authors_" i18n-Tooltip="_paper_authors_tooltip_"></label>
             </div>
             <div class="col c2-3 form-group">
               <div class="authors">
@@ -45,7 +45,7 @@
         </div>
         <div class="grid">
             <div class="col c1-3">
-                <label for="reviewers" data-i18n="_Reviewers_">Reviewers</label>
+                <label for="reviewers" data-i18n="_Reviewers_" i18n-Tooltip="_paper_reveiwers_tooltip_">Reviewers</label>
             </div>
             <div class="col c2-3 form-group">
               <div class="reviewers">
@@ -94,7 +94,7 @@
         </div>-->
         <div class="grid">
             <div class="col c1-3">
-                <label for="compiler" data-i18n="_Compiler_"></label>
+                <label for="compiler" data-i18n="_Compiler_" i18n-Tooltip="_compiler_type_tooltip_"></label>
                 <span class="control-label"
                   ng-show="editPaperForm.compiler.$error.required" data-i18n="_Required_"></span>
             </div>
@@ -110,7 +110,7 @@
 
         <div class="grid">
             <div class="col c1-3">
-                <label for="interval" data-i18n="_Compiler_Interval_"></label>
+                <label for="interval" data-i18n="_Compiler_Interval_" i18n-Tooltip="_compiler_interval_tooltip_"></label>
                 <span class="control-label"
                   ng-show="editPaperForm.interval.$error.required" data-i18n="_Required_"></span>
             </div>
@@ -122,7 +122,7 @@
 
         <div class="grid">
             <div class="col c1-3">
-                <label for="synctex">SyncTex</label>
+                <label for="synctex" i18n-Tooltip="_synctex_tooltip_">SyncTex</label>
                 <span class="control-label"
                   ng-show="editPaperForm.synctex.$error.required" data-i18n="_Required_"></span>
             </div>

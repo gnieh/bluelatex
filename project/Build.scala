@@ -8,11 +8,17 @@ import java.io.File
 
 import sbtbuildinfo.Plugin._
 
+import com.typesafe.sbt.web.SbtWeb
+
+import com.typesafe.sbt.web.SbtWeb.autoImport._ 
+
+import com.typesafe.sbt.less.SbtLess.autoImport._ 
+
 object BlueBuild extends BlueBuild
 
-class BlueBuild extends Build with Pack with Server with Tests {
+class BlueBuild extends Build with Pack with Server with Distrib with Tests {
 
-  val blueVersion = "1.0.0-M2"
+  val blueVersion = "1.0.0-RC1"
 
   lazy val bluelatex = (Project(id = "bluelatex",
     base = file(".")) settings (
@@ -21,7 +27,7 @@ class BlueBuild extends Build with Pack with Server with Tests {
       organization in ThisBuild := "org.gnieh",
       name := "bluelatex",
       version in ThisBuild := blueVersion,
-      scalaVersion in ThisBuild := "2.10.3",
+      scalaVersion in ThisBuild := "2.10.4",
       compileOptions,
       // fork jvm when running
       fork in run := true)
@@ -106,11 +112,17 @@ class BlueBuild extends Build with Pack with Server with Tests {
     ) dependsOn(blueCommon)
 
   lazy val blueWeb =
-    (Project(id = "blue-web",
-      base = file("blue-web"))
-      settings (
-        libraryDependencies ++= commonDeps
-      )
-    ) dependsOn(blueCommon)
-
+  (Project(id = "blue-web",
+    base = file("blue-web")) 
+    enablePlugins(SbtWeb)
+    settings (
+      libraryDependencies ++= commonDeps,
+      resourceGenerators in Compile += LessKeys.less.taskValue,
+      includeFilter in (Assets, LessKeys.less) := "css.less",
+      (LessKeys.compress in (Compile, LessKeys.less)) := true,
+    (mappings in (Compile, packageBin)) ~= { _ map {
+       case (file, path) => (file, path.replaceAll("^css.css", "webapp/css/css.css"))
+     }}
+    )
+  ) dependsOn(blueCommon)
 }

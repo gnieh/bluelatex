@@ -54,7 +54,7 @@ class CompilerSettingsSpec extends BlueScenario with SomeUsers {
 
       compilerSettings.compiler should be("pdflatex")
       compilerSettings.timeout should be(30)
-      compilerSettings.interval should be(15)
+      compilerSettings.interval should be(1)
       headers.get("ETag") should be('defined)
 
       val revision = headers("ETag").head
@@ -73,7 +73,7 @@ class CompilerSettingsSpec extends BlueScenario with SomeUsers {
 
       newCompilerSettings.compiler should be("xelatex")
       newCompilerSettings.timeout should be(30)
-      newCompilerSettings.interval should be(15)
+      newCompilerSettings.interval should be(1)
       newHeaders.get("ETag") should be('defined)
 
       newHeaders("ETag") should not be(revision)

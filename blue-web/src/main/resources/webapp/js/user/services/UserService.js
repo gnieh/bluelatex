@@ -14,15 +14,14 @@
  * limitations under the License.
  */
  
-angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-cache', 'bluelatex.Configuration'])
-  .factory("UserService", ['$resource', '$http', '$log', '$angularCacheFactory', '$q', 'api_prefix',
-      function ($resource, $http, $log, $angularCacheFactory, $q, api_prefix) {
+angular.module("bluelatex.User.Services.User", ["ngResource", 'angular-data.DSCacheFactory', 'bluelatex.Configuration'])
+  .factory("UserService", ['$resource', '$http', '$log', 'DSCacheFactory', '$q', 'api_prefix',
+      function ($resource, $http, $log, DSCacheFactory, $q, api_prefix) {
         // userCache
-        var _dataCache = $angularCacheFactory('userCache', {
+        var _dataCache = DSCacheFactory('userCache', {
           maxAge: 300000,
           storageMode: 'localStorage',
-          deleteOnExpire: 'aggressive',
-          verifyIntegrity: true
+          deleteOnExpire: 'aggressive'
         });
 
         var password = $resource(api_prefix + "/users/:username/reset", {
@@ -101,10 +100,10 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
             }
           }
         });
-        var removeUser = $resource(api_prefix + "/users/:username", {
+        var deleteUser = $resource(api_prefix + "/users/:username", {
           username: "@username"
         }, {
-          "remove": {
+          "delete": {
             'method': 'DELETE'
           }
         });
@@ -184,12 +183,14 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
           register: function (user) {
             return register.register({}, jsonToPostParameters(user)).$promise;
           },
-          remove: function (user) {
+          delete: function (user) {
             var deferred = $q.defer();
             var promise = deferred.promise;
-            removeUser.remove({
-              username: user.username
-            }, user).$promise.then(function (data) {
+            deleteUser.delete({
+              username: user.name,
+              recaptcha_challenge_field: user.recaptcha_challenge_field,
+              recaptcha_response_field: user.recaptcha_response_field
+            }).$promise.then(function (data) {
               _dataCache.remove('/users/' + user.username);
               deferred.resolve(data);
             }, function (error) {
@@ -201,7 +202,7 @@ angular.module("bluelatex.User.Services.User", ["ngResource", 'jmdobry.angular-c
             return promise;
           },
           clearCache: function() {
-            $angularCacheFactory.clearAll();
+            DSCacheFactory.clearAll();
           }
         };
       }

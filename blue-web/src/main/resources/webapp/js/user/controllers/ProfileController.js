@@ -15,10 +15,18 @@
  */
  
 angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.User'])
-  .controller('ProfileController', ['$rootScope', '$scope', 'UserService', '$location', '$log','MessagesService',
-    function ($rootScope, $scope, UserService, $location, $log,MessagesService) {
+  .controller('ProfileController', ['$rootScope', '$scope', 'UserService', '$location', '$log','MessagesService','localize','reCAPTCHA','recaptcha_public_key',
+    function ($rootScope, $scope, UserService, $location, $log,MessagesService, localize,reCAPTCHA,recaptcha_public_key) {
       $scope.requesting = false;
       var user;
+
+      reCAPTCHA.setOptions({
+         theme: 'clean'
+      });
+
+      $scope.displayCaptcha = recaptcha_public_key != null;
+      reCAPTCHA.setPublicKey(recaptcha_public_key);
+
       /**
       * Get the user data
       */
@@ -27,12 +35,20 @@ angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.Us
         user = clone($scope.user);
       });
       /**
-      * Remove the user
+      * delete the user
       */
-      $scope.remove = function () {
+      $scope.delete = function () {      
         $scope.requesting = true;
+        if(!confirm(localize.getLocalizedString('_Delete_account_confirm_'))) {
+          $scope.requesting = false;
+          return;
+        }
         MessagesService.clear();
-        UserService.remove($scope.user).then(function (data) {
+        if($scope.displayCaptcha) {
+          $scope.user.recaptcha_response_field = reCAPTCHA.response();
+          $scope.user.recaptcha_challenge_field = reCAPTCHA.challenge();
+        }
+        UserService.delete($scope.user).then(function (data) {
           $rootScope.loggedUser = {};
           $location.path("/login");
         }, function (err) {

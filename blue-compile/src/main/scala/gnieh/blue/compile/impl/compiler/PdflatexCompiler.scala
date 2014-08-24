@@ -27,8 +27,6 @@ import scala.concurrent._
 
 import scala.util.Try
 
-import scala.sys.process._
-
 import java.io.File
 
 import com.typesafe.config.Config
@@ -37,32 +35,12 @@ import com.typesafe.config.Config
  *
  *  @author Lucas Satabin
  */
-class PdflatexCompiler(system: ActorSystem, config: Config) extends SystemCompiler(system) {
+class PdflatexCompiler(system: ActorSystem, config: Config, configDir: File) extends SystemCompiler(system, config, configDir) {
 
   val name: String = "pdflatex"
-
-  val configuration = new PaperConfiguration(config)
 
   def compile(paperId: String, settings: CompilerSettings)(implicit timeout: Timeout): Try[Boolean] =
     exec(s"pdflatex -interaction nonstopmode -synctex=${if(settings.synctex) 1 else 0} -output-directory ${buildDir(paperId)} ${paperFile(paperId)}",
       configuration.paperDir(paperId)) //, List("TEXINPUT" -> ".:tex/:resources/:$TEXINPUTS"))
 
-  def bibtex(paperId: String, settings: CompilerSettings)(implicit timeout: Timeout): Try[Boolean] = {
-    // XXX this sucks! we need to copy the bib files to the build directory because bibtex
-    // cannot handle compilation in a different directory correctly
-    // technology from the 80's has limitations...
-    // http://tex.stackexchange.com/questions/12686/how-do-i-run-bibtex-after-using-the-output-directory-flag-with-pdflatex-when-f
-    import FileUtils._
-    for(file <- configuration.paperDir(paperId).filter(_.extension == ".bib")) {
-      val destfile = configuration.buildDir(paperId) / file.getName
-      (file #> destfile).!
-    }
-
-    exec(s"bibtex $paperId", configuration.buildDir(paperId))
-  }
-
-  private def buildDir(paperId: String) = configuration.buildDir(paperId).getCanonicalPath
-  private def paperFile(paperId: String) = configuration.paperFile(paperId).getCanonicalPath
-
 }
-

@@ -40,13 +40,16 @@ import gnieh.sohva.control.CouchClient
 class GeneratePasswordReset(username: String, templates: Templates, mailAgent: MailAgent, val couch: CouchClient, config: Config, logger: Logger)
     extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
+  // if the user is authenticated, he cannot generate the password reset token for other people
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] =
-    // if the user is authenticated, he cannot generate the password reset token
-    Success(
-      talk
-        .setStatus(HStatus.Forbidden)
-        .writeJson(ErrorResponse("unable_to_generate", "Authenticated users cannot ask for password reset")))
-
+    if(user.name == username)
+      unauthenticatedAct(talk)
+    else
+      Success(
+        talk
+          .setStatus(HStatus.Forbidden)
+          .writeJson(ErrorResponse("unable_to_generate", "Authenticated users cannot ask password reset for other people")))
+ 
   override def unauthenticatedAct(implicit talk: HTalk): Try[Unit] =
     // generate reset token to send the link in an email
     couchConfig.asAdmin(couch) { sess =>
@@ -66,6 +69,5 @@ class GeneratePasswordReset(username: String, templates: Templates, mailAgent: M
           talk.writeJson(true)
         }
     }
-
 }
 

@@ -18,11 +18,10 @@ package sync
 package impl
 
 import scala.util.{Try, Success, Failure}
+import scala.collection.JavaConversions._
 import org.osgi.service.log.LogService
 import akka.actor.Actor
 
-import java.net.URLEncoder
-import java.net.URLDecoder
 import java.util.{Date, Calendar}
 
 import name.fraser.neil.plaintext.DiffMatchPatch
@@ -256,9 +255,7 @@ class SyncActor(
   }
 
   def processRaw(syncContext: SyncContext, view: DocumentView, raw: Raw, serverRevision: Long): SyncContext = {
-    // Decode HTML-encoded data
-    val data = URLDecoder.decode(raw.data, "UTF-8")
-    view.setShadow(data, raw.revision, serverRevision, raw.overwrite)
+    view.setShadow(raw.data, raw.revision, serverRevision, raw.overwrite)
     syncContext.updateLastModificationTime()
   }
 
@@ -285,7 +282,7 @@ class SyncActor(
   def applyPatches(syncContext: SyncContext, view: DocumentView, delta: Delta): SyncContext = {
     // Compute diffs
     // XXX: not very Scala-ish...
-    val diffs = Try(dmp.diff_fromDelta(view.shadow, delta.data.mkString("\t"))) match {
+    val diffs = Try(dmp.diff_fromDelta(view.shadow, delta.data map { _.toString })) match {
       case Success(s) => s
       case Failure(e) => {
         logWarn(s"Delta failure, expected length ${view.shadow.length}")
@@ -341,11 +338,8 @@ class SyncActor(
       // compute the diffs with the current master text
       val diffs = dmp.diff_main(view.shadow, mastertext)
       dmp.diff_cleanupEfficiency(diffs)
-      // apply the diffs to the text
-      val text = dmp.diff_toDelta(diffs)
-
-      // parse back the computed delta texts
-      val edits = EditCommandParsers.parseEdits(text)
+      // Convert diffs to Edit commands
+      val edits = diffs2Edits(diffs)
 
       logDebug(s"Computed deltas: $edits")
 
@@ -382,12 +376,10 @@ class SyncActor(
                                           "",
                                           false)))
       } else {
-        // Force overwrite client
-        val text = encodeUriCompatibility(mastertext)
         view.edits.append(SyncCommand(filename,
                                       view.serverShadowRevision,
                                       Raw(view.serverShadowRevision,
-                                          text,
+                                          mastertext,
                                           true)))
       }
     }
@@ -400,20 +392,15 @@ class SyncActor(
     }
   }
 
-  /**
-   * Unescape selected chars for compatibility with JavaScript's encodeURI.
-   * Taken from "Diff Match Patch" java's implementation by Neil Fraser.
-   * @param str The string to escape.
-   * @return The escaped string.
-   */
-  private def encodeUriCompatibility(str: String): String = {
-    return URLEncoder.encode(str, "UTF-8")
-        .replace('+', ' ').replace("%21", "!").replace("%7E", "~")
-        .replace("%27", "'").replace("%28", "(").replace("%29", ")")
-        .replace("%3B", ";").replace("%2F", "/").replace("%3F", "?")
-        .replace("%3A", ":").replace("%40", "@").replace("%26", "&")
-        .replace("%3D", "=").replace("%2B", "+").replace("%24", "$")
-        .replace("%2C", ",").replace("%23", "#")
+  /** Utility function to convert a list of DMP's diffs to a list of Edit objects */
+  private def diffs2Edits(diffs: java.util.List[DiffMatchPatch.Diff]): List[Edit] = {
+    diffs.toList map {
+      d => d.operation match {
+        case DiffMatchPatch.Operation.INSERT => Add(d.text)
+        case DiffMatchPatch.Operation.DELETE => Delete(d.text.length())
+        case DiffMatchPatch.Operation.EQUAL => Equality(d.text.length())
+      }
+    }
   }
 
 }

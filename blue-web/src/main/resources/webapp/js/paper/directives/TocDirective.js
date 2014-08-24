@@ -33,14 +33,20 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
             var l = $document[0].createElement(line.level < 4 ? 'ol' : 'ul');
             current = l;
             top = current;
-          } else if (line.restart == true) {
+          } else if (line.ignore == true) {
             var j = currentlevel;
             for (; j >= line.level &&  current.parentElement != null; j--) {
               current = current.parentElement;
             }
             var l = $document[0].createElement('ul');
-            current.appendChild(l);
-            current = l;
+            if(current.parentElement == null && currentlevel == line.level) {
+              angular.element(elm).append($compile(top)($scope));
+              current = l;
+              top = current;
+            } else {
+              current.appendChild(l);  
+              current = l;
+            }
           } else if (currentlevel < line.level) {
             var j = line.level;
             for (; j > currentlevel; j--) {

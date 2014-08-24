@@ -1,0 +1,3 @@
+% disallow opening any file starting with a `.' and any file in
+% a path going up into the parent directory.
+openin_any = p

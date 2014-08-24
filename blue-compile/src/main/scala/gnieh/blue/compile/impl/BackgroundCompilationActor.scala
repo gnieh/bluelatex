@@ -46,19 +46,18 @@ import couch.Paper
 import gnieh.sohva.control._
 import gnieh.sohva.control.entities.EntityManager
 
-/** This actor handles compilation of a paper.
- *  An instance of this actor is not eternally resident, if no
- *  compilation message was received within a session timeout,
- *  this actor is destroyed.
+import com.typesafe.config.Config
+
+/** This actor handles compilation of a paper. It starts the compilation task in background
+ *  at some regular (configurable) interval.
  *
  *  @author Lucas Satabin
  *
  */
-class CompilationActor(
+class BackgroundCompilationActor(
   bndContext: BundleContext,
   synchro: SynchroServer,
-  configuration: PaperConfiguration,
-  couchConfig: CouchConfiguration,
+  configuration: Config,
   paperId: String,
   defaultSettings: CompilerSettings,
   val logger: Logger
@@ -66,6 +65,8 @@ class CompilationActor(
 
   import OsgiUtils._
   import FileUtils._
+
+  val paperConfig = new PaperConfiguration(configuration)
 
   @inline
   implicit def ec = context.system.dispatcher
@@ -90,7 +91,7 @@ class CompilationActor(
       val lastModificationDate = synchro.lastModificationDate(paperId)
 
       // create the build directory
-      configuration.buildDir(paperId).mkdirs
+      paperConfig.buildDir(paperId).mkdirs
 
       // Check if compilation is needed:
       // No need to recompile document if it has not been modified,
@@ -101,7 +102,7 @@ class CompilationActor(
       logDebug(s"Document needs to be compiled: $hasBeenModified")
 
       for {
-        compiler <- bndContext.get[Compiler]
+        compiler <- bndContext.get[Compiler]("name" -> settings.compiler)
         couch <- bndContext.get[CouchClient]
       } {
 
@@ -118,7 +119,7 @@ class CompilationActor(
           _ <- compiler.bibtex(paperId, settings)
         } yield {
           // clean the generated png files when compilation succeeded
-          for(file <- configuration.buildDir(paperId).filter(_.extension == ".png"))
+          for(file <- paperConfig.buildDir(paperId).filter(_.extension == ".png"))
             file.delete
 
           if(res)

@@ -16,7 +16,11 @@
 package gnieh.blue
 package common
 
-import com.typesafe.config._
+import com.typesafe.config.Config
+
+import org.osgi.framework.Bundle
+
+import java.io.File
 
 /** Service that allows bundle to load the configuration of a module given its identifier
  *
@@ -24,7 +28,10 @@ import com.typesafe.config._
  */
 trait ConfigurationLoader {
 
-  /** Load the configuration associated to the given module */
-  def load(bundleName: String, parent: ClassLoader = Thread.currentThread.getContextClassLoader): Config
+  /** Load the configuration associated to the given bundle */
+  def load(bundle: Bundle): Config
+
+  /** Returns the base configuration directory */
+   val base: File
 
 }

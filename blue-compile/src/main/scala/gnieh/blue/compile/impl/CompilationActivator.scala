@@ -21,6 +21,9 @@ import org.osgi.framework._
 import org.osgi.service.log.LogService
 
 import scala.collection.mutable.ListBuffer
+import scala.collection.JavaConverters._
+
+import scala.sys.process.Process
 
 import akka.actor._
 import akka.routing.{
@@ -61,7 +64,7 @@ class CompilationActivator extends BundleActivator {
       couch <- context.get[CouchClient]
       logger <- context.get[LogService]
     } {
-      val config = loader.load(context.getBundle.getSymbolicName, self.getClass.getClassLoader)
+      val config = loader.load(context.getBundle)
 
       // create the dispatcher actor
       val disp =
@@ -93,10 +96,17 @@ class CompilationActivator extends BundleActivator {
         context.registerService(classOf[PaperCreated], new CreateSettingsHook(config, logger), null)
 
       // register the compiler services
-      services +=
-        context.registerService(classOf[Compiler], new PdflatexCompiler(system, config), null)
+      registerCompiler(context, new PdflatexCompiler(system, config, loader.base))
+      registerCompiler(context, new LatexCompiler(system, config, loader.base))
+      registerCompiler(context, new XelatexCompiler(system, config, loader.base))
+      registerCompiler(context, new LualatexCompiler(system, config, loader.base))
 
     }
+
+  def registerCompiler(context: BundleContext, compiler: Compiler): Unit = {
+    services +=
+      context.registerService(classOf[Compiler], compiler, collection.mutable.Map("name" -> compiler.name).asJavaDictionary)
+  }
 
   def undeploy(context: BundleContext): Unit = {
     dispatcher.foreach(_ ! Stop)

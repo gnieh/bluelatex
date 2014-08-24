@@ -36,11 +36,13 @@ import gnieh.sohva.control.CouchClient
 
 import gnieh.diffson.JsonPatch
 
+import akka.actor.ActorRef
+
 /** Handle JSON Patches that modify the compiler data
  *
  *  @author Lucas Satabin
  */
-class ModifyCompilerLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class ModifyCompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
 
   def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
     case Author =>
@@ -57,10 +59,12 @@ class ModifyCompilerLet(paperId: String, val couch: CouchClient, config: Config,
                   val settings1 = patch(settings).withRev(knownRev)
                   // and save the new compiler data
                   for(s <- manager.saveComponent(paperId, settings1))
-                    yield
+                    yield {
+                      dispatcher ! Forward(paperId, settings1)
                       // save successfully, return ok with the new ETag
                       // we are sure that the revision is not empty because it comes from the database
                       talk.writeJson(true, s._rev.get)
+                    }
                 case None =>
                   // nothing to do
                   Success(

@@ -19,14 +19,19 @@ package impl
 package paper
 
 import http.{
-  SyncBlueLet,
-  SyncAuthenticatedLet,
+  SyncRoleLet,
   ErrorResponse
 }
 
 import common.{
   Logger,
   UserInfo
+}
+
+import permission.{
+  Role,
+  Author,
+  Reviewer
 }
 
 import couch.{
@@ -51,19 +56,26 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class GetPaperRolesLet(paperid: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
+class GetPaperRolesLet(paperid: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperid, config, logger) {
 
-  def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Unit] = {
-    // only authenticated users may see other people information
-    val manager = entityManager("blue_papers")
-    for(roles <- manager.getComponent[PaperRole](paperid))
-      yield roles match {
-        // we are sure that the paper has a revision because it comes from the database
-        case Some(roles) =>
-          talk.writeJson(Map("authors" -> roles.authors.users, "reviewers" -> roles.reviewers.users), roles._rev.get)
-        case None =>
-          talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"Paper $paperid not found"))
-      }
+  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = role match {
+    case Author | Reviewer =>
+      // only authenticated users may see other people information
+      val manager = entityManager("blue_papers")
+      for(roles <- manager.getComponent[PaperRole](paperid))
+        yield roles match {
+          // we are sure that the paper has a revision because it comes from the database
+          case Some(roles) =>
+            talk.writeJson(Map("authors" -> roles.authors.users, "reviewers" -> roles.reviewers.users), roles._rev.get)
+          case None =>
+            talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"Paper $paperid not found"))
+        }
+
+    case _ =>
+      Try(
+        talk
+          .setStatus(HStatus.Forbidden)
+          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors or reviewers may see paper roles")))
   }
 
 }

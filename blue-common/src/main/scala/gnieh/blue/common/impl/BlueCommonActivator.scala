@@ -76,7 +76,7 @@ class BlueCommonActivator extends ActorSystemActivator {
     context.registerService(classOf[LogService].getName, new LogServiceFactory, null)
 
     for(logger <- context.get[Logger]) {
-      val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
+      val config = loader.load(context.getBundle)
 
       // register the couch client service
       val client = couch(system, config)

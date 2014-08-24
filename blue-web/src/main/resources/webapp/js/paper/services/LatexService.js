@@ -32,13 +32,17 @@ angular.module('bluelatex.Paper.Services.Latex', [])
         for (var i = 0; i < astring.length; i++) {
           var number = i + 1;
           var line = astring[i];
+          // ignore commented line
+          if(line.charAt(0) == '%'){
+            continue;
+          }
           var result;
           while ((result = reg.exec(line)) !== null) {
             var type = (result[1]);
             toc.push({
               type: type,
               level: keys.indexOf(type),
-              restart: result[2] == '*',
+              ignore: result[2] == '*',
               title: result[3],
               line: number
             });
@@ -66,9 +70,30 @@ angular.module('bluelatex.Paper.Services.Latex', [])
         return commands;
       };
 
+      /**
+      * Search label
+      */
+      var parseLabels = function(content) {
+        //\newcommand*{\private}{../w4f5bc79f34884cbb}
+        var commands = [];
+        var regex = '\\\\label\*{([^}]+)}';
+        var reg = new RegExp(regex, "gi");
+        var result;
+        while ((result = reg.exec(content)) !== null) {
+          var type = (result[1]);
+
+          commands.push({
+            "value":result[1],
+            "meta":"label"
+          });
+        }
+        return commands;
+      };
+
       return {
         parseTOC: parseTOC,
-        parseCommands: parseCommands
+        parseCommands: parseCommands,
+        parseLabels: parseLabels
       };
     }
   ]);

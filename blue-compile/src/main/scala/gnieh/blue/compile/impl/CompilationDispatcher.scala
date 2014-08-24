@@ -39,7 +39,9 @@ import gnieh.sohva.control.CouchClient
 import gnieh.sohva.control.entities.EntityManager
 
 /** The compilation system actor is responsible for managing
- *  the compilation actor for each paper
+ *  the compilation actor for each paper.
+ *  Paper compilers are started either as bacgkround tasks or explicitly by authors depending
+ *  on configuration.
  *
  *  @author Lucas Satabin
  */
@@ -51,16 +53,24 @@ class CompilationDispatcher(
   val logger: Logger
 ) extends ResourceDispatcher {
 
-  val configuration = new PaperConfiguration(config)
+  private val background =
+    config.getString("compiler.compilation-type") == "background"
 
-  val couchConf = new CouchConfiguration(config)
+  private val configuration = new PaperConfiguration(config)
+
+  private val couchConf = new CouchConfiguration(config)
+
   import couchConf._
 
   def props(username: String, paperId: String) = asAdmin(couch) { session =>
     // get the compiler settings
     val db = session.database(database("blue_papers"))
     for(settings <- getOrCreateSettings(paperId, new EntityManager(db)))
-      yield Props(new CompilationActor(bndContext, synchro, configuration, couchConf, paperId, settings, logger))
+      yield if(background)
+        Props(new BackgroundCompilationActor(bndContext, synchro, config, paperId, settings, logger))
+      else
+        Props(new ExplicitCompilationActor(bndContext, synchro, config, paperId, settings, logger))
+
   }
 
   def getOrCreateSettings(paperId: String, manager: EntityManager): Try[CompilerSettings] =
@@ -73,10 +83,6 @@ class CompilationDispatcher(
         // by default we compile with pdflatex with a timeout of 30 seconds and an interval of 15 seconds
         val settings = CompilerSettings(s"$paperId:compiler", "pdflatex", false, 30, 15)
         for(settings <- manager.saveComponent(paperId, settings))
-          // the get method will throw an exception if `None` is returned,
-          // this will be catched and transformed into a `Try` instance.
-          // `None` means that the settings could not be saved, obviously something is going really wrong
-          // with the database...
           yield settings
     }
 

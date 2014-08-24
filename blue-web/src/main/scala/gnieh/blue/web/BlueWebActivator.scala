@@ -37,7 +37,7 @@ class BlueWebActivator extends BundleActivator {
 
   def start(context: BundleContext): Unit =
     for(loader <- context.get[ConfigurationLoader]) {
-      val config = loader.load(context.getBundle.getSymbolicName, getClass.getClassLoader)
+      val config = loader.load(context.getBundle)
       // register the web application
       context.registerService(classOf[HApp], new WebApp(context, config), null)
     }

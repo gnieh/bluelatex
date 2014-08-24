@@ -41,7 +41,7 @@ class GetCompilersLet(context: BundleContext, val couch: CouchClient, config: Co
   import OsgiUtils._
 
   def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
-    Try(talk.writeJson(context.getAll[Compiler].map(_.name)))
+    Try(talk.writeJson(context.getAll[Compiler].map(_.name).toList.sorted))
 
 }
 
