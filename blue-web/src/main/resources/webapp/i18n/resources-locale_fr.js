@@ -351,7 +351,7 @@
     },
     {
         "key":"_Date_filter_",
-        "value":"Filtrer par data",
+        "value":"Filtrer par date",
         "description":"Date filter"
     },
     {
@@ -866,6 +866,21 @@
     
 
 
+    {
+        "key":"_username_tooltip_",
+        "value":"Le nom unique de l'utilisateur.",
+        "description":"tooltip: Username"
+    },
+    {
+        "key":"_first_name_tooltip_",
+        "value":"Le prénom de l'utilisateur.",
+        "description":"tooltip: Firstname"
+    },
+    {
+        "key":"_last_name_tooltip_",
+        "value":"La nom de famille de l'utilisateur.",
+        "description":"tooltip: lastname"
+    },
     {
         "key":"_files_tooltip_",
         "value":"Tous les fichiers du document.",
