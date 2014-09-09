@@ -515,6 +515,8 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       var windowStatusCallback = function(windowActive) {
         if(windowActive == true) {
           if(pageActive == false) {
+            // give the focus to the editor when the window is active
+            AceService.getEditor().focus();
             pageActive = true;
             $scope.compile();
           }
