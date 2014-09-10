@@ -10,10 +10,6 @@
 			<input type="radio" name="listType" value="toc" id="toc" ng-model="listType">
 			<span class="icon-list" ></span>
 		</label>
-		<label class="btn btn-default" ng-class="{'active': listType=='debug'}" for="debug" i18n-Tooltip="_debug_tooltip_">
-			<input type="radio" name="listType" value="debug" id="debug" checked="true" ng-model="listType">
-			<span class="icon-bug"></span>
-		</label>
 	  </div>
 	</div>
 	<div class="center">
@@ -167,15 +163,6 @@
 	<div class="bg" ng-click="listType=none;"></div>
 	<section class="list" ng-switch="listType">
 	  <div class="toc" ng-switch-when="toc" bl-toc="toc"></div>
-	  <div class="debug" ng-switch-when="debug">
-		<h2>Debug</h2>
-		File: {{currentFile.title}}<br>
-		currentLine: {{currentLine}}<br>
-		currentPage: {{currentPage}}<br>
-		linePage: {{linePage}}<br>
-		page: {{page}}<br>
-		<button ng-click="displaySyncTex()">Display SyncTex data view</button>
-	  </div>
 	  <div class="files" ng-switch-when="files">
 		<div id="file_list">
 		  <div class="folder open">
