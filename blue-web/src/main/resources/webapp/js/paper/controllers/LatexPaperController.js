@@ -438,18 +438,26 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       * Change the current file
       */
       $scope.changeFile = function (file, line) {
+        var deferred = $q.defer();
         if($scope.currentFile == file) return;
-        MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title});
-        $scope.currentFile = file;
-        $scope.content = '';
-        AceService.setContent($scope.content);
-        AceService.getEditor().focus();
-        displayCursors();
-        return initMobWrite().then(function (data) {
-          if(line) {
-            $scope.goToLine(line);
-          }
+        MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title}).then(function(data) {
+          $scope.currentFile = file;
+          $scope.content = '';
+          AceService.setContent($scope.content);
+          AceService.getEditor().focus();
+          displayCursors();
+          initMobWrite().then(function (data) {
+            if(line) {
+              $scope.goToLine(line);
+            }
+            deferred.resolve(data);
+          }, function(err) {
+            deferred.reject(err);
+          });
+        }, function(err) {
+          deferred.reject(err);
         });
+        return deferred.promise;
       };
       /**
       * Change the current file with the name of the file
@@ -507,6 +515,8 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       var windowStatusCallback = function(windowActive) {
         if(windowActive == true) {
           if(pageActive == false) {
+            // give the focus to the editor when the window is active
+            AceService.getEditor().focus();
             pageActive = true;
             $scope.compile();
           }
@@ -665,10 +675,12 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
               bindKey: {win: "Ctrl-S", mac: "Command-S"},
               exec: function(editor) {
                 $scope.compileInProgress = true;
-                $scope.$apply();
-                $scope.compile().finally(function() {
-                  $scope.compileInProgress = false;
-                  $scope.$apply();
+                $scope.$$phase || $scope.$apply();
+                MobWriteService.synchronize().then(function() {
+                  $scope.compile().finally(function() {
+                    $scope.compileInProgress = false;
+                    $scope.$$phase || $scope.$apply();
+                  });
                 });
               }
           });
@@ -727,12 +739,15 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
 
       $scope.downloadLog = function () {
         window.open($scope.logURL);
+        $scope.downloadOptions = false;
       };
       $scope.downloadPDF = function () {
         window.open($scope.pdfURL);
+        $scope.downloadOptions = false;
       };
       $scope.downloadZip = function () {
         window.open($scope.zipURL);
+        $scope.downloadOptions = false;
       };
 
       //action listener: action in the menu

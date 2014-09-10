@@ -877,6 +877,21 @@
 
 
     {
+        "key":"_username_tooltip_",
+        "value":"The unique name of the user.",
+        "description":"tooltip: Username"
+    },
+    {
+        "key":"_first_name_tooltip_",
+        "value":"The first name of the user.",
+        "description":"tooltip: Firstname"
+    },
+    {
+        "key":"_last_name_tooltip_",
+        "value":"The last name of the user.",
+        "description":"tooltip: lastname"
+    },
+    {
         "key":"_files_tooltip_",
         "value":"All files of the paper.",
         "description":"tooltip paper page: Files tab"

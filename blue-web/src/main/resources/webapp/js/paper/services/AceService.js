@@ -33,7 +33,6 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace'])
         theme: 'ace/theme/textmate',
         mode: 'ace/mode/latex',
         modeName: 'latex',
-        softWrap: 'free',
         keyBinding: 'emacs',
         fullLineSelection: true,
         highlightActiveLine: true,
@@ -41,6 +40,7 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace'])
         showIndentGuides: true,
         showPrintMargin: false,
         useSoftTab: true,
+        tabSize: 2,
         highlightSelectedWord: true,
         enableBehaviours: false,
         fadeFoldWidgets: false,
@@ -69,6 +69,7 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace'])
         _editor.renderer.setShowPrintMargin(aceSettings.showPrintMargin);
         _editor.setHighlightSelectedWord(aceSettings.highlightSelectedWord);
         _editor.session.setUseSoftTabs(aceSettings.useSoftTab);
+        _editor.session.setTabSize(aceSettings.tabSize);
         _editor.setBehavioursEnabled(aceSettings.enableBehaviours);
         _editor.setFadeFoldWidgets(aceSettings.fadeFoldWidgets);
 
@@ -76,23 +77,6 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace'])
         _editor.session.modeName = aceSettings.modeName;
 
         _renderer.setShowGutter(aceSettings.showGutter);
-
-        switch (aceSettings.softWrap) {
-        case "off":
-          _session.setUseWrapMode(false);
-          _renderer.setPrintMarginColumn(80);
-          break;
-        case "free":
-          _session.setUseWrapMode(true);
-          _session.setWrapLimitRange(null, null);
-          _renderer.setPrintMarginColumn(80);
-          break;
-        default:
-          _session.setUseWrapMode(true);
-          var col = parseInt(aceSettings.softWrap, 10);
-          _session.setWrapLimitRange(col, col);
-          _renderer.setPrintMarginColumn(col);
-        }
       };
       // go to a specific line and give focus to ace
       var goToLine = function (line) {
