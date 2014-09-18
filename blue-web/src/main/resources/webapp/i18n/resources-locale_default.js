@@ -60,6 +60,11 @@
         "description":"Affiliation"
     },
     {
+        "key":"_Registration_Password_will_sent_in_email_",
+        "value":"A confirmation email will be sent with instructions define your password",
+        "description":"Registration Password will be sent in email"
+    },
+    {
         "key":"_Registration_Success_",
         "value":"You are now registred please check your email to define your password.",
         "description":"Registration success"
