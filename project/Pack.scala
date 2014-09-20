@@ -61,10 +61,10 @@ trait Pack {
       blueClassDir <<= sourceDirectory(_ / "main" / "classes"),
       blueDesignDir <<= sourceDirectory(_ / "main" / "designs"),
       blueProjectBundles <<= (thisProjectRef, buildStructure) flatMap { (project, structure) =>
-        getFromSelectedProjects(packageBin.task in Runtime)(project, structure, Seq())
+        getFromSelectedProjects(packageBin in Runtime)(project, structure, Seq())
       },
       blueDepBundles <<= (thisProjectRef, buildStructure) flatMap { (project, structure) =>
-        getFromSelectedProjects(update.task)(project, structure, Seq()) map (_ flatMap wrapReport)
+        getFromSelectedProjects(update)(project, structure, Seq()) map (_ flatMap wrapReport)
       },
       bluePackTask
     )
@@ -97,7 +97,8 @@ trait Pack {
             wrapper.setExportPackage("*;version=" + version.replaceAll("-SNAPSHOT", "").replace('-', '.'));
             wrapper.setBundleSymbolicName(name)
           }
-          wrapper.setBundleVersion(version.replaceAll("-SNAPSHOT", "").replace('-', '.'))
+          if(wrapper.getBundleVersion() == null)
+            wrapper.setBundleVersion(version.replaceAll("-SNAPSHOT", "").replace('-', '.'))
           val m = wrapper.calcManifest
           if(wrapper.isOk) {
             jar.setManifest(m)
@@ -122,7 +123,7 @@ trait Pack {
     """([^_]+)(?:_[0-9](?:.[0-9]+)+)?-([0-9]+(?:.[0-9]+)*(?:-\w+)*).jar""".r
 
 
-  def getFromSelectedProjects[T](targetTask: SettingKey[Task[T]])(currentProject: ProjectRef, structure: BuildStructure, exclude: Seq[String]): Task[Seq[T]] = {
+  def getFromSelectedProjects[T](targetTask: TaskKey[T])(currentProject: ProjectRef, structure: BuildStructure, exclude: Seq[String]): Task[Seq[T]] = {
     def allProjectRefs(currentProject: ProjectRef): Seq[ProjectRef] = {
       def isExcluded(p: ProjectRef) = exclude.contains(p.project)
       val children = Project.getProject(currentProject, structure).toSeq.flatMap(_.aggregate)
