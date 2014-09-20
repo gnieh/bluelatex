@@ -23,7 +23,7 @@ angular.module("bluelatex.User.Controllers.Register",['bluelatex.User.Services.U
       reCAPTCHA.setOptions({
          theme: 'clean'
       });
-
+      MessagesService.message('_Registration_Password_will_sent_in_email_');
       $scope.displayCaptcha = recaptcha_public_key != null;
       reCAPTCHA.setPublicKey(recaptcha_public_key);
       

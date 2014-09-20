@@ -60,6 +60,11 @@
         "description":"Affiliation"
     },
     {
+        "key":"_Registration_Password_will_sent_in_email_",
+        "value":"Un email de confirmation va vous être envoyé avec les instructions pour définir votre mot de passe.",
+        "description":"Registration Password will be sent in email"
+    },
+    {
         "key":"_Registration_Some_parameters_are_missing_",
         "value":"Certains paramètres sont manquants.",
         "description":"Error registration"
