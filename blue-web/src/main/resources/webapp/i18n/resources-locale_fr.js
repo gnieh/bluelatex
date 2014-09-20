@@ -355,6 +355,16 @@
         "description":"Delete paper confirmation"
     },
     {
+        "key":"_Delete_synchronized_file_confirm_",
+        "value":"Êtes-vous sûr de vouloir supprimer le fichier : \"\\s\" ?",
+        "description":"Delete synchronized file confirmation"
+    },
+    {
+        "key":"_Delete_resource_confirm_",
+        "value":"Êtes-vous sûr de vouloir supprimer la ressource : \"\\s\" ?",
+        "description":"Delete resource confirmation"
+    },
+    {
         "key":"_Date_filter_",
         "value":"Filtrer par date",
         "description":"Date filter"

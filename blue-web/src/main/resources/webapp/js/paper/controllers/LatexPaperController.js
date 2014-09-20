@@ -233,6 +233,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       };
 
       $scope.removeSynchronisedFile = function(file) {
+        if(!confirm(localize.getLocalizedString('_Delete_synchronized_file_confirm_', file.title))) return;
         if(file == $scope.currentFile) {
           MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title});
         }
@@ -343,6 +344,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
       * Remove a resource
       */
       $scope.removeResource = function (resource) {
+        if(!confirm(localize.getLocalizedString('_Delete_resource_confirm_', resource.title))) return;
         PaperService.removeResource($scope.paperId, resource.title).then(function (data) {
           if(data.response == true) {
             getResources();

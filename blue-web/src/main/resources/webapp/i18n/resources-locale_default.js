@@ -350,6 +350,16 @@
         "description":"Delete paper confirmation"
     },
     {
+        "key":"_Delete_synchronized_file_confirm_",
+        "value":"Are you sure you want to remove the file: \"\\s\"?",
+        "description":"Delete synchronized file confirmation"
+    },
+    {
+        "key":"_Delete_resource_confirm_",
+        "value":"Are you sure you want to remove the resource: \"\\s\"?",
+        "description":"Delete resource confirmation"
+    },
+    {
         "key":"_Ascending_",
         "value":"Ascending",
         "description":"Ascending"
