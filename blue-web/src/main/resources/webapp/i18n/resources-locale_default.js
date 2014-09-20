@@ -61,7 +61,7 @@
     },
     {
         "key":"_Registration_Success_",
-        "value":"You are now registred please check your email to define your password.",
+        "value":"You are now registred please check your mailbox to define your password.",
         "description":"Registration success"
     },
     {
@@ -91,7 +91,7 @@
     },
     {
         "key":"_Reset_Wait_email_confirm_request_",
-        "value":"Please ckeck your email",
+        "value":"Please check your mailbox",
         "description":"Reset password succed"
     },
     {
@@ -220,13 +220,13 @@
         "description":"Ace settings: Key binding"
     },
     {
-        "key":"_Show_wrap_",
-        "value":"Show wrap",
+        "key":"_Wrap_mode_",
+        "value":"Wrap mode",
         "description":"Ace settings: Show wrap"
     },
     {
         "key":"_Full_line_selection_",
-        "value":"Full lline selection",
+        "value":"Full line selection",
         "description":"Ace settings: Full lline selection"
     },
     {
@@ -261,7 +261,7 @@
     },
     {
         "key":"_Enable_behaviours_",
-        "value":"Enable behaviours",
+        "value":"Enable auto-pairing of special characters (', \", ...)",
         "description":"Ace settings:  Enable behaviours"
     },
     {
