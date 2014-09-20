@@ -422,7 +422,7 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'angular-data.DSC
           var path_json = jsonpatch.compare(oldpaperRoles, paperRoles);
           var deferred = $q.defer();
           var promise = deferred.promise;
-          _dataCache.remove('/papers/' + paper.id + '/roles');
+          _dataCache.remove('/papers/' + paperRoles.id + '/roles');
           roles.edit({
             paper_id: paperRoles.id
           }, {
