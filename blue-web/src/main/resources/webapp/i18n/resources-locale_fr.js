@@ -60,43 +60,48 @@
         "description":"Affiliation"
     },
     {
+        "key":"_Registration_Password_will_sent_in_email_",
+        "value":"Un email de confirmation va vous être envoyé avec les instructions pour définir votre mot de passe.",
+        "description":"Registration Password will be sent in email"
+    },
+    {
         "key":"_Registration_Some_parameters_are_missing_",
-        "value":"Certain paramètres sont manquants",
+        "value":"Certains paramètres sont manquants.",
         "description":"Error registration"
     },
     {
         "key":"_Registration_The_captcha_did_not_verify_",
-        "value":"Le captcha n'est pas valide",
+        "value":"Le captcha n'est pas valide.",
         "description":"Error registration"
     },
     {
         "key":"_Registration_User_with_the_same_username_already_exists_",
-        "value":"Le nom d'utilisateur est deja utilisé",
+        "value":"Le nom d'utilisateur est déjà utilisé.",
         "description":"Error registration"
     },
     {
         "key":"_Registration_Something_wrong_happened_",
-        "value":"Un problème a eu lieu, le compte n'a pas pu être créé",
+        "value":"Un problème a eu lieu, le compte n'a pas pu être créé.",
         "description":"Error registration"
     },
     {
         "key":"_Login_Some_parameters_are_missing_",
-        "value":"Certain paramètres sont manquants",
+        "value":"Certains paramètres sont manquants.",
         "description":"Login error"
     },
     {
         "key":"_Reset_Wait_email_confirm_request_",
-        "value":"Vérifier votre compte mail",
+        "value":"Un email de confirmation a été envoyé, veuillez vérifier votre compte mail.",
         "description":"Reset password succed"
     },
     {
         "key":"_Login_Wrong_username_and_or_password_",
-        "value":"Mouvais nom d'utilisateur ou mot de passe",
+        "value":"Mauvais nom d'utilisateur ou mot de passe.",
         "description":"Login error"
     },
     {
         "key":"_Login_Something_wrong_happened_",
-        "value":"Un problème a eu lieu, réessayez plus tard",
+        "value":"Un problème a eu lieu, réessayez plus tard.",
         "description":"Login error"
     },
     {
@@ -116,7 +121,7 @@
     },
     {
         "key":"_Reset_User_not_found",
-        "value":"Utilisateur non trouvé",
+        "value":"Utilisateur non trouvé.",
         "description":"Reset page"
     },
     {
@@ -151,12 +156,12 @@
     },
     {
         "key":"_On_",
-        "value":"On",
+        "value":"Activé",
         "description":"On"
     },
     {
         "key":"_Off_",
-        "value":"Off",
+        "value":"Désactivé",
         "description":"Off"
     },
     {
@@ -186,12 +191,12 @@
     },
     {
         "key":"_Edit_paper_",
-        "value":"Modifier article",
+        "value":"Modifier l'article",
         "description":"Edit paper"
     },
     {
         "key":"_Edit_",
-        "value":"Modifer",
+        "value":"Modifier",
         "description":"Edit"
     },
     {
@@ -206,72 +211,72 @@
     },
     {
         "key":"_Font_size_",
-        "value":"Taille des charatères",
+        "value":"Taille des caractères",
         "description":"Ace settings: Font size"
     },
     {
         "key":"_Key_binding_",
-        "value":"Key binding",
+        "value":"Raccourci clavier",
         "description":"Ace settings: Key binding"
     },
     {
-        "key":"_Show_wrap_",
-        "value":"Show wrap",
+        "key":"_Wrap_mode_",
+        "value":"Type de retour à la ligne",
         "description":"Ace settings: Show wrap"
     },
     {
         "key":"_Full_line_selection_",
-        "value":"Full lline selection",
+        "value":"Sélection de la ligne complète",
         "description":"Ace settings: Full lline selection"
     },
     {
         "key":"_Highlight_active_line_",
-        "value":"Highlight active line",
+        "value":"Mettre en évidence la ligne courante",
         "description":"Ace settings: Highlight active line"
     },
     {
         "key":"_Show_invisibles_",
-        "value":"Show invisibles",
+        "value":"Afficher les caractères invisibles",
         "description":"Ace settings: Show invisibles"
     },
     {
         "key":"_Show_indent_guides_",
-        "value":"Show indent guides",
+        "value":"Afficher le guide d'indentation",
         "description":"Ace settings: Show indent guides"
     },
     {
         "key":"_Show_print_margin_",
-        "value":"Show print margin",
+        "value":"Afficher la marge",
         "description":"Ace settings: Show print margin"
     },
     {
         "key":"_Use_soft_tab_",
-        "value":"User soft tab",
+        "value":"Utiliser des espaces pour la tabulation",
         "description":"Ace settings: User soft tab"
     },
     {
         "key":"_Highlight_selected_word_",
-        "value":"Highlight selected word",
+        "value":"Mettre en évidence le mot courant",
         "description":"Ace settings:  Highlight selected word"
     },
     {
         "key":"_Enable_behaviours_",
-        "value":"Enable behaviours",
+        "value":"Activer l'appairage automatique des caractères spéciaux (', \", ...)",
         "description":"Ace settings:  Enable behaviours"
     },
     {
         "key":"_Fade_fold_widgets_",
-        "value":"Fade fold widgets",
-        "description":"Ace settings:  Fade fold widgets"
+        "value":"Activer le replis de section",
+        "description":"Ace settings: Fade fold widgets"
     },
     {
         "key":"_Incremental_search_",
-        "value":"Incremental search",
+        "value":"Recherche incrémentale",
         "description":"Ace settings: Incremental search"
     },
     {
         "key":"_Profile_",
-        "value":"Profile",
+        "value":"Profil",
         "description":"Profile"
     },
     {
@@ -306,17 +311,17 @@
     },
     {
         "key":"_Authors_",
-        "value":"Autheurs",
+        "value":"Auteurs",
         "description":"Authors"
     },
     {
         "key":"_Author_",
-        "value":"Autheur",
+        "value":"Auteur",
         "description":"Author"
     },
     {
         "key":"_User_",
-        "value":"Utilisteur",
+        "value":"Utilisateur",
         "description":"User"
     },
     {
@@ -346,12 +351,22 @@
     },
     {
         "key":"_Delete_paper_confirm_",
-        "value":"Etes-vous sûr de vouloir supprimer l'article : \"\\s\" ?",
+        "value":"Êtes-vous sûr de vouloir supprimer l'article : \"\\s\" ?",
         "description":"Delete paper confirmation"
     },
     {
+        "key":"_Delete_synchronized_file_confirm_",
+        "value":"Êtes-vous sûr de vouloir supprimer le fichier : \"\\s\" ?",
+        "description":"Delete synchronized file confirmation"
+    },
+    {
+        "key":"_Delete_resource_confirm_",
+        "value":"Êtes-vous sûr de vouloir supprimer la ressource : \"\\s\" ?",
+        "description":"Delete resource confirmation"
+    },
+    {
         "key":"_Date_filter_",
-        "value":"Filtrer par data",
+        "value":"Filtrer par date",
         "description":"Date filter"
     },
     {
@@ -396,12 +411,12 @@
     },
     {
         "key":"_Tags_",
-        "value":"Ethiquêtes",
+        "value":"Étiquettes",
         "description":"Tags"
     },
     {
         "key":"_Tag_filter_",
-        "value":"Trier par éthiquette",
+        "value":"Trier par étiquette",
         "description":"Tag filter"
     },
     {
@@ -431,32 +446,32 @@
     },
     {
         "key":"_Delete_paper_Something_wrong_happened_",
-        "value":"Un problème a eu lieu, réessayez plus tard",
+        "value":"Un problème a eu lieu, réessayez plus tard.",
         "description":"Delete paper: Something wrong happened"
     },
     {
         "key":"_Delete_paper_Authenticated_user_has_no_sufficient_rights_to_delete_the_paper_",
-        "value":"Vous ne possédez pas les droits suffisant pour supprimer cet article",
+        "value":"Vous ne possédez pas les droits suffisant pour supprimer cet article.",
         "description":"Delete paper: Authenticated user has no sufficient rights to delete the paper"
     },
     {
         "key":"_Delete_paper_User_must_be_authentified",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"Delete paper: Delete paper User must be authentified"
     },
     {
         "key":"_List_Papers_Not_connected_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"Delete paper: Delete paper User must be authentified"
     },
     {
         "key":"_List_Papers_Something_wrong_happened_",
-        "value":"Un problème a eu lieu, réessayez plus tard",
+        "value":"Un problème a eu lieu, réessayez plus tard.",
         "description":"List paper: Something wrong happened"
     },
     {
         "key":"_Edit_profile_",
-        "value":"Modifier son profile",
+        "value":"Modifier son profil",
         "description":"Edit profile"
     },
     {
@@ -466,12 +481,12 @@
     },
     {
         "key":"_Reset_password_",
-        "value":"Redéfinir sont mot de passe",
+        "value":"Redéfinir mon mot de passe",
         "description":"Reset password"
     },
     {
         "key":"_Goodbye_",
-        "value":"Aurevoir",
+        "value":"Au revoir",
         "description":"Goodbye"
     },
     {
@@ -481,7 +496,7 @@
     },
     {
         "key":"_Exit_paper_confirm_",
-        "value":"Etes-vous sûr de vouloir quitter le papier?",
+        "value":"Êtes-vous sûr de vouloir quitter le papier ?",
         "description":"Exit paper confirm"
     },{
         "key":"_Install_itsalltext_",
@@ -555,12 +570,12 @@
     },
     {
         "key":"_Interval_",
-        "value":"Intervale",
+        "value":"Intervalle",
         "description":"Interval"
     },
     {
         "key":"_Compiler_Interval_",
-        "value":"Intervale de compilation",
+        "value":"Intervalle de compilation",
         "description":"Compiler Interval"
     },
     {
@@ -597,7 +612,7 @@
 
     {
         "key":"_Get_info_paper_Not_connected_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
     {
@@ -607,13 +622,13 @@
     },
     {
         "key":"_Get_info_paper_Something_wrong_happened_",
-        "value":"Impossible de récupérer les informations de l'article, réessayez plus tard",
+        "value":"Impossible de récupérer les informations de l'article, réessayez plus tard.",
         "description":"Unable to get paper info"
     },
 
     {
         "key":"_Get_roles_paper_Not_connected_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
     {
@@ -623,178 +638,178 @@
     },
     {
         "key":"_Get_roles_paper_Something_wrong_happened_",
-        "value":"Impossible de récupérer les roles de l'article, réessayez plus tard",
+        "value":"Impossible de récupérer les rôles de l'article, réessayez plus tard.",
         "description":"Unable to get paper roles"
     },
 
 
     {
         "key":"_Get_users_Not_connected_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
     {
         "key":"_Get_users_Something_wrong_happened_",
-        "value":"Impossible de récupérer la listes des utilisateurs, réessayez plus tard",
+        "value":"Impossible de récupérer la listes des utilisateurs, réessayez plus tard.",
         "description":"Unable to list users"
     },
 
 
     {
         "key":"_Edit_paper_Some_parameters_are_missing_",
-        "value":"Complétez tous les champs requis",
+        "value":"Complétez tous les champs requis.",
         "description":"Some fields are missing"
     },
     {
         "key":"_Edit_paper_Not_connected_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
     {
         "key":"_Edit_paper_Paper_not_found_",
-        "value":"Impossible de trouver l'article à modifier",
+        "value":"Impossible de trouver l'article à modifier.",
         "description":"Edit paper: Paper not found"
     },
     {
         "key":"_Edit_paper_Something_wrong_happened_",
-        "value":"Impossible de modifier l'article",
+        "value":"Impossible de modifier l'article.",
         "description":"Unable to edit paper"
     },
 
 
     {
         "key":"_New_paper_Some_parameters_are_missing_",
-        "value":"Complétez tous les champs requis",
+        "value":"Complétez tous les champs requis.",
         "description":"New paper: some fields are missing"
     },
     {
         "key":"_New_paper_Not_connected_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
     {
         "key":"_New_paper_Something_wrong_happened_",
-        "value":"Impossible de créer le nouvel article",
+        "value":"Impossible de créer le nouvel article.",
         "description":"Unable to create the new paper"
     },
 
 
     {
         "key":"_No_synchronized_file_found_",
-        "value":"Aucun fichier synchronisé trouvé",
+        "value":"Aucun fichier synchronisé trouvé.",
         "description":"No synchronized file found"
     },{
         "key":"_Get_synchronized_resource_Not_connected_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
     {
         "key":"_Get_synchronized_resource_Something_wrong_happened_",
-        "value":"Impossible de résupérer les fichiers synchonisés",
+        "value":"Impossible de récupérer les fichiers synchronisés.",
         "description":"Unable to get synchronized resource"
     },
 
 
     {
         "key":"_Get_resources_Not_connected_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
     {
         "key":"_Get_resources_Something_wrong_happened_",
-        "value":"Impossible de lister les ressources",
+        "value":"Impossible de lister les ressources.",
         "description":"Unable to list resources"
     },
 
 
     {
         "key":"_Get_compiler_Unable_to_get_compiler_info_",
-        "value":"Impossible de récupérer les information du compilateur",
+        "value":"Impossible de récupérer les information du compilateur.",
         "description":"Unable to get compiler info"
     },
 
 
     {
         "key":"_Get_compilers_Unable_to_get_compiler_list_",
-        "value":"UImpossible de récupérer les compilateurs disponibles",
+        "value":"Impossible de récupérer les compilateurs disponibles.",
         "description":"Unable to list compilers"
     },
 
     {
         "key":"_Upload_resource_Some_parameters_are_missing_",
-        "value":"Complétez tous les champs requis",
+        "value":"Complétez tous les champs requis.",
         "description":"New resource: some fields are missing"
     },
     {
         "key":"_Upload_resource_Not_connected_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
     {
         "key":"_Upload_resource_Something_wrong_happened_",
-        "value":"Impossible d'envoyer la ressource",
+        "value":"Impossible d'envoyer la ressource.",
         "description":"Unable to upload resource"
     },
 
 
     {
         "key":"_Delete_resource_Some_parameters_are_missing_",
-        "value":"Complétez tous les champs requis",
+        "value":"Complétez tous les champs requis.",
         "description":"Delete resource: some fields are missing"
     },
     {
         "key":"_Delete_resource_Not_connected_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
     {
         "key":"_Delete_resource_Something_wrong_happened_",
-        "value":"Impossible de supprimer la ressource",
+        "value":"Impossible de supprimer la ressource.",
         "description":"Unable to delete the resource"
     },
 
 
     {
         "key":"_Logout_Something_wrong_happened_",
-        "value":"Impossible de se déconnecter, réessayez plus tard",
+        "value":"Impossible de se déconnecter, réessayez plus tard.",
         "description":"Unable to logout"
     },
     {
         "key":"_Logout_Not_connected_",
-        "value":"Vous n'êtes pas connecté",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
 
     {
         "key":"_Edit_profile_Some_parameters_are_missing_",
-        "value":"Complétez tous les champs requis",
+        "value":"Veuillez compléter tous les champs requis.",
         "description":"Edit profile: some fields are missing"
     },
     {
         "key":"_Edit_profile_Not_connected_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
     {
         "key":"_Edit_profile_Something_wrong_happened_",
-        "value":"Unable to edit profile",
+        "value":"Impossible de modifier votre profil, une erreur est survenue, réessayez plus tard.",
         "description":"Unable to edit profile"
     },
 
 
     {
         "key":"_Delete_account_",
-        "value":"Supprimer son compte",
+        "value":"Supprimer mon compte",
         "description":"Delete account"
     },
     {
         "key":"_Delete_account_confirm_",
-        "value":"Etes-vous sûr de vouloir supprimer votre compte ?",
+        "value":"Êtes-vous sûr de vouloir supprimer votre compte ?",
         "description":"Delete account: confirmation message"
     },
     {
         "key":"_Remove_user_Captcha_not_verify_or_user_not_authenticated_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
     {
@@ -804,7 +819,7 @@
     },
     {
         "key":"_Remove_user_The_user_still_owns_papers_",
-        "value":"Vous ne pouvez pas suppimer le compte parce qu'il vous reste des articles.",
+        "value":"Vous ne pouvez pas supprimer le compte, il vous reste des articles.",
         "description":"Remove user: The user still has owns papers"
     },
     {
@@ -815,22 +830,22 @@
 
     {
         "key":"_Edit_profile_success_",
-        "value":"Profile edited",
+        "value":"Votre profil a été sauvegardé.",
         "description":"Edit profile: success"
     },
     {
         "key":"_Edit_profile_No_enough_data_",
-        "value":"Please complete all fields",
+        "value":"Veuillez complétez tous les champs requis.",
         "description":"Edit profile: some fields are missing"
     },
     {
         "key":"_Edit_profile_User_must_be_authenticated_",
-        "value":"Vous n'êtes pas connecté, reconnectez-vous!",
+        "value":"Vous n'êtes pas connecté, reconnectez-vous.",
         "description":"User not connected"
     },
     {
         "key":"_Edit_profile_Not_authorized_to_modifiy_the_user_data_",
-        "value":"Your are not authorized to modifify the data of this user.",
+        "value":"Vous n'êtes pas autorisé à modifier les données de cet utilisateur.",
         "description":"_Edit_profile_Not_authorized_to_modifiy_the_user_data_"
     },
     {
@@ -840,7 +855,7 @@
     },
     {
         "key":"_Edit_profile_No_revision_obsolete_revision_was_provided_in_the_request_",
-        "value":"The current revision is obsolete. Please refresh the page.",
+        "value":"Un conflit a eu lieu lors de l'édition de votre profil, veuillez réessayer plus tard.",
         "description":"_Edit_profile_No_revision_obsolete_revision_was_provided_in_the_request_"
     },
     {
@@ -860,12 +875,27 @@
     },
     {
         "key":"_Report_an_issue_",
-        "value":"Repporter un problème!",
+        "value":"Reporter un problème!",
         "description":"Report an issue in the header"
     },
     
 
 
+    {
+        "key":"_username_tooltip_",
+        "value":"Le nom unique de l'utilisateur.",
+        "description":"tooltip: Username"
+    },
+    {
+        "key":"_first_name_tooltip_",
+        "value":"Le prénom de l'utilisateur.",
+        "description":"tooltip: Firstname"
+    },
+    {
+        "key":"_last_name_tooltip_",
+        "value":"La nom de famille de l'utilisateur.",
+        "description":"tooltip: lastname"
+    },
     {
         "key":"_files_tooltip_",
         "value":"Tous les fichiers du document.",
@@ -873,7 +903,7 @@
     },
     {
         "key":"_toc_tooltip_",
-        "value":"Table des matières du fichier courant.",
+        "value":"La table des matières du fichier courant.",
         "description":"tooltip paper page: TOC tab"
     },
     {
@@ -888,12 +918,12 @@
     },
     {
         "key":"_download_pdf_tooltip_",
-        "value":"Télécharger les fichiers source du document en tant qu'archive zip.",
+        "value":"Télécharger le PDF.",
         "description":"tooltip paper page: download pdf"
     },
     {
         "key":"_download_zip_tooltip_",
-        "value":"Télécharger tous les fichiers du document.",
+        "value":"Télécharger les fichiers sources du document en tant qu'archive ZIP.",
         "description":"tooltip paper page: download zip"
     },
     {
@@ -928,7 +958,7 @@
     },
     {
         "key":"_download_resource_tooltip_",
-        "value":"Télécharger la resource.",
+        "value":"Télécharger la ressource.",
         "description":"tooltip paper page: download resource"
     },
     {
@@ -950,7 +980,7 @@
     },
     {
         "key":"_paper_template_tooltip_",
-        "value":"Le template du document.",
+        "value":"Le modèle du document.",
         "description":"tooltip paper page: paper template"
     },
 
@@ -962,7 +992,7 @@
     },
     {
         "key":"_affiliation_tooltip_",
-        "value":"L'affiliation est le nom de votre université et labo ou de votre entreprise..",
+        "value":"L'affiliation est le nom de votre université et labo ou de votre entreprise.",
         "description":"tooltip profile: affiliation"
     },
 
@@ -986,7 +1016,7 @@
     },
     {
         "key":"_compiler_type_tooltip_",
-        "value":"Le compilateur qui est utilisé pour compiler le doucment.",
+        "value":"Le compilateur qui est utilisé pour compiler le document.",
         "description":"tooltip edit paper: compiler"
     },
     {
@@ -996,7 +1026,7 @@
     },
     {
         "key":"_synctex_tooltip_",
-        "value":"Déterminer si les données SyncTeX sont générées ou non.",
+        "value":"Activer/désactiver la génération des données SyncTeX.",
         "description":"tooltip edit paper: affiliation"
     }
 ]

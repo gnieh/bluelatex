@@ -227,6 +227,9 @@
                 width: 39px!important;
             }
         }
+        .centerRightCol {
+          padding-left: 40px!important;
+        }
         .leftCol {
           left: 40px;
           .close {
@@ -235,26 +238,26 @@
                 display: none;
               }
           }
-          .centerRightCol {
-            padding-left: 40px!important;
-          }
-        }
-        &.close, &.open {
+          &.close, &.open {
             -moz-transition: left .5s;
             -o-transition: left .5s;
             transition: left .5s;
             -webkit-transition: left .5s;
-        }
-        &.close {
-            left: -300px;
-        }
-        .bg {
-            height: 100%;
-            left: 0;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: -1;
+          }
+          &.close {
+              left: -300px;
+              .bg {
+                display: none;
+              }
+          }
+          .bg {
+              height: 100%;
+              left: 0;
+              position: fixed;
+              top: 0;
+              width: 100%;
+              z-index: -1;
+          }
         }
     }
     #form-page {

@@ -106,7 +106,7 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
                 ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry")))
           }
         } recover {
-          case SohvaException(_, ConflictException(_)) =>
+          case ConflictException(_) =>
             logWarn(s"User $username already exists")
             (HStatus.Conflict,
               ErrorResponse("unable_to_register", s"The user $username already exists"))

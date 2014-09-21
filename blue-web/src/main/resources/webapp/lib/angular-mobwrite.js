@@ -314,7 +314,7 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
      * Collect all client-side changes and send them to the server.
      * @private
      */
-    var createRequest = function() {
+    var synchronize = function() {
       // Initialize clientChange_, to be checked at the end of analyzeResponse.
       clientChange_ = false;
       var data = {};
@@ -534,7 +534,7 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
       // Ensure that there is only one sync task.
       clearTimeout(syncRunPid_);
       // Schedule the next sync.
-      syncRunPid_ = setTimeout(createRequest, MobWriteConfig.syncInterval);
+      syncRunPid_ = setTimeout(synchronize, MobWriteConfig.syncInterval);
       // Terminate the watchdog task, everything's ok.
       clearTimeout(syncKillPid_);
       syncKillPid_ = null;
@@ -584,7 +584,7 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
       }
       clearTimeout(syncRunPid_);
       // Initiate a new sync right now.
-      syncRunPid_ = setTimeout(createRequest, 1);
+      syncRunPid_ = setTimeout(synchronize, 1);
     };
 
     /**
@@ -620,7 +620,7 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
         // Turn off debug mode since the console disappears on page unload before
         // this code does.
         // MobWriteConfig.debug = false;
-        createRequest();
+        synchronize();
       }
       // By the time the callback runs analyzeResponse, this page will probably
       // be gone.  But that's ok, we are just sending our last changes out, we
@@ -678,7 +678,7 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
           var deferredTimeout = $q.defer();
           promises.push(deferredTimeout.promise);
           syncRunPid_ = setTimeout(function () {
-            createRequest().then(function (data) {
+            synchronize().then(function (data) {
               deferredTimeout.resolve(data);
             }, function(error) {
               deferredTimeout.reject(error);
@@ -700,10 +700,12 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
      * @param {*} var_args Object(s) or ID(s) of object(s) to unshare.
      */
     var unshare = function(var_args) {
+      var promises = [];
       for (var i = 0; i < arguments.length; i++) {
         var el = arguments[i];
         if (typeof el == 'string' && shared.hasOwnProperty(el)) {
-          createRequest();
+          var promise = synchronize();
+          promises.push(promise);
           delete shared[el];
           if (MobWriteConfig.debug) {
             $log.info('Unshared: ' + el);
@@ -718,7 +720,8 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
           }
           if (result && result.file) {
             if (shared.hasOwnProperty(result.file)) {
-              createRequest();
+              var promise = synchronize();
+              promises.push(promise);
               delete shared[result.file];
               if (MobWriteConfig.debug) {
                 $log.info('Unshared: ' + el);
@@ -735,6 +738,7 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
           }
         }
       }
+      return $q.all(promises)
     };
 
     var convertMobwriteJsonToText = function (json) {
@@ -866,6 +870,7 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
     return {
       syncUsername: syncUsername,
       shareObj: shareObj,
+      synchronize: synchronize,
       share: share,
       unshare: unshare,
       unload_: unload_,

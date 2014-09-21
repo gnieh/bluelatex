@@ -13,7 +13,7 @@ angular.module('localization', [])
     // managing the translation dictionary
     .provider('localize', function localizeProvider() {
         
-        this.languages = ['en'];
+        this.languages = ['en', 'fr'];
         this.defaultLanguage = 'en';
         this.ext = 'js';
 

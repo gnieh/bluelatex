@@ -60,8 +60,13 @@
         "description":"Affiliation"
     },
     {
+        "key":"_Registration_Password_will_sent_in_email_",
+        "value":"A confirmation email will be sent with instructions define your password",
+        "description":"Registration Password will be sent in email"
+    },
+    {
         "key":"_Registration_Success_",
-        "value":"You are now registred please check your email to define your password.",
+        "value":"You are now registred please check your mailbox to define your password.",
         "description":"Registration success"
     },
     {
@@ -91,7 +96,7 @@
     },
     {
         "key":"_Reset_Wait_email_confirm_request_",
-        "value":"Please ckeck your email",
+        "value":"Please check your mailbox",
         "description":"Reset password succed"
     },
     {
@@ -220,13 +225,13 @@
         "description":"Ace settings: Key binding"
     },
     {
-        "key":"_Show_wrap_",
-        "value":"Show wrap",
+        "key":"_Wrap_mode_",
+        "value":"Wrap mode",
         "description":"Ace settings: Show wrap"
     },
     {
         "key":"_Full_line_selection_",
-        "value":"Full lline selection",
+        "value":"Full line selection",
         "description":"Ace settings: Full lline selection"
     },
     {
@@ -261,7 +266,7 @@
     },
     {
         "key":"_Enable_behaviours_",
-        "value":"Enable behaviours",
+        "value":"Enable auto-pairing of special characters (', \", ...)",
         "description":"Ace settings:  Enable behaviours"
     },
     {
@@ -343,6 +348,16 @@
         "key":"_Delete_paper_confirm_",
         "value":"Are you sure you want to remove the paper: \"\\s\"?",
         "description":"Delete paper confirmation"
+    },
+    {
+        "key":"_Delete_synchronized_file_confirm_",
+        "value":"Are you sure you want to remove the file: \"\\s\"?",
+        "description":"Delete synchronized file confirmation"
+    },
+    {
+        "key":"_Delete_resource_confirm_",
+        "value":"Are you sure you want to remove the resource: \"\\s\"?",
+        "description":"Delete resource confirmation"
     },
     {
         "key":"_Ascending_",
@@ -876,6 +891,21 @@
     
 
 
+    {
+        "key":"_username_tooltip_",
+        "value":"The unique name of the user.",
+        "description":"tooltip: Username"
+    },
+    {
+        "key":"_first_name_tooltip_",
+        "value":"The first name of the user.",
+        "description":"tooltip: Firstname"
+    },
+    {
+        "key":"_last_name_tooltip_",
+        "value":"The last name of the user.",
+        "description":"tooltip: lastname"
+    },
     {
         "key":"_files_tooltip_",
         "value":"All files of the paper.",

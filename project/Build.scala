@@ -10,15 +10,15 @@ import sbtbuildinfo.Plugin._
 
 import com.typesafe.sbt.web.SbtWeb
 
-import com.typesafe.sbt.web.SbtWeb.autoImport._ 
+import com.typesafe.sbt.web.SbtWeb.autoImport._
 
-import com.typesafe.sbt.less.SbtLess.autoImport._ 
+import com.typesafe.sbt.less.SbtLess.autoImport._
 
 object BlueBuild extends BlueBuild
 
 class BlueBuild extends Build with Pack with Server with Distrib with Tests {
 
-  val blueVersion = "1.0.0-RC1"
+  val blueVersion = "1.0.0"
 
   lazy val bluelatex = (Project(id = "bluelatex",
     base = file(".")) settings (
@@ -66,16 +66,16 @@ class BlueBuild extends Build with Pack with Server with Distrib with Tests {
     ) dependsOn(blueCommon)
 
   lazy val commonDeps = Seq(
-    "org.gnieh" %% "tiscaf" % "0.9-SNAPSHOT",
+    "org.gnieh" %% "tiscaf" % "0.9",
     "net.tanesha.recaptcha4j" % "recaptcha4j" % "0.0.7",
     "org.apache.pdfbox" % "pdfbox" % "1.8.4" exclude("commons-logging", "commons-logging"),
     "commons-beanutils" % "commons-beanutils" % "1.8.3" exclude("commons-logging", "commons-logging"),
     "commons-collections" % "commons-collections" % "3.2.1",
     "org.fusesource.scalate" %% "scalate-core" % "1.6.1",
     "com.typesafe.akka" %% "akka-osgi" % "2.3.1",
-    "org.gnieh" %% "sohva-client" % "1.0.0-SNAPSHOT",
-    "org.gnieh" %% "sohva-entities" % "0.1.0-SNAPSHOT",
-    "org.gnieh" %% "diffson" % "0.3-SNAPSHOT",
+    "org.gnieh" %% "sohva-client" % "1.0.0",
+    "org.gnieh" %% "sohva-entities" % "1.0.0",
+    "org.gnieh" %% "diffson" % "0.3",
     "javax.mail" % "mail" % "1.4.7",
     "ch.qos.logback" % "logback-classic" % "1.0.13",
     "org.slf4j" % "jcl-over-slf4j" % "1.7.5",
