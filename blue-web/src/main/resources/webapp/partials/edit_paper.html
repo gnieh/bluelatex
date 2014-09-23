@@ -34,12 +34,12 @@
                   placeholder="New author"
                   pause="100"
                   selectedobject="newAuthor"
+                  onselect="addAuthor"
                   localdata="users"
                   searchfields="name"
                   titlefield="name"
                   minlength="1"
                   inputclass="form-control form-control-small"></angucomplete>
-                <a ng-click="addAuthor()" class="button icon-add"></a>
               </div>
             </div>
         </div>
@@ -64,12 +64,12 @@
                   placeholder="New reviewer"
                   pause="100"
                   selectedobject="newReviewer"
+                  onselect="addReviewer"
                   localdata="users"
                   searchfields="name"
                   titlefield="name"
                   minlength="1"
                   inputclass="form-control form-control-small"></angucomplete>
-                <a ng-click="addReviewer()" class="button icon-add"></a>
               </div>
             </div>
         </div>
