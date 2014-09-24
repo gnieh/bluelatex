@@ -75,7 +75,7 @@ class BlueCommonActivator extends ActorSystemActivator {
     }
     context.registerService(classOf[LogService].getName, new LogServiceFactory, null)
 
-    for(logger <- context.get[Logger]) {
+    for(logger <- context.get[Logger]) try {
       val config = loader.load(context.getBundle)
 
       // register the couch client service
@@ -120,6 +120,10 @@ class BlueCommonActivator extends ActorSystemActivator {
       }
       context.registerService(classOf[Templates], templates.get, null)
 
+    } catch {
+      case e: Exception =>
+        logger.log(LogService.LOG_ERROR, s"Unable to start the core bundle", e)
+        throw e
     }
 
     // register the actor system as service so that other bundle can use it
