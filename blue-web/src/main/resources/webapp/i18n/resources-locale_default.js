@@ -61,7 +61,7 @@
     },
     {
         "key":"_Registration_Password_will_sent_in_email_",
-        "value":"A confirmation email will be sent with instructions define your password",
+        "value":"A confirmation email will be sent with instructions to define your password",
         "description":"Registration Password will be sent in email"
     },
     {

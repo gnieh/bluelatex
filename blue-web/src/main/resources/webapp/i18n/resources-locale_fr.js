@@ -870,7 +870,7 @@
     },
     {
         "key":"_Clone_me_",
-        "value":"Cloner moi!",
+        "value":"Clonez moi!",
         "description":"Clone me in the header"
     },
     {
