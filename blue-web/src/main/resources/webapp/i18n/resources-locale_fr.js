@@ -170,6 +170,11 @@
         "description":"New paper"
     },
     {
+        "key":"_Paper_name_",
+        "value":"Nom du papier",
+        "description":"Paper name"
+    },
+    {
         "key":"_Title_",
         "value":"Titre",
         "description":"Title"

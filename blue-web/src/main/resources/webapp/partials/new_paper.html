@@ -4,14 +4,14 @@
         <div bl-messages></div>
         <div class="grid">
             <div class="col c1-3">
-                <label for="name" data-i18n="_Name_" i18n-Tooltip="_paper_name_tooltip_"></label>
+                <label for="name" data-i18n="_Paper_name_" i18n-Tooltip="_paper_name_tooltip_"></label>
                 <span class="control-label"
                   ng-show="newPaperForm.name.$error.required" data-i18n="_Required_"></span>
             </div>
             <div class="col c2-3 form-group"
               ng-class="{'has-error': newPaperForm.name.$invalid}">
               <input class="form-control" id="name" name="name" type="text" autofocus
-                data-i18n-attr="_Name_|placeholder" required ng-model="paper.paper_name" />
+                data-i18n-attr="_Paper_name_|placeholder" required ng-model="paper.paper_name" />
             </div>
         </div>
         <div class="grid">
