@@ -45,6 +45,11 @@
         "description": "Field of a form is correct"
     },
     {
+        "key": "_Username_error_format_",
+        "value": "Format invalide : \":\" n'est pas autorisé",
+        "description": "Field of a form is not correct"
+    },
+    {
         "key":"_RegisterTitle_",
         "value":"S'enregistrer",
         "description":"The title of the register page"

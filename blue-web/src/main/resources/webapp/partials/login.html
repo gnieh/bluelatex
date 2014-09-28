@@ -7,9 +7,11 @@
     <div class="form-group"
       ng-class="{'has-error': loginForm.username.$invalid}">
       <input class="form-control" name="username" type="text"
-        data-i18n-attr="_Username_|placeholder" required ng-model="user.name" autofocus auto-fill-sync/>
+        data-i18n-attr="_Username_|placeholder" required ng-model="user.name" autofocus auto-fill-sync ng-pattern="/^[^:]*$/"/>
         <span class="control-label"
           ng-show="loginForm.username.$error.required" data-i18n="_Required_"></span>
+        <span class="control-label"
+            ng-show="loginForm.username.$invalid && !loginForm.username.$error.required" data-i18n="_Username_error_format_"></span>
     </div>
     <div class="form-group"
       ng-class="{'has-error': loginForm.password.$invalid}">

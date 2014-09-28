@@ -46,8 +46,13 @@
     },
     {
         "key": "_Error_format_",
-        "value": "Format invalid",
-        "description": "Field of a form is correct"
+        "value": "Invalid format",
+        "description": "Field of a form is not correct"
+    },
+    {
+        "key": "_Username_error_format_",
+        "value": "Invalid format: \":\" is not allowed in user names",
+        "description": "Field of a form is not correct"
     },
     {
         "key":"_Register_",
