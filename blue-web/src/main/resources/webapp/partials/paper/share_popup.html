@@ -1,0 +1,74 @@
+<div id="form-page" class="share">
+    <h2 data-i18n="_Share_"></h2>
+    <div class="grid">
+        <div class="col c1-3">
+            <label for="authors" data-i18n="_Authors_" i18n-Tooltip="_paper_authors_tooltip_"></label>
+        </div>
+        <div class="col c2-3 form-group">
+          <div class="authors">
+            <div class="author" ng-repeat="author in paperRoles.authors">
+              <input type="hidden" ng-model="author">
+              <div class="label">{{author}}</div>
+              <a ng-click="removeAuthor(author)" class="button icon-delete"></a>
+            </div>
+            <div class="author" ng-if="paperRoles.authors.length == 0">
+              <div class="label" data-i18n="_No_author_"></div>
+            </div>
+            <div class="clear"></div>
+          </div>
+          <div class="new">
+            <angucomplete id="new_author"
+              placeholder="New author"
+              pause="100"
+              selectedobject="newAuthor"
+              onselect="addAuthor"
+              localdata="users"
+              searchfields="name"
+              titlefield="name"
+              minlength="1"
+              inputclass="form-control form-control-small"></angucomplete>
+          </div>
+        </div>
+    </div>
+    <div class="grid">
+        <div class="col c1-3">
+            <label for="reviewers" data-i18n="_Reviewers_" i18n-Tooltip="_paper_reveiwers_tooltip_">Reviewers</label>
+        </div>
+        <div class="col c2-3 form-group">
+          <div class="reviewers">
+            <div class="reviewer" ng-repeat="reviewer in paperRoles.reviewers">
+              <input type="hidden" ng-model="reviewer">
+              <div class="label">{{reviewer}}</div>
+              <a ng-click="removeReviewer(reviewer)" class="button icon-delete"></a>
+            </div>
+            <div class="reviewer" ng-if="paperRoles.reviewers.length == 0">
+              <div class="label" data-i18n="_No_reviewer_"></div>
+            </div>
+            <div class="clear"></div>
+          </div>
+          <div class="new">
+            <angucomplete id="new_reviewer"
+              placeholder="New reviewer"
+              pause="100"
+              selectedobject="newReviewer"
+              onselect="addReviewer"
+              localdata="users"
+              searchfields="name"
+              titlefield="name"
+              minlength="1"
+              inputclass="form-control form-control-small"></angucomplete>
+          </div>
+        </div>
+    </div>
+    <div class="grid">
+        <div class="col c1-3">
+            <label for="url" data-i18n="_Url_" i18n-Tooltip="_paper_url_tooltip_"></label>
+        </div>
+        <div class="col c2-3 form-group">
+          <input class="form-control" id="url" name="name" type="text" readonly="readonly" 
+            data-i18n-attr="_Url_|placeholder" ng-model="paperUrl" />
+        </div>
+    </div>
+    <button class="button" data-i18n="_Cancel_" ng-click="cancelShare()"></button>
+    <button type="sumbit" ng-disabled="saving" data-i18n="_Save_" ng-click="modifyPaperRole(); cancelShare();" ng-class="{'process': saving}">></button>
+</div>

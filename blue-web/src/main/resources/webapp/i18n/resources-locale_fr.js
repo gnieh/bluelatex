@@ -559,6 +559,11 @@
         "description":"Download"
     },
     {
+        "key":"_Share_",
+        "value":"Partager",
+        "description":"Share"
+    },
+    {
         "key":"_Download_ZIP_",
         "value":"Télécharger le ZIP",
         "description":"Download ZIP"
@@ -925,6 +930,11 @@
         "key":"_compile_tooltip_",
         "value":"Compiler le document.",
         "description":"tooltip paper page: compile"
+    },
+    {
+        "key":"_Share_tooltip_",
+        "value":"Gérer les permissions de l'article",
+        "description":"tooltip share"
     },
     {
         "key":"_download_pdf_tooltip_",
