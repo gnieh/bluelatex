@@ -19,8 +19,8 @@ angular.module('bluelatex.Paper.Controllers.NewPaper', [])
     function ($scope, $location, PaperService, $log, MessagesService) {
       var paper = {
         template: "article",
-        title: '',
-        name: ''
+        paper_title: '',
+        paper_name: ''
       };
 
       $scope.saving=false;
@@ -86,6 +86,18 @@ angular.module('bluelatex.Paper.Controllers.NewPaper', [])
           $scope.saving=false;
         });
       };
-
+      // autocomplete the title with the content of the paper name
+      $scope.$watch('paper.paper_name', function(newValue, oldValue) {
+        if($scope.paper.paper_title == null ||  $scope.paper.paper_title == '' || $scope.paper.paper_title == oldValue) {
+          $scope.paper.paper_title = newValue;
+        }
+        //$scope.$$phase || $scope.$apply();
+      });
+      // autocomplete the title with the content of the paper title
+      /*$scope.$watch('paper.paper_title', function(newValue, oldValue) {
+        if($scope.paper.paper_name == null ||  $scope.paper.paper_name == '' || $scope.paper.paper_name == oldValue) {
+          $scope.paper.paper_name = newValue;
+        }
+      });*/
     }
   ]);

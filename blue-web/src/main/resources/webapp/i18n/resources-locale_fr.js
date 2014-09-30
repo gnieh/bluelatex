@@ -45,6 +45,11 @@
         "description": "Field of a form is correct"
     },
     {
+        "key": "_Username_error_format_",
+        "value": "Format invalide : \":\" n'est pas autorisé",
+        "description": "Field of a form is not correct"
+    },
+    {
         "key":"_RegisterTitle_",
         "value":"S'enregistrer",
         "description":"The title of the register page"
@@ -168,6 +173,11 @@
         "key":"_New_paper_",
         "value":"Nouvel article",
         "description":"New paper"
+    },
+    {
+        "key":"_Paper_name_",
+        "value":"Nom du papier",
+        "description":"Paper name"
     },
     {
         "key":"_Title_",
@@ -870,7 +880,7 @@
     },
     {
         "key":"_Clone_me_",
-        "value":"Cloner moi!",
+        "value":"Clonez moi!",
         "description":"Clone me in the header"
     },
     {

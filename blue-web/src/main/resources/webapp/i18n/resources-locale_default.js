@@ -46,8 +46,13 @@
     },
     {
         "key": "_Error_format_",
-        "value": "Format invalid",
-        "description": "Field of a form is correct"
+        "value": "Invalid format",
+        "description": "Field of a form is not correct"
+    },
+    {
+        "key": "_Username_error_format_",
+        "value": "Invalid format: \":\" is not allowed in user names",
+        "description": "Field of a form is not correct"
     },
     {
         "key":"_Register_",
@@ -61,7 +66,7 @@
     },
     {
         "key":"_Registration_Password_will_sent_in_email_",
-        "value":"A confirmation email will be sent with instructions define your password",
+        "value":"A confirmation email will be sent with instructions to define your password",
         "description":"Registration Password will be sent in email"
     },
     {
@@ -178,6 +183,11 @@
         "key":"_Title_",
         "value":"Title",
         "description":"Title"
+    },
+    {
+        "key":"_Paper_name_",
+        "value":"Paper name",
+        "description":"Paper name"
     },
     {
         "key":"_Name_",

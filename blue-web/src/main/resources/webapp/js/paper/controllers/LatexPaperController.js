@@ -724,7 +724,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
           getLog();
           AceService.getSession().on("change", function () {
             displayCursors();
-            $scope.toc = LatexService.parseTOC($scope.content);
+            $scope.toc = LatexService.parseTOC(AceService.getContent());
           });
           _editor.focus();
         });

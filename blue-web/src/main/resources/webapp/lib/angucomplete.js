@@ -12,6 +12,7 @@ angular.module('angucomplete', [] )
             "id": "@id",
             "placeholder": "@placeholder",
             "selectedObject": "=selectedobject",
+            "onSelect": "=onselect",
             "url": "@url",
             "titleField": "@titlefield",
             "descriptionField": "@descriptionfield",
@@ -117,7 +118,7 @@ angular.module('angucomplete', [] )
 
                         $scope.searching = false;
                         $scope.processResults(matches);
-                        $scope.$apply();
+                        $scope.$$phase || $scope.$apply();
 
 
                     } else {
@@ -173,26 +174,44 @@ angular.module('angucomplete', [] )
                 $scope.selectedObject = result;
                 $scope.showDropdown = false;
                 $scope.results = [];
-                //$scope.$apply();
+                $scope.$$phase || $scope.$apply();
+                if($scope.onSelect != null) {
+                    $scope.onSelect();
+                }
             }
         },
 
         link: function($scope, elem, attrs, ctrl) {
-
-            elem.bind("keyup", function (event) {
-                if(event.which === 40) {
-                    if (($scope.currentIndex + 1) < $scope.results.length) {
-                        $scope.currentIndex ++;
-                        $scope.$apply();
+            elem.bind("keydown", function (event) {
+                if (event.which == 13) {
+                    if ($scope.currentIndex >= 0 && $scope.currentIndex < $scope.results.length) {
+                        $scope.selectResult($scope.results[$scope.currentIndex]);
+                        $scope.$$phase || $scope.$apply();
+                        event.preventDefault();
+                        event.stopPropagation();
+                    } else {
+                        $scope.results = [];
+                        $scope.$$phase || $scope.$apply();
                         event.preventDefault();
                         event.stopPropagation();
                     }
 
-                    $scope.$apply();
+                }
+            }); 
+            elem.bind("keyup", function (event) {
+                if(event.which === 40) {
+                    if (($scope.currentIndex + 1) < $scope.results.length) {
+                        $scope.currentIndex ++;
+                        $scope.$$phase || $scope.$apply();
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    $scope.$$phase || $scope.$apply();
                 } else if(event.which == 38) {
                     if ($scope.currentIndex >= 1) {
                         $scope.currentIndex --;
-                        $scope.$apply();
+                        $scope.$$phase || $scope.$apply();
                         event.preventDefault();
                         event.stopPropagation();
                     }
@@ -200,12 +219,12 @@ angular.module('angucomplete', [] )
                 } else if (event.which == 13) {
                     if ($scope.currentIndex >= 0 && $scope.currentIndex < $scope.results.length) {
                         $scope.selectResult($scope.results[$scope.currentIndex]);
-                        $scope.$apply();
+                        $scope.$$phase || $scope.$apply();
                         event.preventDefault();
                         event.stopPropagation();
                     } else {
                         $scope.results = [];
-                        $scope.$apply();
+                        $scope.$$phase || $scope.$apply();
                         event.preventDefault();
                         event.stopPropagation();
                     }
@@ -213,10 +232,10 @@ angular.module('angucomplete', [] )
                 } else if (event.which == 27) {
                     $scope.results = [];
                     $scope.showDropdown = false;
-                    $scope.$apply();
+                    $scope.$$phase || $scope.$apply();
                 } else if (event.which == 8) {
                     $scope.selectedObject = null;
-                    $scope.$apply();
+                    $scope.$$phase || $scope.$apply();
                 }
             });
 

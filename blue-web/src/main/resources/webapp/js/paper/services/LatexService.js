@@ -23,6 +23,9 @@ angular.module('bluelatex.Paper.Services.Latex', [])
       */
       var parseTOC = function (content) {
         var toc = [];
+        if(content == null) {
+          return content;
+        }
         // search different section
         var keys = ['part','chapter', 'section', 'subsection', 'subsubsection', 'paragraph','subparagraph'];
         var regex = '\\\\(' + keys.join('|') + ')(\\*)?{([^}]+)}';
