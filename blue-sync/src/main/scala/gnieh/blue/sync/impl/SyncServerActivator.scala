@@ -43,7 +43,7 @@ class SyncServerActivator extends BundleActivator {
       system <- context.get[ActorSystem]
       couch <- context.get[CouchClient]
       logger <- context.get[LogService]
-    } {
+    } try {
       val config = loader.load(context.getBundle)
       // create the dispatcher actor
       val dispatcher = system.actorOf(Props(new SyncDispatcher(context, config, logger)), name = "sync-dispatcher")
@@ -55,6 +55,10 @@ class SyncServerActivator extends BundleActivator {
 
       //register the Rest API
       context.registerService(classOf[RestApi], new SyncApi(couch, config, server, logger), null)
+    } catch {
+      case e: Exception =>
+        logger.log(LogService.LOG_ERROR, s"Unable to start the synchronization bundle", e)
+        throw e
     }
 
   def stop(context: BundleContext): Unit =
