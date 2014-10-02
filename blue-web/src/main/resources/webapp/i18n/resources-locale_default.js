@@ -1041,7 +1041,7 @@
     },
     {
         "key":"_compiler_interval_tooltip_",
-        "value":"The interval between two compilation.",
+        "value":"The interval between two compilations (in seconds).",
         "description":"tooltip edit paper: interval"
     },
     {
