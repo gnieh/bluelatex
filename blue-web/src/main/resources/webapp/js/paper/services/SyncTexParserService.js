@@ -32,7 +32,18 @@ angular.module("bluelatex.Latex.Services.SyncTexParser", [])
 
         var files = {};
         var pages = {};
-        var pdfsyncObject = {};
+        var pdfsyncObject = { 
+          version : '', 
+          files : {  }, 
+          pages : {  }, 
+          blockNumberLine : {  }, 
+          hBlocks : [  ], 
+          numberPages : 0
+        };
+        
+        if(pdfsyncBody == null) {
+          return pdfsyncObject;
+        }
         var lineArray = pdfsyncBody.split("\n");
 
         pdfsyncObject.version = lineArray[0].replace('SyncTeX Version:','');
