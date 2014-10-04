@@ -45,6 +45,11 @@
         "description": "Field of a form is correct"
     },
     {
+        "key": "_Username_error_format_",
+        "value": "Format invalide : \":\" n'est pas autorisé",
+        "description": "Field of a form is not correct"
+    },
+    {
         "key":"_RegisterTitle_",
         "value":"S'enregistrer",
         "description":"The title of the register page"
@@ -168,6 +173,11 @@
         "key":"_New_paper_",
         "value":"Nouvel article",
         "description":"New paper"
+    },
+    {
+        "key":"_Paper_name_",
+        "value":"Nom du papier",
+        "description":"Paper name"
     },
     {
         "key":"_Title_",
@@ -549,6 +559,11 @@
         "description":"Download"
     },
     {
+        "key":"_Share_",
+        "value":"Partager",
+        "description":"Share"
+    },
+    {
         "key":"_Download_ZIP_",
         "value":"Télécharger le ZIP",
         "description":"Download ZIP"
@@ -870,7 +885,7 @@
     },
     {
         "key":"_Clone_me_",
-        "value":"Cloner moi!",
+        "value":"Clonez moi!",
         "description":"Clone me in the header"
     },
     {
@@ -915,6 +930,11 @@
         "key":"_compile_tooltip_",
         "value":"Compiler le document.",
         "description":"tooltip paper page: compile"
+    },
+    {
+        "key":"_Share_tooltip_",
+        "value":"Gérer les permissions de l'article",
+        "description":"tooltip share"
     },
     {
         "key":"_download_pdf_tooltip_",
@@ -1021,7 +1041,7 @@
     },
     {
         "key":"_compiler_interval_tooltip_",
-        "value":"L'intervalle entre deux compilations.",
+        "value":"L'intervalle entre deux compilations (en secondes).",
         "description":"tooltip edit paper: interval"
     },
     {

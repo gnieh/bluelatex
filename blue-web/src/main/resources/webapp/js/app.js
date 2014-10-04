@@ -21,6 +21,7 @@ angular.module('bluelatex', [
   'ngRoute',
   'ngInputDate',
   'reCAPTCHA',
+  'autoFillSync',
   'bluelatex.Paper.Controllers.InitPaper',
   'bluelatex.Paper.Controllers.LatexPaper',
   'bluelatex.Shared.Services.WindowActive',

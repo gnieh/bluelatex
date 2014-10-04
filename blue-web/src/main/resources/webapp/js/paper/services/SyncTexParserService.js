@@ -32,7 +32,22 @@ angular.module("bluelatex.Latex.Services.SyncTexParser", [])
 
         var files = {};
         var pages = {};
-        var pdfsyncObject = {};
+        var pdfsyncObject = { 
+          offset: {
+            x: 0,
+            y: 0
+          },
+          version : '', 
+          files : {  }, 
+          pages : {  }, 
+          blockNumberLine : {  }, 
+          hBlocks : [  ], 
+          numberPages : 0
+        };
+        
+        if(pdfsyncBody == null) {
+          return pdfsyncObject;
+        }
         var lineArray = pdfsyncBody.split("\n");
 
         pdfsyncObject.version = lineArray[0].replace('SyncTeX Version:','');
@@ -63,7 +78,7 @@ angular.module("bluelatex.Latex.Services.SyncTexParser", [])
           //offset
           match = line.match(offsetPatern);
           if(match) {
-            pdfsyncObject['offset'+match[1]] = match[2];
+            pdfsyncObject.offset[match[1].toLowerCase()] = parseInt(match[2])/unit;
             continue;
           }
 

@@ -17,6 +17,7 @@ package gnieh.blue
 package web
 
 import org.osgi.framework._
+import org.osgi.service.log.LogService
 
 import tiscaf._
 
@@ -36,10 +37,17 @@ class BlueWebActivator extends BundleActivator {
   import OsgiUtils._
 
   def start(context: BundleContext): Unit =
-    for(loader <- context.get[ConfigurationLoader]) {
+    for {
+      loader <- context.get[ConfigurationLoader]
+      logger <- context.get[LogService]
+    } try {
       val config = loader.load(context.getBundle)
       // register the web application
       context.registerService(classOf[HApp], new WebApp(context, config), null)
+    } catch {
+      case e: Exception =>
+        logger.log(LogService.LOG_ERROR, s"Unable to start the web client bundle", e)
+        throw e
     }
 
   def stop(context: BundleContext): Unit = {

@@ -7,11 +7,13 @@
         <label for="register_username" data-i18n="_Username_" i18n-Tooltip="_username_tooltip_"></label>
         <span class="control-label"
             ng-show="registerForm.username.$error.required" data-i18n="_Required_"></span>
+        <span class="control-label"
+            ng-show="registerForm.username.$invalid && !registerForm.username.$error.required" data-i18n="_Username_error_format_"></span>
       </div>
       <div class="col c2-3 form-group"
         ng-class="{'has-error': registerForm.username.$invalid}">
         <input class="form-control" id="register_username" name="username" type="text" autofocus
-          data-i18n-attr="_Username_|placeholder" required ng-model="user.username" />
+          data-i18n-attr="_Username_|placeholder" required ng-model="user.username" ng-pattern="/^[^:]*$/"/>
       </div>
     </div>
 
