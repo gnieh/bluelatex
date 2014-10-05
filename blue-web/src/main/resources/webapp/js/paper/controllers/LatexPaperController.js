@@ -17,9 +17,39 @@
 /**
 * The controller for latex paper 
 */
-angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','bluelatex.Paper.Directives.Toc','bluelatex.Paper.Services.Ace','bluelatex.Paper.Services.Paper','bluelatex.Paper.Services.Ace','bluelatex.Latex.Services.SyncTexParser','bluelatex.Paper.Services.Latex','bluelatex.Shared.Services.WindowActive', 'MobWrite','bluelatex.Paper'])
-  .controller('LatexPaperController', ['$rootScope','$scope', 'localize', '$http', '$location', 'AceService', 'PaperService', '$routeParams', '$upload', '$log','MessagesService','SyncTexParserService','$document','WindowActiveService','LatexService','MobWriteService','AceMobWriteClient', '$q', 'compilation_type','localize',
-    function ($rootScope,$scope, localize, $http, $location, AceService, PaperService, $routeParams, $upload, $log,MessagesService,SyncTexParserService,$document,WindowActiveService, LatexService,MobWriteService,AceMobWriteClient, $q,compilation_type, localize) {
+angular.module('bluelatex.Paper.Controllers.LatexPaper', [
+  'angularFileUpload',
+  'ngDialog',
+  'bluelatex.Paper.Directives.Toc',
+  'bluelatex.Paper.Services.Ace',
+  'bluelatex.Paper.Services.Paper',
+  'bluelatex.Paper.Services.Ace',
+  'bluelatex.Latex.Services.SyncTexParser',
+  'bluelatex.Paper.Services.Latex',
+  'bluelatex.Shared.Services.WindowActive',
+  'MobWrite',
+  'bluelatex.Paper'])
+  .controller('LatexPaperController', 
+    ['$rootScope','$scope','localize','$http','$location','AceService','PaperService','$routeParams','MessagesService','SyncTexParserService','$document','WindowActiveService','LatexService','MobWriteService','AceMobWriteClient','$q','compilation_type','ngDialog',
+    function (
+      $rootScope, 
+      $scope,
+      localize,
+      $http,
+      $location,
+      AceService,
+      PaperService,
+      $routeParams,
+      MessagesService,
+      SyncTexParserService,
+      $document,
+      WindowActiveService,
+      LatexService,
+      MobWriteService,
+      AceMobWriteClient,
+      $q,
+      compilation_type,
+      ngDialog) {
       $scope.paperId = $routeParams.id;
       var peerId = MobWriteService.syncUsername;
       var pageActive = true;
@@ -665,6 +695,24 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
           }
         }
       };
+      /**
+       * Share
+       */
+      $scope.share = function () {
+        $scope.paperUrl = document.location.toLocaleString();
+        ngDialog.open({ 
+          template: 'partials/paper/share_popup.html',
+          scope: $scope,
+          closeByDocument: true,
+          closeByEscape: true,
+          controller: 'EditPaperController',
+          className: 'ngdialog-theme-plain',
+        });
+      };
+
+      $scope.cancelShare = function () {
+        ngDialog.close();
+      };
       
 
       /**
@@ -724,7 +772,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', ['angularFileUpload','b
           getLog();
           AceService.getSession().on("change", function () {
             displayCursors();
-            $scope.toc = LatexService.parseTOC($scope.content);
+            $scope.toc = LatexService.parseTOC(AceService.getContent());
           });
           _editor.focus();
         });

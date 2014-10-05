@@ -133,15 +133,15 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
                 }
                 var width = elems[line.maxLeft].left-left;
 
-
+                var offset = convertToViewportPoint($scope.synctex.offset.x, $scope.synctex.offset.y, pdfDimension);
                 var s1 = convertToViewportPoint(left, line.bottom, pdfDimension);
                 var s2 = convertToViewportPoint(width, line.height, pdfDimension);
 
                 hightlights.push({
                   height: (pdfDimension.height-s2[1])+'px',
                   width: s2[0] + "px",
-                  left: s1[0] + "px",
-                  top :pdfDimension.height-s1[1]-(pdfDimension.height-s2[1]) + 'px'
+                  left: ($scope.synctex.offset.x + s1[0]) + "px",
+                  top : ($scope.synctex.offset.y + pdfDimension.height-s1[1]-(pdfDimension.height-s2[1])) + 'px'
                 });
               }
               deferred.resolve(hightlights);
@@ -300,8 +300,8 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
                 var dim = {
                   height: (pdfDimension.height-s2[1]),
                   width: s2[0],
-                  left: s1[0],
-                  top : s2[1]-s1[1]
+                  left: $scope.synctex.offset.x + s1[0],
+                  top : $scope.synctex.offset.y + s2[1]-s1[1]
                 };
                 if($scope.page == hBlock.page &&
                     y <= dim.top + dim.height + seuil &&

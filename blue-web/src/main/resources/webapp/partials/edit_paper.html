@@ -34,12 +34,12 @@
                   placeholder="New author"
                   pause="100"
                   selectedobject="newAuthor"
+                  onselect="addAuthor"
                   localdata="users"
                   searchfields="name"
                   titlefield="name"
                   minlength="1"
                   inputclass="form-control form-control-small"></angucomplete>
-                <a ng-click="addAuthor()" class="button icon-add"></a>
               </div>
             </div>
         </div>
@@ -64,12 +64,12 @@
                   placeholder="New reviewer"
                   pause="100"
                   selectedobject="newReviewer"
+                  onselect="addReviewer"
                   localdata="users"
                   searchfields="name"
                   titlefield="name"
                   minlength="1"
                   inputclass="form-control form-control-small"></angucomplete>
-                <a ng-click="addReviewer()" class="button icon-add"></a>
               </div>
             </div>
         </div>
@@ -134,6 +134,6 @@
             </div>
         </div>
         <a class="button" href="#/papers" data-i18n="_Cancel_"></a>
-        <button type="sumbit" ng-disabled="!editPaperForm.$valid || saving" data-i18n="_Edit_" ng-click="modify()" ng-class="{'process': saving}">></button>
+        <button type="sumbit" ng-disabled="!editPaperForm.$valid || saving" data-i18n="_Save_" ng-click="modify()" ng-class="{'process': saving}">></button>
     </form>
 </div>

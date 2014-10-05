@@ -188,6 +188,7 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
         if ($scope.paperRoles.authors.indexOf(author.title) < 0)
           $scope.paperRoles.authors.push(author.title);
         $scope.newAuthor = '';
+        $scope.$$phase || $scope.$apply();
       };
       /**
       * Add a new reviewer
@@ -198,6 +199,7 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
         if ($scope.paperRoles.reviewers.indexOf(reviewer.title) < 0)
           $scope.paperRoles.reviewers.push(reviewer.title);
         $scope.newReviewer = '';
+        $scope.$$phase || $scope.$apply();
       };
       /**
       * Add a new tag
@@ -238,7 +240,7 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
           }
         });
 
-        var promiseRoles = PaperService.modifyRoles($scope.paperRoles, clone_paperRoles);
+        var promiseRoles = $scope.modifyPaperRole;
         var promiseCompiler = modifyCompiler();
 
         promises.push(promisePaper);
@@ -249,5 +251,9 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
           $scope.saving = false;
         });
       };
+
+      $scope.modifyPaperRole = function() {
+        return PaperService.modifyRoles($scope.paperRoles, clone_paperRoles);
+      }
     }
   ]);

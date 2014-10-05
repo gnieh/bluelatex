@@ -79,7 +79,7 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
               (for {
                 () <- manager.create(userid, Some("blue-user"))
                 user <- manager.saveComponent(userid, user)
-                _ <- sendEmail(user, session)
+                _ <- sendEmail(user, email, session)
               } yield {
                 import OsgiUtils._
                 // notifiy creation hooks
@@ -124,7 +124,7 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
         .writeJson(ErrorResponse("not_authorized", "ReCaptcha did not verify")))
     }
 
-    private def sendEmail(user: User, session: Session) = {
+    private def sendEmail(user: User, email: String, session: Session) = {
       // the user is now registered
       // generate the password reset token
       val cal = Calendar.getInstance
@@ -132,14 +132,15 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
       session.users.generateResetToken(user.name, cal.getTime) map { token =>
         logDebug(s"Sending confirmation email to ${user.email}")
         // send the confirmation email
-        val email = templates.layout("emails/register",
+        val emailText = templates.layout("emails/register",
           "firstName" -> user.first_name,
           "baseUrl" -> config.getString("blue.base-url"),
           "name" -> user.name,
+          "email" -> email,
           "token" -> token,
           "validity" -> (couchConfig.tokenValidity / 24 / 3600))
         logDebug(s"Registration email: $email")
-        mailAgent.send(user.name, "Welcome to \\BlueLaTeX", email)
+        mailAgent.send(user.name, "Welcome to \\BlueLaTeX", emailText)
       } recover {
         case e =>
           logError(s"Unable to generate confirmation token for user ${user.name}", e)

@@ -63,7 +63,7 @@ class CompilationActivator extends BundleActivator {
       system <- context.get[ActorSystem]
       couch <- context.get[CouchClient]
       logger <- context.get[LogService]
-    } {
+    } try {
       val config = loader.load(context.getBundle)
 
       // create the dispatcher actor
@@ -101,6 +101,10 @@ class CompilationActivator extends BundleActivator {
       registerCompiler(context, new XelatexCompiler(system, config, loader.base))
       registerCompiler(context, new LualatexCompiler(system, config, loader.base))
 
+    } catch {
+      case e: Exception =>
+        logger.log(LogService.LOG_ERROR, s"Unable to start the compilation bundle", e)
+        throw e
     }
 
   def registerCompiler(context: BundleContext, compiler: Compiler): Unit = {

@@ -20,6 +20,7 @@ package impl
 import java.io.File
 
 import org.osgi.framework._
+import org.osgi.service.log.LogService
 
 import com.typesafe.config._
 
@@ -49,13 +50,17 @@ class BlueCoreActivator extends BundleActivator {
       templates <- context.get[Templates]
       mailAgent <- context.get[MailAgent]
       recaptcha <- context.get[ReCaptcha]
-    } {
+    } try {
       // load the \BlueLaTeX common configuration
       val config = loader.load(context.getBundle)
       val configuration = new BlueConfiguration(config)
 
       // register the core Rest API
       context.registerService(classOf[RestApi], new CoreApi(couch, config, system, context, templates, mailAgent, recaptcha, logger), null)
+    } catch {
+      case e: Exception =>
+        logger.log(LogService.LOG_ERROR, s"Unable to start the core bundle", e)
+        throw e
     }
 
   def stop(context: BundleContext): Unit = {
