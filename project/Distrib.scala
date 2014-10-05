@@ -90,9 +90,13 @@ trait Distrib {
             if(params.systemd)
               systemdDist(packed, state)
 
-            // packe the jsvc scripts if required
+            // pack the jsvc scripts if required
             if(params.jsvc)
               jsvcDist(packed, state)
+
+            // pack the changelog
+            for(base <- baseDirectory in bluelatex get structure.data)
+              IO.copyDirectory(base / "changelog", packed / "changelog", overwrite = true)
 
             // create the tarball and zipball of the distribution
             Process(s"tar zcvf bluelatex-$blueVersion.tgz ${packed.getName}", Some(targetDir)).!
