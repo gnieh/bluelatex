@@ -240,7 +240,7 @@ angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Servic
           }
         });
 
-        var promiseRoles = $scope.modifyPaperRole;
+        var promiseRoles = $scope.modifyPaperRole();
         var promiseCompiler = modifyCompiler();
 
         promises.push(promisePaper);
