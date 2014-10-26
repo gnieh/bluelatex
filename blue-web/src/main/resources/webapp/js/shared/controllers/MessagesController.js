@@ -17,8 +17,13 @@
 'use strict';
 
 angular.module('bluelatex.Shared.Controllers.Messages', ['bluelatex.Shared.Services.Messages'])
-  .controller('MessagesController', ['$rootScope', '$scope', 'MessagesService','$log',
-    function ($rootScope, $scope, MessagesService, $log) {
+  .controller('MessagesController', [
+    '$rootScope',
+    '$scope',
+    'MessagesService',
+    function ($rootScope,
+              $scope, 
+              MessagesService) {
       // give access to messages, warnings and errors
       $scope.messages = MessagesService.messages;
       $scope.warnings = MessagesService.warnings;

@@ -15,8 +15,22 @@
  */
  
 angular.module("bluelatex.User.Controllers.Register",['bluelatex.User.Services.User','reCAPTCHA'])
-  .controller('RegisterController', ['$scope', 'UserService', '$location', '$log','MessagesService','reCAPTCHA','recaptcha_public_key',
-    function ($scope, UserService, $location, $log,MessagesService,reCAPTCHA,recaptcha_public_key) {
+  .controller('RegisterController', [
+    '$scope',
+    'UserService',
+    '$location',
+    '$log',
+    'MessagesService',
+    'reCAPTCHA',
+    'config',
+    function ($scope,
+              UserService,
+              $location,
+              $log,
+              MessagesService,
+              reCAPTCHA,
+              config) {
+
       $scope.user = {};
       $scope.requesting = false;
 
@@ -24,8 +38,8 @@ angular.module("bluelatex.User.Controllers.Register",['bluelatex.User.Services.U
          theme: 'clean'
       });
       MessagesService.message('_Registration_Password_will_sent_in_email_');
-      $scope.displayCaptcha = recaptcha_public_key != null;
-      reCAPTCHA.setPublicKey(recaptcha_public_key);
+      $scope.displayCaptcha = config.recaptcha_public_key != null;
+      reCAPTCHA.setPublicKey(config.recaptcha_public_key);
       
       /**
       * Create a new user

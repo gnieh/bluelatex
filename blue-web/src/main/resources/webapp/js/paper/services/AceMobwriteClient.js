@@ -14,9 +14,23 @@
  * limitations under the License.
  */
  
-angular.module('bluelatex.Paper', ['MobWrite','bluelatex.Configuration','bluelatex.Paper.Services.Ace'])
-  .factory("AceMobWriteClient", ['$rootScope','MobWriteService','MobWriteConfig','AceService','api_prefix','$log',
-    function ($rootScope,MobWriteService, MobWriteConfig,AceService,api_prefix,$log) {
+angular.module('bluelatex.Paper', ['MobWrite','bluelatex.Paper.Services.Ace'])
+  .factory("AceMobWriteClient", [
+    '$rootScope',
+    'MobWriteService',
+    'MobWriteConfig',
+    'AceService',
+    'config',
+    '$log',
+    function ($rootScope,
+              MobWriteService,
+              MobWriteConfig,
+              AceService,
+              config,
+              $log) {
+
+      var api_prefix = config.api_prefix;
+
       var message = null;
       /**
       * Constructor of shared object representing a text field.

@@ -15,8 +15,16 @@
  */
 
 angular.module('bluelatex.Paper.Controllers.NewPaper', [])
-  .controller('NewPaperController', ['$scope', '$location', 'PaperService', '$log','MessagesService',
-    function ($scope, $location, PaperService, $log, MessagesService) {
+  .controller('NewPaperController', [
+    '$scope',
+    '$location',
+    'PaperService',
+    'MessagesService',
+    function ($scope, 
+              $location,
+              PaperService,
+              MessagesService) {
+      
       var paper = {
         template: "article",
         paper_title: '',

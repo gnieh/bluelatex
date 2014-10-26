@@ -19,9 +19,37 @@
 * The main controller of the website, this controller handle window resize event
 * and retransmit events launched by the menu
 */
-angular.module('bluelatex.Shared.Controllers.Main', ['bluelatex.User.Services.User','bluelatex.User.Services.Session','bluelatex.Paper.Services.Ace','bluelatex.Configuration','bluelatex.Shared.Services.WindowActive'])
-  .controller('MainController', ['$rootScope', '$scope','$window', 'UserService','SessionService', '$route', '$location', '$routeParams', 'AceService', '$log','WindowActiveService',
-    function ($rootScope, $scope,$window, UserService,SessionService, $route, $location, $routeParams, AceService, $log,WindowActiveService) {
+angular.module('bluelatex.Shared.Controllers.Main', [
+  'bluelatex.User.Services.User',
+  'bluelatex.User.Services.Session',
+  'bluelatex.Paper.Services.Ace',
+  'bluelatex.Shared.Services.WindowActive'])
+  .controller('MainController', 
+    ['$rootScope', 
+     '$scope',
+     '$window',
+     'UserService',
+     'SessionService',
+     '$route',
+     '$location',
+     '$routeParams',
+     'AceService',
+     'WindowActiveService',
+     'config',
+    function ($rootScope,
+              $scope,
+              $window,
+              UserService,
+              SessionService,
+              $route,
+              $location,
+              $routeParams,
+              AceService,
+              WindowActiveService,
+              config) {
+
+      $scope.config = config;
+
       // give access to current route
       $scope.$route = $route;
       // give access to current url
