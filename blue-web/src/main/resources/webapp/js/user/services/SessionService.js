@@ -14,9 +14,17 @@
  * limitations under the License.
  */
  
-angular.module("bluelatex.User.Services.Session", ["ngResource", 'bluelatex.Configuration'])
-  .factory("SessionService", ['$resource', '$http', '$log', 'api_prefix',
-    function ($resource, $http, $log, api_prefix) {
+angular.module("bluelatex.User.Services.Session", ["ngResource"])
+  .factory("SessionService", [
+    '$resource',
+    '$http',
+    'config',
+    function ($resource,
+              $http,
+              config) {
+
+      var api_prefix = config.api_prefix;
+
       var session = $resource(api_prefix + "/session", null, {
         "login": {
           method: "POST",

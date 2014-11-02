@@ -30,26 +30,42 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
   'MobWrite',
   'bluelatex.Paper'])
   .controller('LatexPaperController', 
-    ['$rootScope','$scope','localize','$http','$location','AceService','PaperService','$routeParams','MessagesService','SyncTexParserService','$document','WindowActiveService','LatexService','MobWriteService','AceMobWriteClient','$q','compilation_type','ngDialog',
-    function (
-      $rootScope, 
-      $scope,
-      localize,
-      $http,
-      $location,
-      AceService,
-      PaperService,
-      $routeParams,
-      MessagesService,
-      SyncTexParserService,
-      $document,
-      WindowActiveService,
-      LatexService,
-      MobWriteService,
-      AceMobWriteClient,
-      $q,
-      compilation_type,
-      ngDialog) {
+    ['$rootScope',
+    '$scope',
+    'localize',
+    '$http',
+    '$location',
+    'AceService',
+    'PaperService',
+    '$routeParams',
+    'MessagesService',
+    'SyncTexParserService',
+    '$document',
+    'WindowActiveService',
+    'LatexService',
+    'MobWriteService',
+    'AceMobWriteClient',
+    '$q',
+    'config',
+    'ngDialog',
+    function ($rootScope, 
+              $scope,
+              localize,
+              $http,
+              $location,
+              AceService,
+              PaperService,
+              $routeParams,
+              MessagesService,
+              SyncTexParserService,
+              $document,
+              WindowActiveService,
+              LatexService,
+              MobWriteService,
+              AceMobWriteClient,
+              $q,
+              config,
+              ngDialog) {
       $scope.paperId = $routeParams.id;
       var peerId = MobWriteService.syncUsername;
       var pageActive = true;
@@ -604,7 +620,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
             getSyncTex();
             getPages();
           }
-          if(compilation_type === 'background') {
+          if(config.compilation_type === 'background') {
             $scope.compile();
           }
           deferred.resolve(data);
@@ -614,7 +630,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
           switch (err.status) {
           // no change
           case 304:
-            if(compilation_type === 'background') {
+            if(config.compilation_type === 'background') {
               $scope.compile();
             }
             break;
@@ -625,7 +641,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
           // other bugs
           default:
             getLog();
-            if(compilation_type === 'background') {
+            if(config.compilation_type === 'background') {
               setTimeout(function() {
                 $scope.compile();
               }, 3000);

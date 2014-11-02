@@ -17,9 +17,25 @@
 /**
 * Controller for the edit paper page
 */
-angular.module('bluelatex.Paper.Controllers.EditPaper', ['bluelatex.Paper.Services.Paper','bluelatex.User.Services.User','angucomplete'])
-  .controller('EditPaperController', ['$scope', 'localize', '$location', 'PaperService','UserService', '$routeParams', '$log','MessagesService','$q',
-    function ($scope, localize, $location, PaperService,UserService, $routeParams, $log,MessagesService, $q) {
+angular.module('bluelatex.Paper.Controllers.EditPaper', 
+  ['bluelatex.Paper.Services.Paper',
+   'bluelatex.User.Services.User',
+   'angucomplete'])
+  .controller('EditPaperController', 
+    ['$scope', 
+     '$location',
+     'PaperService',
+     'UserService',
+     '$routeParams',
+     'MessagesService',
+     '$q',
+    function ($scope,
+              $location,
+              PaperService,
+              UserService,
+              $routeParams,
+              MessagesService,
+              $q) {
       /**
       * Paper id
       */
