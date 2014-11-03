@@ -17,6 +17,12 @@ LOG_DIR=$log_dir
 # The user under which \BlueLaTeX will run
 BLUE_USER=$blue_user
 
+if [[ -d "$INSTALL_DIR" || -d "$CONF_DIR" || -d "$DATA_DIR" ]]
+then
+  echo "Another version of \\BlueLaTeX seems to be already installed. Please consider using 'update.sh' instead"
+  exit 1
+fi
+
 # Create directories
 mkdir -p $INSTALL_DIR
 mkdir -p $CONF_DIR
