@@ -79,8 +79,11 @@ trait Distrib {
               IO.copyDirectory(source / "configuration", packed / "conf", overwrite = true)
               replaceKeys(packed / "conf", state)
               IO.copyFile(source / "shell" / "install.sh", packed / "install.sh")
+              IO.copyFile(source / "shell" / "upgrade.sh", packed / "upgrade.sh")
               (packed / "install.sh").setExecutable(true)
+              (packed / "upgrade.sh").setExecutable(true)
               replaceKeys(packed / "install.sh", state)
+              replaceKeys(packed / "upgrade.sh", state)
             }
 
             // pack the systemd unit if required
