@@ -16,3 +16,12 @@ Mainly bug fixes in the web client, to make it more comfortable to use.
  - Simplify the use of the web client (issue #135, #143, #146)
  - Fix other small but annoying bugs
  - Fix a lot of typo
+
+Version 1.0.2
+-------------
+
+New patch release with some bug fixes and user experience improvements.
+
+ - Fix a regression in paper option (issue #156)
+ - Make 'clone' and 'report issue' links configurable (issue #161)
+ - Add an update script (issue #155)
