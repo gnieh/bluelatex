@@ -15,8 +15,18 @@
  */
  
 angular.module("bluelatex.User.Controllers.ResetPassword",['bluelatex.User.Services.User'])
-  .controller('ResetPasswordController', ['$scope', '$routeParams', 'UserService', '$location', '$log','MessagesService',
-    function ($scope, $routeParams, UserService, $location, $log,MessagesService) {
+  .controller('ResetPasswordController', [
+    '$scope',
+    '$routeParams',
+    'UserService',
+    '$location',
+    'MessagesService',
+    function ($scope,
+              $routeParams,
+              UserService,
+              $location,
+              MessagesService) {
+
       var user = {};
       $scope.user = user;
       $scope.requesting = false;

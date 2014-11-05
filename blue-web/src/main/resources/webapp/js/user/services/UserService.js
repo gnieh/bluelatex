@@ -14,9 +14,23 @@
  * limitations under the License.
  */
  
-angular.module("bluelatex.User.Services.User", ["ngResource", 'angular-data.DSCacheFactory', 'bluelatex.Configuration'])
-  .factory("UserService", ['$resource', '$http', '$log', 'DSCacheFactory', '$q', 'api_prefix',
-      function ($resource, $http, $log, DSCacheFactory, $q, api_prefix) {
+angular.module("bluelatex.User.Services.User", ["ngResource", 'angular-data.DSCacheFactory'])
+  .factory("UserService", [
+    '$resource',
+    '$http',
+    '$log',
+    'DSCacheFactory',
+    '$q',
+    'config',
+    function ($resource,
+              $http,
+              $log,
+              DSCacheFactory,
+              $q,
+              config) {
+
+        var api_prefix = config.api_prefix;
+
         // userCache
         var _dataCache = DSCacheFactory('userCache', {
           maxAge: 300000,

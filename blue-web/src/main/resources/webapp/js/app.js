@@ -42,7 +42,9 @@ angular.module('bluelatex', [
   'bluelatex.User.Controllers.ResetPassword',
   'bluelatex.Latex.Directives.Preview',
   'bluelatex.Latex.Services.SyncTexParser'
-]).config(['$routeProvider',
+])
+.constant('config', window.blue_config)
+.config(['$routeProvider',
   function ($routeProvider) {
     /******************/
     /* Route settings */

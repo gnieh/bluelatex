@@ -15,7 +15,14 @@
  */
  
 angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.Paper'])
-  .directive('blPreview', ['$rootScope','PaperService','$q', function($rootScope,PaperService,$q) {
+  .directive('blPreview', [
+    '$rootScope',
+    'PaperService',
+    '$q', 
+    function($rootScope,
+             PaperService,
+             $q) {
+
     return {
       'require': 'blPreview',
       'scope': {

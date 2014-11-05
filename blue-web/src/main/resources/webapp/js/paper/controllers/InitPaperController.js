@@ -13,9 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-angular.module('bluelatex.Paper.Controllers.InitPaper', ['bluelatex.Paper.Services.Paper'])
-  .controller('InitPaperController', ['$rootScope','$scope', 'PaperService', '$routeParams','MessagesService','$q',
-    function ($rootScope,$scope, PaperService, $routeParams,MessagesService,$q) {
+angular.module('bluelatex.Paper.Controllers.InitPaper', 
+  ['bluelatex.Paper.Services.Paper'])
+  .controller('InitPaperController', 
+    ['$rootScope',
+     '$scope',
+     'PaperService',
+     '$routeParams',
+     'MessagesService',
+     '$q',
+    function ($rootScope,
+              $scope,
+              PaperService,
+              $routeParams,
+              MessagesService,
+              $q) {
+
       var paperId = $routeParams.id;
       // the status of the page
       $scope.status = "load";

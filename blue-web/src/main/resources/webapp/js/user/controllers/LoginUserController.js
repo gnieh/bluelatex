@@ -15,8 +15,19 @@
  */
  
 angular.module("bluelatex.User.Controllers.Login",['bluelatex.User.Services.Session','bluelatex.User.Services.User'])
-  .controller('LoginController', ['$rootScope', '$scope', 'UserService','SessionService', '$location', '$log','MessagesService',
-    function ($rootScope, $scope, UserService,SessionService, $location, $log,MessagesService) {
+  .controller('LoginController', [
+    '$rootScope',
+    '$scope',
+    'UserService',
+    'SessionService',
+    '$location',
+    'MessagesService',
+    function ($rootScope,
+              $scope,
+              UserService,
+              SessionService,
+              $location,
+              MessagesService) {
       var user = {};
 
       $scope.loging=false;

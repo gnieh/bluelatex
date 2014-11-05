@@ -14,9 +14,25 @@
  * limitations under the License.
  */
  
-angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'angular-data.DSCacheFactory','bluelatex.Configuration'])
-  .factory("PaperService", ['$resource', '$http', '$upload', '$q', 'DSCacheFactory', '$log','api_prefix',
-    function ($resource, $http, $upload, $q, DSCacheFactory, $log,api_prefix) {
+angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'angular-data.DSCacheFactory'])
+  .factory("PaperService", [
+    '$resource',
+    '$http',
+    '$upload',
+    '$q',
+    'DSCacheFactory',
+    '$log',
+    'config',
+    function ($resource,
+              $http,
+              $upload,
+              $q,
+              DSCacheFactory,
+              $log,
+              config) {
+
+      var api_prefix = config.api_prefix;
+
       // create a cache
       var _dataCache = DSCacheFactory('paperCache', {
         maxAge: 300000, // items expire after an hour
