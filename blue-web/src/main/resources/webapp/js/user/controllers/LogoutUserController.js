@@ -15,8 +15,18 @@
  */
  
 angular.module("bluelatex.User.Controllers.Logout",['bluelatex.User.Services.Session','bluelatex.User.Services.User'])
-  .controller('LogoutController', ['$rootScope', 'SessionService','UserService', '$location','MessagesService',
-    function ($rootScope, SessionService,UserService, $location,MessagesService) {
+  .controller('LogoutController', [
+    '$rootScope',
+    'SessionService',
+    'UserService',
+    '$location',
+    'MessagesService',
+    function ($rootScope,
+              SessionService,
+              UserService,
+              $location,
+              MessagesService) {
+
       MessagesService.clear();
       /*
       * Logout the user

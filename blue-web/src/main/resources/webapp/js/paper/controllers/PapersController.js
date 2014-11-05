@@ -15,8 +15,19 @@
  */
 
 angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Paper.Services.Paper'])
-  .controller('PapersController', ['$rootScope', '$scope', 'PaperService','$log','MessagesService','$localStorage','localize',
-    function ($rootScope, $scope, PaperService,$log,MessagesService,$localStorage,localize) {
+  .controller('PapersController', [
+    '$rootScope',
+    '$scope',
+    'PaperService',
+    'MessagesService',
+    '$localStorage',
+    'localize',
+    function ($rootScope,
+              $scope,
+              PaperService,
+              MessagesService,
+              $localStorage,
+              localize) {
       // list of peper
       $scope.papers = [];
 

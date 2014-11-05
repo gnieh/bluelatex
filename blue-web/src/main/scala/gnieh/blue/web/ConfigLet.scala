@@ -38,11 +38,24 @@ class ConfigLet(context: BundleContext, config: Config) extends HSimpleLet {
   def act(talk: HTalk): Unit = {
     val recaptcha = Try(config.getString("recaptcha.public-key")).toOption
     val compilationType = Try(config.getString("compiler.compilation-type")).toOption
+
+    val issuesURL = config.getString("blue.client.issues-url") match {
+      case "" => None
+      case s  => Some(s)
+    }
+
+    val cloneURL = config.getString("blue.client.clone-url") match {
+      case "" => None
+      case s  => Some(s)
+    }
+    
     talk.writeJson(
       AppConfig(
         config.getString("blue.api.path-prefix"),
         recaptcha,
-        compilationType)
+        compilationType,
+        issuesURL,
+        cloneURL)
     )
    }
 
