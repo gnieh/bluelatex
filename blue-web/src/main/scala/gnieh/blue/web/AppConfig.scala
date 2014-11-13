@@ -17,7 +17,8 @@ package gnieh.blue
 package web
 
 case class AppConfig(api_prefix: String,
-                    recaptcha_public_key: Option[String],
-                    compilation_type: Option[String],
-                    issues_url: Option[String],
-                    clone_url: Option[String])
+  require_validation: Boolean,
+  recaptcha_public_key: Option[String],
+  compilation_type: Option[String],
+  issues_url: Option[String],
+  clone_url: Option[String])

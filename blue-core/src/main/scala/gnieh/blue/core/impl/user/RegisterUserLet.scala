@@ -150,6 +150,16 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
                 Try(hook.afterRegister(user.name, manager))
             }
 
+            if(confirmationKind != "email-confirmation") {
+              // log in if no confirmation is required
+              couchSession.login(username, password) foreach {
+                case true =>
+                  talk.ses(SessionKeys.Username) = username
+                case false =>
+                  // ignore
+              }
+            }
+
             (HStatus.Created, true)
           }) recoverWith {
             case e =>

@@ -49,9 +49,13 @@ class ConfigLet(context: BundleContext, config: Config) extends HSimpleLet {
       case s  => Some(s)
     }
 
+    val requireValidation =
+      config.getString("blue.registration-confirmation") == "email-confirmation"
+
     talk.writeJson(
       AppConfig(
         config.getString("blue.api.path-prefix"),
+        requireValidation,
         recaptcha,
         compilationType,
         issuesURL,
