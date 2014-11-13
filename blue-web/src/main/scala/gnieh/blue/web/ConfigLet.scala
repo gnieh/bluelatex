@@ -48,7 +48,7 @@ class ConfigLet(context: BundleContext, config: Config) extends HSimpleLet {
       case "" => None
       case s  => Some(s)
     }
-    
+
     talk.writeJson(
       AppConfig(
         config.getString("blue.api.path-prefix"),
