@@ -105,6 +105,10 @@ class ExplicitCompilationActor(
         couch <- bndContext.get[CouchClient]
       } {
 
+        val pdfFile = paperConfig.buildDir(paperId) / s"main.pdf"
+
+        val lastPdfModification = pdfFile.lastModified
+
         // TODO ideally the number of times we run the latex compiler, and bibtex,
         // and the index compiler should be smarter than this.
         // For the moment, we run only once, but we could make it configurable if the compilation
@@ -121,10 +125,12 @@ class ExplicitCompilationActor(
           for(file <- paperConfig.buildDir(paperId).filter(_.extension == ".png"))
             file.delete
 
+          val newPdfModification = pdfFile.lastModified
+
           if(res)
             CompilationSucceeded
           else
-            CompilationFailed
+            CompilationFailed(newPdfModification > lastPdfModification)
 
         }
 
