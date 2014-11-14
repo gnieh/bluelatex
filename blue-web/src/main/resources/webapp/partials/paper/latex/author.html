@@ -42,6 +42,11 @@
 			</div>
 		  </div>
 		</div>
+		<div class="option">
+			<div class="label" ng-class="{'process': cleanupInProgress}">
+				<span ng-click="cleanup()" data-i18n="_Cleanup_" i18n-Tooltip="_cleanup_tooltip_"></span>
+			</div>
+		</div>
 		<div class="subOption">
 		  <div class="label">
 			<span ng-click="downloadPDF()" data-i18n="_Download_" i18n-Tooltip="_download_pdf_tooltip_"></span>

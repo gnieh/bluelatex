@@ -554,6 +554,16 @@
         "description":"Compiler"
     },
     {
+        "key":"_Cleanup_",
+        "value":"Nettoyer",
+        "description":"Cleanup"
+    },
+    {
+        "key":"_Compilation_dir_cleaned_up_",
+        "value":"Répertoire de compilation nettoyé",
+        "description":"Cleaned up"
+    },
+    {
         "key":"_Download_",
         "value":"Télécharger",
         "description":"Download"
@@ -932,7 +942,12 @@
         "description":"tooltip paper page: compile"
     },
     {
-        "key":"_Share_tooltip_",
+        "key":"_cleanup_tooltip_",
+        "value":"Nettoyer le répertoire de compilation.",
+        "description":"tooltip paper page: cleanup"
+    },
+    {
+        "key":"_share_tooltip_",
         "value":"Gérer les permissions de l'article",
         "description":"tooltip share"
     },
