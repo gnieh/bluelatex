@@ -43,9 +43,9 @@ class CompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef,
       dispatcher ! Forward(paperId, Register(user.name, promise))
 
       promise.future.map {
-        case CompilationSucceeded =>
+        case CompilationSucceeded | CompilationFailed(true) =>
           talk.writeJson(true)
-        case CompilationFailed =>
+        case CompilationFailed(false) =>
           talk
             .setStatus(HStatus.InternalServerError)
             .writeJson(ErrorResponse("unable_to_compile", "Compilation failed, more details in the compilation log file."))
