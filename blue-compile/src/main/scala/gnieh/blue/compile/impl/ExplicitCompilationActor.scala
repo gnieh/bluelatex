@@ -90,7 +90,8 @@ class ExplicitCompilationActor(
       val lastModificationDate = synchro.lastModificationDate(paperId)
 
       // create the build directory
-      paperConfig.buildDir(paperId).mkdirs
+      val buildDir = paperConfig.buildDir(paperId)
+      buildDir.mkdirs
 
       // Check if compilation is needed:
       // No need to recompile document if it has not been modified,
@@ -115,7 +116,7 @@ class ExplicitCompilationActor(
         // occurs on its own compilation server
         // it is also not necessary to run bibtex if no bibliography is to be generated
         // the settings should be able to handle this properly
-        val res = if (!hasBeenModified) Success(CompilationUnnecessary) else for {
+        val res = if (!hasBeenModified && (buildDir / "main.aux").exists) Success(CompilationUnnecessary) else for {
           // if the compiler is defined, we first compile the paper
           res <- compiler.compile(paperId, settings)
           // we run bibtex on it if the compilation succeeded

@@ -107,6 +107,16 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'angular-data.DSC
             }
           ].concat($http.defaults.transformResponse)
         },
+        // cleanup compilation directory
+        "cleanup": {
+          method: "delete",
+          transformResponse: [
+            function (data, headersGetter) {
+              data = JSON.parse(data);
+              return data;
+            }
+          ].concat($http.defaults.transformResponse)
+        },
         // change compiler settings
         "modify": {
           method: "PATCH",
@@ -556,6 +566,18 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'angular-data.DSC
               deferred.notify(progress);
             });
           }
+          return promise;
+        },
+        cleanupPaper: function(paper_id) {
+          var deferred = $q.defer();
+          var promise = deferred.promise;
+          compiler.cleanup({paper_id: paper_id},{}).$promise.then(function (data) {
+            deferred.resolve(data);
+          }, function (error) {
+            deferred.reject(error);
+          }, function (progress) {
+            deferred.notify(progress);
+          });
           return promise;
         },
         getPaperCompiler: function (paper_id) {

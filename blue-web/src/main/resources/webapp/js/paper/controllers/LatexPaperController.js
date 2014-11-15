@@ -651,6 +651,16 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
         return deferred.promise;
       };
 
+      /*********************************/
+      /* Cleanup compilation directory */
+      /*********************************/
+      $scope.cleanup = function() {
+        $scope.cleanupInProgress = true;
+        PaperService.cleanupPaper($scope.paperId).finally(function() {
+          $scope.cleanupInProgress = false;
+        });
+      };
+
       /*****************/
       /* It's all text */ 
       /*****************/
@@ -729,7 +739,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
       $scope.cancelShare = function () {
         ngDialog.close();
       };
-      
+
 
       /**
       * Load ACE editor
