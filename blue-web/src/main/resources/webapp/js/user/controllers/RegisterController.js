@@ -40,7 +40,7 @@ angular.module("bluelatex.User.Controllers.Register",['bluelatex.User.Services.U
       MessagesService.message('_Registration_Password_will_sent_in_email_');
       $scope.displayCaptcha = config.recaptcha_public_key != null;
       reCAPTCHA.setPublicKey(config.recaptcha_public_key);
-      
+
       /**
       * Create a new user
       */

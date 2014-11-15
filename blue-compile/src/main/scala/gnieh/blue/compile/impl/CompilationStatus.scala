@@ -21,7 +21,7 @@ sealed trait CompilationStatus
 
 case object CompilationSucceeded extends CompilationStatus
 
-case object CompilationFailed extends CompilationStatus
+final case class CompilationFailed(pdfProduced: Boolean) extends CompilationStatus
 
 case object CompilationAborted extends CompilationStatus
 
