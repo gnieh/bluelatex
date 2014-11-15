@@ -70,6 +70,16 @@
         "description":"Registration Password will be sent in email"
     },
     {
+        "key":"_Registration_Success_",
+        "value":"Vous êtes bien enregistré.",
+        "description":"Registration success"
+    },
+    {
+        "key":"_Check_Mailbox_",
+        "value":"Veuillez vérifier vos emails pour définir votre mot de passe.",
+        "description":"Check mailbox"
+    },
+    {
         "key":"_Registration_Some_parameters_are_missing_",
         "value":"Certains paramètres sont manquants.",
         "description":"Error registration"
@@ -920,6 +930,16 @@
         "key":"_last_name_tooltip_",
         "value":"La nom de famille de l'utilisateur.",
         "description":"tooltip: lastname"
+    },
+    {
+        "key":"_password_tooltip_",
+        "value":"Choisissez votre mot de passe.",
+        "description":"tooltip: password"
+    },
+    {
+        "key":"_confirm_password_tooltip_",
+        "value":"Confirmez votre mot de passe.",
+        "description":"tooltip: confirm password"
     },
     {
         "key":"_files_tooltip_",

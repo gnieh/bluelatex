@@ -63,47 +63,45 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
         firstName <- talk.req.param("first_name")
         lastName <- talk.req.param("last_name")
         email <- talk.req.param("email_address")
+        pwd1 = talk.req.param("password1")
+        pwd2 = talk.req.param("password2")
         affiliation = talk.req.param("affiliation")
       } yield {
         implicit val t = talk
         couchConfig.asAdmin(couch) { session =>
-          // generate a random password
-          val password = session._uuid.getOrElse(Random.nextString(20))
-          // first save the standard couchdb user
-          session.users.add(username, password, couchConfig.defaultRoles) flatMap {
-            case true =>
-              val manager = entityManager("blue_users")
-              // now the user is registered as standard couchdb user, we can add the \BlueLaTeX specific data
-              val userid = s"org.couchdb.user:$username"
-              val user = User(username, firstName, lastName, email, affiliation)
-              (for {
-                () <- manager.create(userid, Some("blue-user"))
-                user <- manager.saveComponent(userid, user)
-                _ <- sendEmail(user, email, session)
-              } yield {
-                import OsgiUtils._
-                // notifiy creation hooks
-                couchConfig.asAdmin(couch) { session =>
-                  for(hook <- context.getAll[UserRegistered])
-                    Try(hook.afterRegister(user.name, manager))
-                }
-
-                (HStatus.Created, true)
-              }) recoverWith {
-                case e =>
-                  //logWarn(s"Unable to create \\BlueLaTeX user $username")
-                  logError(s"Unable to create \\BlueLaTeX user $username", e)
-                  // somehow we couldn't save it
-                  // remove the couchdb user from database
-                  Try(session.users.delete(username))
-                  // send error
-                  Success((HStatus.InternalServerError,
-                    ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry")))
-              }
-            case false =>
-              logWarn(s"Unable to create CouchDB user $username")
-              Success((HStatus.InternalServerError,
-                ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry")))
+          // if no email confirmation is required, just take the password from
+          // the request, check that both are equal, and register the user.
+          // otherwise generate a random password
+          val confirmationKind = config.getString("blue.registration-confirmation")
+          if(confirmationKind == "email-confirmation") {
+            registerUser(
+              session,
+              confirmationKind,
+              username,
+              firstName,
+              lastName,
+              email,
+              session._uuid.getOrElse(Random.nextString(20)),
+              affiliation)
+          } else {
+            (pwd1, pwd2) match {
+              case (Some(pwd1), Some(pwd2)) if pwd1.nonEmpty && pwd1 == pwd2 =>
+                registerUser(
+                  session,
+                  confirmationKind,
+                  username,
+                  firstName,
+                  lastName,
+                  email,
+                  pwd1,
+                  affiliation)
+              case (Some(""), _) | (_, Some("")) | (None, None) =>
+                Success((HStatus.BadRequest,
+                  ErrorResponse("unable_to_register", "Password is required")))
+              case (Some(_), Some(_)) =>
+                Success((HStatus.BadRequest,
+                  ErrorResponse("unable_to_register", "Password cannot be confirmed")))
+            }
           }
         } recover {
           case ConflictException(_) =>
@@ -124,23 +122,96 @@ class RegisterUserLet(val couch: CouchClient, config: Config, context: BundleCon
         .writeJson(ErrorResponse("not_authorized", "ReCaptcha did not verify")))
     }
 
-    private def sendEmail(user: User, email: String, session: Session) = {
-      // the user is now registered
-      // generate the password reset token
-      val cal = Calendar.getInstance
-      cal.add(Calendar.SECOND, couchConfig.tokenValidity)
-      session.users.generateResetToken(user.name, cal.getTime) map { token =>
-        logDebug(s"Sending confirmation email to ${user.email}")
-        // send the confirmation email
-        val emailText = templates.layout("emails/register",
-          "firstName" -> user.first_name,
-          "baseUrl" -> config.getString("blue.base-url"),
-          "name" -> user.name,
-          "email" -> email,
-          "token" -> token,
-          "validity" -> (couchConfig.tokenValidity / 24 / 3600))
-        logDebug(s"Registration email: $email")
-        mailAgent.send(user.name, "Welcome to \\BlueLaTeX", emailText)
+    private def registerUser(
+      session: Session,
+      confirmationKind: String,
+      username: String,
+      firstName: String,
+      lastName: String,
+      email: String,
+      password: String,
+      affiliation: Option[String])(implicit talk: HTalk) =
+      // first save the standard couchdb user
+      session.users.add(username, password, couchConfig.defaultRoles) flatMap {
+        case true =>
+          val manager = entityManager("blue_users")
+          // now the user is registered as standard couchdb user, we can add the \BlueLaTeX specific data
+          val userid = s"org.couchdb.user:$username"
+          val user = User(username, firstName, lastName, email, affiliation)
+          (for {
+            () <- manager.create(userid, Some("blue-user"))
+            user <- manager.saveComponent(userid, user)
+            _ <- sendEmail(confirmationKind, user, email, session)
+          } yield {
+            import OsgiUtils._
+            // notifiy creation hooks
+            couchConfig.asAdmin(couch) { session =>
+              for(hook <- context.getAll[UserRegistered])
+                Try(hook.afterRegister(user.name, manager))
+            }
+
+            if(confirmationKind != "email-confirmation") {
+              // log in if no confirmation is required
+              couchSession.login(username, password) foreach {
+                case true =>
+                  talk.ses(SessionKeys.Username) = username
+                case false =>
+                  // ignore
+              }
+            }
+
+            (HStatus.Created, true)
+          }) recoverWith {
+            case e =>
+              //logWarn(s"Unable to create \\BlueLaTeX user $username")
+              logError(s"Unable to create \\BlueLaTeX user $username", e)
+              // somehow we couldn't save it
+              // remove the couchdb user from database
+              Try(session.users.delete(username))
+              // send error
+              Success((HStatus.InternalServerError,
+                ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry")))
+          }
+        case false =>
+          logWarn(s"Unable to create CouchDB user $username")
+          Success((HStatus.InternalServerError,
+            ErrorResponse("unable_to_register", s"Something went wrong when registering the user $username. Please retry")))
+      }
+
+    private def sendEmail(confirmationKind: String, user: User, email: String, session: Session) = {
+      val emailText =
+        if(confirmationKind == "email-confirmation") {
+          // the user is now registered
+          // generate the password reset token
+          val cal = Calendar.getInstance
+          cal.add(Calendar.SECOND, couchConfig.tokenValidity)
+          session.users.generateResetToken(user.name, cal.getTime) map { token =>
+            logDebug(s"Sending confirmation email to ${user.email}")
+            // send the confirmation email
+            Some(templates.layout("emails/register-confirm",
+              "firstName" -> user.first_name,
+              "baseUrl" -> config.getString("blue.base-url"),
+              "name" -> user.name,
+              "email" -> email,
+              "token" -> token,
+              "validity" -> (couchConfig.tokenValidity / 24 / 3600)))
+          }
+        } else if(confirmationKind == "email-summary") {
+          // no confirmation is needed, just send an informational email
+          Try(Some(templates.layout("emails/register-info",
+            "firstName" -> user.first_name,
+            "baseUrl" -> config.getString("blue.base-url"),
+            "name" -> user.name,
+            "email" -> email)))
+        } else {
+          Success(None)
+        }
+      emailText.map {
+        case Some(email) =>
+          logDebug(s"Registration email: $email")
+          mailAgent.send(user.name, "Welcome to \\BlueLaTeX", email)
+        case None =>
+          // don't send any email
       } recover {
         case e =>
           logError(s"Unable to generate confirmation token for user ${user.name}", e)

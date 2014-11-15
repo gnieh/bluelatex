@@ -58,6 +58,34 @@
       </div>
     </div>
 
+    <div class="grid" ng-if="!config.require_validation">
+      <div class="col c1-3">
+        <label for="register_password1" data-i18n="_Password_" i18n-Tooltip="_password_tooltip_"></label>
+        <span class="control-label"
+            ng-show="registerForm.password1.$error.required" data-i18n="_Required_"></span>
+      </div>
+      <div class="col c2-3 form-group"
+        ng-class="{'has-error': registerForm.password1.$invalid}">
+        <input class="form-control" id="register_password1" name="password1" type="password"
+          data-i18n-attr="_Password_|placeholder" required ng-model="user.password1" />
+      </div>
+    </div>
+
+    <div class="grid" ng-if="!config.require_validation">
+      <div class="col c1-3">
+        <label for="register_password2" data-i18n="_Confirm_Password_" i18n-Tooltip="_confirm_password_tooltip_"></label>
+        <span class="control-label"
+            ng-show="registerForm.password2.$error.required" data-i18n="_Required_"></span>
+        <span class="control-label"
+          ng-show="registerForm.password1.value != registerForm.password2.value" data-i18n="_Two_different_passwords_"></span>
+      </div>
+      <div class="col c2-3 form-group"
+        ng-class="{'has-error': registerForm.password2.$invalid}">
+        <input class="form-control" id="register_password2" name="password2" type="password"
+          data-i18n-attr="_Confirm_Password_|placeholder" required ng-model="user.password2" />
+      </div>
+    </div>
+
     <div class="grid">
       <div class="col c1-3">
         <label for="register_affiliation" data-i18n="_Affiliation_" i18n-Tooltip="_affiliation_tooltip_"></label>

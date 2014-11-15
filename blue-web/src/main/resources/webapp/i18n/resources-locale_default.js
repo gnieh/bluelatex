@@ -71,8 +71,13 @@
     },
     {
         "key":"_Registration_Success_",
-        "value":"You are now registred please check your mailbox to define your password.",
+        "value":"You are now registered.",
         "description":"Registration success"
+    },
+    {
+        "key":"_Check_Mailbox_",
+        "value":"Please check your mailbox to define your password.",
+        "description":"Check mailbox"
     },
     {
         "key":"_Registration_Some_parameters_are_missing_",
@@ -930,6 +935,16 @@
         "key":"_last_name_tooltip_",
         "value":"The last name of the user.",
         "description":"tooltip: lastname"
+    },
+    {
+        "key":"_password_tooltip_",
+        "value":"Choose your password.",
+        "description":"tooltip: password"
+    },
+    {
+        "key":"_confirm_password_tooltip_",
+        "value":"Confirm your chosen password.",
+        "description":"tooltip: confirm password"
     },
     {
         "key":"_files_tooltip_",
