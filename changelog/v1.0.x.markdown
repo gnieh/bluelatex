@@ -25,3 +25,12 @@ New patch release with some bug fixes and user experience improvements.
  - Fix a regression in paper option (issue #156)
  - Make 'clone' and 'report issue' links configurable (issue #161)
  - Add an update script (issue #155)
+
+Version 1.0.3
+-------------
+
+Patch release to fix some really annoying bugs and a bug regression.
+
+ - Add button to cleanup compilation directory (issue #173)
+ - Reload pdf file when compilation failed but produced a new pdf file (issue #168)
+ - Fix regression bug in web client making it impossible to modify user settings (issue #175)
