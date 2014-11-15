@@ -24,6 +24,7 @@ angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.Us
     'MessagesService',
     'localize',
     'config',
+    'reCAPTCHA',
     function ($rootScope,
               $scope,
               UserService,
@@ -31,7 +32,8 @@ angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.Us
               $log,
               MessagesService,
               localize,
-              config) {
+              config,
+              reCAPTCHA) {
       $scope.requesting = false;
       var user;
 
@@ -39,8 +41,8 @@ angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.Us
          theme: 'clean'
       });
 
-      $scope.displayCaptcha = cofig.recaptcha_public_key != null;
-      reCAPTCHA.setPublicKey(cofig.recaptcha_public_key);
+      $scope.displayCaptcha = config.recaptcha_public_key != null;
+      reCAPTCHA.setPublicKey(config.recaptcha_public_key);
 
       /**
       * Get the user data
