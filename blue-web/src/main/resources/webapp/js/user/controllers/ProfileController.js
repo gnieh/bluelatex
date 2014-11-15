@@ -14,7 +14,7 @@
  * limitations under the License.
  */
  
-angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.User'])
+angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.User','reCAPTCHA'])
   .controller('ProfileController', [
     '$rootScope',
     '$scope',
@@ -23,6 +23,7 @@ angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.Us
     '$log',
     'MessagesService',
     'localize',
+    'reCAPTCHA',
     'config',
     function ($rootScope,
               $scope,
@@ -31,6 +32,7 @@ angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.Us
               $log,
               MessagesService,
               localize,
+              reCAPTCHA,
               config) {
       $scope.requesting = false;
       var user;
@@ -39,8 +41,8 @@ angular.module("bluelatex.User.Controllers.Profile",['bluelatex.User.Services.Us
          theme: 'clean'
       });
 
-      $scope.displayCaptcha = cofig.recaptcha_public_key != null;
-      reCAPTCHA.setPublicKey(cofig.recaptcha_public_key);
+      $scope.displayCaptcha = config.recaptcha_public_key != null;
+      reCAPTCHA.setPublicKey(config.recaptcha_public_key);
 
       /**
       * Get the user data
