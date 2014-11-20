@@ -79,8 +79,8 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace'])
         _renderer.setShowGutter(aceSettings.showGutter);
       };
       // go to a specific line and give focus to ace
-      var goToLine = function (line) {
-        _editor.gotoLine(line);
+      var goToLine = function (line, column) {
+        _editor.gotoLine(line, column);
         _editor.focus();
       };
 

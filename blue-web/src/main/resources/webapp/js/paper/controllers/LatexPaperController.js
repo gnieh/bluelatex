@@ -120,6 +120,9 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
       $scope.pdf = null;
       $scope.revision=Math.random();
 
+      // save the laste cursor position per file
+      var cursorPositionFile = {};
+
       /**************/
       /* Exit Paper */
       /**************/
@@ -487,6 +490,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
       */
       $scope.changeFile = function (file, line) {
         var deferred = $q.defer();
+        cursorPositionFile[$scope.currentFile.title] = MobWriteService.shared[$scope.currentFile.title].captureCursor_();
         if($scope.currentFile == file) return;
         MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title}).then(function(data) {
           $scope.currentFile = file;
@@ -497,6 +501,8 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
           initMobWrite().then(function (data) {
             if(line) {
               $scope.goToLine(line);
+            } else if(cursorPositionFile[file.title] != null) {
+              MobWriteService.shared[$scope.currentFile.title].restoreCursor_(cursorPositionFile[file.title]);
             }
             deferred.resolve(data);
           }, function(err) {
@@ -549,8 +555,8 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
       /**
       * Go to the line: line
       */
-      $scope.goToLine = function (line) {
-        AceService.goToLine(line);
+      $scope.goToLine = function (line, column) {
+        AceService.goToLine(line, column);
         if(!$scope.synctex) return;
         if(!$scope.synctex.blockNumberLine[$scope.currentFile.title]) return;
         if(!$scope.synctex.blockNumberLine[$scope.currentFile.title][$scope.currentLine]) return;
