@@ -92,6 +92,12 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace'])
         _renderer = _editor.renderer;
         content = _session.getValue();
 
+        // disable key bindings
+        _editor.commands.bindKeys({
+          "ctrl-t":null,              // transpose letters
+          "ctrl-l":null, "cmd-l":null // go to line
+        });
+
         // add undo support
         _session.setUndoManager(new ace.UndoManager());
         _editor.setOptions({
