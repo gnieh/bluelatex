@@ -870,6 +870,7 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
     return {
       syncUsername: syncUsername,
       shareObj: shareObj,
+      shared: shared,
       synchronize: synchronize,
       share: share,
       unshare: unshare,
