@@ -80,30 +80,81 @@ angular.module('bluelatex.Paper', ['MobWrite','bluelatex.Paper.Services.Ace'])
         this.dmp.Match_Threshold = 0.6;
 
         var oldClientText = this.getClientText();
-        var cursor = this.captureCursor_();
-        // Pack the cursor offsets into an array to be adjusted.
-        // See http://neil.fraser.name/writing/cursor/
-        var offsets = [];
-        if (cursor) {
-          offsets[0] = cursor.startOffset;
-          if ('endOffset' in cursor) {
-            offsets[1] = cursor.endOffset;
-          }
-        }
-        var newClientText = this.patch_apply_(patches, oldClientText, offsets);
+        var simpleDiffer = new MobWriteService.SimpleDiffer();
+        var newClientText = this.patch_apply_(patches, oldClientText, simpleDiffer);
+
         // Set the new text only if there is a change to be made.
         if (oldClientText != newClientText) {
-          this.setClientText(newClientText);
-          if (cursor) {
-            // Unpack the offset array.
-            cursor.startOffset = offsets[0];
-            if (offsets.length > 1) {
-              cursor.endOffset = offsets[1];
-              if (cursor.startOffset >= cursor.endOffset) {
-                cursor.collapsed = true;
+          var splittedText = oldClientText.split('\n');
+          var simpleDiff = simpleDiffer.getSimpleDiff();
+
+          for (var i = 0, mutation; mutation = simpleDiff[i]; i++) {
+            if (mutation.type == 'insert') {
+              // convert text offset to row, Column
+              var offset = convertOffetToRomColumn(mutation.start, splittedText);
+              
+              // get the current scroll position
+              var scrollTop = AceService.getSession().getScrollTop();
+              // get the height of a line
+              var lineHeight = AceService.getEditor().renderer.lineHeight;
+              // get the number of screen lines
+              var sreenLengthBefore = AceService.getSession().getScreenLength();
+              // convert the scroll position to screen line number
+              var scrollLineNumber = scrollTop / lineHeight;
+              // convert screen position to text position
+              var textPosition = AceService.getSession().screenToDocumentPosition(Math.ceil(scrollLineNumber), 0);
+
+              // insert the new text
+              AceService.getSession().insert(offset, mutation.text);
+
+              // get the number of screen lines
+              var sreenLengthAfter = AceService.getSession().getScreenLength();
+              // if the text is inserted before the scroll position
+              if(offset.row <= textPosition.row) {
+                // performs the number of screen line added
+                var lengthFiff = sreenLengthAfter - sreenLengthBefore;
+                // convert number of line to height
+                var scrollToAdd = lengthFiff * lineHeight;
+                // change the scroll position
+                AceService.getSession().setScrollTop(scrollTop + scrollToAdd);
+              } else {
+                // conserves the scroll position
+                AceService.getSession().setScrollTop(scrollTop);
+              }
+            } else if (mutation.type == 'delete') {
+              // convert text offset to row, Column
+              var offset = convertOffetToRomColumn(mutation.start, mutation.end, splittedText);
+              var Range = ace.require('ace/range').Range;
+              var range = new Range(offset.start.row,offset.start.column,offset.end.row,offset.end.column);
+
+              // get the current scroll position
+              var scrollTop = AceService.getSession().getScrollTop();
+              // get the height of a line
+              var lineHeight = AceService.getEditor().renderer.lineHeight;
+              // get the number of screen lines
+              var sreenLengthBefore = AceService.getSession().getScreenLength();
+              // convert the scroll position to screen line number
+              var scrollLineNumber = scrollTop / lineHeight;
+              // convert screen position to text position
+              var textPosition = AceService.getSession().screenToDocumentPosition(Math.ceil(scrollLineNumber), 0);
+
+              AceService.getSession().remove(range);
+              
+              // get the number of screen lines
+              var sreenLengthAfter = AceService.getSession().getScreenLength();
+              // if the text is inserted before the scroll position
+              if(offset.start.row <= textPosition.row) {
+                // performs the number of screen line added
+                var lengthFiff = sreenLengthAfter - sreenLengthBefore;
+                // convert number of line to height
+                var scrollToAdd = lengthFiff * lineHeight;
+                // change the scroll position
+                AceService.getSession().setScrollTop(scrollTop + scrollToAdd);
+              } else {
+                // conserves the scroll position
+                AceService.getSession().setScrollTop(scrollTop);
               }
             }
-            this.restoreCursor_(cursor);
           }
         }
       };
@@ -116,7 +167,8 @@ angular.module('bluelatex.Paper', ['MobWrite','bluelatex.Paper.Services.Ace'])
        * @param {Array.<number>} offsets Offset indices to adjust.
        * @return {string} New text.
        */
-      shareAceObj.prototype.patch_apply_ = function(patches, text, offsets) {
+      shareAceObj.prototype.patch_apply_ = function(patches, text,
+                                                    simpleDiffer) {
         if (patches.length == 0) {
           return text;
         }
@@ -124,6 +176,7 @@ angular.module('bluelatex.Paper', ['MobWrite','bluelatex.Paper.Services.Ace'])
         // Deep copy the patches so that no changes are made to originals.
         patches = this.dmp.patch_deepCopy(patches);
         var nullPadding = this.dmp.patch_addPadding(patches);
+        var nullPaddingLength = nullPadding.length;
         text = nullPadding + text + nullPadding;
 
         this.dmp.patch_splitMax(patches);
@@ -193,25 +246,17 @@ angular.module('bluelatex.Paper', ['MobWrite','bluelatex.Paper.Services.Ace'])
                 if (mod[0] === DIFF_INSERT) {  // Insertion
                   text = text.substring(0, start_loc + index2) + mod[1] +
                          text.substring(start_loc + index2);
-                  for (var i = 0; i < offsets.length; i++) {
-                    if (offsets[i] + nullPadding.length > start_loc + index2) {
-                      offsets[i] += mod[1].length;
-                    }
-                  }
+                  simpleDiffer.applyInsert(
+                      start_loc + index2 - nullPaddingLength,
+                      mod[1]);
                 } else if (mod[0] === DIFF_DELETE) {  // Deletion
                   var del_start = start_loc + index2;
                   var del_end = start_loc + this.dmp.diff_xIndex(diffs,
                       index1 + mod[1].length);
                   text = text.substring(0, del_start) + text.substring(del_end);
-                  for (var i = 0; i < offsets.length; i++) {
-                    if (offsets[i] + nullPadding.length > del_start) {
-                      if (offsets[i] + nullPadding.length < del_end) {
-                        offsets[i] = del_start - nullPadding.length;
-                      } else {
-                        offsets[i] -= del_end - del_start;
-                      }
-                    }
-                  }
+                  simpleDiffer.applyDelete(
+                      del_start - nullPadding.length,
+                      del_end - nullPadding.length);
                 }
                 if (mod[0] !== DIFF_DELETE) {
                   index1 += mod[1].length;
@@ -264,6 +309,24 @@ angular.module('bluelatex.Paper', ['MobWrite','bluelatex.Paper.Services.Ace'])
           cursor.endOffset = selectionEnd;
         }
         return cursor;
+      };
+
+      /**
+       * Attempt to restore the cursor's location.
+       * @param {Object} cursor Context information of the cursor.
+       * @private
+       */
+      shareAceObj.prototype.restoreCursor_ = function(cursor) {
+        var position = this.getCursorPosition(cursor);
+
+        var Range = ace.require('ace/range').Range;
+
+        // Restore selection.
+        AceService.getSession().selection.setRange(new Range(position.start.row,position.start.column,position.end.row,position.end.column));
+
+        // Restore scrollbar locations
+        AceService.getSession().setScrollTop(cursor.scrollTop);
+        AceService.getSession().setScrollLeft(cursor.scrollLeft);
       };
 
       /**
@@ -323,30 +386,47 @@ angular.module('bluelatex.Paper', ['MobWrite','bluelatex.Paper.Services.Ace'])
           // End not known, collapse to start.
           cursorEndPoint = cursorStartPoint;
         }
-
         var splittedText = newText.split('\n');
+        return convertOffetToRomColumn(cursorStartPoint, cursorEndPoint, splittedText);
+      };
+
+      var convertOffetToRomColumn = function(offsetStart, offsetEnd, textArray) {
+        if(arguments.length == 2) {
+          textArray = offsetEnd;
+          offsetEnd = null;
+        }
+
+        var startFound = false;
         var count = 0;
+
         var startRow = 0;
         var startCol = 0;
-        var startFound = false;
 
         var endRow = 0;
         var endCol = 0;
 
-        for (var i = 0; i < splittedText.length; i++) {
-          if(!startFound && count+splittedText[i].length + 1 > cursorStartPoint) {
+        for (var i = 0; i < textArray.length; i++) {
+          if(!startFound && count + textArray[i].length + 1 > offsetStart) {
             startRow = i;
-            startCol = cursorStartPoint -count;
+            startCol = offsetStart - count;
             startFound = true;
           }
-          if(count+splittedText[i].length+1 > cursorEndPoint) {
+          if(offsetEnd != null && count + textArray[i].length+1 > offsetEnd) {
             endRow = i;
-            endCol = cursorEndPoint -count;
+            endCol = offsetEnd - count;
             break;
           }
           // +1 for \n character
-          count+=splittedText[i].length + 1;
+          count += textArray[i].length + 1;
         }
+
+        if(offsetEnd == null) {
+          return {
+            row: startRow,
+            column: startCol
+          }
+        }
+
         return {
           start: {
             row: startRow,
@@ -357,25 +437,7 @@ angular.module('bluelatex.Paper', ['MobWrite','bluelatex.Paper.Services.Ace'])
             column: endCol
           }
         }
-      };
-
-      /**
-       * Attempt to restore the cursor's location.
-       * @param {Object} cursor Context information of the cursor.
-       * @private
-       */
-      shareAceObj.prototype.restoreCursor_ = function(cursor) {
-        var position = this.getCursorPosition(cursor);
-
-        var Range = ace.require('ace/range').Range;
-
-        // Restore selection.
-        AceService.getSession().selection.setRange(new Range(position.start.row,position.start.column,position.end.row,position.end.column));
-
-        // Restore scrollbar locations
-        AceService.getSession().setScrollTop(cursor.scrollTop);
-        AceService.getSession().setScrollLeft(cursor.scrollLeft);
-      };
+      }
 
       shareAceObj.prototype.messages = function () {
         var json = message;
