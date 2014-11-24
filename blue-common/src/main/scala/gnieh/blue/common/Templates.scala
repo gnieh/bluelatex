@@ -16,7 +16,7 @@
 package gnieh.blue
 package common
 
-import org.fusesource.scalate.TemplateEngine
+import gnieh.mustache.MustacheProcessor
 
 /** Give access to the templating system, and allows people to layout
  *  templates located in the configured directory
@@ -26,10 +26,9 @@ import org.fusesource.scalate.TemplateEngine
 trait Templates {
 
   /** The template engine */
-  val engine: TemplateEngine
+  val engine: MustacheProcessor
 
   /** Layouts the given template with the given parameters */
   def layout(name: String, params: (String, Any)*): String
 
 }
-

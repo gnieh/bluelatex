@@ -106,18 +106,7 @@ class BlueCommonActivator extends ActorSystemActivator {
       server = Some(new BlueServer(context, system, config, logger))
       server.foreach(_.start)
 
-      // register the template engine
-      // set the context classloader to the bundle classloader, because
-      // scalate uses this classloader to determine whether we are in an OSGi context
-      val previousCl = Thread.currentThread.getContextClassLoader
-      try {
-        Thread.currentThread.setContextClassLoader(getClass.getClassLoader)
-        templates = Some(new TemplatesImpl(configuration))
-        // initialize the template compiler on start
-        templates.foreach(_.engine.compiler)
-      } finally {
-        Thread.currentThread.setContextClassLoader(previousCl)
-      }
+      templates = Some(new TemplatesImpl(configuration))
       context.registerService(classOf[Templates], templates.get, null)
 
     } catch {
@@ -134,8 +123,9 @@ class BlueCommonActivator extends ActorSystemActivator {
   override def stop(context: BundleContext): Unit = {
     // stop the server
     server.foreach(_.stop)
+    server = None
     // stop the template engine
-    templates.foreach(_.engine.compiler.shutdown())
+    templates = None
     // stop the framework
     context.getBundle(0).stop
   }
