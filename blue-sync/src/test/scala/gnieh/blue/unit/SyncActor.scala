@@ -137,7 +137,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       syncActor ! request
 
       Then("the actor should process the raw and sends back a response")
-      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(), false)))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(), false)))))
 
     }
 
@@ -189,7 +189,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       syncActor ! request
 
       Then("the actor should detect the invalid revision and send Raw version")
-      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "", false)))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Raw(0, "", false)))))
 
     }
 
@@ -207,7 +207,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       syncActor ! request
 
       Then("the actor should detect the invalid revision and send Raw version")
-      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Raw(1, "Hello", true)))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 2, Raw(1, "Hello", true)))))
 
     }
 
@@ -245,7 +245,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       syncActor ! PersistPaper(p)
 
       Then("the actor should process the raw message and sends back a response")
-      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(4)), false)))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(Equality(4)), false)))))
 
       And("the stored document should have the accent")
       Await.result(p.future, Duration.Inf)
@@ -259,7 +259,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       Given("a synchronization actor with an existing paper")
       val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
       syncActor ! SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "Hello", false))))
-      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(5)), false)))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(Equality(5)), false)))))
 
       And("a delta request with accent from user")
       val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(Delete(5), Add("tête")), false))))
@@ -284,7 +284,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       Given("a synchronization actor with an existing paper")
       val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
       syncActor ! SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "tête", false))))
-      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(4)), false)))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(Equality(4)), false)))))
 
       And("a message with invalid revision for a the paper")
       val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 42, Delta(0, List(Delete(5), Add("tête")), false))))
@@ -301,7 +301,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       Given("a synchronization actor with an existing paper")
       val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
       syncActor ! SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "My name is", false))))
-      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(10)), false)))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(Equality(10)), false)))))
 
       And("a message with invalid revision for a the paper")
       val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 42, Delta(0, List(Delete(5), Add("tête")), false))))
@@ -334,7 +334,7 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
       Given("a synchronization actor with an existing paper")
       val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
       syncActor ! SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "Hello", false))))
-      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(5)), false)))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(Equality(5)), false)))))
 
       And("the last modification date")
       val p = Promise[Date]()
@@ -639,6 +639,74 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
 
     }
 
+  }
+
+  feature("A synchronization actor should handle several synchronization commands in one session") {
+
+    scenario("several sync messages") {
+
+      Given("a synchronization actor")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+
+      And("a list of connected users")
+      val connectedUsers = List("user1")
+      connectedUsers foreach ( syncActor ! Join(_, "paperId") )
+
+      When("a user sends several sychronization commands in one session")
+      val msg = """{
+                  |  "commands": [
+                  |    {
+                  |      "revision": 0,
+                  |      "filename": "demo_form_description",
+                  |      "action": {
+                  |        "name": "delta",
+                  |        "revision": 0,
+                  |        "data": [
+                  |        "+jjj"
+                  |        ],
+                  |        "overwrite": false
+                  |      }
+                  |    },
+                  |    {
+                  |      "revision": 0,
+                  |      "filename": "demo_form_description",
+                  |      "action": {
+                  |        "name": "delta",
+                  |        "revision": 1,
+                  |        "data": [
+                  |        "=3",
+                  |        "+jjj"
+                  |        ],
+                  |        "overwrite": false
+                  |      }
+                  |    }
+                  |  ],
+                  |  "peerId": "user1",
+                  |  "paperId": "paperId"
+                  |} """.stripMargin
+      syncActor ! Serialization.read[SyncSession](msg)
+
+      Then("The response should handle the delta correctly")
+      val expected = """{
+                       |  "commands": [
+                       |  {
+                       |    "revision": 2,
+                       |    "filename": "demo_form_description",
+                       |    "action": {
+                       |      "name": "delta",
+                       |      "revision": 0,
+                       |      "data": [
+                       |      "=6"
+                       |      ],
+                       |      "overwrite": false
+                       |    }
+                       |  }
+                       |  ],
+                       |  "peerId": "user1",
+                       |  "paperId": "paperId"
+                       |} """.stripMargin
+      expectMsg(Serialization.read[SyncSession](expected))
+    }
   }
 
 }
