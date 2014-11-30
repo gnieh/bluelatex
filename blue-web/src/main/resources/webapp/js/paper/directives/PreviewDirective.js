@@ -194,29 +194,29 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
             updateHightlight($scope.currentFile.title, $scope.currentLine);
           //Set the canvas height and width to the height and width of the viewport
           var context = canvas.getContext('2d');
-          containerDiv.style.height = viewport.height+'px';
-          containerDiv.style.width = viewport.width+'px';
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
+          var outputScale = getOutputScale(context);
+
+          containerDiv.style.height = viewport.height + 'px';
+          containerDiv.style.width = viewport.width + 'px';
+          canvas.width = (Math.floor(viewport.width) * outputScale.sx) | 0;
+          canvas.height = (Math.floor(viewport.height) * outputScale.sy) | 0;
+          textLayerDiv.style.width = canvas.width + 'px';
+          textLayerDiv.style.height = canvas.height + 'px';
 
           textLayerDiv.innerHTML = '';
+          
+          var cssScale = 'scale(' + (1 / outputScale.sx) + ', ' +
+              (1 / outputScale.sy) + ')';
+          CustomStyle.setProp('transform', canvas, cssScale);
+          CustomStyle.setProp('transformOrigin', canvas, '0% 0%');
 
-          //The following few lines of code set up scaling on the context if we are on a HiDPI display
-          var outputScale = getOutputScale(context);
-          if (outputScale.scaled ) {
-              var cssScale = 'scale(' + (1 / outputScale.sx) + ', ' +
-                  (1 / outputScale.sy) + ')';
-              CustomStyle.setProp('transform', canvas, cssScale);
-              CustomStyle.setProp('transformOrigin', canvas, '0% 0%');
-
-              if (textLayerDiv) {
-                  CustomStyle.setProp('transform', textLayerDiv, cssScale);
-                  CustomStyle.setProp('transformOrigin', textLayerDiv, '0% 0%');
-              }
-              if(hightlights) {
-                  CustomStyle.setProp('transform', hightlights, cssScale);
-                  CustomStyle.setProp('transformOrigin', hightlights, '0% 0%');
-              }
+          if (textLayerDiv) {
+              CustomStyle.setProp('transform', textLayerDiv, cssScale);
+              CustomStyle.setProp('transformOrigin', textLayerDiv, '0% 0%');
+          }
+          if(hightlights) {
+              CustomStyle.setProp('transform', hightlights, cssScale);
+              CustomStyle.setProp('transformOrigin', hightlights, '0% 0%');
           }
 
           context._scaleX = outputScale.sx;

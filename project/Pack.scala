@@ -61,7 +61,7 @@ trait Pack {
       blueClassDir <<= sourceDirectory(_ / "main" / "classes"),
       blueDesignDir <<= sourceDirectory(_ / "main" / "designs"),
       blueProjectBundles <<= (thisProjectRef, buildStructure) flatMap { (project, structure) =>
-        getFromSelectedProjects(packageBin in Runtime)(project, structure, Seq())
+        getFromSelectedProjects(packageBin in Runtime)(project, structure, Seq("bluelatex"))
       },
       blueDepBundles <<= (thisProjectRef, buildStructure) flatMap { (project, structure) =>
         getFromSelectedProjects(update)(project, structure, Seq()) map (_ flatMap wrapReport)
