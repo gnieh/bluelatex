@@ -25,3 +25,24 @@ New patch release with some bug fixes and user experience improvements.
  - Fix a regression in paper option (issue #156)
  - Make 'clone' and 'report issue' links configurable (issue #161)
  - Add an update script (issue #155)
+
+Version 1.0.3
+-------------
+
+Patch release to fix some really annoying bugs and a bug regression.
+
+ - Add button to cleanup compilation directory (issue #173)
+ - Reload pdf file when compilation failed but produced a new pdf file (issue #168)
+ - Fix regression bug in web client making it impossible to modify user settings (issue #175)
+
+Version 1.0.4
+-------------
+
+Patch release mainly to fix a bug in the synchronization protocol on the server side, and improve the user experience on the client side.
+
+ - Fix the guarantee delivery part in case of disconnection or high latency network (issue #188)
+ - Hold the scroll position when several authors are editing a file concurrently (issue #185)
+ - Restore cursor position when changing file (issue #181)
+ - Fix script loading order to avoid display problems on slow networks (issue #189)
+ - Reenable use of standard key binings in web browser (issue #171)
+ - Fix PDF rendering on small displays (issue #182)
