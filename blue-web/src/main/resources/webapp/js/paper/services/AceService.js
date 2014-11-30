@@ -79,8 +79,8 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace'])
         _renderer.setShowGutter(aceSettings.showGutter);
       };
       // go to a specific line and give focus to ace
-      var goToLine = function (line) {
-        _editor.gotoLine(line);
+      var goToLine = function (line, column) {
+        _editor.gotoLine(line, column);
         _editor.focus();
       };
 
@@ -91,6 +91,12 @@ angular.module('bluelatex.Paper.Services.Ace', ['ngStorage','ui.ace'])
         _session = _editor.getSession();
         _renderer = _editor.renderer;
         content = _session.getValue();
+
+        // disable key bindings
+        _editor.commands.bindKeys({
+          "ctrl-t":null,              // transpose letters
+          "ctrl-l":null, "cmd-l":null // go to line
+        });
 
         // add undo support
         _session.setUndoManager(new ace.UndoManager());

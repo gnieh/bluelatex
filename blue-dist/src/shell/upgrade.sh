@@ -33,6 +33,7 @@ then
     cp bin/* $INSTALL_DIR/bin/
   fi
 else
+  mkdir -p $INSTALL_DIR
   cp -r bin bundle $INSTALL_DIR
 fi
 

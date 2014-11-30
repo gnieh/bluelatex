@@ -26,6 +26,8 @@ import java.util.{Date, Calendar}
 
 import name.fraser.neil.plaintext.DiffMatchPatch
 
+import scala.annotation.tailrec
+
 import common._
 import store._
 
@@ -106,28 +108,37 @@ class SyncActor(
     }
 
     case SyncSession(peerId, paperId, commands) => {
-      var currentSyncContext = syncContext
-      Try {
-        val commandResponse = commands flatMap {
-          case message: Message => {
-            currentSyncContext = processMessage(currentSyncContext, peerId, message).syncContext
-            Nil
+      val newSyncContext = Try {
+        @tailrec
+        def doCommands(lastFilename: Option[String],
+          syncContext: SyncContext,
+          commands: List[Command],
+          acc: List[Command]): (SyncContext, List[Command]) =
+          commands match {
+            case (message @ Message(_, _, filename)) :: rest =>
+              val newAcc = acc ++ flushStackIfNeeded(peerId, lastFilename, filename, syncContext)
+              val newSyncContext = processMessage(syncContext, peerId, message).syncContext
+              doCommands(filename, newSyncContext, rest, newAcc)
+            case SyncCommand(filename, revision, action) :: rest =>
+              val newAcc = acc ++ flushStackIfNeeded(peerId, lastFilename, Some(filename), syncContext)
+              val newSyncContext = applyAction(syncContext, peerId, filename, revision, action)
+              doCommands(Some(filename), newSyncContext, rest, newAcc)
+            case Nil =>
+              val newAcc = acc ++ flushStackIfNeeded(peerId, lastFilename, None, syncContext)
+              (syncContext, newAcc)
           }
-          case SyncCommand(filename, revision, action) => {
-            val actionResult = applyAction(currentSyncContext, peerId, filename, revision, action)
-            currentSyncContext = actionResult.syncContext
-            actionResult.commands
-          }
-        }
-        val messageResult = retrieveMessages(currentSyncContext, peerId, paperId)
-        currentSyncContext = messageResult.syncContext
+        val (newSyncContext, commandResponse) = doCommands(None, syncContext, commands, Nil)
+
+        val messageResult = retrieveMessages(newSyncContext, peerId, paperId)
         sender ! SyncSession(peerId, paperId, commandResponse ++ messageResult.commands)
+        messageResult.syncContext
       } recover {
         case e: Exception =>
           logError(s"Error while processing synchronization from peer $peerId", e)
           sender ! akka.actor.Status.Failure(e)
+          throw e
       }
-      context.become(receiving(currentSyncContext))
+      context.become(receiving(newSyncContext.get))
     }
 
     case PersistPaper(promise) =>
@@ -157,7 +168,7 @@ class SyncActor(
                   peer: PeerId,
                   filename: Filepath,
                   revision: Long,
-                  action: SyncAction): SyncActionResult = {
+                  action: SyncAction): SyncContext = {
     // We need to modify the synchronization context in this function
     var currentSyncContext = syncContext
 
@@ -207,13 +218,11 @@ class SyncActor(
       view.deltaOk == true
     }
 
-    currentSyncContext = action match {
+    action match {
       case x: Delta => processDelta(currentSyncContext, view, x, revision)
       case x: Raw => processRaw(currentSyncContext, view, x, revision)
       case Nullify => nullify(currentSyncContext, view)
     }
-    val response = flushStack(view)
-    SyncActionResult(currentSyncContext, response map ( SyncCommand(filename, view.serverShadowRevision, _) ))
   }
 
   def nullify(syncContext: SyncContext, view: DocumentView): SyncContext = {
@@ -325,6 +334,26 @@ class SyncActor(
       syncContext
     }
   }
+
+  /* Only flushes the view stack if the file name changed since last processed command */
+  def flushStackIfNeeded(peerId: String,
+    lastFilename: Option[String],
+    newFile: Option[String],
+    syncContext: SyncContext): List[SyncCommand] =
+    lastFilename match {
+      case last @ Some(lastFile) if last != newFile =>
+        val filepath = (paperDir / lastFile).getCanonicalPath
+        syncContext.views.get((peerId, filepath)) match {
+          case Some(view) =>
+            val response = flushStack(view)
+            val commands = response.map(SyncCommand(lastFile, view.clientShadowRevision, _))
+            commands
+          case None =>
+            Nil
+        }
+      case _ =>
+        Nil
+    }
 
   def flushStack(view: DocumentView): List[SyncAction] = {
     logDebug("Flush stack")
