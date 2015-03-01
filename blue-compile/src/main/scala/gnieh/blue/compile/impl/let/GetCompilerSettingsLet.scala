@@ -38,11 +38,10 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class GetCompilerSettingsLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class GetCompilerSettingsLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
-    case Author =>
-      // only authors users may see other compiler settings
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
+    case Configure() =>
       entityManager("blue_papers").getComponent[CompilerSettings](paperId) map {
         // we are sure that the settings has a revision because it comes from the database
         case Some(settings) =>
@@ -59,7 +58,7 @@ class GetCompilerSettingsLet(paperId: String, val couch: CouchClient, config: Co
       Try(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may see compiler settings")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to see compiler settings")))
 
   }
 

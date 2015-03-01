@@ -38,10 +38,10 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class GetResourceLet(paperId: String, resourceName: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class GetResourceLet(paperId: String, resourceName: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = Try(role match {
-    case Author =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = Try(permissions match {
+    case Edit() =>
       // only authors may get a resource
       val file = configuration.resource(paperId, resourceName)
 
@@ -69,7 +69,7 @@ class GetResourceLet(paperId: String, resourceName: String, val couch: CouchClie
     case _ =>
       talk
         .setStatus(HStatus.Forbidden)
-        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may get resources"))
+        .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to see resources"))
   })
 
 }

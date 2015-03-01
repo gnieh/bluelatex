@@ -42,10 +42,10 @@ import akka.actor.ActorRef
  *
  *  @author Lucas Satabin
  */
-class ModifyCompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class ModifyCompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
-    case Author =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
+    case Configure() =>
       (talk.req.octets, talk.req.header("if-match")) match {
         case (Some(octets), knownRev @ Some(_)) =>
           val manager = entityManager("blue_papers")
@@ -107,8 +107,7 @@ class ModifyCompilerLet(paperId: String, val couch: CouchClient, dispatcher: Act
       Try(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may change compiler settings")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to change compiler settings")))
   }
 
 }
-

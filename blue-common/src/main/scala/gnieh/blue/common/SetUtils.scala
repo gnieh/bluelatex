@@ -25,10 +25,6 @@ object SingletonSet {
 }
 
 object EmptySet {
-  def unapply[T](set: Set[T]): Option[Unit] =
-    if(set.isEmpty)
-      Some()
-    else
-      None
+  def unapply[T](set: Set[T]): Boolean =
+    set.isEmpty
 }
-

@@ -42,10 +42,10 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = role match {
-    case Author =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
+    case Configure() =>
       // only authors may modify this list
       (talk.req.octets, talk.req.header("if-match")) match {
         case (Some(octets), knownRev @ Some(_)) =>
@@ -105,7 +105,7 @@ class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, lo
       Success(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may modify the paper data")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to modify the paper data")))
   }
 
 }

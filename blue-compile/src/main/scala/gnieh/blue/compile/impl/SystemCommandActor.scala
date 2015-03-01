@@ -34,7 +34,7 @@ import scala.sys.process.{
 }
 
 import scala.concurrent.{
-  future,
+  Future,
   Await
 }
 
@@ -64,7 +64,7 @@ class SystemCommandActor(val logger: Logger) extends Actor with Logging {
   private def exec(timeout: Timeout, process: ProcessBuilder) = {
 
     val proc = process.run(SystemProcessLogger)
-    val res = future {
+    val res = Future {
       proc.exitValue()
     }
     try {

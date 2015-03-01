@@ -33,10 +33,10 @@ import com.typesafe.config.Config
 
 import gnieh.sohva.control.CouchClient
 
-class CompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef, config: Config, logger: Logger) extends AsyncRoleLet(paperId, config, logger) {
+class CompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef, config: Config, logger: Logger) extends AsyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Future[Any] = role match {
-    case Author =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Future[Any] = permissions match {
+    case Compile() =>
       val promise = Promise[CompilationStatus]()
 
       // register the client with the paper compiler
@@ -65,11 +65,11 @@ class CompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef,
             .writeJson(ErrorResponse("unable_to_compile", "Compilation failed, more details in the compilation log file."))
       }
 
-    case Reviewer | Other =>
+    case _ =>
       Future.successful(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may compile a paper")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to compile the paper")))
 
   }
 

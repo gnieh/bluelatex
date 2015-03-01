@@ -20,32 +20,45 @@ package permission
  *
  *  @author Lucas Satabin
  */
-sealed trait Permission
-case object Publish extends Permission
-case object Configure extends Permission
-case object Edit extends Permission
-case object Compile extends Permission
-case object Download extends Permission
-case object Read extends Permission
-case object Comment extends Permission
-case object Chat extends Permission
-case object Fork extends Permission
-case object ChangePhase extends Permission
+sealed abstract class Permission(val name: String) {
+  def unapply(permissions: List[Permission]): Boolean =
+    permissions.contains(this)
+}
+
+case object Publish extends Permission("publish")
+case object Configure extends Permission("configure")
+case object Edit extends Permission("edit")
+case object Delete extends Permission("delete")
+case object Compile extends Permission("compile")
+case object Download extends Permission("download")
+case object Read extends Permission("read")
+case object View extends Permission("view")
+case object Comment extends Permission("comment")
+case object Chat extends Permission("chat")
+case object Fork extends Permission("fork")
+case object ChangePhase extends Permission("change-phase")
+final case class Custom(override val name: String) extends Permission(name)
 
 object Permission {
 
-  def apply(name: String): Option[Permission] = name match {
-    case "publish"      => Some(Publish)
-    case "configure"    => Some(Configure)
-    case "edit"         => Some(Edit)
-    case "compile"      => Some(Compile)
-    case "download"     => Some(Download)
-    case "read"         => Some(Read)
-    case "comment"      => Some(Comment)
-    case "chat"         => Some(Chat)
-    case "fork"         => Some(Fork)
-    case "change-phase" => Some(ChangePhase)
-    case _              => None
+  def apply(name: String): Permission = name match {
+    case "publish"      => Publish
+    case "configure"    => Configure
+    case "edit"         => Edit
+    case "delete"       => Delete
+    case "compile"      => Compile
+    case "download"     => Download
+    case "read"         => Read
+    case "comment"      => Comment
+    case "chat"         => Chat
+    case "fork"         => Fork
+    case "change-phase" => ChangePhase
+    case _              => Custom(name)
+  }
+
+  def unapply(x: Any) = x match {
+    case p: Permission => Some(p.name)
+    case _             => None
   }
 
 }

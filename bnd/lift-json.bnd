@@ -1,6 +1,0 @@
-Bundle-Name: Liftweb JSON library
-Bundle-SymbolicName: net.liftweb.json
-Bundle-Version: 2.6.0.RC1
-Export-Package: *
-
-Import-Package: *

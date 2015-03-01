@@ -40,6 +40,7 @@ import com.typesafe.config._
 
 import gnieh.sohva.control.CouchClient
 import gnieh.sohva.control.entities.EntityManager
+import gnieh.sohva.JsonSerializer
 
 /** Register the configuration loader service that is used by everybody
  *
@@ -135,7 +136,7 @@ class BlueCommonActivator extends ActorSystemActivator {
     val port = config.getInt("couch.port")
     val ssl = config.getBoolean("couch.ssl")
     val timeout = Timeout(config.getDuration("couch.timeout", TimeUnit.SECONDS).seconds)
-    val c = new CouchClient(host = hostname, port = port, ssl = ssl)(system, timeout)
+    val c = new CouchClient(host = hostname, port = port, ssl = ssl, custom = List(BluePermissionSerializer))(system, timeout)
     couch = Some(c)
     c
   }

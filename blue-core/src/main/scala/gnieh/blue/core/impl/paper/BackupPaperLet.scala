@@ -48,10 +48,10 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class BackupPaperLet(format: String, paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class BackupPaperLet(format: String, paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = role match {
-    case Author =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
+    case Download() =>
       entityManager("blue_papers").getComponent[Paper](paperId) map {
         case Some(Paper(_, name, _)) =>
           // only authors may backup the paper sources
@@ -96,7 +96,7 @@ class BackupPaperLet(format: String, paperId: String, val couch: CouchClient, co
     case _ =>
       Try(talk
         .setStatus(HStatus.Forbidden)
-        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may backup the paper sources")))
+        .writeJson(ErrorResponse("no_sufficient_rights", "You have no right to download the paper sources")))
   }
 
 }

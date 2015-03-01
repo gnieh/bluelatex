@@ -30,4 +30,4 @@ import permission.{
  *
  *  @author Lucas Satabin
  */
-case class PaperPhase(_id: String, phase: String, permissions: Map[Role, List[Permission]], next: Set[Phase]) extends IdRev
+case class PaperPhase(_id: String, phase: String, permissions: Map[String, List[Permission]], next: List[Phase]) extends IdRev

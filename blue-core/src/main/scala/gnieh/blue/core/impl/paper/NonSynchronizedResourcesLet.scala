@@ -36,11 +36,10 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class NonSynchronizedResourcesLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class NonSynchronizedResourcesLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = Try(role match {
-    case Author =>
-      // only authors may get the list of synchronized resources
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = Try(permissions match {
+    case Edit() =>
       import FileUtils._
       val files =
         configuration
@@ -56,7 +55,7 @@ class NonSynchronizedResourcesLet(paperId: String, val couch: CouchClient, confi
     case _ =>
       talk
         .setStatus(HStatus.Forbidden)
-        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may see the list of non synchronized resources"))
+        .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to see the list of non synchronized resources"))
   })
 
 }

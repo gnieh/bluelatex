@@ -41,7 +41,7 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class SaveResourceLet(paperId: String, resourceName: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class SaveResourceLet(paperId: String, resourceName: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
   override def partsAcceptor(reqInfo: HReqHeaderData) =
     Some(new ResourcePartsAcceptor(reqInfo))
@@ -68,8 +68,8 @@ class SaveResourceLet(paperId: String, resourceName: String, val couch: CouchCli
 
   private var image: Option[Array[Byte]] = None
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = Try(role match {
-    case Author =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = Try(permissions match {
+    case Edit() =>
       // only authors may upload a resource
       val data = image.orElse(talk.req.octets)
 
@@ -100,7 +100,7 @@ class SaveResourceLet(paperId: String, resourceName: String, val couch: CouchCli
     case _ =>
       talk
         .setStatus(HStatus.Forbidden)
-        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may upload resources"))
+        .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to upload resources"))
   })
 
 }

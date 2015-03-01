@@ -102,7 +102,7 @@ class SyncActor(
 
     case Part(peerId, _) => {
       logInfo(s"peer $peerId left paper $paperId")
-      val newViews = syncContext.views.filter { case (peer, _) => peer != peerId }
+      val newViews = syncContext.views.filter { case ((peer, _), _) => peer != peerId }
       val newMessages = syncContext.messages - peerId
       context.become(receiving(syncContext.updateViews(newViews).updateMessages(newMessages)))
     }

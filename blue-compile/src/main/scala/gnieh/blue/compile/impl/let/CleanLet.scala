@@ -34,10 +34,10 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class CleanLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class CleanLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
-    case Author =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
+    case Edit() =>
 
       import FileUtils._
 
@@ -55,7 +55,7 @@ class CleanLet(paperId: String, val couch: CouchClient, config: Config, logger: 
       Try(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may clean compilation results")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to clean compilation results")))
 
   }
 

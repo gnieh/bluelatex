@@ -19,7 +19,7 @@ package impl
 package paper
 
 import http.{
-  SyncRoleLet,
+  SyncPermissionLet,
   ErrorResponse
 }
 
@@ -28,11 +28,7 @@ import common.{
   UserInfo
 }
 
-import permission.{
-  Role,
-  Author,
-  Reviewer
-}
+import permission._
 
 import couch.{
   Paper,
@@ -56,11 +52,10 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class GetPaperRolesLet(paperid: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperid, config, logger) {
+class GetPaperRolesLet(paperid: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperid, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = role match {
-    case Author | Reviewer =>
-      // only authenticated users may see other people information
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
+    case Configure() =>
       val manager = entityManager("blue_papers")
       for(roles <- manager.getComponent[PaperRole](paperid))
         yield roles match {
@@ -75,7 +70,7 @@ class GetPaperRolesLet(paperid: String, val couch: CouchClient, config: Config, 
       Try(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors or reviewers may see paper roles")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to see paper roles")))
   }
 
 }

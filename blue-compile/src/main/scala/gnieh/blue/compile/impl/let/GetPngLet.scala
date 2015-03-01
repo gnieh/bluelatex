@@ -39,12 +39,12 @@ import gnieh.sohva.control.CouchClient
 
 import resource._
 
-class GetPngLet(paperId: String, page: Int, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class GetPngLet(paperId: String, page: Int, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
   import FileUtils._
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
-    case Author | Reviewer =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
+    case View() =>
       val pngPage = paperId + "-" + page + ".png"
       val pngFile = configuration.buildDir(paperId) / pngPage
 
@@ -87,7 +87,7 @@ class GetPngLet(paperId: String, page: Int, val couch: CouchClient, config: Conf
       Try(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors and reviewers may see compiled paper")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to see compiled paper")))
 
   }
 

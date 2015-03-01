@@ -57,10 +57,10 @@ class DeletePaperLet(
   config: Config,
   recaptcha: ReCaptcha,
   logger: Logger)
-    extends SyncRoleLet(paperId, config, logger) {
+    extends SyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = role match {
-    case Author =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
+    case Delete() =>
       // only authors may delete a paper
       // first delete the paper files
       import FileUtils._
@@ -99,7 +99,7 @@ class DeletePaperLet(
       Success(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may delete a paper")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to delete this paper")))
 
   }
 

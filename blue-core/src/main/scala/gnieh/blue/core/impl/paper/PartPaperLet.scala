@@ -42,11 +42,11 @@ class PartPaperLet(
   system: ActorSystem,
   val couch: CouchClient,
   config: Config,
-  logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+  logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = Try {
-    role match {
-      case Author | Reviewer =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = Try {
+    permissions match {
+      case Edit() | Read() =>
         // remove this peer from the current session
         for(peers <- SessionKeys.get[Set[String]](SessionKeys.Peers))
           talk.ses(SessionKeys.Peers) = peers - peerId
@@ -56,7 +56,7 @@ class PartPaperLet(
       case _ =>
         talk
           .setStatus(HStatus.Unauthorized)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors and reviewers may leave a paper"))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to leave the paper"))
     }
   }
 

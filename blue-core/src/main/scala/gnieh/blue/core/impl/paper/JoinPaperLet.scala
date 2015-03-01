@@ -43,17 +43,17 @@ class JoinPaperLet(
   val couch: CouchClient,
   config: Config,
   logger: Logger)
-    extends SyncRoleLet(paperId, config, logger) {
+    extends SyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = Try {
-    role match {
-      case Author | Reviewer =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = Try {
+    permissions match {
+      case Edit() | Read() =>
         system.eventStream.publish(Join(peerId, paperId))
         talk.writeJson(true)
       case _ =>
         talk
           .setStatus(HStatus.Unauthorized)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors and reviewers may join a paper"))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to join the paper"))
     }
   }
 

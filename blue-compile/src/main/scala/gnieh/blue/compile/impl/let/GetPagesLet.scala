@@ -42,12 +42,12 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class GetPagesLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class GetPagesLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
   import FileUtils._
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
-    case Author | Reviewer =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
+    case Read() =>
 
       // the generated pdf file
       val pdfFile = configuration.buildDir(paperId) / s"main.pdf"
@@ -76,7 +76,7 @@ class GetPagesLet(paperId: String, val couch: CouchClient, config: Config, logge
       Try(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors and reviewers may see the number of pages")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to see the number of pages")))
 
   }
 

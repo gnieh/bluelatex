@@ -47,7 +47,7 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class QLet(paperId: String, synchroServer: SynchroServer, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class QLet(paperId: String, synchroServer: SynchroServer, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
   override implicit val formats =
     BlueLet.formats +
@@ -56,8 +56,8 @@ class QLet(paperId: String, synchroServer: SynchroServer, val couch: CouchClient
     new SyncActionSerializer +
     new EditSerializer
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = Try(role match {
-    case Author =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = Try(permissions match {
+    case Edit() =>
       // only authors may modify the paper content
       talk.req.octets match {
         case Some(octets) => {
@@ -99,7 +99,7 @@ class QLet(paperId: String, synchroServer: SynchroServer, val couch: CouchClient
     case _ =>
       talk
         .setStatus(HStatus.Forbidden)
-        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may modify the paper content"))
+        .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to modify the paper content"))
   })
 
 }

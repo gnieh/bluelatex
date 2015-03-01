@@ -34,12 +34,12 @@ import gnieh.sohva.control.CouchClient
 
 import resource._
 
-class GetSyncTeXLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncRoleLet(paperId, config, logger) {
+class GetSyncTeXLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
   import FileUtils._
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Any] = role match {
-    case Author =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
+    case Read() =>
       val syncTeXFile = configuration.buildDir(paperId) / s"main.synctex.gz"
 
       if (!syncTeXFile.exists)
@@ -63,7 +63,7 @@ class GetSyncTeXLet(paperId: String, val couch: CouchClient, config: Config, log
       Try(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may retrieve SyncTeX data")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to retrieve SyncTeX data")))
 
   }
 

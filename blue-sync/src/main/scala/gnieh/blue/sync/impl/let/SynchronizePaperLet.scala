@@ -37,10 +37,10 @@ import gnieh.sohva.control.CouchClient
  *  @author Lucas Satabin
  */
 class SynchronizePaperLet(paperId: String, synchroServer: SynchroServer, val couch: CouchClient, config: Config, logger: Logger)
-    extends SyncRoleLet(paperId, config, logger) {
+    extends SyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Try[Unit] = Try(role match {
-    case Author =>
+  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = Try(permissions match {
+    case Edit() =>
       // only authors may modify the paper content
       talk.req.octets match {
         case Some(octets) =>
@@ -71,7 +71,7 @@ class SynchronizePaperLet(paperId: String, synchroServer: SynchroServer, val cou
     case _ =>
       talk
         .setStatus(HStatus.Forbidden)
-        .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may modify the paper content"))
+        .writeJson(ErrorResponse("no_sufficient_rights", "You have not permission to modify the paper content"))
   })
 
 }
