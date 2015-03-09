@@ -61,7 +61,7 @@ class GetPaperRolesLet(paperid: String, val couch: CouchClient, config: Config, 
         yield roles match {
           // we are sure that the paper has a revision because it comes from the database
           case Some(roles) =>
-            talk.writeJson(Map("authors" -> roles.authors.users, "reviewers" -> roles.reviewers.users), roles._rev.get)
+            talk.writeJson(Map("authors" -> roles.authors.users, "reviewers" -> roles.reviewers.users, "guests" -> roles.guests.users), roles._rev.get)
           case None =>
             talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"Paper $paperid not found"))
         }

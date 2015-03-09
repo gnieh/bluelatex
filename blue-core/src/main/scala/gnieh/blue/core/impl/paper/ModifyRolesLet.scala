@@ -57,11 +57,12 @@ class ModifyRolesLet(paperId: String, val couch: CouchClient, config: Config, lo
               talk.readJson[JsonPatch] match {
                 case Some(patch) =>
                   // the revision matches, we can apply the patch
-                  val roles1 = patch(Map("authors" -> roles.authors.users, "reviewers" -> roles.reviewers.users))
+                  val roles1 = patch(Map("authors" -> roles.authors.users, "reviewers" -> roles.reviewers.users, "guests" -> roles.guests.users))
                   val roles2 =
                     roles.copy(
                       authors = roles.authors.copy(users = roles1("authors")),
-                      reviewers = roles.reviewers.copy(users = roles1("reviewers"))).withRev(knownRev)
+                      reviewers = roles.reviewers.copy(users = roles1("reviewers")),
+                      guests = roles.guests.copy(users = roles1("guests"))).withRev(knownRev)
                   // and save the new paper data
                   for(r <- manager.saveComponent(paperId, roles2))
                     // save successfully, return ok with the new ETag
