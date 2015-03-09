@@ -205,6 +205,11 @@
         "description":"Template"
     },
     {
+        "key":"_Visibility_",
+        "value":"Visibilité",
+        "description":"Visibility"
+    },
+    {
         "key":"_Create_",
         "value":"Créer",
         "description":"Create"
@@ -1037,6 +1042,11 @@
         "key":"_paper_template_tooltip_",
         "value":"Le modèle du document.",
         "description":"tooltip paper page: paper template"
+    },
+    {
+        "key":"_paper_visbility_tooltip_",
+        "value":"Les documents privés ne peuvent être édités que par les auteurs, alors que ceux public peuvent être édités par tous (même les personnes sans compte).",
+        "description":"tooltip paper page: private paper"
     },
 
 

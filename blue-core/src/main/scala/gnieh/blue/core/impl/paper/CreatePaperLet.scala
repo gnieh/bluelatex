@@ -21,6 +21,7 @@ package paper
 import http._
 import couch._
 import common._
+import permission._
 
 import java.util.{
   Date,
@@ -36,6 +37,8 @@ import tiscaf._
 import com.typesafe.config.Config
 
 import org.osgi.framework.BundleContext
+
+import scala.collection.JavaConverters._
 
 import resource._
 
@@ -66,6 +69,8 @@ class CreatePaperLet(
 
         val template = talk.req.param("template").getOrElse("article")
 
+        val visibility = talk.req.param("visibility").getOrElse("private")
+
         val configuration = new PaperConfiguration(config)
 
         val manager = entityManager("blue_papers")
@@ -80,6 +85,7 @@ class CreatePaperLet(
           // add the permissions component to set the creator as author
           roles <- manager.saveComponent(newId, PaperRole(s"$newId:roles", UsersGroups(Set(user.name), Set()), UsersGroups(Set(), Set()),
             UsersGroups(Set(), Set())))
+          visibility <- manager.saveComponent(newId, phase(newId, visibility))
           user <- entityManager("blue_users").getComponent[User](s"org.couchdb.user:${user.name}")
         } yield {
           if(configuration.paperDir(newId).mkdirs) {
@@ -148,6 +154,22 @@ class CreatePaperLet(
             .writeJson(ErrorResponse("cannot_create_paper", "Some parameters are missing")))
 
     }
+
+  private def phase(id: String, visibility: String): PaperPhase = {
+    val permissions =
+      if(config.hasPath(f"blue.permissions.$visibility-defaults"))
+        config.getConfig(f"blue.permissions.$visibility-defaults")
+      else
+        config.getConfig("blue.permissions.private-defaults")
+    val permissions1 = Map[String,List[Permission]](
+      Author.toString -> permissions.getStringList("author").asScala.map(name => Permission(name)).toList,
+      Reviewer.toString -> permissions.getStringList("reviewer").asScala.map(name => Permission(name)).toList,
+      Guest.toString -> permissions.getStringList("guest").asScala.map(name => Permission(name)).toList,
+      Other.toString -> permissions.getStringList("other").asScala.map(name => Permission(name)).toList,
+      Anonymous.toString -> permissions.getStringList("anonymous").asScala.map(name => Permission(name)).toList
+    )
+    PaperPhase(f"$id:phase", "writing", permissions1, Nil)
+  }
 
   object CreationProcessLogger extends ProcessLogger {
     def out(s: => String) =
