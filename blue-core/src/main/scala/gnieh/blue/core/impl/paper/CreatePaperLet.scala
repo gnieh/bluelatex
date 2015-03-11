@@ -85,7 +85,8 @@ class CreatePaperLet(
           // add the permissions component to set the creator as author
           roles <- manager.saveComponent(newId, PaperRole(s"$newId:roles", UsersGroups(Set(user.name), Set()), UsersGroups(Set(), Set()),
             UsersGroups(Set(), Set())))
-          visibility <- manager.saveComponent(newId, phase(newId, visibility))
+          p <- phase(newId, visibility)
+          visibility <- manager.saveComponent(newId, p)
           user <- entityManager("blue_users").getComponent[User](s"org.couchdb.user:${user.name}")
         } yield {
           if(configuration.paperDir(newId).mkdirs) {
@@ -155,20 +156,28 @@ class CreatePaperLet(
 
     }
 
-  private def phase(id: String, visibility: String): PaperPhase = {
-    val permissions =
-      if(config.hasPath(f"blue.permissions.$visibility-defaults"))
-        config.getConfig(f"blue.permissions.$visibility-defaults")
-      else
-        config.getConfig("blue.permissions.private-defaults")
-    val permissions1 = Map[String,List[Permission]](
-      Author.toString -> permissions.getStringList("author").asScala.map(name => Permission(name)).toList,
-      Reviewer.toString -> permissions.getStringList("reviewer").asScala.map(name => Permission(name)).toList,
-      Guest.toString -> permissions.getStringList("guest").asScala.map(name => Permission(name)).toList,
-      Other.toString -> permissions.getStringList("other").asScala.map(name => Permission(name)).toList,
-      Anonymous.toString -> permissions.getStringList("anonymous").asScala.map(name => Permission(name)).toList
-    )
-    PaperPhase(f"$id:phase", "writing", permissions1, Nil)
+  private def phase(id: String, visibility: String)(implicit talk: HTalk): Try[PaperPhase] = {
+    val manager = entityManager("blue_users")
+    for(perms <- manager.getComponent[UserPermissions](id))
+      yield perms match {
+        case Some(perms) =>
+          perms.permissions.get(visibility) match {
+            case Some(p) =>
+              PaperPhase(f"$id:phase", "writing", p.mapValues(_.map(Permission)), Nil)
+            case None =>
+              val builtin = config.getBuiltInPermissions
+              if(builtin.contains(visibility))
+                PaperPhase(f"$id:phase", "writing", builtin(visibility).mapValues(_.map(Permission)), Nil)
+              else
+                PaperPhase(f"$id:phase", "writing", builtin("private").mapValues(_.map(Permission)), Nil)
+          }
+        case None =>
+          val builtin = config.getBuiltInPermissions
+          if(builtin.contains(visibility))
+            PaperPhase(f"$id:phase", "writing", builtin(visibility).mapValues(_.map(Permission)), Nil)
+          else
+            PaperPhase(f"$id:phase", "writing", builtin("private").mapValues(_.map(Permission)), Nil)
+      }
   }
 
   object CreationProcessLogger extends ProcessLogger {

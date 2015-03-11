@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 package gnieh.blue
-package couch
 
-import gnieh.sohva.IdRev
+package object permission {
 
-import permission.{
-  Phase,
-  Role,
-  Permission
+  // some widely used 'built-in' permissions
+
+  val Publish = Permission("publish")
+  val Configure = Permission("configure")
+  val Edit = Permission("edit")
+  val Delete = Permission("delete")
+  val Compile = Permission("compile")
+  val Download = Permission("download")
+  val Read = Permission("read")
+  val View = Permission("view")
+  val Comment = Permission("comment")
+  val Chat = Permission("chat")
+  val Fork = Permission("fork")
+  val ChangePhase = Permission("change-phase")
+
 }
-
-/** Phase component that can be attached to a paper entity.
- *  It associates the current phase to a paper and the next allowed phases as well
- *  as the permissions for this phase.
- *
- *  @author Lucas Satabin
- */
-case class PaperPhase(_id: String, phase: String, permissions: Map[String, Set[Permission]], next: List[Phase]) extends IdRev

@@ -20,45 +20,7 @@ package permission
  *
  *  @author Lucas Satabin
  */
-sealed abstract class Permission(val name: String) {
-  def unapply(permissions: List[Permission]): Boolean =
+final case class Permission(val name: String) {
+  def unapply(permissions: Set[Permission]): Boolean =
     permissions.contains(this)
-}
-
-case object Publish extends Permission("publish")
-case object Configure extends Permission("configure")
-case object Edit extends Permission("edit")
-case object Delete extends Permission("delete")
-case object Compile extends Permission("compile")
-case object Download extends Permission("download")
-case object Read extends Permission("read")
-case object View extends Permission("view")
-case object Comment extends Permission("comment")
-case object Chat extends Permission("chat")
-case object Fork extends Permission("fork")
-case object ChangePhase extends Permission("change-phase")
-final case class Custom(override val name: String) extends Permission(name)
-
-object Permission {
-
-  def apply(name: String): Permission = name match {
-    case "publish"      => Publish
-    case "configure"    => Configure
-    case "edit"         => Edit
-    case "delete"       => Delete
-    case "compile"      => Compile
-    case "download"     => Download
-    case "read"         => Read
-    case "comment"      => Comment
-    case "chat"         => Chat
-    case "fork"         => Fork
-    case "change-phase" => ChangePhase
-    case _              => Custom(name)
-  }
-
-  def unapply(x: Any) = x match {
-    case p: Permission => Some(p.name)
-    case _             => None
-  }
-
 }

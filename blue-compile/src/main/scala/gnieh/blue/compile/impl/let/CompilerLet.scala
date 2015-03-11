@@ -35,7 +35,7 @@ import gnieh.sohva.control.CouchClient
 
 class CompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef, config: Config, logger: Logger) extends AsyncPermissionLet(paperId, config, logger) {
 
-  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Future[Any] = permissions match {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: Set[Permission])(implicit talk: HTalk): Future[Any] = permissions match {
     case Compile() =>
       val promise = Promise[CompilationStatus]()
 

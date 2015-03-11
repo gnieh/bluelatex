@@ -45,7 +45,7 @@ class JoinPaperLet(
   logger: Logger)
     extends SyncPermissionLet(paperId, config, logger) {
 
-  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = Try {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: Set[Permission])(implicit talk: HTalk): Try[Unit] = Try {
     permissions match {
       case Edit() | Read() =>
         system.eventStream.publish(Join(peerId, paperId))

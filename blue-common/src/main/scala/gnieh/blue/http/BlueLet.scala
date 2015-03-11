@@ -253,7 +253,7 @@ trait AsyncAuthenticatedLet {
 abstract class AsyncPermissionLet(val paperId: String, config: Config, logger: Logger) extends AsyncBlueLet(config, logger) with AsyncAuthenticatedLet {
 
   /** Returns the role and associated permissions for the user of this request */
-  private def permissions(implicit talk: HTalk): Try[(Role, List[Permission])] =
+  private def permissions(implicit talk: HTalk): Try[(Role, Set[Permission])] =
     for {
       user <- couchSession.currentUser
       manager = entityManager("blue_papers")
@@ -276,13 +276,13 @@ abstract class AsyncPermissionLet(val paperId: String, config: Config, logger: L
   }
 
   private val defaultRoles = {
-    val defaultConfig = config.getConfig("blue.permissions.private-defaults")
-    Map[String,List[Permission]](
-      Author.toString -> defaultConfig.getStringList("author").asScala.map(name => Permission(name)).toList,
-      Reviewer.toString -> defaultConfig.getStringList("reviewer").asScala.map(name => Permission(name)).toList,
-      Guest.toString -> defaultConfig.getStringList("guest").asScala.map(name => Permission(name)).toList,
-      Other.toString -> defaultConfig.getStringList("other").asScala.map(name => Permission(name)).toList,
-      Anonymous.toString -> defaultConfig.getStringList("anonymous").asScala.map(name => Permission(name)).toList
+    val defaultConfig = config.getConfig("blue.permissions.private")
+    Map[String,Set[Permission]](
+      Author.toString -> defaultConfig.getStringList("author").asScala.map(name => Permission(name)).toSet,
+      Reviewer.toString -> defaultConfig.getStringList("reviewer").asScala.map(name => Permission(name)).toSet,
+      Guest.toString -> defaultConfig.getStringList("guest").asScala.map(name => Permission(name)).toSet,
+      Other.toString -> defaultConfig.getStringList("other").asScala.map(name => Permission(name)).toSet,
+      Anonymous.toString -> defaultConfig.getStringList("anonymous").asScala.map(name => Permission(name)).toSet
     )
   }
 
@@ -305,21 +305,21 @@ abstract class AsyncPermissionLet(val paperId: String, config: Config, logger: L
    *  permission for the current paper.
    *  It is only called when the user is authenticated
    */
-  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Future[Any]
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: Set[Permission])(implicit talk: HTalk): Future[Any]
 
 }
 
 abstract class SyncPermissionLet(val paperId: String, config: Config, logger: Logger) extends SyncBlueLet(config, logger) with SyncAuthenticatedLet {
 
   /** Returns the role and associated permissions for the user of this request */
-  private def permissions(implicit talk: HTalk): Try[(Role, List[Permission])] =
+  private def permissions(implicit talk: HTalk): Try[(Role, Set[Permission])] =
     for {
       user <- couchSession.currentUser
       manager = entityManager("blue_papers")
       Some(roles) <- manager.getComponent[PaperRole](paperId)
       PaperPhase(_, _, permissions, _) <- ensureComponent[PaperPhase](defaultPhase)
       role = roles.roleOf(user)
-    } yield (role, permissions(role.toString))
+    } yield (role, permissions(role.toString.toLowerCase))
 
   private def ensureComponent[T <: IdRev: Manifest](default: String => T)(implicit talk: HTalk): Try[T] = {
     val manager =  entityManager("blue_papers")
@@ -335,13 +335,13 @@ abstract class SyncPermissionLet(val paperId: String, config: Config, logger: Lo
   }
 
   private val defaultRoles = {
-    val defaultConfig = config.getConfig("blue.permissions.private-defaults")
-    Map[String,List[Permission]](
-      Author.toString -> defaultConfig.getStringList("author").asScala.map(name => Permission(name)).toList,
-      Reviewer.toString -> defaultConfig.getStringList("reviewer").asScala.map(name => Permission(name)).toList,
-      Guest.toString -> defaultConfig.getStringList("guest").asScala.map(name => Permission(name)).toList,
-      Other.toString -> defaultConfig.getStringList("other").asScala.map(name => Permission(name)).toList,
-      Anonymous.toString -> defaultConfig.getStringList("anonymous").asScala.map(name => Permission(name)).toList
+    val defaultConfig = config.getConfig("blue.permissions.private")
+    Map[String,Set[Permission]](
+      Author.toString -> defaultConfig.getStringList("author").asScala.map(name => Permission(name)).toSet,
+      Reviewer.toString -> defaultConfig.getStringList("reviewer").asScala.map(name => Permission(name)).toSet,
+      Guest.toString -> defaultConfig.getStringList("guest").asScala.map(name => Permission(name)).toSet,
+      Other.toString -> defaultConfig.getStringList("other").asScala.map(name => Permission(name)).toSet,
+      Anonymous.toString -> defaultConfig.getStringList("anonymous").asScala.map(name => Permission(name)).toSet
     )
   }
 
@@ -362,6 +362,6 @@ abstract class SyncPermissionLet(val paperId: String, config: Config, logger: Lo
    *  permission for the current paper.
    *  It is only called when the user is authenticated
    */
-  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any]
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: Set[Permission])(implicit talk: HTalk): Try[Any]
 
 }
