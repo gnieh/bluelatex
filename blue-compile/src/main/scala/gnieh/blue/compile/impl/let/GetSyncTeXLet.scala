@@ -38,7 +38,7 @@ class GetSyncTeXLet(paperId: String, val couch: CouchClient, config: Config, log
 
   import FileUtils._
 
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
     case Read() =>
       val syncTeXFile = configuration.buildDir(paperId) / s"main.synctex.gz"
 

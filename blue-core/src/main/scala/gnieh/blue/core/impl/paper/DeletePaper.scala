@@ -59,7 +59,7 @@ class DeletePaperLet(
   logger: Logger)
     extends SyncPermissionLet(paperId, config, logger) {
 
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
     case Delete() =>
       // only authors may delete a paper
       // first delete the paper files

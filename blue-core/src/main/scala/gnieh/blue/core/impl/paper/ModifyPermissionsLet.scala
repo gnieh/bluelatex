@@ -44,7 +44,7 @@ import gnieh.sohva.control.CouchClient
  */
 class ModifyPermissionsLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
     case Configure() =>
       // only authors may modify this list
       (talk.req.octets, talk.req.header("if-match")) match {

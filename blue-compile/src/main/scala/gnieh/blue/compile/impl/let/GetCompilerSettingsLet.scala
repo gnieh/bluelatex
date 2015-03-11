@@ -40,7 +40,7 @@ import gnieh.sohva.control.CouchClient
  */
 class GetCompilerSettingsLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
     case Configure() =>
       entityManager("blue_papers").getComponent[CompilerSettings](paperId) map {
         // we are sure that the settings has a revision because it comes from the database

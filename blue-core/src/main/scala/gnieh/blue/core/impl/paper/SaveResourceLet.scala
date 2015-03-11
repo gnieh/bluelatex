@@ -68,7 +68,7 @@ class SaveResourceLet(paperId: String, resourceName: String, val couch: CouchCli
 
   private var image: Option[Array[Byte]] = None
 
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = Try(permissions match {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = Try(permissions match {
     case Edit() =>
       // only authors may upload a resource
       val data = image.orElse(talk.req.octets)

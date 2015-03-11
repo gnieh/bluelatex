@@ -291,7 +291,13 @@ abstract class AsyncPermissionLet(val paperId: String, config: Config, logger: L
 
   final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Future[Any] =
     permissions(talk) match {
-      case Success((role, perms)) => permissionAct(user, role, perms)
+      case Success((role, perms)) => permissionAct(Some(user), role, perms)
+      case Failure(t)             => Future.failed(t)
+    }
+
+  override def unauthenticatedAct(implicit talk: HTalk): Future[Any] =
+    permissions(talk) match {
+      case Success((role, perms)) => permissionAct(None, role, perms)
       case Failure(t)             => Future.failed(t)
     }
 
@@ -299,7 +305,7 @@ abstract class AsyncPermissionLet(val paperId: String, config: Config, logger: L
    *  permission for the current paper.
    *  It is only called when the user is authenticated
    */
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Future[Any]
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Future[Any]
 
 }
 
@@ -344,13 +350,18 @@ abstract class SyncPermissionLet(val paperId: String, config: Config, logger: Lo
 
   final def authenticatedAct(user: UserInfo)(implicit talk: HTalk): Try[Any] =
     permissions(talk) flatMap { case (role, permissions) =>
-      permissionAct(user, role, permissions)
+      permissionAct(Some(user), role, permissions)
+    }
+
+  override def unauthenticatedAct(implicit talk: HTalk): Try[Any] =
+    permissions(talk) flatMap { case (role, permissions) =>
+      permissionAct(None, role, permissions)
     }
 
   /** Implement this method that can behave differently depending on the user
    *  permission for the current paper.
    *  It is only called when the user is authenticated
    */
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any]
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any]
 
 }

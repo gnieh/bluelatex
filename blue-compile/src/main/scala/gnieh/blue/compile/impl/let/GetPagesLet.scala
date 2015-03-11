@@ -46,7 +46,7 @@ class GetPagesLet(paperId: String, val couch: CouchClient, config: Config, logge
 
   import FileUtils._
 
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
     case Read() =>
 
       // the generated pdf file

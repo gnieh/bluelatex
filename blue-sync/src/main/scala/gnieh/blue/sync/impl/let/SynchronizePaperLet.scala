@@ -39,7 +39,7 @@ import gnieh.sohva.control.CouchClient
 class SynchronizePaperLet(paperId: String, synchroServer: SynchroServer, val couch: CouchClient, config: Config, logger: Logger)
     extends SyncPermissionLet(paperId, config, logger) {
 
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = Try(permissions match {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = Try(permissions match {
     case Edit() =>
       // only authors may modify the paper content
       talk.req.octets match {

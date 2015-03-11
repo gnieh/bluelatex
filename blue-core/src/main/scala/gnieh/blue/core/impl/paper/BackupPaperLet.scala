@@ -50,7 +50,7 @@ import gnieh.sohva.control.CouchClient
  */
 class BackupPaperLet(format: String, paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
     case Download() =>
       entityManager("blue_papers").getComponent[Paper](paperId) map {
         case Some(Paper(_, name, _)) =>

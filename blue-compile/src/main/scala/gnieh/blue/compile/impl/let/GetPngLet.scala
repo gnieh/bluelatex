@@ -43,7 +43,7 @@ class GetPngLet(paperId: String, page: Int, val couch: CouchClient, config: Conf
 
   import FileUtils._
 
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
     case View() =>
       val pngPage = paperId + "-" + page + ".png"
       val pngFile = configuration.buildDir(paperId) / pngPage

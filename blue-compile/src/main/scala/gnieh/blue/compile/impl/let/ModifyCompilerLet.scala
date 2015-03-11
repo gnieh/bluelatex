@@ -44,7 +44,7 @@ import akka.actor.ActorRef
  */
 class ModifyCompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Any] = permissions match {
     case Configure() =>
       (talk.req.octets, talk.req.header("if-match")) match {
         case (Some(octets), knownRev @ Some(_)) =>

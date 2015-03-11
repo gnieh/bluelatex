@@ -54,7 +54,7 @@ import gnieh.sohva.control.CouchClient
  */
 class GetPaperInfoLet(paperid: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperid, config, logger) {
 
-  def permissionAct(user: UserInfo, role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: List[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
     case Configure() =>
       val manager = entityManager("blue_papers")
       for(paper <- manager.getComponent[Paper](paperid))
