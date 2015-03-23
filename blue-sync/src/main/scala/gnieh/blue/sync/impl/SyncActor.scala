@@ -215,7 +215,7 @@ class SyncActor(
       view.deltaOk = false
     } else if (revision == view.serverShadowRevision) {
       // The version number matches the shadow, proceed.
-      view.deltaOk == true
+      view.deltaOk = true
     }
 
     action match {
