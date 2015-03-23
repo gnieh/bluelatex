@@ -413,6 +413,15 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
       for (var i = 0; i < sync.commands.length; i++) {
         var command = sync.commands[i];
 
+        // message
+        if(command.action == null && command.json) {
+          if(file.onMessage) {
+            // send message
+            file.onMessage(command);
+          }
+          continue;
+        }
+        
         if (shared.hasOwnProperty(command.filename)) {
           file = shared[command.filename];
           file.deltaOk = true;
@@ -431,15 +440,6 @@ angularMobwrite.factory("MobWriteService", ['$http', '$log', '$q','MobWriteConfi
           file = null;
           if (MobWriteConfig.debug) {
             $log.error('Unknown file: ', command);
-          }
-          continue;
-        }
-        
-        // message
-        if(command.action == null && command.json) {
-          if(file.onMessage) {
-            // send message
-            file.onMessage(command);
           }
           continue;
         }
