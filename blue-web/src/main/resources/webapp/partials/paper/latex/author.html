@@ -13,7 +13,7 @@
 	  </div>
 	</div>
 	<div class="center">
-	  <div class="left">
+	  <div class="controls">
 		<div class="subOption compilerOptions" i18n-Tooltip="_compile_tooltip_">
 		  <div class="label" ng-class="{'process': compileInProgress}">
 			<span class="has_sub_label" ng-click="compile()" data-i18n="_Compile_"></span>
@@ -92,7 +92,7 @@
 		  </div>
 		</div>
 	  </div>
-	  <div class="right">
+	  <div class="">
 		<div class="connectedUsers">
 		  <div class="connectedUser" ng-repeat="user in connectedUsers" ng-class="user.class+'Bg '+user.forground">
 			<span class="label">{{user.name.charAt(0)}}</span>

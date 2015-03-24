@@ -157,25 +157,27 @@
         box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
     .top.options {
+        display: table;
         > .left {
             width: 215px;
             float: left;
         }
         > .center {
             position: absolute;
-            top: 0;
-            bottom: 0;
+            display: block;
             left: 215px;
             right: 0;
+            top: 0;
+            bottom: 0;
             > div {
+                display: inline;
                 position: relative;
-                height: 100%;
             }
-            .right {
-                width: 50%;
-                position: absolute;
-                right: 0;
-                top: 0;
+            .controls {
+                display: inline;
+                min-width: 50%;
+                position: relative;
+                float: left;
             }
         }
         .option {
@@ -185,6 +187,7 @@
             user-select: none;
             line-height: 40px;
             padding: 0 6px;
+            padding-top: 2px;
             cursor: pointer;
             &:hover {
                 background: rgba(0,0,0,0.2);
@@ -378,7 +381,7 @@
 }
 .subOption {
     position: relative;
-    height: 100%;
+    height: 40px;
     float: left;
     padding-left: 6px;
     user-select: none;
@@ -414,7 +417,7 @@
         position: relative;
         display: inline-block;
         > span {
-            line-height: 40px;
+            line-height: 37px;
             &.has_sub_label {
                 position: relative;
                 top: -7px;
