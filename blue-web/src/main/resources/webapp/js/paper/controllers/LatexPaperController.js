@@ -617,7 +617,6 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
           deferred.reject("compile in progress");
           return deferred.promise;
         }
-
         compileActive = true;
         PaperService.subscribePaperCompiler($scope.paperId).then(function (data) {
           compileActive = false;
@@ -761,6 +760,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
                 $scope.compileInProgress = true;
                 $scope.$$phase || $scope.$apply();
                 MobWriteService.synchronize().then(function() {
+                  $scope.logs = [];
                   $scope.compile().finally(function() {
                     $scope.compileInProgress = false;
                     $scope.$$phase || $scope.$apply();
