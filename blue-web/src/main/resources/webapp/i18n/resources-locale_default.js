@@ -648,6 +648,16 @@
         "value":"Filename",
         "description":"Filename"
     },
+    {
+        "key":"_Open_PDF_popup_",
+        "value":"External viewer",
+        "description":"Button Open PDF in a popup"
+    },
+    {
+        "key":"_open_PDF_popup_tooltip_",
+        "value":"Open PDF in a new window",
+        "description":"Tooltip button Open PDF in a popup"
+    },
 
 
     {

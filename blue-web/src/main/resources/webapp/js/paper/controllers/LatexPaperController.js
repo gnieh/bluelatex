@@ -41,6 +41,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
     'MessagesService',
     'SyncTexParserService',
     '$document',
+    '$window',
     'WindowActiveService',
     'LatexService',
     'MobWriteService',
@@ -59,6 +60,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
               MessagesService,
               SyncTexParserService,
               $document,
+              $window,
               WindowActiveService,
               LatexService,
               MobWriteService,
@@ -129,6 +131,9 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
       /* Exit Paper */
       /**************/
       var exitPaper = function () {
+        if($scope.isPDFPopupOpen) {
+          pdfPopup.close();
+        }
         pageActive = false;
         WindowActiveService.removeObserverCallback(windowStatusCallback);
         AceMobWriteClient.message({ type: 'leave', 'user': $rootScope.loggedUser.name });
@@ -136,12 +141,12 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
         PaperService.leavePaper($scope.paperId, peerId);
       };
       
-      window.onbeforeunload = function () {
+      $window.onbeforeunload = function () {
         AceMobWriteClient.message({ type: 'leave', 'user': $rootScope.loggedUser.name });
         return localize.getLocalizedString('_Exit_paper_confirm_');
       };
 
-      window.onunload = function () {
+      $window.onunload = function () {
         exitPaper();
       };
 
@@ -189,6 +194,10 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
         PaperService.getSynctex($scope.paperId).then(function (data) {
           $scope.synctex = SyncTexParserService.parse(data);
           $rootScope.$$phase || $rootScope.$apply();
+
+          if($scope.isPDFPopupOpen && pdfPopup) {
+            pdfPopup.updateSynctex($scope.synctex);
+          }
         });
       };
 
@@ -259,6 +268,9 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
           for (var i = 0; i < $scope.synchronizedFiles.length; i++) {
             if($scope.synchronizedFiles[i].title == "main.tex") {
               $scope.currentFile = $scope.synchronizedFiles[i];
+              if (pdfPopup) {
+                pdfPopup.updateCurrentFile($scope.currentFile);
+              }
               break;
             }
           }
@@ -503,6 +515,9 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
         if($scope.currentFile == file) return;
         MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title}).then(function(data) {
           $scope.currentFile = file;
+          if (pdfPopup) {
+            pdfPopup.updateCurrentFile($scope.currentFile);
+          }
           $scope.content = '';
           AceService.setContent($scope.content);
           AceService.getEditor().focus();
@@ -582,7 +597,6 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
             // give the focus to the editor when the window is active
             AceService.getEditor().focus();
             pageActive = true;
-            $scope.compile();
           }
         } else {
           pageActive = false;
@@ -631,7 +645,11 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
           getLog();
           if(data.response == true) {
             $scope.revision++;
-            parsePDF();
+            if($scope.isPDFPopupOpen) {
+              pdfPopup.updatePDF();
+            } else {
+              parsePDF();  
+            }
             getSyncTex();
             getPages();
           }
@@ -780,6 +798,9 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
           AceService.getEditor().selection.on("changeCursor", function(){
             AceMobWriteClient.message({ type: 'cursor', 'user': $rootScope.loggedUser.name });
             $scope.currentLine = parseInt(_editor.selection.getCursor().row)+1;
+            if (pdfPopup) {
+              pdfPopup.updateCurrentLine($scope.currentLine);
+            }
             $rootScope.$$phase || $rootScope.$apply();
             if(!$scope.synctex) return;
             if(!$scope.synctex.blockNumberLine[$scope.currentFile.title]) return;
@@ -851,6 +872,9 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
         }
       });
 
+      /********************/
+      /* MobWrite Message */ 
+      /********************/
       $scope.connectedUsers = {};
       var userStyle = document.createElement('style');
       userStyle.type = 'text/css';
@@ -938,5 +962,41 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
       $scope.range = function(n) {
         return new Array(parseInt(n));
       };
+
+      /*************/
+      /* PDF Popup */ 
+      /*************/
+      var pdfPopup;
+      $scope.isPDFPopupOpen = false;
+
+      $scope.openPDFPopup = function() {
+        if($scope.isPDFPopupOpen) {
+          return;
+        }
+        pdfPopup = $window.open('/pdfPopup.html','PDF','menubar=no,toolbar=no,width=' + Math.round($window.screen.width/2) + ',height=' +  Math.round($window.screen.height) + ',left=' + Math.round($window.screen.width/2) + ',top=0,resizable=yes,scrollbars=yes');
+        pdfPopup.currentFile = $scope.currentFile;
+        pdfPopup.currentLine = $scope.currentLine;
+        pdfPopup.synctex = $scope.synctex;
+        pdfPopup.pdfURL = $scope.pdfURL;
+        pdfPopup.goToLine = $scope.goToLine;
+        pdfPopup.changeFileFromName = $scope.changeFileFromName;
+        
+        
+        pdfPopup.onunload = function () {
+          if(!$scope.isPDFPopupOpen) {
+            return;
+          }
+          $scope.isPDFPopupOpen = false;
+          pdfPopup = null;
+          $scope.$apply();
+        };
+
+        pdfPopup.onload = function () {
+          $scope.isPDFPopupOpen = true;
+          $scope.currentPage = 1;
+          $scope.linePage = 1;
+          $scope.page = 1;
+        };
+      }
     }
   ]);

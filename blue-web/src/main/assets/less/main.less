@@ -596,3 +596,17 @@ a, a:visited,a:focus,a:active {
 .debug_block.vertical{
 	border: 1px solid orange;
 }
+
+button, .button {
+    &.process::after {
+        position: absolute;
+        display: block;
+        content: "";
+        background-image: url("@{url_images}/spin.gif");
+        background-repeat: no-repeat;
+        width: 16px;
+        height: 16px;
+        top: 11px;
+        right: 8px;
+    }
+}

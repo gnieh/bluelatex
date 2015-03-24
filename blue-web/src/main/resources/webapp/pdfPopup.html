@@ -1,0 +1,463 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="shortcut icon" type="image/png" href="favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>PDF viewer</title>
+    <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="css/css.css">
+    <style type="text/css">
+    #paper .options {
+        top: 0;
+    }
+    #preview {
+        padding-top: 42px;
+        border: 0;
+    }
+    </style>
+    <script src="js/utilities.js"></script>
+
+    <script src="lib/pdfjs/pdf.js"></script>
+    <script>
+        // Specify the main script used to create a new PDF.JS web worker.
+        // In production, leave this undefined or change it to point to the
+        // combined `pdf.worker.js` file.
+        PDFJS.workerSrc = 'lib/pdfjs/pdf.worker.js';
+    </script>
+</head>
+<body id="paper">
+    <div class="top options">
+        <div class="option">
+            <div class="label">
+                <span onclick="window.close()">Close</span>
+            </div>
+        </div>
+        <div class="right">
+            <div class="pdf_action" ng-if="!isPDFPopupOpen">
+              <div class="scale">
+                <select id="ratio" onchange="scale(this)">
+                  <option value="auto">Auto</option>
+                  <option value="0.5">50%</option>
+                  <option value="0.75">75%</option>
+                  <option value="1">100%</option>
+                  <option value="1.25">125%</option>
+                  <option value="1.50">150%</option>
+                  <option value="2">200%</option>
+                </select>
+              </div>
+              <div class="navigation">
+                <div class="prevPage icon-prev-page" onclick="prevPage()">&nbsp;</div>
+                <input id="currentPage" type="number" min="1" value="1" onchange="changePage(this.value)">
+                <span>/</span>
+                <div class="totalPage" id="totalPage">1</div>
+                <div class="nextPage icon-next-page" onclick="nextPage()">&nbsp;</div>
+              </div>
+            </div>
+        </div>
+    </div>
+    <div id="preview"></div>
+
+    <script>
+        if(window.pdfURL == null) {
+            window.close();
+        }
+        var preview = document.getElementById('preview');
+        var $currentPage = document.getElementById('currentPage');
+
+        var currentPage = 1;
+
+        function scale() {
+            if(pdf) {
+                renderPDF(pdf);
+            }
+        }
+        function nextPage() {
+            changePage(++currentPage);
+        }
+        function prevPage() {
+            changePage(--currentPage);
+        }
+        function changePage(page) {
+            if (page > pdf.numPages) {
+                return updateCurrentPage(pdf.numPages);   
+            } 
+            if (page < 1) {
+                return updateCurrentPage(1);   
+            }
+            preview.scrollTop = preview.children[page - 1].offsetTop - 45;
+        }
+
+        function updateCurrentPage(page) {
+            currentPage = page;
+            $currentPage.value = page;
+        }
+
+        window.updateCurrentLine = function (currentLine) {
+            window.currentLine = currentLine;
+            clearHightlights();
+            for (var i = 0; i < pdf.numPages; i++) {
+                renderHightlight(updateHightlight(currentFile.title, currentLine,  i + 1), preview.children[i]);
+            }
+        }
+
+        window.updateCurrentFile = function (currentFile) {
+            window.currentFile = currentFile;
+            clearHightlights();
+            for (var i = 0; i < pdf.numPages; i++) {
+                renderHightlight(updateHightlight(currentFile.title, currentLine,  i + 1), preview.children[i]);
+            }
+        }
+
+        window.updateSynctex = function (synctex) {
+            window.synctex = synctex;
+            clearHightlights();
+            for (var i = 0; i < pdf.numPages; i++) {
+                renderHightlight(updateHightlight(currentFile.title, currentLine,  i + 1), preview.children[i]);
+            }
+        }
+
+        // change the page with the keyboard
+        window.onkeyup = function (e) {
+            if (e.keyCode == 39) {
+                nextPage();
+            } else if (e.keyCode == 37) {
+                prevPage();
+            }
+        }
+
+        function updatePDF() {
+            PDFJS.getDocument(pdfURL).then(renderPDF);
+        }
+        updatePDF();
+
+        var ratio,
+            pdf,
+            scrollTimeout,
+            pdfDimension;
+
+        preview.onscroll = function (event) {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(function () {
+                var max = null;
+                var witchMax = 0;
+                var prev = null;
+                for (var i = 0; i < preview.children.length; i++) {
+                    var c = preview.children[i];
+                    var top = c.offsetTop - preview.scrollTop;
+                    var visible = 0;
+                    if(top < 0) {
+                        visible = c.offsetHeight + top;
+                    } else {
+                        visible = preview.offsetHeight - top;
+                    }
+
+                    visible /= c.offsetHeight;
+                    if(visible >= max || max == null) {
+                        witchMax = i;
+                        max = visible;
+                        if(max >= 1) {
+                            break;
+                        }
+                    } else if(prev > visible){
+                        break;
+                    }
+                    prev = visible;
+                }
+                updateCurrentPage(witchMax +1);
+            }, 10);
+        }
+
+        function renderPDF(p) {
+            pdf = p;
+            preview.innerHTML = '';
+            document.getElementById('totalPage').innerHTML = pdf.numPages;
+            clearHightlights();
+            for (var numPage = 1; numPage < pdf.numPages + 1; numPage++) {
+                pdf.getPage(numPage).then(renderPage);
+            };
+        }
+
+        function renderPage(page) {
+            var preview_page_container = document.createElement('div');
+            preview_page_container.className = "preview_page_container";
+
+            var containerDiv = document.createElement('div');
+            containerDiv.className = "container";
+            preview_page_container.appendChild(containerDiv);
+
+            var textLayerDiv = document.createElement('div');
+            textLayerDiv.className = "textLayer";
+            containerDiv.appendChild(textLayerDiv);
+
+            var hightlightsDiv = document.createElement('div');
+            hightlightsDiv.className = "hightlights";
+            containerDiv.appendChild(hightlightsDiv);
+
+            var canvas = document.createElement('canvas');
+            canvas.height = 0;
+            containerDiv.appendChild(canvas);
+
+            preview.appendChild(preview_page_container);
+            
+            var ratio = Number(document.getElementById('ratio').value);
+            if(!ratio) {
+                ratio = preview_page_container.clientWidth/page.getViewport(1.0).width;
+            }
+
+            var viewport = page.getViewport(ratio);
+
+            pdfDimension = {
+                scale: ratio,
+                height: viewport.height
+            };
+            //Set the canvas height and width to the height and width of the viewport
+            var context = canvas.getContext('2d');
+            var outputScale = getOutputScale(context);
+
+            containerDiv.style.height = viewport.height + 'px';
+            containerDiv.style.width = viewport.width + 'px';
+            canvas.width = (Math.floor(viewport.width) * outputScale.sx) | 0;
+            canvas.height = (Math.floor(viewport.height) * outputScale.sy) | 0;
+            textLayerDiv.style.width = canvas.width + 'px';
+            textLayerDiv.style.height = canvas.height + 'px';
+
+            textLayerDiv.innerHTML = '';
+
+            var cssScale = 'scale(' + (1 / outputScale.sx) + ', ' +
+              (1 / outputScale.sy) + ')';
+            PDFJS.CustomStyle.setProp('transform', canvas, cssScale);
+            PDFJS.CustomStyle.setProp('transformOrigin', canvas, '0% 0%');
+
+            if (textLayerDiv) {
+              PDFJS.CustomStyle.setProp('transform', textLayerDiv, cssScale);
+              PDFJS.CustomStyle.setProp('transformOrigin', textLayerDiv, '0% 0%');
+            }
+
+            context._scaleX = outputScale.sx;
+            context._scaleY = outputScale.sy;
+            if (outputScale.scaled) {
+              context.scale(outputScale.sx, outputScale.sy);
+            }
+            
+            var renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+
+            page.render(renderContext);
+
+            renderHightlight(updateHightlight(currentFile.title, currentLine,  page.pageNumber), preview_page_container);
+            preview_page_container.onclick = function (event) {
+                getCurrentLine(event, page.pageNumber)
+            };
+        }
+
+        window.onresize = function() {
+            if(pdf) {
+                renderPDF(pdf);
+            }
+        }
+
+        var clearHightlights = function () {
+            var hightlight_lines = preview.getElementsByClassName('hightlight_line');
+            for (var i = hightlight_lines.length - 1; i >= 0; i--) {
+                hightlight_lines[i].remove();
+            }
+        }
+
+        var renderHightlight =  function (hightlights, dest) {
+            if (!hightlights) {
+                return;
+            }
+            if (!dest) {
+                return;
+            }
+            for (var i = hightlights.length - 1; i >= 0; i--) {
+                var hightlight = hightlights[i]
+                var block = document.createElement('div');
+
+                block.style.top = hightlight.top;
+                block.style.left = hightlight.left;
+                block.style.width =  hightlight.width;
+                block.style.height = hightlight.height;
+                block.style['z-index'] = 1;
+
+                block.className = "hightlight_line";
+
+                dest.getElementsByClassName('hightlights')[0].appendChild(block);
+            }
+        };
+
+        /**
+        * Update the line hightlight
+        */
+        var updateHightlight = function(file, line, page) {
+          var hightlights = [];
+          // check in the pdf is loaded
+          if(!pdfDimension) return;
+          // check of the synctex file is loaded
+          if(!window.synctex) return;
+          if(!window.synctex.blockNumberLine) return;
+          if(!window.synctex.blockNumberLine[file]) return;
+          if(!window.synctex.blockNumberLine[file][line]) return;
+          if(!window.synctex.blockNumberLine[file][line][page]) return;
+          // get all elements of the current line
+          var elems = window.synctex.blockNumberLine[file][line][page];
+          if(!elems.length || !elems[0]) return;
+
+          var lines = [];
+          var cLine = {
+            positionFirst: elems.length - 1,
+            minLeft: elems.length - 1,
+            maxLeft: elems.length - 1,
+            bottom: elems[elems.length - 1].bottom,
+            height: elems[elems.length - 1].height
+          };
+          // Create the largest box
+          for (var i = elems.length - 2; i >= 0; i--) {
+            var e=elems[i];
+            if(e.page != page) continue;
+            if(e.parent.type == "vertical") continue;
+            if(e.type=='k') continue;
+            if(e.bottom!=cLine.bottom){
+              var toAdd = true;
+              for (var  j= 0; j < lines.length && toAdd; j++) {
+                if(cLine.bottom >= lines[j].bottom && 
+                   cLine.height <= lines[j].height  &&
+                   cLine.minLeft >= lines[j].minLeft && 
+                   cLine.maxLeft <= lines[j].maxLeft) {
+                  toAdd = false;
+                }
+              };
+              if(toAdd) {
+                lines.push(cLine);
+              }
+              cLine = {
+                positionFirst: i,
+                minLeft: i,
+                maxLeft: i,
+                bottom: elems[i].bottom,
+                height: elems[i].height
+              };
+              continue;
+            }
+            if(e.left < elems[cLine.minLeft].left) {
+              cLine.minLeft = i;
+              cLine.positionFirst = i;
+            } else if(e.left > elems[cLine.maxLeft].left) {
+              cLine.maxLeft = i;
+            }
+            if(e.height>cLine.height) {
+              cLine.height=e.height;
+            }
+          }
+
+          var toAdd = true;
+          for (var i = 0; i < lines.length && toAdd; i++) {
+            if(cLine.bottom > lines[i].bottom && 
+               cLine.height < lines[i].height  &&
+               cLine.minLeft > lines[i].minLeft && 
+               cLine.maxLeft < lines[i].maxLeft) {
+              toAdd = false;
+            }
+          };
+          if(toAdd) {
+            lines.push(cLine);
+          }
+
+          // display all hightlight lines
+          for (var i = lines.length - 1; i >= 0; i--) {
+            var line = lines[i];
+            var minPosition = elems[line.minLeft].parent.elements.indexOf(elems[line.minLeft]);
+            var maxPosition = elems[line.minLeft].parent.elements.indexOf(elems[line.maxLeft]);
+
+            var left = elems[line.minLeft].left;
+            if(minPosition <= 1) {
+              left = elems[line.minLeft].parent.left;
+            } else if(elems[line.minLeft-1]){
+              left = elems[line.minLeft-1].left;
+            }
+            var width = elems[line.maxLeft].left-left;
+
+            var offset = convertToViewportPoint(window.synctex.offset.x, window.synctex.offset.y, pdfDimension);
+            var s1 = convertToViewportPoint(left, line.bottom, pdfDimension);
+            var s2 = convertToViewportPoint(width, line.height, pdfDimension);
+
+            hightlights.push({
+              height: (pdfDimension.height-s2[1])+'px',
+              width: s2[0] + "px",
+              left: (window.synctex.offset.x + s1[0]) + "px",
+              top : (window.synctex.offset.y + pdfDimension.height-s1[1]-(pdfDimension.height-s2[1])) + 'px'
+            });
+          }
+          return hightlights;
+        };
+
+        // find the line associate to the position of the click event
+        var seuil = 2;
+        var getCurrentLine = function(event, page) {
+          if(synctex == null) return;
+          var x=event.layerX;
+          var y=event.layerY;
+          var target = event.target;
+          while(target != event.currentTarget && target!=null && target!=document) {
+            x+=target.offsetLeft;
+            y+=target.offsetTop;
+            target = target.parent;
+          }
+          for (var i = synctex.hBlocks.length - 1; i >= 0; i--) {
+            var hBlock = synctex.hBlocks[i];
+
+            var s1 = convertToViewportPoint(hBlock.left, hBlock.bottom, pdfDimension);
+            var s2 = convertToViewportPoint(hBlock.width, hBlock.height, pdfDimension);
+
+            var dim = {
+              height: (pdfDimension.height-s2[1]),
+              width: s2[0],
+              left: synctex.offset.x + s1[0],
+              top : synctex.offset.y + s2[1]-s1[1]
+            };
+            if(page == hBlock.page &&
+                y <= dim.top + dim.height + seuil &&
+                y >= dim.top - seuil &&
+                x >= dim.left - seuil &&
+                x <= dim.left + dim.width + seuil ){
+              for (var i = hBlock.elements.length - 1; i >= 1; i--) {
+                var e = hBlock.elements[i];
+                if(e.left >= x && hBlock.elements[i-1].left <= x ) {
+                  currentLine = (i<=(hBlock.elements.length - 3)?hBlock.elements[i+1].line:e.line);
+                  if(currentFile.title != e.file.name) {
+                    changeFileFromName(e.file.name, currentLine);
+                  } else {
+                    goToLine(currentLine);
+                  }
+                  return;
+                }
+              }
+              if(hBlock.elements[1]) {
+                currentLine = hBlock.elements[1].line;
+                if($scope.currentFile.title != hBlock.file.name) {
+                  changeFileFromName(hBlock.file.name);
+                  (function(line) {
+                    setTimeout(function(arguments) {
+                      goToLine(line);
+                    }, 750);
+                  })(currentLine);
+                
+                } else {
+                  goToLine(currentLine);
+                }
+                return;
+              }
+              break;
+            }
+          }
+        };
+    </script>
+</body>
+</html>

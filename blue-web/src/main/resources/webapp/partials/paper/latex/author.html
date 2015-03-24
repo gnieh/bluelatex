@@ -10,6 +10,10 @@
 			<input type="radio" name="listType" value="toc" id="toc" ng-model="listType">
 			<span class="icon-list" ></span>
 		</label>
+		<label class="btn btn-default" ng-class="{'active': listType=='settings'}" for="settings" i18n-Tooltip="_settings_tooltip_">
+			<input type="radio" name="listType" value="settings" id="settings" ng-model="listType">
+			<span class="icon-settings" ></span>
+		</label>
 	  </div>
 	</div>
 	<div class="center">
@@ -42,11 +46,6 @@
 			</div>
 		  </div>
 		</div>
-		<div class="option">
-			<div class="label" ng-class="{'process': cleanupInProgress}">
-				<span ng-click="cleanup()" data-i18n="_Cleanup_" i18n-Tooltip="_cleanup_tooltip_"></span>
-			</div>
-		</div>
 		<div class="subOption">
 		  <div class="label">
 			<span ng-click="downloadPDF()" data-i18n="_Download_" i18n-Tooltip="_download_pdf_tooltip_"></span>
@@ -59,12 +58,11 @@
 			<div ng-click="downloadLog()" data-i18n="_Download_Log_" i18n-Tooltip="_download_log_tooltip_"></div>
 		  </div>
 		</div>
-		<div class="option">
+		<div class="option" ng-if="!isPDFPopupOpen">
 			<div class="label">
-				<span ng-click="share()" data-i18n="_Share_" i18n-Tooltip="_share_tooltip_"></span>
+				<span ng-click="openPDFPopup()" data-i18n="_Open_PDF_popup_" i18n-Tooltip="_open_PDF_popup_tooltip_"></span>
 			</div>
 		</div>
-		<div class="option itsalltext" ng-click="openItsalltext()" data-i18n="_Emacs_users_"></div>
 		<div class="errors subOption" ng-show="logs.errors.length > 0">
 		  <div class="label">
 			<span data-i18n="_Errors_"></span> {{logs.errors.length}}
@@ -106,7 +104,7 @@
 		  </div>
 		</div>
 		<div class="messages" bl-messages></div>
-		<div class="pdf_action">
+		<div class="pdf_action" ng-if="!isPDFPopupOpen">
 		  <div class="scale" i18n-Tooltip="_scale_tooltip_">
 			<select ng-model="scale">
 			  <option value="auto">Auto</option>
@@ -136,7 +134,7 @@
 		<img src="{{resourceURL}}">
 	  </div>
 	</div>
-	  <section class="centerCol">
+	  <section class="centerCol" ng-class="{'full': isPDFPopupOpen}">
 	  	  <div class="contentLoad" ng-show="onContentOnload" data-i18n="_Loading_"></div>
 		  <div ui-ace="{
 			useWrapMode : true,
@@ -149,7 +147,7 @@
 					itsalltext-control="content"
 					itsalltext-extension=".tex"></textarea>
 	  </section>
-	  <section class="rightCol">
+	  <section class="rightCol" ng-if="!isPDFPopupOpen">
 		  <div class="pdfprogress" style="width: {{pdfProgress}}%"></div>
 		  <div id="preview" when-scrolled>
 			<div ng-repeat="n in range(totalPage) track by $index" class="preview_page_container" bl-preview
@@ -173,6 +171,11 @@
 	<div class="close icon-close" ng-click="listType=none;"></div>
 	<div class="bg" ng-click="listType=none;"></div>
 	<section class="list" ng-switch="listType">
+	  <div class="settings" ng-switch-when="settings">
+		<button ng-click="cleanup()" ng-class="{'process': cleanupInProgress}" data-i18n="_Cleanup_" i18n-Tooltip="_cleanup_tooltip_"></button>
+		<button ng-click="share()" data-i18n="_Share_" i18n-Tooltip="_share_tooltip_"></button>
+		<button class="itsalltext" ng-click="openItsalltext()" data-i18n="_Emacs_users_"></button>
+	  </div>
 	  <div class="toc" ng-switch-when="toc" bl-toc="toc"></div>
 	  <div class="files" ng-switch-when="files">
 		<div id="file_list">
