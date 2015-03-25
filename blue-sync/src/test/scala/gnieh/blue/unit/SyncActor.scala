@@ -211,6 +211,30 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
 
     }
 
+    scenario("a user sends a synchronization command with invalid server revision on existing file and accepts the raw response") {
+
+      Given("a synchronization actor, already used by a user")
+      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
+      syncActor ! SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(Add("Hello")), false))))
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(5)), false)))))
+
+      And("a synchronization command with invalid server revision")
+      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 51, Delta(0, List(), false))))
+
+      When("he sends the message")
+      syncActor ! request
+
+      Then("the actor should detect the invalid revision and send Raw version")
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 2, Raw(1, "Hello", true)))))
+
+      Then("the user accepts the change and sends a delta request")
+      val request2 = SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(2, List(Equality(5)), false))))
+      syncActor ! request2
+
+      Then("the actor should process the delta and sends back a response")
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 3, Delta(1, List(Equality(5)), false)))))
+    }
+
     scenario("persists an existing file on disk") {
 
       Given("a synchronization actor")

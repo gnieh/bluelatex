@@ -46,3 +46,14 @@ Patch release mainly to fix a bug in the synchronization protocol on the server 
  - Fix script loading order to avoid display problems on slow networks (issue #189)
  - Reenable use of standard key binings in web browser (issue #171)
  - Fix PDF rendering on small displays (issue #182)
+
+Version 1.0.5
+-------------
+
+Patch release with a major synchronization bug fix and few UI improvements.
+
+ - Fix synchronization bug that may lead to data loss (issue #188)
+ - Fix cursor appearing in multiple files (issue #196)
+ - Fix persistent cursor after an author left the paper (issue #195)
+ - Cleanup error and wraning upon compilation (issue #201)
+ - Improvements in the UI
