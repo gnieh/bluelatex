@@ -135,6 +135,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
       };
       
       window.onbeforeunload = function () {
+        AceMobWriteClient.message({ type: 'leave', 'user': $rootScope.loggedUser.name });
         return localize.getLocalizedString('_Exit_paper_confirm_');
       };
 
@@ -616,7 +617,6 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
           deferred.reject("compile in progress");
           return deferred.promise;
         }
-
         compileActive = true;
         PaperService.subscribePaperCompiler($scope.paperId).then(function (data) {
           compileActive = false;
@@ -760,6 +760,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
                 $scope.compileInProgress = true;
                 $scope.$$phase || $scope.$apply();
                 MobWriteService.synchronize().then(function() {
+                  $scope.logs = [];
                   $scope.compile().finally(function() {
                     $scope.compileInProgress = false;
                     $scope.$$phase || $scope.$apply();
@@ -862,6 +863,15 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
               AceService.getSession().removeMarker($scope.connectedUsers[user].peer[peer].range);
               $scope.connectedUsers[user].peer[peer].range == null;
             }
+            var now = new Date();
+            now.setMinutes(now.getMinutes() - 1);
+            if($scope.connectedUsers[user].peer[peer].time <= now) {
+              delete $scope.connectedUsers[user].peer[peer];
+              if(Object.keys($scope.connectedUsers[user].peer).length == 0) {
+                delete $scope.connectedUsers[user];
+              }
+              continue;
+            }
             if($scope.connectedUsers[user].peer[peer].file == $scope.currentFile.title) {
               var cursor = $scope.connectedUsers[user].peer[peer].getPosition();
               var cursorClass= "ace_cursor "+$scope.connectedUsers[user].class+"Color";
@@ -906,7 +916,8 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
           $scope.connectedUsers[message.json.user].peer[message.from] = {
             getPosition: message.json.getPosition,
             range: null,
-            file: message.filename
+            file: message.filename,
+            time: new Date()
           };
           createUserStyle();
 
