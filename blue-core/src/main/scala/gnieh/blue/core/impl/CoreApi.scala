@@ -76,12 +76,18 @@ class CoreApi(
     // save the data for the authenticated user
     case p"users/$username/info" =>
       new ModifyUserLet(username, couch, config, logger)
+    // save the permission set for the authenticated user
+    case p"users/$username/permissions" =>
+      new ModifyUserPermissionsLet(username, couch, config, logger)
     // modify paper information such as paper name
     case p"papers/$paperid/info" =>
       new ModifyPaperLet(paperid, couch, config, logger)
     // add or remove people involved in this paper (authors, reviewers)
     case p"papers/$paperid/roles" =>
       new ModifyRolesLet(paperid, couch, config, logger)
+    // add or remove permissions for each role in this paper
+    case p"papers/$paperid/permissions" =>
+      new ModifyPermissionsLet(paperid, couch, config, logger)
   }
 
   private val GetUsersLet = new GetUsersLet(couch, config, logger)
@@ -93,6 +99,9 @@ class CoreApi(
     // gets the data of the given user
     case p"users/$username/info" =>
       new GetUserInfoLet(username, couch, config, logger)
+    // get the permission sets available to the user
+    case p"users/$username/permissions" =>
+      new GetUserPermissionsLet(username, couch, config, logger)
     // gets the list of papers the given user is involved in
     case p"users/$username/papers" =>
       new GetUserPapersLet(username, couch, config, logger)
@@ -105,6 +114,9 @@ class CoreApi(
     // gets the list of people involved in this paper with their role
     case p"papers/$paperid/roles" =>
       new GetPaperRolesLet(paperid, couch, config, logger)
+    // gets the list of permissions for each role in this paper
+    case p"papers/$paperid/permissions" =>
+      new GetPaperPermissionsLet(paperid, couch, config, logger)
     // gets the paper data
     case p"papers/$paperid/info" =>
       new GetPaperInfoLet(paperid, couch, config, logger)

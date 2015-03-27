@@ -33,43 +33,50 @@ import com.typesafe.config.Config
 
 import gnieh.sohva.control.CouchClient
 
-class CompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef, config: Config, logger: Logger) extends AsyncRoleLet(paperId, config, logger) {
+class CompilerLet(paperId: String, val couch: CouchClient, dispatcher: ActorRef, config: Config, logger: Logger) extends AsyncPermissionLet(paperId, config, logger) {
 
-  def roleAct(user: UserInfo, role: Role)(implicit talk: HTalk): Future[Any] = role match {
-    case Author =>
+  def permissionAct(user: Option[UserInfo], role: Role, permissions: Set[Permission])(implicit talk: HTalk): Future[Any] = permissions match {
+    case Compile() =>
       val promise = Promise[CompilationStatus]()
 
       // register the client with the paper compiler
-      dispatcher ! Forward(paperId, Register(user.name, promise))
+      user.map(_.name).orElse(talk.req.param("name")) match {
+        case Some(name) =>
+          dispatcher ! Forward(paperId, Register(name, promise))
 
-      promise.future.map {
-        case CompilationSucceeded | CompilationFailed(true) =>
-          talk.writeJson(true)
-        case CompilationFailed(false) =>
-          talk
-            .setStatus(HStatus.InternalServerError)
-            .writeJson(ErrorResponse("unable_to_compile", "Compilation failed, more details in the compilation log file."))
-        case CompilationAborted =>
-          talk
-            .setStatus(HStatus.ServiceUnavailable)
-            .writeJson(ErrorResponse("unable_to_compile", s"No compilation task started"))
-        case CompilationUnnecessary =>
-          talk
-            .setStatus(HStatus.NotModified)
-            .writeJson(false)
-      } recover {
-        case e =>
-          logError(s"Unable to compile paper $paperId", e)
-          talk
-            .setStatus(HStatus.InternalServerError)
-            .writeJson(ErrorResponse("unable_to_compile", "Compilation failed, more details in the compilation log file."))
+          promise.future.map {
+            case CompilationSucceeded | CompilationFailed(true) =>
+              talk.writeJson(true)
+            case CompilationFailed(false) =>
+              talk
+                .setStatus(HStatus.InternalServerError)
+                .writeJson(ErrorResponse("unable_to_compile", "Compilation failed, more details in the compilation log file."))
+            case CompilationAborted =>
+              talk
+                .setStatus(HStatus.ServiceUnavailable)
+                .writeJson(ErrorResponse("unable_to_compile", s"No compilation task started"))
+            case CompilationUnnecessary =>
+              talk
+                .setStatus(HStatus.NotModified)
+                .writeJson(false)
+          } recover {
+            case e =>
+              logError(s"Unable to compile paper $paperId", e)
+              talk
+                .setStatus(HStatus.InternalServerError)
+                .writeJson(ErrorResponse("unable_to_compile", "Compilation failed, more details in the compilation log file."))
+          }
+        case None =>
+          Future.successful(talk
+            .setStatus(HStatus.BadRequest)
+            .writeJson(ErrorResponse("unable_to_compile", "You did not provide identity data")))
       }
 
-    case Reviewer | Other =>
+    case _ =>
       Future.successful(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "Only authors may compile a paper")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to compile the paper")))
 
   }
 

@@ -27,6 +27,7 @@ angular.module('bluelatex.Paper.Controllers.NewPaper', [])
       
       var paper = {
         template: "article",
+        visibility: "private",
         paper_title: '',
         paper_name: ''
       };
@@ -34,6 +35,11 @@ angular.module('bluelatex.Paper.Controllers.NewPaper', [])
       $scope.saving=false;
 
       $scope.paper = paper;
+
+      $scope.visibilities = {
+        "public": "public",
+        "private": "private"
+      };
 
       /* Hard-coded for now, but will be dynamically loaded later */
       $scope.templates = {

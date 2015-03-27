@@ -19,7 +19,7 @@ package impl
 package paper
 
 import http._
-import couch.Paper
+import couch.PaperPhase
 import common._
 import permission._
 
@@ -38,11 +38,11 @@ import scala.util.{
 
 import gnieh.sohva.control.CouchClient
 
-/** Handle JSON Patches that modify paper data such as paper name
+/** Handle JSON Patches that add/remove/modify permissions for the given paper
  *
  *  @author Lucas Satabin
  */
-class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
+class ModifyPermissionsLet(paperId: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperId, config, logger) {
 
   def permissionAct(user: Option[UserInfo], role: Role, permissions: Set[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
     case Configure() =>
@@ -52,17 +52,19 @@ class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, lo
           val manager = entityManager("blue_papers")
           // the modification must be sent as a JSON Patch document
           // retrieve the paper object from the database
-          manager.getComponent[Paper](paperId) flatMap {
-            case Some(paper) if paper._rev == knownRev =>
+          manager.getComponent[PaperPhase](paperId) flatMap {
+            case Some(phase @ PaperPhase(_, _, permissions, _)) if phase._rev == knownRev =>
               talk.readJson[JsonPatch] match {
                 case Some(patch) =>
                   // the revision matches, we can apply the patch
-                  val paper1 = patch(paper).withRev(knownRev)
+                  val permissions1 = patch(permissions)
+                  val permissions2 =
+                    phase.copy(permissions = permissions1).withRev(knownRev)
                   // and save the new paper data
-                  for(p <- manager.saveComponent(paperId, paper1))
+                  for(r <- manager.saveComponent(paperId, permissions2))
                     // save successfully, return ok with the new ETag
                     // we are sure that the revision is not empty because it comes from the database
-                    yield talk.writeJson(true, p._rev.get)
+                    yield talk.writeJson(true, r._rev.get)
                 case None =>
                   // nothing to do
                   Success(
@@ -70,13 +72,12 @@ class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, lo
                       .setStatus(HStatus.NotModified)
                       .writeJson(ErrorResponse("nothing_to_do", "No changes sent")))
               }
-
             case Some(_) =>
               // nothing to do
               Success(
                 talk
                   .setStatus(HStatus.Conflict)
-                  .writeJson(ErrorResponse("conflict", "Old paper info revision provided")))
+                  .writeJson(ErrorResponse("conflict", "Old role revision provided")))
 
             case None =>
               // unknown paper
@@ -105,7 +106,7 @@ class ModifyPaperLet(paperId: String, val couch: CouchClient, config: Config, lo
       Success(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to modify the paper data")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to modify the permissions")))
   }
 
 }

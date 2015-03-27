@@ -205,6 +205,11 @@
         "description":"Template"
     },
     {
+        "key":"_Visibility_",
+        "value":"Visibility",
+        "description":"Visibility"
+    },
+    {
         "key":"_Create_",
         "value":"Create",
         "description":"Create"
@@ -1043,7 +1048,11 @@
         "value":"The template of the paper.",
         "description":"tooltip paper page: paper template"
     },
-
+    {
+        "key":"_paper_visbility_tooltip_",
+        "value":"private papers can only be edited by authors, whereas public ones can be edited by anybody (even unregistered people).",
+        "description":"tooltip paper page: private paper"
+    },
 
     {
         "key":"_email_tooltip_",

@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package gnieh.blue
-package couch
+package gnieh.blue.couch
 
-import gnieh.sohva.IdRev
+import gnieh.sohva._
 
-import permission.{
-  Phase,
-  Role,
-  Permission
-}
-
-/** Phase component that can be attached to a paper entity.
- *  It associates the current phase to a paper and the next allowed phases as well
- *  as the permissions for this phase.
+/** Users may define their own set of permissions and save them so
+ *  that he can reuse them later on.
  *
  *  @author Lucas Satabin
+ *
  */
-case class PaperPhase(_id: String, phase: String, permissions: Map[String, Set[Permission]], next: List[Phase]) extends IdRev
+case class UserPermissions(_id: String,
+                           permissions: Map[String, Map[String, Set[String]]]) extends IdRev

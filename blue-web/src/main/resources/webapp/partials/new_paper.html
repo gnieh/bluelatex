@@ -40,6 +40,18 @@
               </select>
             </div>
         </div>
+        <div class="grid">
+            <div class="col c1-3">
+                <label for="visibility" data-i18n="_Visibility_" i18n-Tooltip="_paper_visibility_tooltip_"></label>
+            </div>
+            <div class="col c2-3 form-group"
+              ng-class="{'has-error': newPaperForm.visibility.$invalid}">
+              <select class="form-control" id="visibility" name="visibility"
+                data-i18n-attr="_Visibility_|placeholder" ng-model="paper.visibility"
+                ng-options="key as visibility for (key, visibility) in visibilities">
+              </select>
+            </div>
+        </div>
         <a class="button" href="#/papers" data-i18n="_Cancel_"></a>
         <button type="submit" ng-disabled="!newPaperForm.$valid || saving"  ng-class="{'process': saving}" data-i18n="_Create_"></button>
     </form>

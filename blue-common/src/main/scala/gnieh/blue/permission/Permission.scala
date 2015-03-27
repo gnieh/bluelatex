@@ -20,32 +20,7 @@ package permission
  *
  *  @author Lucas Satabin
  */
-sealed trait Permission
-case object Publish extends Permission
-case object Configure extends Permission
-case object Edit extends Permission
-case object Compile extends Permission
-case object Download extends Permission
-case object Read extends Permission
-case object Comment extends Permission
-case object Chat extends Permission
-case object Fork extends Permission
-case object ChangePhase extends Permission
-
-object Permission {
-
-  def apply(name: String): Option[Permission] = name match {
-    case "publish"      => Some(Publish)
-    case "configure"    => Some(Configure)
-    case "edit"         => Some(Edit)
-    case "compile"      => Some(Compile)
-    case "download"     => Some(Download)
-    case "read"         => Some(Read)
-    case "comment"      => Some(Comment)
-    case "chat"         => Some(Chat)
-    case "fork"         => Some(Fork)
-    case "change-phase" => Some(ChangePhase)
-    case _              => None
-  }
-
+final case class Permission(val name: String) {
+  def unapply(permissions: Set[Permission]): Boolean =
+    permissions.contains(this)
 }

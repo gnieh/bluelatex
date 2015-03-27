@@ -52,6 +52,26 @@ class CompilationSpec extends BlueScenario with SomeUsers with SomePapers {
 
     }
 
+    scenario("A reviewer should be able to register to compilation stream") {
+
+      Given("an authenticated person")
+      val (loggedin, _) = login(gerard)
+
+      loggedin should be(true)
+
+      When("he tries to register to a compilation stream")
+      val exn = evaluating {
+        post[Boolean](List("papers", paper2._id, "compiler"), Map(), headers = Map("Content-Length" -> "0", "Content-Type" -> "application/json"))
+      } should produce[BlueErrorException]
+
+      Then("the server authorizes the registration")
+      exn.status should be(503)
+      val error = exn.error
+      error.name should be("unable_to_compile")
+      error.description should be("No compilation task started")
+
+    }
+
     scenario("An unauthenticated user cannot register to a compilation stream") {
 
       Given("an unauthenticated person")
@@ -61,30 +81,10 @@ class CompilationSpec extends BlueScenario with SomeUsers with SomePapers {
       } should produce[BlueErrorException]
 
       Then("he receives an error message")
-      exn.status should be(401)
-      val error = exn.error
-      error.name should be("unauthorized")
-      error.description should be("This action is only permitted to authenticated people")
-
-    }
-
-    scenario("A reviewer cannot register to a compilation stream") {
-
-      Given("an authenticated person")
-      val (loggedin, _) = login(gerard)
-
-      loggedin should be(true)
-
-      When("he tries to register to a compilation stream of a paper for which he is reviewer")
-      val exn = evaluating {
-        post[Boolean](List("papers", paper2._id, "compiler"), Map(), headers = Map("Content-Length" -> "0", "Content-Type" -> "application/json"))
-      } should produce[BlueErrorException]
-
-      Then("he receives an error message")
       exn.status should be(403)
       val error = exn.error
       error.name should be("no_sufficient_rights")
-      error.description should be("Only authors may compile a paper")
+      error.description should be("You have no permission to compile the paper")
 
     }
 
@@ -104,7 +104,7 @@ class CompilationSpec extends BlueScenario with SomeUsers with SomePapers {
       exn.status should be(403)
       val error = exn.error
       error.name should be("no_sufficient_rights")
-      error.description should be("Only authors may compile a paper")
+      error.description should be("You have no permission to compile the paper")
 
     }
 

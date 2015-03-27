@@ -32,7 +32,7 @@ import permission._
 
 import couch.{
   Paper,
-  PaperRole
+  PaperPhase
 }
 
 import com.typesafe.config.Config
@@ -52,25 +52,19 @@ import gnieh.sohva.control.CouchClient
  *
  *  @author Lucas Satabin
  */
-class GetPaperRolesLet(paperid: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperid, config, logger) {
+class GetPaperPermissionsLet(paperid: String, val couch: CouchClient, config: Config, logger: Logger) extends SyncPermissionLet(paperid, config, logger) {
 
   def permissionAct(user: Option[UserInfo], role: Role, permissions: Set[Permission])(implicit talk: HTalk): Try[Unit] = permissions match {
     case Configure() =>
       val manager = entityManager("blue_papers")
-      for(roles <- manager.getComponent[PaperRole](paperid))
-        yield roles match {
-          // we are sure that the paper has a revision because it comes from the database
-          case Some(roles) =>
-            talk.writeJson(Map("authors" -> roles.authors.users, "reviewers" -> roles.reviewers.users, "guests" -> roles.guests.users), roles._rev.get)
-          case None =>
-            talk.setStatus(HStatus.NotFound).writeJson(ErrorResponse("not_found", s"Paper $paperid not found"))
-        }
+      for(Some(phase @ PaperPhase(_, _, permissions, _)) <- manager.getComponent[PaperPhase](paperid))
+        yield talk.writeJson(permissions, phase._rev.get)
 
     case _ =>
       Try(
         talk
           .setStatus(HStatus.Forbidden)
-          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to see paper roles")))
+          .writeJson(ErrorResponse("no_sufficient_rights", "You have no permission to see paper permissions")))
   }
 
 }
