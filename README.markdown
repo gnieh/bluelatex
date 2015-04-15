@@ -1,12 +1,14 @@
 \BlueLaTeX [![Build Status](https://travis-ci.org/gnieh/bluelatex.png?branch=master)](https://travis-ci.org/gnieh/bluelatex)
 ==========
 
-The \BlueLaTeX server and web client that allows people to collaboratively write LaTeX documents with real-time synchronization.
+\BlueLaTeX is an open-source server and web client that allows people to collaboratively write LaTeX documents in a browser with real-time synchronization. It has a true open-source philosophy and process and welcomes contributions. 
 
-<http://www.publications.li/blue> runs \BlueLaTeX.
+Known public instances:
 
-\BlueLaTeX is free open-source software, which offers you several advantages.
-It is still under heavy development but our goals are the following:
+* <http://demo.bluelatex.org> 
+* <http://blue.publications.li/> 
+
+Our goals are the following:
  - as a user:
    - you can have your own instance, running on your server, and keep your data at home,
    - it offers you a clear Restful API which allows for interoperability, to integrate the service with your favorite \LaTeX editor,
