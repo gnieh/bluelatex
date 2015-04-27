@@ -3,6 +3,8 @@
 
 \BlueLaTeX is an open-source server and web client that allows people to collaboratively write LaTeX documents in a browser with real-time synchronization. It has a true open-source philosophy and process and welcomes contributions. 
 
+\BlueLaTeX is an official Mozilla Science project:  <http://www.mozillascience.org/projects/gnieh-bluelatex/>
+
 Known public instances:
 
 * <http://demo.bluelatex.org> 
