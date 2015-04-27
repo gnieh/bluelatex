@@ -24,10 +24,6 @@ import http._
 import permission._
 
 import java.util.UUID
-import java.io.{
-  File,
-  FileWriter
-}
 
 import tiscaf._
 
