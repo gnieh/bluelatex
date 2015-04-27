@@ -271,12 +271,16 @@ class SyncActor(
   def processMessage(syncContext: SyncContext, peer: PeerId, message: Message): SyncActionResult = {
     logDebug(s"Process message: $message")
 
-    val updatedMessages = for {
-      p <- syncContext.messages.keys
-      if (p != peer)
-    } yield (p, message :: syncContext.messages(p))
+    if(syncContext.messages.contains(peer)) {
+      val updatedMessages = for {
+        p <- syncContext.messages.keys
+        if p != peer
+      } yield (p, message :: syncContext.messages(p))
 
-    SyncActionResult(syncContext.updateMessages(updatedMessages.toMap + (peer -> syncContext.messages(peer))), Nil)
+      SyncActionResult(syncContext.updateMessages(updatedMessages.toMap + (peer -> syncContext.messages(peer))), Nil)
+    } else {
+      SyncActionResult(syncContext, Nil)
+    }
   }
 
   def retrieveMessages(syncContext: SyncContext, peer: PeerId, paperId: PaperId): SyncActionResult =
