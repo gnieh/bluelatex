@@ -260,7 +260,7 @@ abstract class AsyncPermissionLet(val paperId: String, config: Config, logger: L
       Some(roles) <- manager.getComponent[PaperRole](paperId)
       PaperPhase(_, _, permissions, _) <- ensureComponent[PaperPhase](defaultPhase)
       role = roles.roleOf(user)
-    } yield (role, permissions(role.toString))
+    } yield (role, permissions(role.toString.toLowerCase))
 
   private def ensureComponent[T <: IdRev: Manifest](default: String => T)(implicit talk: HTalk): Try[T] = {
     val manager =  entityManager("blue_papers")
