@@ -28,7 +28,9 @@ import java.util.{
 }
 import java.io.{
   File,
-  FileWriter
+  FileOutputStream,
+  OutputStreamWriter,
+  BufferedWriter
 }
 
 import tiscaf._
@@ -106,7 +108,7 @@ class CreatePaperLet(
             }
 
             // write the template to the newly created paper
-            for(fw <- managed(new FileWriter(configuration.paperFile(newId)))) {
+            for(fw <- managed(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configuration.paperFile(newId)), "UTF-8")))) {
               fw.write(
                 templates.layout(
                   s"$templateName.tex",
