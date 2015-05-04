@@ -260,7 +260,7 @@ abstract class AsyncPermissionLet(val paperId: String, config: Config, logger: L
       Some(roles) <- manager.getComponent[PaperRole](paperId)
       PaperPhase(_, _, permissions, _) <- ensureComponent[PaperPhase](defaultPhase)
       role = roles.roleOf(user)
-    } yield (role, permissions(role.toString))
+    } yield (role, permissions(role.toString.toLowerCase))
 
   private def ensureComponent[T <: IdRev: Manifest](default: String => T)(implicit talk: HTalk): Try[T] = {
     val manager =  entityManager("blue_papers")
@@ -278,11 +278,11 @@ abstract class AsyncPermissionLet(val paperId: String, config: Config, logger: L
   private val defaultRoles = {
     val defaultConfig = config.getConfig("blue.permissions.private")
     Map[String,Set[Permission]](
-      Author.toString -> defaultConfig.getStringList("author").asScala.map(name => Permission(name)).toSet,
-      Reviewer.toString -> defaultConfig.getStringList("reviewer").asScala.map(name => Permission(name)).toSet,
-      Guest.toString -> defaultConfig.getStringList("guest").asScala.map(name => Permission(name)).toSet,
-      Other.toString -> defaultConfig.getStringList("other").asScala.map(name => Permission(name)).toSet,
-      Anonymous.toString -> defaultConfig.getStringList("anonymous").asScala.map(name => Permission(name)).toSet
+      Author.toString.toLowerCase -> defaultConfig.getStringList("author").asScala.map(name => Permission(name)).toSet,
+      Reviewer.toString.toLowerCase -> defaultConfig.getStringList("reviewer").asScala.map(name => Permission(name)).toSet,
+      Guest.toString.toLowerCase -> defaultConfig.getStringList("guest").asScala.map(name => Permission(name)).toSet,
+      Other.toString.toLowerCase -> defaultConfig.getStringList("other").asScala.map(name => Permission(name)).toSet,
+      Anonymous.toString.toLowerCase -> defaultConfig.getStringList("anonymous").asScala.map(name => Permission(name)).toSet
     )
   }
 
@@ -337,11 +337,11 @@ abstract class SyncPermissionLet(val paperId: String, config: Config, logger: Lo
   private val defaultRoles = {
     val defaultConfig = config.getConfig("blue.permissions.private")
     Map[String,Set[Permission]](
-      Author.toString -> defaultConfig.getStringList("author").asScala.map(name => Permission(name)).toSet,
-      Reviewer.toString -> defaultConfig.getStringList("reviewer").asScala.map(name => Permission(name)).toSet,
-      Guest.toString -> defaultConfig.getStringList("guest").asScala.map(name => Permission(name)).toSet,
-      Other.toString -> defaultConfig.getStringList("other").asScala.map(name => Permission(name)).toSet,
-      Anonymous.toString -> defaultConfig.getStringList("anonymous").asScala.map(name => Permission(name)).toSet
+      Author.toString.toLowerCase -> defaultConfig.getStringList("author").asScala.map(name => Permission(name)).toSet,
+      Reviewer.toString.toLowerCase -> defaultConfig.getStringList("reviewer").asScala.map(name => Permission(name)).toSet,
+      Guest.toString.toLowerCase -> defaultConfig.getStringList("guest").asScala.map(name => Permission(name)).toSet,
+      Other.toString.toLowerCase -> defaultConfig.getStringList("other").asScala.map(name => Permission(name)).toSet,
+      Anonymous.toString.toLowerCase -> defaultConfig.getStringList("anonymous").asScala.map(name => Permission(name)).toSet
     )
   }
 
