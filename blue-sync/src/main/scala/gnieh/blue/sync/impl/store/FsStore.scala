@@ -18,13 +18,21 @@ package sync
 package impl
 package store
 
-import scala.io._
-import java.io._
+import scala.io.{
+  Codec,
+  Source
+}
+import java.io.{
+  File,
+  FileOutputStream,
+  OutputStreamWriter,
+  BufferedWriter
+}
 import java.nio.charset.CodingErrorAction
 
 import scala.util.{Try, Success, Failure}
 
-import resource._
+import resource.managed
 
 /** Stores documents as files on the file system.
  *
@@ -32,7 +40,7 @@ import resource._
  */
 class FsStore extends Store {
 
-  implicit val codec = Codec("UTF-8")
+  val codec = Codec("UTF-8")
   codec.onMalformedInput(CodingErrorAction.REPLACE)
   codec.onUnmappableCharacter(CodingErrorAction.REPLACE)
 
@@ -45,7 +53,7 @@ class FsStore extends Store {
     }
 
     // write to file system
-    for(writer <- managed(new BufferedWriter(new FileWriter(file)))) {
+    for(writer <- managed(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8")))) {
       writer.write(document.text)
       writer.flush()
     }
@@ -54,7 +62,7 @@ class FsStore extends Store {
   def load(documentPath: String): Document = {
     val file = new File(documentPath)
     if (file.exists) {
-      managed(Source.fromFile(file)).acquireAndGet { source =>
+      managed(Source.fromFile(file)(codec)).acquireAndGet { source =>
         new Document(documentPath, source.mkString)
       }
     } else {

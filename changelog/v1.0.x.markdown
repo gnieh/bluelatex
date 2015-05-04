@@ -57,3 +57,11 @@ Patch release with a major synchronization bug fix and few UI improvements.
  - Fix persistent cursor after an author left the paper (issue #195)
  - Cleanup error and wraning upon compilation (issue #201)
  - Improvements in the UI
+
+Version 1.0.6
+-------------
+
+Bug fix release with a synchronization bug fix and file encoding fix.
+
+ - Fix synchronization bug that may lead to data loss (issue #214)
+ - Fix file encoding bug (issue #209)
