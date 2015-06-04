@@ -109,35 +109,76 @@ class SyncActorSpec extends TestKit(ActorSystem("SyncActorSpec"))
 
   feature("A synchronization actor should handle commands from one client") {
 
-    scenario("a user sends a delta command on an empty file") {
+    scenario("a user registers on a paper with an empty delta command") {
+      When("A client sends an empty delta command")
 
-      Given("a fresh synchronization actor")
-      val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
-
-      And("a delta from user")
-      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(Add("Hello")), false))))
-
-      When("he sends the message")
+      val syncActor = TestActorRef(new SyncActor(config, "fakePaperId", store, dmp, logger))
+      val request = SyncSession("user", "fakePaperId", List(SyncCommand("testPaper", 0,  Delta(0 , List(), false))))
       syncActor ! request
 
-      Then("the actor should process the delta and sends back a response")
-      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 1, Delta(0, List(Equality(5)), false)))))
+      Then("the server version number is increased and becomes 1 (even for an empty delta command)")
+      expectMsg(SyncSession("user", "fakePaperId", List(SyncCommand("testPaper", 1,  Delta(0 , List(), false)))))
+    }
 
+    
+    scenario("a user sends a delta command on an empty file") {
+
+      When("A user send some content using delta on an empty file")
+      // the config comes from src/main/configuration/org.gnieh.blue.common/application.conf
+      val syncActor = TestActorRef(new SyncActor(config, "fakePaperId", store, dmp, logger))
+      // before this, testPaper does not exist
+      val request = SyncSession("user", "fakePaperId", List(
+        SyncCommand("testPaper", 
+        0, // server revision number
+        Delta(0 // local client revision number
+        , List(Add("Hello")), false))))
+      syncActor ! request
+
+      Then("the new server revision is 1 and an equality command is sent")
+      expectMsg(SyncSession("user", "fakePaperId", List(
+        SyncCommand("testPaper", 
+                    1, // one is the new server revision 
+                    Delta(0, 
+                    List(Equality(5)), false))
+        ))
+      )
+
+      When("Another user sends an empty delta on an non-empty file")
+      // before this, testPaper does not exist
+      val request2 = SyncSession("user2", "fakePaperId", List(SyncCommand("testPaper", 0,  Delta(0 , List(), false))))
+      syncActor ! request2
+
+      Then("he receives the content")
+      expectMsg(SyncSession("user2", "fakePaperId",List(SyncCommand("testPaper", 1, // the new version is 1
+        Delta(0 , List(Add("Hello")), false)))))
+
+    }
+
+    scenario("a user sends a wrong first delta command") {
+      When("A user sens a first delta command with a local version number that is not 0")
+      // the config comes from src/main/configuration/org.gnieh.blue.common/application.conf
+      val syncActor = TestActorRef(new SyncActor(config, "fakePaperId", store, dmp, logger))
+      val request = SyncSession("user", "", List(
+        SyncCommand("testPaper", 
+        0, 
+        Delta(11 // a first request should always start by 0
+        , List(Add("Hello")), false))))
+      syncActor ! request
+
+      Then("The server sends a raw command and forces the client to start with revision 0")
+      expectMsg(SyncSession("user", "", List(SyncCommand("testPaper", 1, Raw(0, "", false)))))
     }
 
     scenario("a user sends a raw command on an empty file") {
 
-      Given("a fresh synchronization actor")
+      When("a user sends a raw command on an empty file")
       val syncActor = TestActorRef(new SyncActor(config, "paperId", store, dmp, logger))
-
-      And("a delta from user")
-      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Raw(0, "", false))))
-
-      When("he sends the message")
+      val request = SyncSession("user", "paperId", List(SyncCommand("testPaper", 123, Raw(42, "foo", false))))
       syncActor ! request
 
-      Then("the actor should process the raw and sends back a response")
-      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 0, Delta(0, List(), false)))))
+      Then("the server accepts the content and the revision number")
+      // Martin: I'd prefer that at least a raw version can only be sent to the latest server revision
+      expectMsg(SyncSession("user", "paperId", List(SyncCommand("testPaper", 42, Delta(123, List(Equality("foo".length())), false)))))
 
     }
 
