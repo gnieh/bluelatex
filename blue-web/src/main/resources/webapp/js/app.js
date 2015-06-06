@@ -190,7 +190,7 @@ angular.module('bluelatex', [
         }
       }
     });
-    // register listener to watch route changes
+    // register the listener to watch the route changes
     $rootScope.$on("$routeChangeStart", function (event, next, current) {
       if (($rootScope.loggedUser == null || $rootScope.loggedUser.name == null) && next.$$route != null && next.$$route.options && !next.$$route.options.unconnected) {
         // no logged user, we should be going to #login
