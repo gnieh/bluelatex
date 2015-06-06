@@ -36,7 +36,7 @@ class CompatibilityTests extends FlatSpec with ShouldMatchers {
                      |d:41:=200	-7	+Hello	=100
                      |F:53:file2.tex
                      |d:90:=123	+Fool	=296
-                     |""".stripMargin
+                     |""".replaceAll("\\r\\n", "\n").stripMargin
     val paperId = "paper_id"
 
     val session =
@@ -111,7 +111,7 @@ class CompatibilityTests extends FlatSpec with ShouldMatchers {
     val (convertedId, converted) = bluelatex2mobwrite(session)
 
     convertedId should be(paperId)
-    converted should be(mobwrite)
+    converted.replaceAll("\\r\\n", "\n") should be(mobwrite.replaceAll("\\r\\n", "\n"))
 
   }
 
@@ -123,7 +123,7 @@ class CompatibilityTests extends FlatSpec with ShouldMatchers {
                      |n:file
                      |U:toto
                      |n:plop
-                     |""".stripMargin
+                     |""".replaceAll("\\r\\n", "\n").stripMargin
 
     val paperId = "paper_id"
 
@@ -188,7 +188,7 @@ class CompatibilityTests extends FlatSpec with ShouldMatchers {
 
     convertedId1 should be(paperId)
     convertedId2 should be(paperId)
-    (converted1 + converted2) should be(mobwrite)
+    (converted1 + converted2).replaceAll("\\r\\n", "\n") should be(mobwrite.replaceAll("\\r\\n", "\n"))
 
   }
 
@@ -196,7 +196,7 @@ class CompatibilityTests extends FlatSpec with ShouldMatchers {
     val mobwrite = """U:fraser
                      |F:file1
                      |r:1:
-                     |""".stripMargin
+                     |""".replaceAll("\\r\\n", "\n").stripMargin
 
     val paperId = "paper_id"
 
@@ -218,7 +218,7 @@ class CompatibilityTests extends FlatSpec with ShouldMatchers {
     val mobwrite = """u:test
                      |F:2:w2d55931a5b9f4281.tex
                      |d:2:=477	+ :	=132
-                     |""".stripMargin
+                     |""".replaceAll("\\r\\n", "\n").stripMargin
 
     val paperId = "w2d55931a5b9f4281"
 
