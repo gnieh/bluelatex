@@ -161,6 +161,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
         AceMobWriteClient.message({ type: 'cursor', 'user': $rootScope.loggedUser.name });
         return MobWriteService.share({paper_id: $scope.paperId,file:$scope.currentFile.title}).then(function (){
           displayAnnotation();
+          AceService.getSession().setValue(AceService.getContent(), -1);
           $scope.toc = LatexService.parseTOC(AceService.getContent());
           AceService.getEditor().focus();
           $scope.goToLine(0, 0);
@@ -783,12 +784,12 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
               enableBasicAutocompletion: true,
               enableSnippets: true
           });
+          
           // enable autocompletation
           _editor.completers[1] = texCompleter;
           var promiseJoin = PaperService.joinPaper($scope.paperId,peerId).then(function () {
             $scope.compile();
           });
-
           $q.all([
             getSynchronizedFiles(),
             promiseJoin
