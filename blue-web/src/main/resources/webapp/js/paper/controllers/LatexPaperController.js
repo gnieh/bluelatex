@@ -120,6 +120,8 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
       $scope.pdf = null;
       $scope.revision=Math.random();
 
+      $scope.onContentOnload = true;
+
       // save the laste cursor position per file
       var cursorPositionFile = {};
 
@@ -158,12 +160,15 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
       * Start mobWrite
       */
       var initMobWrite = function () {
+        $scope.onContentOnload = true;
         AceMobWriteClient.message({ type: 'cursor', 'user': $rootScope.loggedUser.name });
         return MobWriteService.share({paper_id: $scope.paperId,file:$scope.currentFile.title}).then(function (){
           displayAnnotation();
           $scope.toc = LatexService.parseTOC(AceService.getContent());
           AceService.getEditor().focus();
           $scope.goToLine(0, 0);
+          AceService.getEditor().setReadOnly(false);
+          $scope.onContentOnload = false;
         });
       };
 
@@ -492,6 +497,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
       */
       $scope.changeFile = function (file, line) {
         var deferred = $q.defer();
+        AceService.getEditor().setReadOnly(true);
         cursorPositionFile[$scope.currentFile.title] = MobWriteService.shared[$scope.currentFile.title].captureCursor_();
         if($scope.currentFile == file) return;
         MobWriteService.unshare({paper_id: $scope.paperId,file:$scope.currentFile.title}).then(function(data) {
@@ -506,6 +512,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
             } else if(cursorPositionFile[file.title] != null) {
               MobWriteService.shared[$scope.currentFile.title].restoreCursor_(cursorPositionFile[file.title]);
             }
+            AceService.getEditor().setReadOnly(false);
             deferred.resolve(data);
           }, function(err) {
             deferred.reject(err);
@@ -752,6 +759,7 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
       * Load ACE editor
       */
       $scope.aceLoaded = function (_editor) {
+        _editor.setReadOnly(true);
         AceService.aceLoaded(_editor, function () {
           _editor.commands.addCommand({
               name: "compile",
@@ -788,11 +796,12 @@ angular.module('bluelatex.Paper.Controllers.LatexPaper', [
           var promiseJoin = PaperService.joinPaper($scope.paperId,peerId).then(function () {
             $scope.compile();
           });
-
+          _editor.setReadOnly(true);
           $q.all([
             getSynchronizedFiles(),
             promiseJoin
           ]).then(function () {
+            _editor.setReadOnly(true);
             initMobWrite();
           });
           getSyncTex();
