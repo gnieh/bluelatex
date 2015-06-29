@@ -26,11 +26,12 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
         var lastLi;
         var lastLine = 0;
         elm.text('');
+        var numbers = {};
         for (var i = 0; i < toc.length; i++) {
           var line = toc[i];
           //create a new ul/ol
           if (current == null) {
-            var l = $document[0].createElement(line.level < 4 ? 'ol' : 'ul');
+            var l = $document[0].createElement('ul');
             current = l;
             top = current;
           } else if (line.ignore == true) {
@@ -38,6 +39,7 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
             for (; j >= line.level &&  current.parentElement != null; j--) {
               current = current.parentElement;
             }
+             numbers[line.level] = 0;
             var l = $document[0].createElement('ul');
             if(current.parentElement == null && currentlevel == line.level) {
               angular.element(elm).append($compile(top)($scope));
@@ -50,7 +52,7 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
           } else if (currentlevel < line.level) {
             var j = line.level;
             for (; j > currentlevel; j--) {
-              var t = $document[0].createElement(j < 4 ? 'ol' : 'ul');
+              var t = $document[0].createElement('ul');
               current.appendChild(t);
               current = t;
             }
@@ -62,12 +64,23 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
           }
 
           currentlevel = line.level;
+          if(!numbers[currentlevel]) {
+            numbers[currentlevel] = 1;
+          } else {
+            numbers[currentlevel] ++;
+          }
+          var lineNumber = "";
+          for (var j = 1; j <= currentlevel; j++) {
+            if(numbers[j]) {
+              lineNumber += numbers[j] + ".";
+            }
+          }
 
           //create a new li
           var li = $document[0].createElement('li');
           var a = $document[0].createElement('a');
           a.setAttribute('ng-click', 'goToLine(' + line.line + ')');
-          a.innerHTML = line.title;
+          a.innerHTML = lineNumber + " " + line.title;
           li.appendChild(a);
           current.appendChild(li);
 

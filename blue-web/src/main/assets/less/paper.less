@@ -95,13 +95,17 @@
         }
     }
     .toc {
-        padding-left: 18px;
+        padding-left: 5px;
         a {
             cursor: pointer;
             color: #333;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            display: block;
+            overflow: hidden !important;
         }
         ul, ol {
-            padding-left: 10px;
+            padding-left: 0px;
             margin: 0;
         }
         ul li {
