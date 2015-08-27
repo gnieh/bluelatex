@@ -52,6 +52,8 @@ angular.module('bluelatex.Paper.Directives.Toc', [])
           } else if (currentlevel < line.level) {
             var j = line.level;
             for (; j > currentlevel; j--) {
+              // removes the handled levels
+              delete numbers[j];
               var t = $document[0].createElement('ul');
               current.appendChild(t);
               current = t;
