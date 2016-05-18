@@ -17,13 +17,13 @@ trait Server {
 
   val BlueServer = config("blue-server")
 
-  val javaHome = System.getProperty("java.home")
+  val javaHomeProp = System.getProperty("java.home")
   val user = System.getProperty("user.name")
 
   private def defaultStartJsvcOptions(cp: String) =
     List(
       "-wait", "10",
-      "-java-home", javaHome,
+      "-java-home", javaHomeProp,
       "-cp", cp,
       "-user", user,
       "-pidfile", "/tmp/bluelatex.pid",

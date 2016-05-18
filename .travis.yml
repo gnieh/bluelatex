@@ -1,7 +1,7 @@
 language: scala
 
 scala:
-  - 2.10.2
+  - 2.10.6
 
 # only trigger builds on master
 branches:
