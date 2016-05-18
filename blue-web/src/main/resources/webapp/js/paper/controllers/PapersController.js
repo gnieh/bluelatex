@@ -32,7 +32,7 @@ angular.module('bluelatex.Paper.Controllers.Papers', ['ngStorage','bluelatex.Pap
       $scope.papers = [];
 
       // load settings from localStorage
-      $scope.reverse = $localStorage.userPaperReverse;
+      $scope.reverse = $localStorage.reverse;
       if($scope.reverse == null)
         $scope.reverse = false;
 
