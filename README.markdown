@@ -8,7 +8,6 @@
 Known public instances:
 
 * <http://demo.bluelatex.org> 
-* <http://blue.publications.li/> 
 
 Our goals are the following:
  - as a user:
