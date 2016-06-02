@@ -41,4 +41,4 @@ Building \BlueLaTeX
 
 \BlueLaTeX uses [sbt](http://scala-sbt.org) as build system and dependency manager. Building \BlueLaTeX can be done by simply typing `sbt compile` in a console.
 
-For more details, if you have problems to install dependencies or to build and package \BlueLaTeX, please refer to [the documentation](http://bluelatex.gnieh.org/developers/)
+For more details, if you have problems to install dependencies or to build and package \BlueLaTeX, please refer to [the documentation](http://www.bluelatex.org/developers/)
