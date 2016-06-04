@@ -63,12 +63,24 @@ angular.module('bluelatex.Paper.Controllers.InitPaper',
       };
 
       /**
-      * Get the paper roles
+      * Get the user paper role
       */
-      var getPaperRoles = function () {
+      var getUserPaperRole = function () {
         var deferred = $q.defer();
-        PaperService.getRoles(paperId).then(function (data) {
-          deferred.resolve(data);
+        PaperService.getRoles(paperId).then(function (roles) {
+          // not connected user
+          var role = "anonymous";
+          // connected user
+          if ($rootScope.loggedUser.name != null) {
+            role = "other";
+
+            if(roles.authors.indexOf($rootScope.loggedUser.name) >= 0) {
+              role = "author";
+            } else if(roles.reviewers.indexOf($rootScope.loggedUser.name) >= 0) {
+              role = "reviewer";
+            }
+          }
+          deferred.resolve(role);
         }, function (err) {
           MessagesService.clear();
           switch (err.status) {
@@ -90,26 +102,51 @@ angular.module('bluelatex.Paper.Controllers.InitPaper',
       };
 
       /**
+      * Get the user paper permissions
+      */
+      var getUserPaperPermissions = function () {
+        var deferred = $q.defer();
+        PaperService.getPermissions(paperId).then(function (permissions) {
+          getUserPaperRole().then(function(role) {
+            deferred.resolve(permissions[role]);
+          }, deferred.reject);
+        }, function (err) {
+          MessagesService.clear();
+          switch (err.status) {
+          case 404:
+            MessagesService.error('_Get_permissions_paper_Paper_not_found_',err);
+            break;
+          case 401:
+            MessagesService.error('_Get_permissions_paper_Not_connected_',err);
+            break;
+          case 500:
+            MessagesService.error('_Get_permissions_paper_Something_wrong_happened_',err);
+            break;
+          default:
+            MessagesService.error('_Get_permissions_paper_Something_wrong_happened_',err);
+          }
+          deferred.reject(err);
+        });
+        return deferred.promise;
+      };
+
+      /**
       * Get the paper info and load the correct page
       */
       getPaperInfo().then(function(paper) {
         // change the title of the page
         $rootScope.pageTitle = "Paper - " + paper.name;
 
-        // change the type of paper
-        $scope.paperType = "latex";
-        //$scope.paperType = "markdown";
-      }).then(function() {
-        getPaperRoles().then(function(roles) {
-          // change the status of the page
-          if(roles.authors.indexOf($rootScope.loggedUser.name) >= 0) {
+        getUserPaperPermissions().then(function (permissions) {
+          // change the type of paper
+          $scope.paperType = "latex";
+          if (permissions.indexOf("view") != -1) {
             $scope.status = "author";
-          } else if(roles.reviewers.indexOf($rootScope.loggedUser.name) >= 0) {
-            $scope.status = "reviewer";
           } else {
+            $scope.paperType = "";
             $scope.status = "error";
           }
-        });
+        })
       });
     }
   ]);

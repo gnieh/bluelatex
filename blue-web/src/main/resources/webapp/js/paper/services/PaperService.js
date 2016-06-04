@@ -250,6 +250,34 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'angular-data.DSC
           ].concat($http.defaults.transformResponse)
         }
       });
+      var permissions = $resource(api_prefix + "/papers/:paper_id/permissions", null, {
+        // modify paper roles
+        "edit": {
+          method: "PATCH",
+          headers: {
+            'Content-Type': 'application/json-patch'
+          },
+          transformRequest: [
+            function (data, headersGetter) {
+              var header = headersGetter();
+              header['If-Match'] = data.etag;
+              return data.path_json;
+            }
+          ].concat($http.defaults.transformRequest)
+        },
+        // get paper roles
+        "get": {
+          method: "GET",
+          transformResponse: [
+            function (data, headersGetter) {
+              data = JSON.parse(data);
+              var header = headersGetter();
+              data.etag = header.etag;
+              return data;
+            }
+          ].concat($http.defaults.transformResponse)
+        }
+      });
       var synchronizedFile = $resource(api_prefix + "/papers/:paper_id/files/synchronized", null, {
         // get the list of synchronized file
         "get": {
@@ -451,6 +479,48 @@ angular.module('bluelatex.Paper.Services.Paper', ["ngResource",'angular-data.DSC
           _dataCache.remove('/papers/' + paperRoles.id + '/roles');
           roles.edit({
             paper_id: paperRoles.id
+          }, {
+            "etag": etag,
+            path_json: path_json
+          }).$promise.then(function (data) {
+            deferred.resolve(data);
+          }, function (error) {
+            $log.error(error);
+            deferred.reject(error);
+          }, function (progress) {
+            deferred.notify(progress);
+          });
+          return promise;
+        },
+        getPermissions: function (paper_id) {
+          var deferred = $q.defer();
+          var promise = deferred.promise;
+          if (_dataCache.get('/papers/' + paper_id + '/permissions'))
+            deferred.resolve(_dataCache.get('/papers/' + paper_id + '/permissions'));
+          else {
+            permissions.get({
+              paper_id: paper_id
+            }).$promise.then(function (data) {
+              delete data.$promise;
+              _dataCache.put('/papers/' + paper_id + '/permissions', data);
+              deferred.resolve(data);
+            }, function (error) {
+              $log.error(error);
+              deferred.reject(error);
+            }, function (progress) {
+              deferred.notify(progress);
+            });
+          }
+          return promise;
+        },
+        modifyPermissions: function (paperPermissions, oldPaperPermissions) {
+          var etag = paperPermissions.etag;
+          var path_json = jsonpatch.compare(oldPaperPermissions, paperPermissions);
+          var deferred = $q.defer();
+          var promise = deferred.promise;
+          _dataCache.remove('/papers/' + paperPermissions.id + '/permissions');
+          permissions.edit({
+            paper_id: paperPermissions.id
           }, {
             "etag": etag,
             path_json: path_json
