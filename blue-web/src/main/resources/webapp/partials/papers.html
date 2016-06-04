@@ -26,8 +26,8 @@
 					<option value="creation_date" data-i18n="_Creation_date_"></option>
 				</select>
 				<select ng-model="reverse">
-					<option value="false" data-i18n="_Ascending_"></option>
-					<option value="true" data-i18n="_Descending_"></option>
+					<option value="ascending" data-i18n="_Ascending_"></option>
+					<option value="descending" data-i18n="_Descending_"></option>
 				</select>
 			</form>
 			<div class="clear"></div>
@@ -111,13 +111,13 @@
 		<div id="paper_list" ng-class="display_style">
 			<div bl-messages></div>
 			<div class="paper header" ng-if="display_style=='list'">
-				<div class="name" data-i18n="_Name_"  ng-class="{'predicate': predicate=='name', 'reverse': reverse=='false' || reverse== false}" ng-click="orderBy('name', (reverse=='false' || reverse== false)?true:false)"></div>
-				<div class="date" data-i18n="_Creation_date_" ng-class="{'predicate': predicate=='creation_date', 'reverse': !reverse}" ng-click="orderBy('creation_date', (reverse=='false' || reverse== false)?true:false)"></div>
-				<div class="role" data-i18n="_Role_" ng-class="{'predicate': predicate=='role', 'reverse': reverse=='false' || reverse== false}" ng-click="orderBy('role', (reverse=='false' || reverse== false)?true:false)"></div>
+				<div class="name" data-i18n="_Name_"  ng-class="{'predicate': predicate=='name', 'reverse': reverse=='descending'}" ng-click="orderBy('name', reverse=='descending'?'ascending':'descending')"></div>
+				<div class="date" data-i18n="_Creation_date_" ng-class="{'predicate': predicate=='creation_date', 'reverse': reverse=='descending'}" ng-click="orderBy('creation_date', reverse=='descending'?'ascending':'descending')"></div>
+				<div class="role" data-i18n="_Role_" ng-class="{'predicate': predicate=='role', 'reverse': reverse=='descending'}" ng-click="orderBy('role', reverse=='descending'?'ascending':'descending')"></div>
 				<!--<div class="tags" data-i18n="_Tags_"></div>-->
 				<div class="options" data-i18n="_Options_"></div>
 			</div>
-			<div class="paper" ng-repeat="paper in papers | filter:search | filter:dateFilter | filter:roleFilter | orderBy:predicate:reverse">
+			<div class="paper" ng-repeat="paper in papers | filter:search | filter:dateFilter | filter:roleFilter | orderBy:predicate:reverse=='descending'">
 				<!---
 				<div class="icon">
 					<a href="#/paper/{{paper.id}}">
