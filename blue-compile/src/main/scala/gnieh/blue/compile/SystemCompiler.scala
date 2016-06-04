@@ -67,6 +67,10 @@ abstract class SystemCompiler(system: ActorSystem, config: Config, texmfcnf: Fil
     exec(s"bibtex main.aux", configuration.buildDir(paperId))
   }
 
+  def makeindex(paperId: String, settings: CompilerSettings)(implicit timeout: Timeout): Try[Boolean] = {
+    exec(s"makeindex main.idx", configuration.buildDir(paperId))
+  }
+
   protected def buildDir(paperId: String) = configuration.buildDir(paperId).getCanonicalPath
   protected def paperFile(paperId: String) = configuration.paperFile(paperId).getName
 
