@@ -173,6 +173,26 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
           if(pdf!=null)
             renderPdf(pdf);
         });
+        /**
+         * Returns scale factor for the canvas. It makes sense for the HiDPI displays.
+         * @return {Object} The object with horizontal (sx) and vertical (sy)
+                            scales. The scaled property is set to false if scaling is
+                            not required, true otherwise.
+         */
+        function getOutputScale(ctx) {
+          var devicePixelRatio = window.devicePixelRatio || 1;
+          var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
+                                  ctx.mozBackingStorePixelRatio ||
+                                  ctx.msBackingStorePixelRatio ||
+                                  ctx.oBackingStorePixelRatio ||
+                                  ctx.backingStorePixelRatio || 1;
+          var pixelRatio = devicePixelRatio / backingStoreRatio;
+          return {
+            sx: pixelRatio,
+            sy: pixelRatio,
+            scaled: pixelRatio !== 1
+          };
+        }
         // create the pdf preview
         function renderPage(page) {
           var parent = element[0];
@@ -207,16 +227,16 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
           
           var cssScale = 'scale(' + (1 / outputScale.sx) + ', ' +
               (1 / outputScale.sy) + ')';
-          CustomStyle.setProp('transform', canvas, cssScale);
-          CustomStyle.setProp('transformOrigin', canvas, '0% 0%');
+          PDFJS.CustomStyle.setProp('transform', canvas, cssScale);
+          PDFJS.CustomStyle.setProp('transformOrigin', canvas, '0% 0%');
 
           if (textLayerDiv) {
-              CustomStyle.setProp('transform', textLayerDiv, cssScale);
-              CustomStyle.setProp('transformOrigin', textLayerDiv, '0% 0%');
+              PDFJS.CustomStyle.setProp('transform', textLayerDiv, cssScale);
+              PDFJS.CustomStyle.setProp('transformOrigin', textLayerDiv, '0% 0%');
           }
           if(hightlights) {
-              CustomStyle.setProp('transform', hightlights, cssScale);
-              CustomStyle.setProp('transformOrigin', hightlights, '0% 0%');
+              PDFJS.CustomStyle.setProp('transform', hightlights, cssScale);
+              PDFJS.CustomStyle.setProp('transformOrigin', hightlights, '0% 0%');
           }
 
           context._scaleX = outputScale.sx;
