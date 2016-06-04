@@ -53,5 +53,10 @@ trait Compiler {
    */
   def bibtex(paperId: String, settings: CompilerSettings)(implicit timeout: Timeout): Try[Boolean]
 
+  /** Do the makeindex task for a paper, given the base directory
+   *  containing the paper files.
+   */
+  def makeindex(paperId: String, settings: CompilerSettings)(implicit timeout: Timeout): Try[Boolean]
+
 }
 

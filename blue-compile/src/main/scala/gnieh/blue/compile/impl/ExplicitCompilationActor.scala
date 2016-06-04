@@ -121,6 +121,7 @@ class ExplicitCompilationActor(
           res <- compiler.compile(paperId, settings)
           // we run bibtex on it if the compilation succeeded
           _ <- compiler.bibtex(paperId, settings)
+          _ <- compiler.makeindex(paperId, settings)
         } yield {
           // clean the generated png files when compilation succeeded
           for(file <- paperConfig.buildDir(paperId).filter(_.extension == ".png"))
