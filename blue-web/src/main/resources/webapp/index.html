@@ -80,25 +80,11 @@
 
     var debug = true;
 
-    $script('lib/pdfjs/src/shared/util.js', function(){
-      $script([
-        'lib/pdfjs/src/shared/util.js',
-        'lib/pdfjs/src/shared/colorspace.js',
-        'lib/pdfjs/src/shared/function.js',
-        'lib/pdfjs/src/shared/annotation.js',
-        'lib/pdfjs/src/display/api.js',
-        'lib/pdfjs/src/display/metadata.js',
-        'lib/pdfjs/src/display/canvas.js',
-        'lib/pdfjs/src/display/webgl.js',
-        'lib/pdfjs/src/display/pattern_helper.js',
-        'lib/pdfjs/src/display/font_loader.js',
-        'lib/pdfjs/web/ui_utils.js',
-        'lib/pdfjs/web/text_layer_builder.js'
-      ]);
+    $script('lib/pdfjs/pdf.js', function(){      
       // Specify the main script used to create a new PDF.JS web worker.
       // In production, leave this undefined or change it to point to the
       // combined `pdf.worker.js` file.
-      PDFJS.workerSrc = 'lib/pdfjs/src/worker_loader.js';
+      PDFJS.workerSrc = 'lib/pdfjs/pdf.worker.js';
     });
 
     $script([
