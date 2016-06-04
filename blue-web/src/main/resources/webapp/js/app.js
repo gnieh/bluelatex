@@ -19,7 +19,6 @@
 angular.module('bluelatex', [
   'localization',
   'ngRoute',
-  'ngInputDate',
   'reCAPTCHA',
   'autoFillSync',
   'bluelatex.Paper.Controllers.InitPaper',
