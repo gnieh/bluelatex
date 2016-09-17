@@ -58,8 +58,9 @@ abstract class SystemCompiler(system: ActorSystem, config: Config, texmfcnf: Fil
     // cannot handle compilation in a different directory correctly
     // technology from the 80's has limitations...
     // http://tex.stackexchange.com/questions/12686/how-do-i-run-bibtex-after-using-the-output-directory-flag-with-pdflatex-when-f
+    // Also need to copy any bst style for thos to work. See #274
     import FileUtils._
-    for(file <- configuration.paperDir(paperId).filter(_.extension == ".bib")) {
+    for(file <- configuration.paperDir(paperId).filter(f => List(".bib", ".bst").contains(f.extension))) {
       val destfile = configuration.buildDir(paperId) / file.getName
       (file #> destfile).!
     }
