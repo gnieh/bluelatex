@@ -5,10 +5,6 @@
 
 \BlueLaTeX is an official Mozilla Science project:  <http://www.mozillascience.org/projects/gnieh-bluelatex/>
 
-Known public instances:
-
-* <http://demo.bluelatex.org> 
-
 Our goals are the following:
  - as a user:
    - you can have your own instance, running on your server, and keep your data at home,
