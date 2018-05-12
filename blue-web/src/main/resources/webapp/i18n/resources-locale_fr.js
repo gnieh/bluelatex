@@ -648,6 +648,16 @@
         "value":"Nom du fichier",
         "description":"Filename"
     },
+    {
+        "key":"_Open_PDF_popup_",
+        "value":"Aperçu détaché",
+        "description":"Button Open PDF in a popup"
+    },
+    {
+        "key":"_open_PDF_popup_tooltip_",
+        "value":"Ouvrir la PDF dans une fenêtre externe.",
+        "description":"Tooltip button Open PDF in a popup"
+    },
 
 
     {

@@ -64,7 +64,7 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
               if(!$scope.synctex.blockNumberLine[file][line][$scope.page]) return;
               // get all elements of the current line
               var elems = $scope.synctex.blockNumberLine[file][line][$scope.page];
-              if(!isArray(elems) || !elems[0]) return;
+              if(!elems.length || !elems[0]) return;
 
               var lines = [];
               var cLine = {
@@ -173,26 +173,6 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
           if(pdf!=null)
             renderPdf(pdf);
         });
-        /**
-         * Returns scale factor for the canvas. It makes sense for the HiDPI displays.
-         * @return {Object} The object with horizontal (sx) and vertical (sy)
-                            scales. The scaled property is set to false if scaling is
-                            not required, true otherwise.
-         */
-        function getOutputScale(ctx) {
-          var devicePixelRatio = window.devicePixelRatio || 1;
-          var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
-                                  ctx.mozBackingStorePixelRatio ||
-                                  ctx.msBackingStorePixelRatio ||
-                                  ctx.oBackingStorePixelRatio ||
-                                  ctx.backingStorePixelRatio || 1;
-          var pixelRatio = devicePixelRatio / backingStoreRatio;
-          return {
-            sx: pixelRatio,
-            sy: pixelRatio,
-            scaled: pixelRatio !== 1
-          };
-        }
         // create the pdf preview
         function renderPage(page) {
           var parent = element[0];
@@ -566,7 +546,7 @@ angular.module('bluelatex.Latex.Directives.Preview', ['bluelatex.Paper.Services.
               prev = visible;
             }
             $scope.$apply(function () {
-              $scope.currentPage = (witchMax +1);
+              $scope.$parent.currentPage = (witchMax +1);
             });
           }, 10);
         });
